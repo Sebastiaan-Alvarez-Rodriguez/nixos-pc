@@ -19,3 +19,13 @@ sudo nixos-rebuild boot --rollback
 
 The rollback commands can be repeatedly executed to keep rolling back to previous versions.
 This does not change your `configuration.nix`, however.
+
+### Cheatsheet
+
+```bash
+nix-channel --update         # Update installed packages (requires rebuild switch for changes to take effect)
+nix-collect-garbage -d       # removes previous build leftovers
+nix search <package name>    # search for a nix package
+man configuration.nix        # docs for /etc/nixos/configuration.nix. Note: the paths below each option are the same in the nixpkgs repo.
+man home-configuration.nix   # docs for home-manager, in ~/.config/nixpkgs/home.nix
+```
