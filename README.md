@@ -1,13 +1,32 @@
 # nixos-pc
 NixOS config for a desktop pc (amd gpu)
 
-## Installation
-Get this repository on your device in `/etc/nixos`, then type:
+## Flakes
+
+### Installation
+
+Clone this repo, get in the project root, and execute:
+```bash
+sudo nixos-rebuild switch --flake .#
+```
+
+## Regular NixOS
+When not dealing with flakes, we have only 3 config files:
+ - `/etc/nixos/configuration.nix` (global definitions)
+ - `~/.config/nixpkgs/home.nix` (local definitions)
+
+### Installation
+Get the `configuration.nix` of any host in the repo's [`/hosts/`](/hosts/) repository on your device in `/etc/nixos`, then type:
 ```bash
 sudo nixos-rebuild switch
 ```
 
+Then get the `home.nix` from any user in the repo's [`/users/`](/users/) repository on your device in `~/.config/nixpkgs/home.nix`, then type:
+```bash
+home-manager switch
+```
 
+# General Advice
 ## Development
 When developing, the most important is knowing your way back in case of a screw-up.
 NixOS has us covered:
@@ -17,10 +36,10 @@ sudo nixos-rebuild boot --rollback
 ...
 ```
 
-The rollback commands can be repeatedly executed to keep rolling back to previous versions.
-This does not change your `configuration.nix`, however.
+The rollback commands can be repeatedly executed to keep rolling back to previous versions of your OS installation.
+This does not change `/etc/nixos/configuration.nix`, however.
 
-### Cheatsheet
+## Cheatsheet
 
 ```bash
 nix-channel --update         # Update installed packages (requires rebuild switch for changes to take effect)
