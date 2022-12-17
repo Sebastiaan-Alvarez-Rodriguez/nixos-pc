@@ -177,9 +177,9 @@
 
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.radon = {
+  users.users.rdn = {
     isNormalUser = true;
-    description = "radon";
+    description = "rdn";
     extraGroups = [ "networkmanager" "wheel" "adbusers"];
     packages = with pkgs; [
       firefox
