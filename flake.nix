@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-22.11";
-    nixos-hardware.url = "github:nixos/nixos-hardware"; # required for polonium
+    # nixos-hardware.url = "github:nixos/nixos-hardware"; # required for polonium
     home-manager.url = "github:nix-community/home-manager/release-22.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
