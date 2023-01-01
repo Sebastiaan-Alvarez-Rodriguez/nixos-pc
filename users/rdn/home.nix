@@ -24,7 +24,7 @@
   ];
 
   home.file = { # sets background picture for xserver-provided desktop environments.
-    .background-image.source =  ../../res/background/neon_rain_3840x2160.jpg
+    ".background-image".source =  ../../res/background/neon_rain_3840x2160.jpg;
   };
 
   programs.direnv = {

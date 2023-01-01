@@ -172,6 +172,7 @@
     extraGroups = [ "networkmanager" "wheel" "adbusers"];
     packages = with pkgs; [
       firefox
+      git
       kate
       micro
       qbittorrent
