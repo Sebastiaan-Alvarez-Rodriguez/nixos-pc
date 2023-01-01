@@ -15,6 +15,31 @@ home-manager switch --flake .#<USER>
 
  > For available `USERs`, check the [`/users/`](/users/) directory.
 
+#### Installing from nixos live usb
+
+Clone this repo, get in the project root, and execute:
+```bash
+sudo mount /dev/<ROOT_PARTITION> /mnt
+sudo mount /dev/<bOOT_PARTITION> /mnt/boot
+```
+
+Next, display the hardware configuration from:
+```bash
+sudo generate-nixos-conf --show-hardware-conf
+```
+Check for the UUID's of the `/mnt` and `/mnt/boot` filesystems.
+Place those UUID's inside the `hardware-configuration.nix` from this repo.
+
+From the root of this project:
+```bash
+sudo nixos-install --flake .#<HOST>
+```
+
+After installation, do not forget to clone this repo in the installed NixOS and execute:
+```bash
+home-manager switch --flake .#<USER>
+```
+
 ## Regular NixOS
 When not dealing with flakes, we have only 3 config files:
  - `/etc/nixos/configuration.nix` (global definitions)
