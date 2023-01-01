@@ -41,8 +41,13 @@
       };
     };
   in {
-    nixosConfigurations.radon = import ./hosts/radon {
-      inherit inputs nixpkgs-config;
+    nixosConfigurations = {
+      polonium = import ./hosts/polonium {
+      	inherit inputs nixpkgs-config;
+      };
+      radon = import ./hosts/radon {
+        inherit inputs nixpkgs-config;
+      };
     };
 
     homeConfigurations.rdn = import ./users/rdn {
@@ -54,7 +59,7 @@
       system = "x86_64-linux";
     in {
       ${system} = import ./packages {
-        inherit system inputs nixpkgsConfig;
+        inherit system inputs nixpkgs-config;
       };
     };
   };

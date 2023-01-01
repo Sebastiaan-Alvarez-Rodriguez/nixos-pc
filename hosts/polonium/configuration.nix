@@ -42,7 +42,6 @@
 
   networking = {
     hostName = "polonium";
-    wireless.enable = true;
     networkmanager.enable = true;
   };
 
@@ -83,7 +82,7 @@
     xkbVariant = "";
 
     # Enable touchpad support (enabled default in most desktopManagers).
-    services.xserver.libinput.enable = true;
+    libinput.enable = true;
   };
 
   # Enable CUPS to print documents.
@@ -121,6 +120,7 @@
       STOP_CHARGE_THRESH_BAT0 = 80;
     };
   };
+  services.power-profiles-daemon.enable=false; # conflicts with tlp, https://github.com/linrunner/TLP/issues/564
 
 
   # Define a user account. Set password with ‘passwd’.
@@ -130,6 +130,7 @@
     extraGroups = [ "networkmanager" "wheel" "video" "adbusers" ];
     packages = with pkgs; [
       firefox
+      git
       kate
       micro
       qbittorrent
@@ -143,5 +144,5 @@
     pkgs.home-manager
   ];
 
-  system.stateVersion = "22.11"; # Do not change
+  system.stateVersion = "22.05"; # Do not change
 }

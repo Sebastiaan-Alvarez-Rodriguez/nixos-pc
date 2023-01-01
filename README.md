@@ -7,8 +7,13 @@ NixOS config for a desktop pc (amd gpu)
 
 Clone this repo, get in the project root, and execute:
 ```bash
-sudo nixos-rebuild switch --flake .#
+sudo nixos-rebuild switch --flake .#<HOST>
+home-manager switch --flake .#<USER>
 ```
+
+ > For available `HOSTs`, check the [`/hosts/`](/hosts/) directory.
+
+ > For available `USERs`, check the [`/users/`](/users/) directory.
 
 ## Regular NixOS
 When not dealing with flakes, we have only 3 config files:
@@ -47,4 +52,22 @@ nix-collect-garbage -d       # removes previous build leftovers
 nix search <package name>    # search for a nix package
 man configuration.nix        # docs for /etc/nixos/configuration.nix. Note: the paths below each option are the same in the nixpkgs repo.
 man home-configuration.nix   # docs for home-manager, in ~/.config/nixpkgs/home.nix
+```
+
+## Errors
+
+### DBI connect
+
+When running some command (e.g. `git`):
+```bash
+$ git
+DBI connect('dbname=/nix/var/nix/profiles/per-user/root/channels/nixos/programs.sqlite','',...) failed: unable to open database file at /run/current-system/sw/bin/command-not-found line 13.
+cannot open database '/nix/var/nix/profiles/per-user/root/channels/nixos/programs.sqlite' at /run/current-system/sw/bin/command-not-found line 13.
+```
+
+Fix:
+This happens when the `root` user is missing the nixos channel. You can fix this by adding a channel and naming it nixos:
+```bash
+$ sudo nix-channel --add https://nixos.org/channels/nixos-VERSION nixos
+$ sudo nix-channel --update nixos
 ```
