@@ -5,29 +5,56 @@
       ./hardware-configuration.nix
     ];
 
-  boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
-    efi.efiSysMountPoint = "/boot/efi";
+  boot = {
+    cleanTmpDir = true;
+    loader = {
+      systemd-boot = {
+        enable = true;
+      };
+      efi = {
+        canTouchEfiVariables = true;
+        efiSysMountPoint = "/boot/efi";
+      };
+    };
+
+    initrd = {
+      # Setup keyfile
+      secrets = {
+        "/crypto_keyfile.bin" = null;
+      };
+    };
+    kernelModules = [ "v4l2loopback" ];
+    extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
+    extraModprobeConfig = ''
+      options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
+    '';
+    # Allow NTFS reading https://nixos.wifi/wiki/NTFS
+    supportedFilesystems = [ "ntfs" ];
   };
 
-  # Setup keyfile
-  boot.initrd.secrets = {
-    "/crypto_keyfile.bin" = null;
-  };
+  # fileSystems."/mnt/CORSAIR" = { # Allow NTFS writing
+  #   device = "/dev/nvme1n1p4";
+  #   fsType = "ntfs3";
+  #   options = [ "rw" "uid=1000"];
+  # };
 
-  
-  boot.supportedFilesystems = [ "ntfs" ]; # Allow NTFS reading https://nixos.wifi/wiki/NTFS
-  fileSystems."/mnt/CORSAIR" = { # Allow NTFS writing
-    device = "/dev/nvme1n1p4";
-    fsType = "ntfs3";
-    options = [ "rw" "uid=1000"];
-  };
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   networking = {
     hostName = "polonium";
     wireless.enable = true;
     networkmanager.enable = true;
+  };
+
+  hardware.bluetooth.enable = true;
+
+
+  # Video
+  hardware.nvidia = {
+    modesetting.enable = true;
+    prime.sync.enable = true;
+    prime.offload.enable = false;
+    powerManagement.enable = true;
   };
 
   time.timeZone = "Europe/Amsterdam";
@@ -57,7 +84,6 @@
 
     # Enable touchpad support (enabled default in most desktopManagers).
     services.xserver.libinput.enable = true;
-
   };
 
   # Enable CUPS to print documents.
@@ -74,24 +100,48 @@
     pulse.enable = true;
   };
 
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+
+  # Adds adb program. Users must be added to the "adbusers" group
+  programs.adb.enable = true;
+   
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+  };
+
+  # Power saving
+  services.tlp = {
+    enable = true;
+    settings = {
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+      START_CHARGE_THRESH_BAT0 = 75;
+      STOP_CHARGE_THRESH_BAT0 = 80;
+    };
+  };
+
+
   # Define a user account. Set password with ‘passwd’.
   users.users.rdn = {
     isNormalUser = true;
     description = "rdn";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "adbusers" ];
     packages = with pkgs; [
       firefox
-      git
-      wget
-      micro
       kate
+      micro
+      qbittorrent
+      vlc
+      wget
     ];
+    shell = pkgs.fish;
   };
 
   environment.systemPackages = with pkgs; [
     pkgs.home-manager
   ];
 
-
-  system.stateVersion = "22.05"; # Do not change
+  system.stateVersion = "22.11"; # Do not change
 }

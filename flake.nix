@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-22.11";
-    # nixos-hardware.url = "github:nixos/nixos-hardware"; # required for polonium
+    nixos-hardware.url = "github:nixos/nixos-hardware";
     home-manager.url = "github:nix-community/home-manager/release-22.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -54,7 +54,7 @@
       system = "x86_64-linux";
     in {
       ${system} = import ./packages {
-        inherit system inputs nixpkgs-config;
+        inherit system inputs nixpkgsConfig;
       };
     };
   };

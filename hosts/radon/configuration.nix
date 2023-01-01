@@ -20,8 +20,8 @@
       # enableCryptodisk = true;
     # };
     # efi = {
-    	# canTouchEfiVariables = true;
-    	# efiSysMountPoint = "/boot/efi";
+      # canTouchEfiVariables = true;
+      # efiSysMountPoint = "/boot/efi";
     # };
   # };
 
@@ -42,19 +42,19 @@
       };
     };
 
-  	initrd = {
-  	  # Setup keyfile
-  	  secrets = {
-  	    "/crypto_keyfile.bin" = null;
-  	  };
+    initrd = {
+      # Setup keyfile
+      secrets = {
+        "/crypto_keyfile.bin" = null;
+      };
       # Load amd gpu kernel module
-  	  kernelModules = [ "amdgpu" ];	  
-  	};
+      kernelModules = [ "amdgpu" ];
+    };
     kernelModules = [ "v4l2loopback" ];
-  	extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
-  	extraModprobeConfig = ''
-  	  options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
-  	'';
+    extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
+    extraModprobeConfig = ''
+      options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
+    '';
     # Allow NTFS reading https://nixos.wifi/wiki/NTFS
     supportedFilesystems = [ "ntfs" ];
   };
@@ -68,8 +68,7 @@
  
   # Allow openGL. https://nixos.wiki/wiki/OpenGL
   hardware.opengl.enable = true;
-  # Set session env vars
-  environment.variables = rec {
+  environment.variables = rec { # Set session env vars
       LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib";
       LD_PREFIX_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib";
   };
@@ -80,13 +79,6 @@
     hostName = "radon";
     networkmanager.enable = true;
   };
-
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
@@ -142,9 +134,6 @@
     #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -192,11 +181,5 @@
     shell = pkgs.fish;
   };
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "22.05"; # Did you read the comment?
+  system.stateVersion = "22.05"; # Do not change
 }
