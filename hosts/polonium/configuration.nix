@@ -5,33 +5,28 @@
       ./hardware-configuration.nix
     ];
 
+  ## Boot
+  boot.loader = {
+    grub = {
+      enable = true;
+      version = 2;
+      device = "nodev";
+      efiSupport = true;
+      useOSProber = true;
+    };
+    efi.canTouchEfiVariables = true;
+  };
+
   boot = {
     cleanTmpDir = true;
-    loader = {
-      systemd-boot = {
-        enable = true;
-      };
-      efi = {
-        canTouchEfiVariables = true;
-        efiSysMountPoint = "/boot/efi";
-      };
-    };
-
-    initrd = {
-      # Setup keyfile
-      secrets = {
-        "/crypto_keyfile.bin" = null;
-      };
-    };
+    kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "v4l2loopback" ];
     extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
     extraModprobeConfig = ''
       options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
     '';
-    # Allow NTFS reading https://nixos.wifi/wiki/NTFS
-    supportedFilesystems = [ "ntfs" ];
   };
-
+  
   # fileSystems."/mnt/CORSAIR" = { # Allow NTFS writing
   #   device = "/dev/nvme1n1p4";
   #   fsType = "ntfs3";
