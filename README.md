@@ -96,3 +96,8 @@ This happens when the `root` user is missing the nixos channel. You can fix this
 $ sudo nix-channel --add https://nixos.org/channels/nixos-VERSION nixos
 $ sudo nix-channel --update nixos
 ```
+
+## Resources
+
+ - NixOS development (direnv): https://xeiaso.net/blog/how-i-start-nix-2020-03-08
+ - Specific versions (direnv): https://discourse.nixos.org/t/specifying-package-version-in-shell-nix%2F8513
