@@ -42,7 +42,6 @@
 
   hardware.bluetooth.enable = true;
 
-
   # Video
   hardware.nvidia = {
     modesetting.enable = true;
@@ -94,6 +93,8 @@
     pulse.enable = true;
   };
 
+  virtualisation.docker.enable = true;
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -122,7 +123,7 @@
   users.users.rdn = {
     isNormalUser = true;
     description = "rdn";
-    extraGroups = [ "networkmanager" "wheel" "video" "adbusers" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "docker" "adbusers" ];
     packages = with pkgs; [
       firefox
       git
