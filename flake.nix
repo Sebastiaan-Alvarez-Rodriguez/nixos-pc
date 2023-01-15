@@ -43,7 +43,7 @@
   in {
     nixosConfigurations = {
       polonium = import ./hosts/polonium {
-      	inherit inputs nixpkgs-config;
+        inherit inputs nixpkgs-config;
       };
       radon = import ./hosts/radon {
         inherit inputs nixpkgs-config;

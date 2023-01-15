@@ -1,6 +1,4 @@
-{ config, pkgs, ... }:
-
-{
+{ config, pkgs, ... }: {
   home.username = "rdn";
   home.homeDirectory = "/home/rdn";
   home.stateVersion = "22.05";
@@ -11,7 +9,9 @@
     drawio
     droidcam
     htop
+    jetbrains.idea-community
     meld
+    nheko
     nmap
     python3
     sublime4
