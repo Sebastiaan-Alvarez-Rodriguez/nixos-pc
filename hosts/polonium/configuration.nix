@@ -25,13 +25,15 @@
     extraModprobeConfig = ''
       options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
     '';
+    # Allow NTFS reading https://nixos.wifi/wiki/NTFS
+    supportedFilesystems = [ "ntfs" ];
   };
   
-  # fileSystems."/mnt/CORSAIR" = { # Allow NTFS writing
-  #   device = "/dev/nvme1n1p4";
-  #   fsType = "ntfs3";
-  #   options = [ "rw" "uid=1000"];
-  # };
+  fileSystems."/mnt/CORSAIR" = { # Allow NTFS writing
+    device = "/dev/nvme0n1p3";
+    fsType = "ntfs3";
+    options = [ "rw" "uid=1000"];
+  };
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -84,8 +86,14 @@
 
   # Enable sound with pipewire.
   sound.enable = true;
-  hardware.pulseaudio.enable = false;
+  
+  hardware.pulseaudio = {                                                        
+    enable = true;
+    support32Bit = true;
+  };
+  
   security.rtkit.enable = true;
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;
