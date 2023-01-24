@@ -1,7 +1,3 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
 
 {
@@ -101,15 +97,15 @@
   services.xserver = {
     # Enable the X11 windowing system.
     enable = true;
+
     # Use amdgpu driver for Xserver
     videoDrivers = [ "amdgpu" ];
+
     # Enable the KDE Plasma Desktop Environment.
     displayManager.sddm.enable = true;
     desktopManager.plasma5.enable = true;
-  };
-  
-  # Configure keymap in X11
-  services.xserver = {
+
+    # Configure keymap in X11
     layout = "us";
     xkbVariant = "";
   };

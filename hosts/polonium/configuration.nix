@@ -6,19 +6,34 @@
     ];
 
   ## Boot
-  boot.loader = {
-    grub = {
-      enable = true;
-      version = 2;
-      device = "nodev";
-      efiSupport = true;
-      useOSProber = true;
-    };
-    efi.canTouchEfiVariables = true;
-  };
+#  boot.loader = {
+#    grub = {
+#      enable = true;
+#      version = 2;
+#      device = "nodev";
+#      efiSupport = true;
+#      useOSProber = true;
+#    };
+#    efi.canTouchEfiVariables = true;
+#  };
 
   boot = {
     cleanTmpDir = true;
+    loader = {
+      systemd-boot = {
+        enable = true;
+      };
+      efi = {
+        canTouchEfiVariables = true;
+        efiSysMountPoint = "/boot/efi";
+      };
+    };
+    initrd = {
+      # Setup keyfile
+      secrets = {
+        "/crypto_keyfile.bin" = null;
+      };
+    };
     kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "v4l2loopback" ];
     extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
@@ -29,12 +44,6 @@
     supportedFilesystems = [ "ntfs" ];
   };
   
-  fileSystems."/mnt/CORSAIR" = { # Allow NTFS writing
-    device = "/dev/nvme0n1p3";
-    fsType = "ntfs3";
-    options = [ "rw" "uid=1000"];
-  };
-
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   networking = {
@@ -69,6 +78,7 @@
   services.xserver = {
     # Enable the X11 windowing system.
     enable = true;
+    
     # Enable the KDE Plasma Desktop Environment.
     displayManager.sddm.enable = true;
     desktopManager.plasma5.enable = true;
@@ -86,14 +96,8 @@
 
   # Enable sound with pipewire.
   sound.enable = true;
-  
-#  hardware.pulseaudio = {                                                        
-#    enable = true;
-#    support32Bit = true;
-#  };
-  
+  hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
-
   services.pipewire = {
     enable = true;
     alsa.enable = true;

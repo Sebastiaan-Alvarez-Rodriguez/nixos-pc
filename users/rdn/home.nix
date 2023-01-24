@@ -33,10 +33,10 @@
   };    
 
   programs.fish = {
-        enable = true;
-        interactiveShellInit = ''
-          direnv hook fish | source
-        '';
+    enable = true;
+    interactiveShellInit = ''
+      direnv hook fish | source
+    '';
   };
 
   programs.git = {
