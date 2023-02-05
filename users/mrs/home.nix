@@ -1,11 +1,11 @@
-{ config, pkgs, ... }: 
+{ config, pkgs, ... }:
 let
-  username = "rdn";
-  githubUsername = "Sebastiaan-Alvarez-Rodriguez";
-  githubEmail = "sebastiaanalva@gmail.com";
+  username = "mrs";
+  githubUsername = "MariskaIJpelaar";
+  githubEmail = "m.m.j.ijpelaar@gmail.com";
 in {
   home.username = username;
-  home.homeDirectory = "/home/${username}";
+  home.homeDirectory = "/home/${home.username}";
   home.stateVersion = "22.05";
 
   programs.home-manager.enable = true; # Let Home Manager install & manage itself.
@@ -78,12 +78,6 @@ in {
         hostname = "github.com";
         user = githubUsername;
         identityFile = "~/.ssh/github.rsa";
-        identitiesOnly = true;
-      };
-      "cobra" = {
-        hostname = "2a05:1500:702:3:1c00:54ff:fe00:143c";
-        user = "sebastiaan";
-        identityFile = "~/.ssh/cobra_sebastiaan.rsa";
         identitiesOnly = true;
       };
     };
