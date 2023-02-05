@@ -53,6 +53,9 @@
     homeConfigurations.rdn = import ./users/rdn {
       inherit inputs nixpkgs-config;
     };
+    homeConfigurations.mrs = import ./users/mrs {
+      inherit inputs nixpkgs-config;
+    };
 
     packages =
     let
