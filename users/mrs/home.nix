@@ -5,7 +5,7 @@ let
   githubEmail = "m.m.j.ijpelaar@gmail.com";
 in {
   home.username = username;
-  home.homeDirectory = "/home/${home.username}";
+  home.homeDirectory = "/home/${username}";
   home.stateVersion = "22.05";
 
   programs.home-manager.enable = true; # Let Home Manager install & manage itself.
