@@ -6,6 +6,7 @@
   programs.home-manager.enable = true; # Let Home Manager install & manage itself.
  
   home.packages = with pkgs; [
+    chromium
     drawio
     droidcam
     htop
@@ -14,6 +15,7 @@
     nheko
     nmap
     python3
+    p7zip
     sublime4
     tdesktop
     teams
