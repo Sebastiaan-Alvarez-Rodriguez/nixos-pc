@@ -11,6 +11,7 @@ in {
   programs.home-manager.enable = true; # Let Home Manager install & manage itself.
  
   home.packages = with pkgs; [
+    binutils
     chromium
     drawio
     droidcam
