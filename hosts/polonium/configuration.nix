@@ -1,22 +1,10 @@
 { config, pkgs, ... }:
-
 {
   imports = [
       ./hardware-configuration.nix
     ];
 
   ## Boot
-#  boot.loader = {
-#    grub = {
-#      enable = true;
-#      version = 2;
-#      device = "nodev";
-#      efiSupport = true;
-#      useOSProber = true;
-#    };
-#    efi.canTouchEfiVariables = true;
-#  };
-
   boot = {
     cleanTmpDir = true;
     loader = {
@@ -56,10 +44,15 @@
   # Video
   hardware.nvidia = {
     modesetting.enable = true;
-    prime.sync.enable = true;
-    prime.offload.enable = false;
+    prime = {
+      # sync.enable = true;
+      offload.enable = true;
+      intelBusId = 
+    };
     powerManagement.enable = true;
   };
+
+
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
@@ -118,6 +111,10 @@
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
   };
 
+  # Run games with this program for more optimized performance.
+  programs.gamemode.enable = true;
+
+
   # Power saving
   services.tlp = {
     enable = true;
@@ -167,6 +164,7 @@
 
   environment.systemPackages = with pkgs; [
     pkgs.home-manager
+    nvidia-offload
   ];
 
   system.stateVersion = "22.05"; # Do not change
