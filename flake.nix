@@ -9,29 +9,6 @@
   };
 
   outputs = inputs:
-  # Will T nixos flake setup
-  # let
-  #   system = "x86_64-linux";
-  #   pkgs = import inputs.nixpkgs {
-  #     inherit system;
-  #     config = {
-  #       allowUnfree = true;
-  #       # https://github.com/nix-community/home-manager/issues/2942#issuecomment-1119760100
-  #       allowUnfreePredicate = (pkg: true);
-  #     };
-  #   };
-  #   lib = inputs.nixpkgs.lib;
-  # in {
-  #   nixosConfigurations.radon = import ./hosts/radon {
-  #     inherit inputs pkgs;
-  #   };
-
-  #   homeConfigurations.rdn = import ./users/rdn {
-  #     inherit inputs pkgs;
-  #   };
-  # };
-
-  # Robin nixos flake setup
   let
     nixpkgs-config = {
       config = {
