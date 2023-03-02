@@ -141,6 +141,12 @@
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
   };
 
+  # For all those executables with hardcoded /lib64 dynamic linker
+  programs.nix-ld.enable = true;
+
+  # Service to take over pcs of other people
+  services.teamviewer.enable = true;
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
