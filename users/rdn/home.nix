@@ -20,6 +20,7 @@ in {
     meld
     nheko
     nmap
+    patchelf
     python3
     p7zip
     sublime4
