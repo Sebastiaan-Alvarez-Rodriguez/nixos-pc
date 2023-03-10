@@ -132,15 +132,6 @@
     isNormalUser = true;
     description = "rdn";
     extraGroups = [ "networkmanager" "wheel" "video" "docker" "adbusers" ];
-    packages = with pkgs; [
-      firefox
-      git
-      kate
-      micro
-      qbittorrent
-      vlc
-      wget
-    ];
     shell = pkgs.fish;
   };
 

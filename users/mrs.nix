@@ -1,8 +1,8 @@
-{ config, pkgs, ... }: 
+{ config, pkgs, ... }:
 let
-  username = "rdn";
-  githubUsername = "Sebastiaan-Alvarez-Rodriguez";
-  githubEmail = "sebastiaanalva@gmail.com";
+  username = "mrs";
+  githubUsername = "MariskaIJpelaar";
+  githubEmail = "m.m.j.ijpelaar@gmail.com";
 in {
   home.username = username;
   home.homeDirectory = "/home/${username}";
@@ -11,7 +11,6 @@ in {
   programs.home-manager.enable = true; # Let Home Manager install & manage itself.
  
   home.packages = with pkgs; [
-    binutils
     chromium
     drawio
     droidcam
@@ -19,7 +18,7 @@ in {
     htop
     jetbrains.idea-community
     meld
-    nheko
+    micro 
     nmap
     patchelf
     python3
@@ -30,11 +29,13 @@ in {
     teamspeak_client
     tor-browser-bundle-bin
     unzip
+    vlc
+    wget
     zip
   ];
 
   home.file = { # sets background picture for xserver-provided desktop environments.
-    ".background-image".source =  ../../res/background/neon_rain_3840x2160.jpg;
+    ".background-image".source =  ../res/background/neon_rain_3840x2160.jpg;
   };
 
   programs.direnv = {
@@ -81,12 +82,6 @@ in {
         hostname = "github.com";
         user = githubUsername;
         identityFile = "~/.ssh/github.rsa";
-        identitiesOnly = true;
-      };
-      "cobra" = {
-        hostname = "2a05:1500:702:3:1c00:54ff:fe00:143c";
-        user = "sebastiaan";
-        identityFile = "~/.ssh/cobra_sebastiaan.rsa";
         identitiesOnly = true;
       };
     };

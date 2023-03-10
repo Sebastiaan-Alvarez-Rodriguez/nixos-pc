@@ -19,6 +19,9 @@
     };
   in {
     nixosConfigurations = {
+      blackberry = import ./hosts/blackberry {
+        inherit inputs nixpkgs-config;
+      };
       polonium = import ./hosts/polonium {
         inherit inputs nixpkgs-config;
       };
@@ -27,20 +30,24 @@
       };
     };
 
-    homeConfigurations.rdn = import ./users/rdn {
-      inherit inputs nixpkgs-config;
+    homeConfigurations = let
+      mkUser = { system, userModule }: inputs.home-manager.lib.homeManagerConfiguration {
+        modules = [
+          { nixpkgs = nixpkgs-config; }
+          userModule
+        ];
+        pkgs = inputs.nixpkgs.outputs.legacyPackages.${system};
+        extraSpecialArgs = { inherit inputs; };
+      };
+    in {
+      mrs = mkUser {
+        system = "x86_64-linux";
+        userModule = ./users/mrs.nix;
+      };
+      rdn = mkUser {
+        system = "x86_64-linux";
+        userModule = ./users/rdn.nix;
+      };
     };
-    homeConfigurations.mrs = import ./users/mrs {
-      inherit inputs nixpkgs-config;
-    };
-
-    # packages =
-    # let
-    #   system = "x86_64-linux";
-    # in {
-    #   ${system} = import ./packages {
-    #     inherit system inputs nixpkgs-config;
-    #   };
-    # };
   };
 }

@@ -166,6 +166,9 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
+  environment.systemPackages = [
+    pkgs.home-manager
+  ];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.rdn = {
