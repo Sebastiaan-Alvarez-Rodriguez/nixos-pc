@@ -31,7 +31,7 @@
     supportedFilesystems = [ "ntfs" ];
 
     # Emulate for aarch64-linux builds
-    binfmt.emulatedSystems = [ "aarch64-linux" ];
+    # binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
   
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

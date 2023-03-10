@@ -3,6 +3,22 @@ A flake for a raspberry pi 3b+ model.
 
 ## Building Image
 A raspberry Pi needs an image on an SD card to start.
+
+### `aarch64` compilation
+Assuming you have a `x64_86` machine from where you build, you need to either:
+ - cross-compile
+ - enable emulator on your build host.
+
+This flake is built with this last option in mind.
+Simply add the following to the `configuration.nix` for your host:
+```nix
+# Emulate for aarch64-linux builds
+boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+```
+
+Then rebuild (`sudo nixos-rebuild switch...`) your host.
+
+### Building
 To build the image, use:
 ```bash
 nix build ".#images.blackberry"
