@@ -15,6 +15,7 @@ in {
     chromium
     drawio
     droidcam
+    galculator
     htop
     jetbrains.idea-community
     meld
