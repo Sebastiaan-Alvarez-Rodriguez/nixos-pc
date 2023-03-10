@@ -1,5 +1,9 @@
 # nixos-pc
-NixOS config for a desktop pc (amd gpu)
+NixOS configs for:
+
+ - `radon`: Main host (amd gpu)
+ - `polonium`: Laptop host (nvidia gpu)
+ - [`blackberry`](hosts/blackberry): Raspberry pi 3b+ (with custom installation instructions)
 
 ## Flakes
 

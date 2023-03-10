@@ -10,11 +10,14 @@ nix build ".#images.blackberry"
 
 To write the image on an SD card, use:
 ```bash
-
+lsblk #find the SD card
+sudo gdisk # remove old partitions using gdisk UI
+sudo dd if=result/sd-image/nixos-sd-image-22.11.20221215.0152de2-aarch64-linux.img of=/dev/sdX bs=1024k status=progress
 ```
 
-## Current error
-Occurs with build command.
+## Troubleshooting
+
+### ell-0.53
 Full Error:
 ```
 warning: Git tree '/home/rdn/projects/nixos-pc' is dirty
@@ -35,18 +38,12 @@ error: 1 dependencies of derivation '/nix/store/lnbmgsp7gysma2j2ghq4d73k6lyp35g6
 error: 1 dependencies of derivation '/nix/store/g6axsa3ldkpgczzg79i4wwpj0hgi0b16-networkmanager-1.40.2.drv' failed to build
 error (ignored): error: cannot unlink '/tmp/nix-build-openvpn-2.5.8.drv-2/openvpn-2.5.8': Directory not empty
 error: 1 dependencies of derivation '/nix/store/8ks142c1w6451r6f06v5kxf39zvhl8sq-NetworkManager-fortisslvpn-1.4.0.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/8sc9sx36y7lmzmvw11wmgr3lbl4wirbj-NetworkManager-iodine-unstable-2019-11-05.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/bpplxabvmaxdbcw1lhs3i9lnd1x97pyh-NetworkManager-l2tp-1.20.4.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/avla2d1pqviway0n8zk2mb5wb4blh4wi-NetworkManager-openconnect-1.2.8.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/as78l2vg1qcb7hjdrdywq20arsqxgy5k-NetworkManager-openvpn-1.10.0.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/6dymh90a4d7axn99n61gh1n44g7gfpyr-NetworkManager-vpnc-1.2.8.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/pr43krp44kc4ljamglnpcskj6cg55k3y-dbus-1.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/phm9y81awwxrfdy326m0mchbrxcvym4m-system-path.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/pbw4nr774vr7v9kkmcm28cg1qpclhllh-nixos-system-blackberry-22.11.20221215.0152de2.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/92929xsrh98xqrf842k86j4vcm1525xd-ext4-fs.img.drv' failed to build
-error: 1 dependencies of derivation '/nix/store/9azph5rmsgazqridr71daps9nh98fw1j-nixos-sd-image-22.11.20221215.0152de2-aarch64-linux.img.drv' failed to build
+error: 1 dependencies of derivation '/nix/store/
 ```
+
+Solution: Do not set `networking.networkManager.enable=true`.
 
 ## Intel
  - Minimal example: https://github.com/jhillyerd/nixos-minimal-raspberrypi3-flake
+ - Another example: https://github.com/MatthewCroughan/raspberrypi-nixos-example
  - Tutorial: https://myme.no/posts/2022-12-01-nixos-on-raspberrypi.html

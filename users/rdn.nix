@@ -15,6 +15,7 @@ in {
     drawio
     droidcam
     galculator
+    gparted
     htop
     jetbrains.idea-community
     meld
