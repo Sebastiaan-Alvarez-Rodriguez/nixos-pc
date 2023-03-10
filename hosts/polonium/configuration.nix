@@ -129,28 +129,21 @@
   services.power-profiles-daemon.enable=false; # conflicts with tlp, https://github.com/linrunner/TLP/issues/564
 
 
-  # Define a user account. Set password with ‘passwd’.
+  # Set password with ‘passwd’.
   users.users.rdn = {
     isNormalUser = true;
     description = "rdn";
     extraGroups = [ "networkmanager" "wheel" "video" "docker" "adbusers" ];
     shell = pkgs.fish;
+    password = "changeme";
   };
 
   users.users.mrs = {
     isNormalUser = true;
     description = "mrs";
     extraGroups = [ "networkmanager" "wheel" "video" "docker" "adbusers" ];
-    packages = with pkgs; [
-      firefox
-      git
-      kate
-      micro
-      qbittorrent
-      vlc
-      wget
-    ];
     shell = pkgs.fish;
+    password = "changeme";
   };
   
 

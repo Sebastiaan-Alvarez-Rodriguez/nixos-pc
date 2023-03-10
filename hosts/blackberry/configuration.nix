@@ -20,8 +20,7 @@
 
   networking = {
     hostName = "blackberry";
-    networkmanager.enable = true;
-    firewall.allowedTCPPorts = [ 22 ]; # ssh
+    # networkmanager.enable = true; # do not enable this: Compile error occurs.
   };
 
   # Set your time zone.
@@ -46,6 +45,15 @@
   nixpkgs.config.allowUnfree = true;
 
   services.openssh.enable = true;
+
+  # Define a user account. Set password with ‘passwd’.
+  users.users.rdn = {
+    isNormalUser = true;
+    description = "rdn";
+    extraGroups = [ "wheel" ];
+    shell = pkgs.fish;
+    password = "changeme";
+  };
 
   system.stateVersion = "22.11"; # Do not change
 }

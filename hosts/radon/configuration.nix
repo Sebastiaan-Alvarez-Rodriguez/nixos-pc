@@ -172,16 +172,8 @@
     isNormalUser = true;
     description = "rdn";
     extraGroups = [ "networkmanager" "wheel" "adbusers"];
-    packages = with pkgs; [
-      firefox
-      git
-      kate
-      micro
-      qbittorrent
-      vlc
-      wget
-    ];
     shell = pkgs.fish;
+    password = "changeme";
   };
 
   system.stateVersion = "22.05"; # Do not change

@@ -43,6 +43,26 @@ in {
     nix-direnv.enable = true;
   };    
 
+  programs.firefox = {
+    enable = true;
+    package = pkgs.wrapFirefox pkgs.firefox-unwrapped {
+      extraPolicies = {
+        DisableFirefoxStudies = true;
+        DisablePocket = true;
+        DisableTelemetry = true;
+        DisableFirefoxAccounts = true;
+        FirefoxHome = {
+          Pocket = false;
+          Snippets = false;
+        };
+        UserMessaging = {
+          ExtensionRecommendation = false;
+          SkipOnboarding = false;
+        };
+      };
+    };
+  };
+
   programs.fish = {
     enable = true;
     interactiveShellInit = ''
