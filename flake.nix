@@ -34,13 +34,13 @@
       inherit inputs nixpkgs-config;
     };
 
-    packages =
-    let
-      system = "x86_64-linux";
-    in {
-      ${system} = import ./packages {
-        inherit system inputs nixpkgs-config;
-      };
-    };
+    # packages =
+    # let
+    #   system = "x86_64-linux";
+    # in {
+    #   ${system} = import ./packages {
+    #     inherit system inputs nixpkgs-config;
+    #   };
+    # };
   };
 }

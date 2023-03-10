@@ -45,14 +45,13 @@
   hardware.nvidia = {
     modesetting.enable = true;
     prime = {
-      # sync.enable = true;
+      sync.enable = false;
       offload.enable = true;
-      intelBusId = 
+      # nvidiaBusId = "PCI:1:0:0";
+      # intelBusId = "PCI:4:0:0";
     };
     powerManagement.enable = true;
   };
-
-
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
@@ -164,7 +163,6 @@
 
   environment.systemPackages = with pkgs; [
     pkgs.home-manager
-    nvidia-offload
   ];
 
   system.stateVersion = "22.05"; # Do not change
