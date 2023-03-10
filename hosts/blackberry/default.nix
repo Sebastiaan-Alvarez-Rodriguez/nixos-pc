@@ -14,7 +14,5 @@ inputs.nixpkgs.lib.nixosSystem rec {
     }
   ];
 
-  images = nixosConfigurations."blackberry".config.system.build.sdImage;
-
   specialArgs = { inherit inputs; };
 }

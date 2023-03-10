@@ -1,12 +1,27 @@
 { config, pkgs, ... }: {
+  imports = [
+    ./hardware-configuration.nix
+  ];
 
-  boot.supportedFilesystems = [ "vfat" "f2fs" "ntfs" "cifs" ];
-
+  boot = {
+    supportedFilesystems = [ "vfat" "f2fs" "ntfs" "cifs" ];
+    # loader.raspberryPi = { # as from https://nixos.wiki/wiki/NixOS_on_ARM/Raspberry_Pi_3
+    #   enable = true;
+    #   version = 3;
+    #   uboot.enable = true;
+    #   firmwareConfig = ''
+    #     core_freq=250
+    #   '';
+    # };
+  };
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  hardware.bluetooth.enable = false;
 
   networking = {
     hostName = "blackberry";
     networkmanager.enable = true;
+    firewall.allowedTCPPorts = [ 22 ]; # ssh
   };
 
   # Set your time zone.
@@ -31,5 +46,6 @@
   nixpkgs.config.allowUnfree = true;
 
   services.openssh.enable = true;
-  networking.firewall.allowedTCPPorts = [ 22 ];
+
+  system.stateVersion = "22.11"; # Do not change
 }

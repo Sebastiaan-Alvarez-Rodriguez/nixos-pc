@@ -17,7 +17,7 @@
         allowUnfreePredicate = (pkg: true);
       };
     };
-  in {
+  in rec {
     nixosConfigurations = {
       blackberry = import ./hosts/blackberry {
         inherit inputs nixpkgs-config;
@@ -30,6 +30,14 @@
       };
     };
 
+    # Define a flake image from each of the host nixosConfigurations.
+    # images = nixpkgs-config.lib.genAttrs hosts
+    #   (host: nixosConfigurations."${host}".config.system.build.sdImage);
+
+    images = {
+      "blackberry" = nixosConfigurations."blackberry".config.system.build.sdImage;
+    };
+    
     homeConfigurations = let
       mkUser = { system, userModule }: inputs.home-manager.lib.homeManagerConfiguration {
         modules = [
