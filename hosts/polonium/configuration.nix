@@ -1,8 +1,7 @@
-{ config, pkgs, ... }:
-{
+{ config, pkgs, ... }: {
   imports = [
-      ./hardware-configuration.nix
-    ];
+    ./hardware-configuration.nix
+  ];
 
   ## Boot
   boot = {
@@ -30,6 +29,9 @@
     '';
     # Allow NTFS reading https://nixos.wifi/wiki/NTFS
     supportedFilesystems = [ "ntfs" ];
+
+    # Emulate for aarch64-linux builds
+    binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
   
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
