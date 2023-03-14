@@ -56,6 +56,10 @@
         system = "x86_64-linux";
         userModule = ./users/rdn.nix;
       };
+      rdn-blackberry-min = mkUser {
+        system = "aarch64-linux";
+        userModule = ./users/rdn-blackberry-min.nix;
+      };
     };
   };
 }

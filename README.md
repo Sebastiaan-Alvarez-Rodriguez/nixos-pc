@@ -97,8 +97,8 @@ cannot open database '/nix/var/nix/profiles/per-user/root/channels/nixos/program
 Fix:
 This happens when the `root` user is missing the nixos channel. You can fix this by adding a channel and naming it nixos:
 ```bash
-$ sudo nix-channel --add https://nixos.org/channels/nixos-VERSION nixos
-$ sudo nix-channel --update nixos
+sudo nix-channel --add https://nixos.org/channels/nixos-VERSION nixos
+sudo nix-channel --update nixos
 ```
 
 ## Resources

@@ -11,13 +11,8 @@ in {
  
   home.packages = with pkgs; [
     binutils
-    chromium
-    drawio
-    droidcam
-    galculator
-    gparted
+    parted
     htop
-    jetbrains.idea-community
     meld
     micro
     nheko
@@ -25,55 +20,15 @@ in {
     patchelf
     python3
     p7zip
-    qbittorrent
-    sublime4
-    tdesktop
-    teams
-    teamspeak_client
-    tor-browser-bundle-bin
     unzip
-    vlc
     wget
     zip
   ];
-
-  home.file = { 
-    # sets background picture for xserver-provided desktop environments.
-    ".background-image".source =  ../res/background/neon_rain_3840x2160.jpg;
-    # sets KDE plasma to use the background picture.
-    ".config/plasmarc".text = ''
-      [Theme]
-      name=breeze-dark
-
-      [Wallpapers]
-      usersWallpapers=${pkgs.breeze-qt5}/share/wallpapers/Next/,${config.home.homeDirectory}/.background-image
-    '';
-  };
 
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
   };    
-
-  programs.firefox = {
-    enable = true;
-    package = pkgs.wrapFirefox pkgs.firefox-unwrapped {
-      extraPolicies = {
-        DisableFirefoxStudies = true;
-        DisablePocket = true;
-        DisableTelemetry = true;
-        DisableFirefoxAccounts = true;
-        FirefoxHome = {
-          Pocket = false;
-          Snippets = false;
-        };
-        UserMessaging = {
-          ExtensionRecommendation = false;
-          SkipOnboarding = false;
-        };
-      };
-    };
-  };
 
   programs.fish = {
     enable = true;

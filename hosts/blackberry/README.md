@@ -24,12 +24,45 @@ To build the image, use:
 nix build ".#images.blackberry"
 ```
 
+### Deployment
 To write the image on an SD card, use:
 ```bash
 lsblk #find the SD card
 sudo gdisk # remove old partitions using gdisk UI
 sudo dd if=result/sd-image/nixos-sd-image-22.11.20221215.0152de2-aarch64-linux.img of=/dev/sdX bs=1024k status=progress
 ```
+
+Insert the SD in the raspberry Pi.
+It will automatically boot once powered.
+
+### Connecting
+Once booted, a basic SSH connection will be open, for user `rdn` and password `changeme`.
+To find the ip-address of the raspberry, either:
+
+ - Have your router tell you what devices are connected. It is the one called `Blackberry`.
+ - Use `nmap 192.168.178.0/24 -sn` to get a fast list of IPs to try. Remove `-sn` to allow port scanning (takes longer, you might want to remove the /24 & set an IP address to check).
+ - Connect a screen and keyboard to the Raspberry Pi, login locally, and type `ifconfig` or `ip r`
+
+### Runtime Configuration
+
+> **Hey you**, change your password right after your first SSH connection.
+
+Execute the following commands to follow the nixos channel for a given version:
+```bash
+sudo nix-channel --add https://nixos.org/channels/nixos-VERSION nixos
+sudo nix-channel --update nixos
+```
+
+Use `scp`/`rsync` to copy this repo over to the Raspberry Pi.
+Then execute (on the Raspberry Pi):
+```bash
+nix-shell -p git home-manager
+
+home-manager switch --flake .#rdn-blackberry-min
+```
+
+This will install the `rdn-blackberry-min` profile.
+
 
 ## Troubleshooting
 
