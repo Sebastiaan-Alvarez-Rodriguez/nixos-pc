@@ -15,7 +15,6 @@ in {
     htop
     meld
     micro
-    nheko
     nmap
     patchelf
     python3
