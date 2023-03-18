@@ -44,7 +44,12 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    permitRootLogin = "no";
+    passwordAuthentication = false;
+    kbdInteractiveAuthentication = false;
+  };
 
   # Define a user account. Set password with ‘passwd’.
   users.users.rdn = {
@@ -53,6 +58,9 @@
     extraGroups = [ "wheel" ];
     shell = pkgs.fish;
     password = "changeme";
+    openssh.authorizedKeys.keyFiles = [
+      ../../res/keys/blackberry-rdn.rsa.pub
+    ];
   };
 
   system.stateVersion = "22.11"; # Do not change
