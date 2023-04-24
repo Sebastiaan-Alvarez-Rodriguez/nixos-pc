@@ -21,6 +21,14 @@
   networking = {
     hostName = "blackberry";
     # networkmanager.enable = true; # do not enable this: Compile error occurs.
+
+    firewall = {
+      allowedTCPPorts = [
+        80    # HTTP
+        443   # HTTPS
+        8000  # HTTP django
+      ];
+    };
   };
 
   # Set your time zone.
