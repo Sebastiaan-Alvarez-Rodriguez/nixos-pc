@@ -33,7 +33,9 @@ in {
   programs.fish = {
     enable = true;
     interactiveShellInit = ''
-      direnv hook fish | source
+      tabs -4
+      ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
+      set fish_greeting
     '';
   };
 
