@@ -19,6 +19,7 @@ in {
     patchelf
     python3
     p7zip
+    tmux
     unzip
     wget
     zip
@@ -58,22 +59,4 @@ in {
     };
   };
   programs.home-manager.enable = true;
-
-
-  programs.ssh = {
-    enable = true;
-    forwardAgent = true;
-
-    controlMaster = "auto";
-    controlPersist = "10m";
-
-    # No ssh config here (is forwarded by forwardAgent)
-    # matchBlocks = import shared/ssh/config.nix {
-    #   inherit githubUsername;
-    # };
-
-    extraConfig = ''
-      SetEnv TERM=xterm-256color
-    '';
-  };
 }
