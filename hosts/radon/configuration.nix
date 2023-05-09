@@ -127,6 +127,8 @@
     #media-session.enable = true;
   };
 
+  virtualisation.docker.enable = true;
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -161,7 +163,7 @@
   users.users.rdn = {
     isNormalUser = true;
     description = "rdn";
-    extraGroups = [ "networkmanager" "wheel" "adbusers"];
+    extraGroups = [ "networkmanager" "wheel" "docker" "adbusers"];
     shell = pkgs.fish;
     password = "changeme";
   };
