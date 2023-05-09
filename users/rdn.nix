@@ -12,6 +12,7 @@ in {
   home.packages = with pkgs; [
     binutils
     chromium
+    docker-compose
     drawio
     droidcam
     galculator
