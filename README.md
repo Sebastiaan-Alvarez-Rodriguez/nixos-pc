@@ -44,6 +44,12 @@ After installation, do not forget to clone this repo in the installed NixOS and 
 home-manager switch --flake .#<USER>
 ```
 
+### Updates
+Updating nix flakes:
+```bash
+nix flake update
+```
+
 ## Regular NixOS
 When not dealing with flakes, we have only 3 config files:
  - `/etc/nixos/configuration.nix` (global definitions)

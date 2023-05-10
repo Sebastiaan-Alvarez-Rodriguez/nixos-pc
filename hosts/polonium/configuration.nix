@@ -44,14 +44,20 @@
   hardware.bluetooth.enable = true;
 
   # Video
+  # hardware.nvidia = {
+  #   modesetting.enable = true;
+  #   prime = {
+  #     sync.enable = false;
+  #     offload.enable = true;
+  #     # nvidiaBusId = "PCI:1:0:0";
+  #     # intelBusId = "PCI:4:0:0";
+  #   };
+  #   powerManagement.enable = true;
+  # };
   hardware.nvidia = {
     modesetting.enable = true;
-    prime = {
-      sync.enable = false;
-      offload.enable = true;
-      # nvidiaBusId = "PCI:1:0:0";
-      # intelBusId = "PCI:4:0:0";
-    };
+    prime.sync.enable = true;
+    prime.offload.enable = false;
     powerManagement.enable = true;
   };
 
