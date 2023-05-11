@@ -63,7 +63,7 @@ in {
         DisableFirefoxStudies = true;
         DisablePocket = true;
         DisableTelemetry = true;
-        DisableFirefoxAccounts = true;
+        DisableFirefoxAccounts = false;
         FirefoxHome = {
           Pocket = false;
           Snippets = false;
