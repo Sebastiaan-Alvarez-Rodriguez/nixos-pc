@@ -17,6 +17,7 @@ in {
     droidcam
     galculator
     gparted
+    hotspot
     htop
     jetbrains.idea-community
     meld
