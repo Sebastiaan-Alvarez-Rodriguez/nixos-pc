@@ -21,7 +21,7 @@
         "/crypto_keyfile.bin" = null;
       };
     };
-    kernelPackages = pkgs.linuxPackages_6_1;
+    # kernelPackages = pkgs.linuxPackages;
     kernelModules = [ "v4l2loopback" ];
     extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
     extraModprobeConfig = ''
