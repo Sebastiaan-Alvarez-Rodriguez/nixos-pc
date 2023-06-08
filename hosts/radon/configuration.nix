@@ -24,7 +24,7 @@
 
 
   boot = {
-    cleanTmpDir = true;
+    tmp.cleanOnBoot = true;
     loader = {
       systemd-boot = {
         enable = true;
@@ -135,6 +135,8 @@
   # Adds adb program. Users must be added to the "adbusers" group
   programs.adb.enable = true;
    
+  programs.fish.enable = true;
+
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play

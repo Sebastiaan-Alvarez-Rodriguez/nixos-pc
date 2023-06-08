@@ -59,6 +59,8 @@
     kbdInteractiveAuthentication = false;
   };
 
+  programs.fish.enable = true;
+
   # Define a user account. Set password with ‘passwd’.
   users.users.rdn = {
     isNormalUser = true;
