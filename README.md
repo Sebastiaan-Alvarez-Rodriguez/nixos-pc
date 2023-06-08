@@ -44,6 +44,31 @@ After installation, do not forget to clone this repo in the installed NixOS and 
 home-manager switch --flake .#<USER>
 ```
 
+## General info
+
+Info given here works for 'regular' NixOS and for flakes.
+
+### Upgrading nixOS
+NixOS brings new releases on the 5'th and 11'th month of each year.
+To upgrade, we must change the nixos channel.
+Check your current nixos channel with:
+```bash
+sudo nix-channel --list | grep nixos
+```
+
+Change using:
+```bash
+sudo nix-channel --add https://channels.nixos.org/[SOME-NAME-HERE] nixos
+```
+Common names follow format `nixos-[VERSION]`.
+
+Then, upgrade using:
+```bash
+sudo nixos-rebuild switch --upgrade # regular NixOS
+sudo nixos-rebuild switch --flake .#[FLAKE] --upgrade # flakes
+```
+
+
 ## Regular NixOS
 When not dealing with flakes, we have only 3 config files:
  - `/etc/nixos/configuration.nix` (global definitions)
