@@ -17,6 +17,7 @@ in {
     droidcam
     galculator
     gparted
+    helix
     hotspot
     htop
     jetbrains.idea-community
@@ -28,7 +29,7 @@ in {
     python3
     p7zip
     qbittorrent
-    sublime4
+    # sublime4 # removed because of openssl 1.1.0 dependency
     tdesktop
     teams
     teamspeak_client
@@ -36,6 +37,7 @@ in {
     unzip
     vlc
     wget
+    xclip # required by helix for copy/pasting (use `primary-clipboard-yank`)
     zip
   ];
 
