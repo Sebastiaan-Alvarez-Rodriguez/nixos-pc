@@ -1,130 +1,65 @@
-{ config, pkgs, ... }: 
-let
+{ inputs, config, lib, pkgs, ...}: let
   username = "rdn";
-  githubUsername = "Sebastiaan-Alvarez-Rodriguez";
-  githubEmail = "sebastiaanalva@gmail.com";
 in {
-  home.username = username;
-  home.homeDirectory = "/home/${username}";
-  home.stateVersion = "22.05";
+  imports = [ ./graphical.nix ];
 
- 
-  home.packages = with pkgs; [
-    binutils
-    chromium
-    docker-compose
+  home.packages = let
+    pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
+  in with pkgs; [
+    pkgs_2205.remmina
     drawio
     droidcam
     galculator
-    gparted
-    helix
-    hotspot
-    htop
     jetbrains.idea-community
-    meld
-    micro
     nheko
-    nmap
-    patchelf
-    python3
-    p7zip
     qbittorrent
     # sublime4 # removed because of openssl 1.1.0 dependency
     tdesktop
     teams
     teamspeak_client
     tor-browser-bundle-bin
-    unzip
+    virt-manager # ui manager for vm's
     vlc
-    wget
-    xclip # required by helix for copy/pasting (use `primary-clipboard-yank`)
-    zip
   ];
+  home.username = username;
+  home.homeDirectory = "/home/${username}";
 
-  home.file = { 
-    # sets background picture for xserver-provided desktop environments.
-    ".background-image".source =  ../res/background/neon_rain_3840x2160.jpg;
-    # sets KDE plasma to use the background picture.
-    ".config/plasmarc".text = ''
-      [Theme]
-      name=breeze-dark
-
-      [Wallpapers]
-      usersWallpapers=${pkgs.breeze-qt5}/share/wallpapers/Next/,${config.home.homeDirectory}/.background-image
-    '';
-  };
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };    
-
-  programs.firefox = {
-    enable = true;
-    package = pkgs.wrapFirefox pkgs.firefox-unwrapped {
-      extraPolicies = {
-        DisableFirefoxStudies = true;
-        DisablePocket = true;
-        DisableTelemetry = true;
-        DisableFirefoxAccounts = false;
-        FirefoxHome = {
-          Pocket = false;
-          Snippets = false;
-        };
-        UserMessaging = {
-          ExtensionRecommendation = false;
-          SkipOnboarding = false;
-        };
+  accounts.email = {
+    accounts.gmail = {
+      address = "sebastiaanalva@gmail.com";
+      gpg = {
+        key = null;
+        signByDefault = true;
       };
+
+      smtp.tls.useStartTls = true;
+
+      primary = true;
+      flavor = "gmail.com";
     };
   };
 
-  programs.fish = {
-    enable = true;
-    interactiveShellInit = ''
-      tabs -4
-      ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
-      set fish_greeting
-    '';
-  };
+  programs.swaybg.image = ../res/background/neon_rain_3840x2160.jpg;
 
-  programs.git = {
-    enable = true;
-    package = pkgs.gitFull;
+  programs.git.userName = "Sebastiaan-Alvarez-Rodriguez";
+  programs.git.userEmail = "sebastiaanalva@gmail.com";
 
-    userName = githubUsername;
-    userEmail = githubEmail;
+  programs.foot.settings.main.monitor-scale = "eDP-1:1, 27GL850:1.7, G2460:1.6, QROM8HA000914:1.5";
 
-
-    signing = {
-      key = null;
-      signByDefault = false;
-    };
-
-    ignores = [ ".private" ".cache" ];
-
-    extraConfig = {
-      pull.rebase = true;
-      color.ui = true;
-      diff.tool = "meld";
+  services.kanshi.profiles = {
+    undocked = {
+      outputs = [
+        {
+          criteria = "eDP-1";
+          status = "enable";
+          mode = "2560x1440@60Hz";
+          position = "0,0";
+        }
+      ];
     };
   };
-  programs.home-manager.enable = true;
-
-
-  programs.ssh = {
-    enable = true;
-    forwardAgent = true;
-
-    controlMaster = "auto";
-    controlPersist = "10m";
-
-    matchBlocks = import shared/ssh/config.nix {
-      inherit githubUsername;
-    };
-
-    extraConfig = ''
-      SetEnv TERM=xterm-256color
-    '';
+  programs.thunderbird.profiles."${username}" = {
+    isDefault = true;
+    withExternalGnupg = false;
   };
 }

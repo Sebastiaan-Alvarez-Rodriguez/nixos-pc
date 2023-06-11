@@ -5,23 +5,14 @@
 
   ## Boot
   boot = {
-    tmp.cleanOnBoot = true;
     loader = {
-      systemd-boot = {
-        enable = true;
-      };
-      efi = {
-        canTouchEfiVariables = true;
-        efiSysMountPoint = "/boot/efi";
-      };
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
     };
-    initrd = {
-      # Setup keyfile
-      secrets = {
-        "/crypto_keyfile.bin" = null;
-      };
+    initrd.secrets = { # Setup keyfile
+      "/crypto_keyfile.bin" = null;
     };
-    # kernelPackages = pkgs.linuxPackages;
+    kernelPackages = pkgs.linuxPackages_latest;
     kernelModules = [ "v4l2loopback" ];
     extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
     extraModprobeConfig = ''
@@ -36,22 +27,22 @@
   
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  networking = {
-    hostName = "polonium";
-    networkmanager.enable = true;
-  };
+  networking.hostName = "polonium";
+  networking.networkmanager.enable = true;
+
+  # Input
+  services.xserver.xkbOptions = "caps:hyper,compose:rctrl";
+  console.useXkbConfig = true;
 
   hardware.bluetooth.enable = true;
 
   # Video
   # hardware.nvidia = {
   #   modesetting.enable = true;
-  #   prime = {
-  #     sync.enable = false;
-  #     offload.enable = true;
-  #     # nvidiaBusId = "PCI:1:0:0";
-  #     # intelBusId = "PCI:4:0:0";
-  #   };
+  #   prime.sync.enable = false;
+  #   prime.offload.enable = true;
+  #   #prime.nvidiaBusId = "PCI:1:0:0";
+  #   #prime.intelBusId = "PCI:4:0:0";
   #   powerManagement.enable = true;
   # };
   hardware.nvidia = {
@@ -63,36 +54,67 @@
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "nl_NL.utf8";
-    LC_IDENTIFICATION = "nl_NL.utf8";
-    LC_MEASUREMENT = "nl_NL.utf8";
-    LC_MONETARY = "nl_NL.utf8";
-    LC_NAME = "nl_NL.utf8";
-    LC_NUMERIC = "nl_NL.utf8";
-    LC_PAPER = "nl_NL.utf8";
-    LC_TELEPHONE = "nl_NL.utf8";
-    LC_TIME = "nl_NL.utf8";
-  };
 
-  services.xserver = {
-    # Enable the X11 windowing system.
+  programs.xwayland.enable = true;
+
+  services.greetd = {
     enable = true;
-    
-    # Enable the KDE Plasma Desktop Environment.
-    displayManager.sddm.enable = true;
-    desktopManager.plasma5.enable = true;
-
-    # Configure keymap in X11
-    layout = "us";
-    xkbVariant = "";
-
-    # Enable touchpad support (enabled default in most desktopManagers).
-    libinput.enable = true;
+    restart = false;
+    settings = rec {
+      initial_session =
+      let
+        run = pkgs.writeShellScript "start-river" ''
+          # Seems to be needed to get river to properly start
+          sleep 1
+          # Set the proper XDG desktop so that xdg-desktop-portal works
+          # This needs to be done before river is started
+          export XDG_CURRENT_DESKTOP=river
+          ${pkgs.river}/bin/river
+        '';
+      in
+      {
+        command = "${run}";
+        user = "rdn";
+      };
+      default_session = initial_session;
+    };
   };
+
+  services.dbus.enable = true;
+
+  services.logind = {
+    #lidSwitch = "ignore";
+    #lidSwitchDocked = "ignore";
+  };
+
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-wlr
+      pkgs.xdg-desktop-portal-gtk
+    ];
+  };
+
+  # Now use wayland, xserver appears to crash
+  # services.xserver = {
+  #   # Enable the X11 windowing system.
+  #   enable = true;
+    
+  #   # Enable the KDE Plasma Desktop Environment.
+  #   displayManager.sddm.enable = true;
+  #   desktopManager.plasma5.enable = true;
+
+  #   # Configure keymap in X11
+  #   layout = "us";
+  #   xkbVariant = "";
+
+  #   # Enable touchpad support (enabled default in most desktopManagers).
+  #   libinput.enable = true;
+  # };
 
   # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # services.printing.enable = true;
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -110,18 +132,14 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # Adds adb program. Users must be added to the "adbusers" group
-  programs.adb.enable = true;
-   
+  programs.adb.enable = true; # Note: Users must be added to the "adbusers" group
   programs.fish.enable = true;
-
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
   };
-
-  # Run games with this program for more optimized performance.
-  programs.gamemode.enable = true;
+  programs.gamemode.enable = true; # Run games with this program for more optimized performance.
+  programs.dconf.enable = true;
 
 
   # Power saving
@@ -159,5 +177,5 @@
     pkgs.home-manager
   ];
 
-  system.stateVersion = "22.05"; # Do not change
+  system.stateVersion = "23.05"; # Do not change
 }

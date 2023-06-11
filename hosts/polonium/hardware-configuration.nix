@@ -14,14 +14,14 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/25ea0972-27a4-4c2f-92ec-f429b826ab17";
+    { device = "/dev/disk/by-uuid/83cd7c28-4f5d-4cd6-9007-f095766d2efb";
       fsType = "ext4";
     };
 
-  boot.initrd.luks.devices."luks-dcb0361d-39d7-4bd9-8672-6c638c41efc9".device = "/dev/disk/by-uuid/dcb0361d-39d7-4bd9-8672-6c638c41efc9";
+  boot.initrd.luks.devices."luks-36f3a5b8-69af-431f-9899-e922766dde1e".device = "/dev/disk/by-uuid/36f3a5b8-69af-431f-9899-e922766dde1e";
 
-  fileSystems."/boot/efi" =
-    { device = "/dev/disk/by-uuid/8FB4-7937";
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/B137-7B0D";
       fsType = "vfat";
     };
 
@@ -32,7 +32,9 @@
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp4s0f4u1.useDHCP = lib.mkDefault true;
   # networking.interfaces.wlp2s0.useDHCP = lib.mkDefault true;
 
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
