@@ -140,7 +140,6 @@
   };
   programs.gamemode.enable = true; # Run games with this program for more optimized performance.
   programs.dconf.enable = true;
-  programs.brightnessctl.enable = true;
 
   # Power saving
   services.tlp = {
@@ -174,7 +173,10 @@
   
 
   environment.systemPackages = with pkgs; [
-    pkgs.home-manager
+    # brightnessctl # brightness keys on laptop
+    home-manager
+    # playerctl # volume keys on laptop
+    asusctl
   ];
 
   system.stateVersion = "23.05"; # Do not change
