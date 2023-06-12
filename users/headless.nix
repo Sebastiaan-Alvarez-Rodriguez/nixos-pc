@@ -121,7 +121,9 @@
 
     matchBlocks = {
       "github.com" = {
-        user = "git";
+        user = "Sebastiaan-Alvarez-Rodriguez";
+        identityFile = "~/.ssh/github.rsa";
+        identitiesOnly = true;
       };
     };
   };
