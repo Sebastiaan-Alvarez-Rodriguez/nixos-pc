@@ -140,7 +140,7 @@
   };
   programs.gamemode.enable = true; # Run games with this program for more optimized performance.
   programs.dconf.enable = true;
-
+  programs.brightnessctl.enable = true;
 
   # Power saving
   services.tlp = {
