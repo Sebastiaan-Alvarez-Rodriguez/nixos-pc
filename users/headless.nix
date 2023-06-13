@@ -118,13 +118,5 @@
 
     controlMaster = "auto";
     controlPersist = "10m";
-
-    matchBlocks = {
-      "github.com" = {
-        user = "Sebastiaan-Alvarez-Rodriguez";
-        identityFile = "~/.ssh/github.rsa";
-        identitiesOnly = true;
-      };
-    };
   };
 }

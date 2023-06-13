@@ -62,4 +62,18 @@ in {
     isDefault = true;
     withExternalGnupg = false;
   };
+
+  programs.ssh.matchBlocks = {
+    "github.com" = {
+      user = "Sebastiaan-Alvarez-Rodriguez";
+      identityFile = "~/.ssh/github.rsa";
+      identitiesOnly = true;
+    };
+    "cobra" = {
+      user = "sebastiaan";
+      hostname = "pythons.space";
+      identityFile = "~/.ssh/cobra_sebastiaan.rsa";
+      identitiesOnly = true;
+    };
+  };
 }
