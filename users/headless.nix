@@ -24,6 +24,7 @@
     lm_sensors
     moreutils
     mutagen
+    nix-output-monitor
     nmap
     patchelf
     python3
