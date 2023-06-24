@@ -157,6 +157,7 @@
     extraConfig = ''
       riverctl float-filter-add app-id 'float'
       riverctl float-filter-add app-id 'popup'
+      riverctl input pointer-1267-12440-ELAN1201:00_04F3:3098_Touchpad tap enabled
     '';
   };
 
