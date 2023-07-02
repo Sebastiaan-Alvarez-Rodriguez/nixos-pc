@@ -25,14 +25,10 @@
 
   boot = {
     tmp.cleanOnBoot = true;
-    loader = {
-      systemd-boot = {
-        enable = true;
-      };
-      efi = {
-        canTouchEfiVariables = true;
-        efiSysMountPoint = "/boot/efi";
-      };
+    loader.systemd-boot.enable = true;
+    loader.efi = {
+      canTouchEfiVariables = true;
+      efiSysMountPoint = "/boot/efi";
     };
 
     initrd = {
@@ -68,47 +64,50 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  networking = {
-    hostName = "radon";
-    networkmanager.enable = true;
-  };
+  networking.hostName = "radon";
+  networking.networkmanager.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
-
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_US.utf8";
 
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "nl_NL.utf8";
-    LC_IDENTIFICATION = "nl_NL.utf8";
-    LC_MEASUREMENT = "nl_NL.utf8";
-    LC_MONETARY = "nl_NL.utf8";
-    LC_NAME = "nl_NL.utf8";
-    LC_NUMERIC = "nl_NL.utf8";
-    LC_PAPER = "nl_NL.utf8";
-    LC_TELEPHONE = "nl_NL.utf8";
-    LC_TIME = "nl_NL.utf8";
-  };
+  programs.xwayland.enable = true;
 
-  services.xserver = {
-    # Enable the X11 windowing system.
+  services.greetd = {
     enable = true;
-
-    # Use amdgpu driver for Xserver
-    videoDrivers = [ "amdgpu" ];
-
-    # Enable the KDE Plasma Desktop Environment.
-    displayManager.sddm.enable = true;
-    desktopManager.plasma5.enable = true;
-
-    # Configure keymap in X11
-    layout = "us";
-    xkbVariant = "";
+    restart = false;
+    settings = rec {
+      initial_session =
+      let
+        run = pkgs.writeShellScript "start-river" ''
+          # Seems to be needed to get river to properly start
+          sleep 1
+          # Set the proper XDG desktop so that xdg-desktop-portal works
+          # This needs to be done before river is started
+          export XDG_CURRENT_DESKTOP=river
+          ${pkgs.river}/bin/river
+        '';
+      in
+      {
+        command = "${run}";
+        user = "rdn";
+      };
+      default_session = initial_session;
+    };
   };
 
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
+  services.dbus.enable = true;
+
+  services.logind = {
+    #lidSwitch = "ignore";
+    #lidSwitchDocked = "ignore";
+  };
+
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+    extraPortals = [pkgs.xdg-desktop-portal-wlr pkgs.xdg-desktop-portal-gtk];
+  };
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -119,12 +118,6 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
   virtualisation.docker.enable = true;
@@ -134,14 +127,12 @@
 
   # Adds adb program. Users must be added to the "adbusers" group
   programs.adb.enable = true;
-   
   programs.fish.enable = true;
-
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
   };
-
+  programs.dconf.enable = true;
   # For all those executables with hardcoded /lib64 dynamic linker
   programs.nix-ld.enable = true;
 
@@ -170,5 +161,5 @@
     password = "changeme";
   };
 
-  system.stateVersion = "22.05"; # Do not change
+  system.stateVersion = "23.05"; # Do not change
 }
