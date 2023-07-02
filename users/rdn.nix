@@ -66,13 +66,20 @@ in {
   programs.ssh.matchBlocks = {
     "github.com" = {
       user = "Sebastiaan-Alvarez-Rodriguez";
-      identityFile = "~/.ssh/github.rsa";
+      identityFile = "/home/${username}/.ssh/github.rsa";
       identitiesOnly = true;
     };
     "cobra" = {
       user = "sebastiaan";
       hostname = "pythons.space";
-      identityFile = "~/.ssh/cobra_sebastiaan.rsa";
+      identityFile = "/home/${username}/.ssh/cobra_sebastiaan.rsa";
+      identitiesOnly = true;
+    };
+    "dsn" = {
+      user = "xose";
+      port = 9100;
+      hostname = "192.168.178.214";
+      identityFile = "/home/${username}/.ssh/dsn.rsa";
       identitiesOnly = true;
     };
   };
