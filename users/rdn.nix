@@ -82,5 +82,11 @@ in {
       identityFile = "/home/${username}/.ssh/dsn.rsa";
       identitiesOnly = true;
     };
+    "orca" = {
+      user = "rdn";
+      hostname = "ingrid.hypnotherapie-de-aandacht.nl";
+      identityFile = "~/.ssh/orca.rsa";
+      identitiesOnly = true;
+    };
   };
 }

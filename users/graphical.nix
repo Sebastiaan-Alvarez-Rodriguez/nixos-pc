@@ -139,7 +139,7 @@
       attachMode = "bottom";
       border = {
         color = {
-          focused = "0xeaea00";
+          focused = "0xff0908";
           unfocused = "0x484848";
         };
         width = 1;
@@ -246,7 +246,7 @@
     settings = {
       main = {
         layer = "bottom";
-        position = "bottom";
+        position = "top";
         height = 25;
 
         modules-left = [ "river/tags" ];
