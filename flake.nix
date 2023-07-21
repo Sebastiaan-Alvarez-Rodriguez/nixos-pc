@@ -63,6 +63,10 @@
         system = "aarch64-linux";
         userModule = ./users/rdn-blackberry-min.nix;
       };
+      headless = mkUser {
+        system = "x86_64-linux";
+        userModule = ./users/headless.nix;
+      };
     };
     packages = let
       system = "x86_64-linux";
