@@ -8,4 +8,4 @@ in {
 
   programs.git.userName = "Sebastiaan-Alvarez-Rodriguez";
   programs.git.userEmail = "sebastiaanalva@gmail.com";
-
+}
