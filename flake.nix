@@ -63,9 +63,9 @@
         system = "aarch64-linux";
         userModule = ./users/rdn-blackberry-min.nix;
       };
-      headless = mkUser {
+      rdn-headless = mkUser {
         system = "x86_64-linux";
-        userModule = ./users/headless.nix;
+        userModule = ./users/rdn-headless.nix;
       };
     };
     packages = let
