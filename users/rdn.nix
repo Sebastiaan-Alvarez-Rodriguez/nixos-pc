@@ -15,6 +15,7 @@ in {
     qbittorrent
     # sublime4 # removed because of openssl 1.1.0 dependency
     tdesktop
+    tidal-hifi
     teams
     teamspeak_client
     tor-browser-bundle-bin
