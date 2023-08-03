@@ -167,5 +167,23 @@
     password = "changeme";
   };
 
+# tracker website blocking
+  networking.extraHosts = ''
+    0.0.0.0  connect.facebook.net
+    0.0.0.0 datadome.co
+    0.0.0.0 usage.trackjs.com
+    0.0.0.0 googletagmanager.com
+    0.0.0.0 firebaselogging-pa.googleapis.com
+    0.0.0.0 redshell.io
+    0.0.0.0 api.redshell.io
+    0.0.0.0 treasuredata.com
+    0.0.0.0 api.treasuredata.com
+    0.0.0.0 in.treasuredata.com
+    0.0.0.0 cdn.rdshll.com
+    0.0.0.0 t.redshell.io
+    0.0.0.0 innervate.us
+  '';
+
+
   system.stateVersion = "23.05"; # Do not change
 }
