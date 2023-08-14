@@ -37,19 +37,14 @@
   hardware.bluetooth.enable = true;
 
   # Video
-  # hardware.nvidia = {
-  #   modesetting.enable = true;
-  #   prime.sync.enable = false;
-  #   prime.offload.enable = true;
-  #   #prime.nvidiaBusId = "PCI:1:0:0";
-  #   #prime.intelBusId = "PCI:4:0:0";
-  #   powerManagement.enable = true;
-  # };
   hardware.nvidia = {
     modesetting.enable = true;
-    prime.sync.enable = true;
-    prime.offload.enable = false;
-    powerManagement.enable = true;
+    nvidiaSettings = true; # Enable the nvidia settings menu
+    
+    # Optionally, you may need to select the appropriate driver version for your specific GPU.
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+
+    # programs DO NOT use nvidia gpu by default. To activate it, use `nividia-offload <program> <args>`
   };
 
   time.timeZone = "Europe/Amsterdam";
