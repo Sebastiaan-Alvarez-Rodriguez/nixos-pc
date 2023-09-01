@@ -30,6 +30,40 @@
   networking.hostName = "polonium";
   networking.networkmanager.enable = true;
 
+  # networking.nameservers = [ "127.0.0.1" "::1" ];
+  # dhcpcd.extraConfig = "nohook resolv.conf"; # If using dhcpcd
+  # networking.networkmanager.dns = "none";
+  # services.resolved.enable = false; # must be disabled
+
+  # ## Encrypted DNS
+  # services.dnscrypt-proxy2 = { # https://nixos.wiki/wiki/Encrypted_DNS
+  #   enable = true; # TODO: fix... see config options: https://github.com/DNSCrypt/dnscrypt-proxy/wiki/Configuration
+  #   # error is 'stamp too short. Probably fixable... Might be known by cobra'
+  #   settings = {
+  #     ipv6_servers = true;
+  #     require_dnssec = true;
+  #     require_nolog = true; # We shall not log DNS queries
+  #     http3 = false; # experimental HTTP3 support (Note that this uses UDP port 443 instead of TCP)
+
+  #     server_names = ["ipv4-pythons-space-nolog-secure" "ipv6-pythons-space-nolog-secure"];
+  #     static = { # https://dnscrypt.info/stamps/
+  #       "ipv4-pythons-space-nolog-secure".stamp = "sdns://AQcAAAAAAAAADDkyLjYzLjE3My41MQAQMi5kbnNjcnlwdC1jZXJ0Lg";
+  #       "ipv6-pythons-space-nolog-secure".stamp = "sdns://AQcAAAAAAAAAJVsyYTA1OjE1MDA6NzAyOjM6MWMwMDo1NGZmOmZlMDA6MTQzY10AEDIuZG5zY3J5cHQtY2VydC4";
+  #     };
+  #   };
+  # };
+  # systemd.services.dnscrypt-proxy2.serviceConfig = {
+  #   StateDirectory = "dnscrypt-proxy";
+  # };
+
+  # networking.nameservers = [ "92.63.173.51" "2a05:1500:702:3:1c00:54ff:fe00:143c" ];
+
+  # Temporarily enable SSH connection for file syncs
+  # services.openssh = {
+  #   enable = true;
+  #   passwordAuthentication = true;
+  # };
+
   # Input
   services.xserver.xkbOptions = "caps:hyper,compose:rctrl";
   console.useXkbConfig = true;
