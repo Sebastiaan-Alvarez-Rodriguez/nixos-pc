@@ -11,6 +11,7 @@
     acpi
     (aspellWithDicts (dicts: [dicts.en dicts.en-computers dicts.en-science]))
     bintools-unwrapped
+    btop
     docker-compose
     editorconfig-core-c
     fd
