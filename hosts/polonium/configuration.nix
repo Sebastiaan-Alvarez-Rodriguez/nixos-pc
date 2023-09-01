@@ -98,7 +98,7 @@
           # Set the proper XDG desktop so that xdg-desktop-portal works
           # This needs to be done before river is started
           export XDG_CURRENT_DESKTOP=river
-          ${pkgs.river}/bin/river
+          DRI_PRIME=1 ${pkgs.river}/bin/river
         '';
       in
       {
