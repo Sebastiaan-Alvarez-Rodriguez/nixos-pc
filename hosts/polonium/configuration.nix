@@ -30,6 +30,13 @@
   networking.hostName = "polonium";
   networking.networkmanager.enable = true;
 
+  # networking.firewall = {
+  #   allowedTCPPorts = [
+  #     21025 # starbound server - local hosting tmp
+  #   ];
+  #   allowedUDPPorts = [ ];
+  # };
+
   # networking.nameservers = [ "127.0.0.1" "::1" ];
   # dhcpcd.extraConfig = "nohook resolv.conf"; # If using dhcpcd
   # networking.networkmanager.dns = "none";
@@ -74,11 +81,15 @@
   hardware.nvidia = {
     modesetting.enable = true;
     nvidiaSettings = true; # Enable the nvidia settings menu
+    open = true; # Uses open-source variant of driver. NOTE: This is not 'nouveau'. Supported GPU's: https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
     
+    powerManagement.enable = false; # Experimental: Enables nvidia's power mgmt. May cause sleep/suspend to fail.
+    powerManagement.finegrained = false; # Experimental: Turns off GPU when not in use. Only works on gpu's having Turing or newer architecture. 
+
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
-    # programs DO NOT use nvidia gpu by default. To activate it, use `nividia-offload <program> <args>`
+    # programs DO NOT use nvidia gpu by default. To activate it, use `nvidia-offload <program> <args>`
   };
 
   time.timeZone = "Europe/Amsterdam";
@@ -98,7 +109,7 @@
           # Set the proper XDG desktop so that xdg-desktop-portal works
           # This needs to be done before river is started
           export XDG_CURRENT_DESKTOP=river
-          ${pkgs.river}/bin/river
+          WLR_DRM_DEVICES=/dev/dri/card0 ${pkgs.river}/bin/river
         '';
       in
       {
