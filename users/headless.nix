@@ -9,6 +9,7 @@
   # TODO: Trim these packages so that we dont get the X libraries for random bullshit
   home.packages = with pkgs; [
     acpi
+    amber # cmd search/replace
     (aspellWithDicts (dicts: [dicts.en dicts.en-computers dicts.en-science]))
     bintools-unwrapped
     btop
