@@ -83,8 +83,8 @@
     nvidiaSettings = true; # Enable the nvidia settings menu
     open = true; # Uses open-source variant of driver. NOTE: This is not 'nouveau'. Supported GPU's: https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
     
-    powerManagement.enable = false; # Experimental: Enables nvidia's power mgmt. May cause sleep/suspend to fail.
-    powerManagement.finegrained = false; # Experimental: Turns off GPU when not in use. Only works on gpu's having Turing or newer architecture. 
+    powerManagement.enable = true; # Experimental: Enables nvidia's power mgmt. May cause sleep/suspend to fail.
+    powerManagement.finegrained = true; # Experimental: Turns off GPU when not in use. Only works on gpu's having Turing or newer architecture. 
 
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
