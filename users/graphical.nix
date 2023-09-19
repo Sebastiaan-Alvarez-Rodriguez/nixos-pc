@@ -1,6 +1,6 @@
 { inputs, lib, config, pkgs, ... }: {
+  # Adds a graphical interface when imported.
   imports = [
-    ./headless.nix
     ../modules/home-manager/river.nix
     ../modules/home-manager/swaybg.nix
   ];
@@ -17,12 +17,12 @@
   };
 
   home.packages = with pkgs; [
-    bluez
+    bluez # bluetooth
     chromium
     dejavu_fonts
     font-awesome_5
     gparted
-    grim
+    grim # screen capture <-- dev made other interesting stuff too
     hotspot
     meld
     micro
@@ -331,7 +331,6 @@
     systemdTarget = "river-session.target";
   };
 
-  # programs.nix-index.enable = true; # Already in headless
 
   gtk = {
     enable = true;

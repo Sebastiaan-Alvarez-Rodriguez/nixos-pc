@@ -1,5 +1,7 @@
 { inputs, lib, config, pkgs, ... }: {
-  # should set home.username and home.homeDirectory in specialization
+  # A common headless (non-graphical) user installation. User specializations must set:
+  # home.username, home.homeDirectory, programs.git.userName, programs.git.userMail
+
   home.stateVersion = "23.05";
 
   home.sessionVariables = {
