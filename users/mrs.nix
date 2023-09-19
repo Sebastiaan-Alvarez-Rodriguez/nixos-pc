@@ -1,15 +1,9 @@
 { config, pkgs, ... }:
 let
   username = "mrs";
-  githubUsername = "MariskaIJpelaar";
-  githubEmail = "m.m.j.ijpelaar@gmail.com";
 in {
-  home.username = username;
-  home.homeDirectory = "/home/${username}";
-  home.stateVersion = "22.05";
+  imports = [ ./mrs-headless.nix ./graphical.nix ]; # WIP: this uses river, wayland
 
-  programs.home-manager.enable = true; # Let Home Manager install & manage itself.
- 
   home.packages = with pkgs; [
     chromium
     drawio

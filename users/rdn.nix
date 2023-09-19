@@ -1,7 +1,7 @@
 { inputs, config, lib, pkgs, ...}: let
   username = "rdn";
 in {
-  imports = [ ./graphical.nix ];
+  imports = [ ./rdn-headless.nix ./graphical.nix ];
 
   home.packages = let
     pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
@@ -22,8 +22,6 @@ in {
     virt-manager # ui manager for vm's
     vlc
   ];
-  home.username = username;
-  home.homeDirectory = "/home/${username}";
 
   accounts.email = {
     accounts.gmail = {
@@ -41,9 +39,6 @@ in {
   };
 
   programs.swaybg.image = ../res/background/neon_rain_3840x2160.jpg;
-
-  programs.git.userName = "Sebastiaan-Alvarez-Rodriguez";
-  programs.git.userEmail = "sebastiaanalva@gmail.com";
 
   programs.foot.settings.main.monitor-scale = "eDP-1:1, 27GL850:1.7, G2460:1.6, QROM8HA000914:1.5";
 
