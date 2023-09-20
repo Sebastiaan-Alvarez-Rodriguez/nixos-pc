@@ -1,7 +1,7 @@
 { inputs, config, lib, pkgs, ...}: let
   username = "rdn";
 in {
-  imports = [ ./rdn-headless.nix ./graphical.nix ];
+  imports = [ ./rdn-headless.nix ../graphical.nix ];
 
   home.packages = let
     pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
@@ -38,7 +38,7 @@ in {
     };
   };
 
-  programs.swaybg.image = ../res/background/neon_rain_3840x2160.jpg;
+  programs.swaybg.image = ../../res/background/neon_rain_3840x2160.jpg;
 
   programs.foot.settings.main.monitor-scale = "eDP-1:1, 27GL850:1.7, G2460:1.6, QROM8HA000914:1.5";
 
@@ -57,32 +57,5 @@ in {
   programs.thunderbird.profiles."${username}" = {
     isDefault = true;
     withExternalGnupg = false;
-  };
-
-  programs.ssh.matchBlocks = {
-    "github.com" = {
-      user = "Sebastiaan-Alvarez-Rodriguez";
-      identityFile = "/home/${username}/.ssh/github.rsa";
-      identitiesOnly = true;
-    };
-    "cobra" = {
-      user = "sebastiaan";
-      hostname = "pythons.space";
-      identityFile = "/home/${username}/.ssh/cobra_sebastiaan.rsa";
-      identitiesOnly = true;
-    };
-    "dsn" = {
-      user = "xose";
-      port = 9100;
-      hostname = "192.168.178.214";
-      identityFile = "/home/${username}/.ssh/dsn.rsa";
-      identitiesOnly = true;
-    };
-    "orca" = {
-      user = "rdn";
-      hostname = "ingrid.hypnotherapie-de-aandacht.nl";
-      identityFile = "~/.ssh/orca.rsa";
-      identitiesOnly = true;
-    };
   };
 }

@@ -2,7 +2,7 @@
 let
   username = "mrs";
 in {
-  imports = [ ./mrs-headless.nix ./graphical.nix ]; # WIP: this uses river, wayland
+  imports = [ ./mrs-headless.nix ../graphical.nix ]; # WIP: this uses river, wayland
 
   home.packages = with pkgs; [
     chromium
