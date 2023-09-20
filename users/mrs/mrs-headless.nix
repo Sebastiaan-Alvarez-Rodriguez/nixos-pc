@@ -1,7 +1,7 @@
 { inputs, config, lib, pkgs, ...}: let
   username = "mrs";
 in {
-  imports = [ ./headless.nix ];
+  imports = [ ../headless.nix ];
 
   home.username = username;
   home.homeDirectory = "/home/${username}";

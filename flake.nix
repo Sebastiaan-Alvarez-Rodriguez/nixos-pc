@@ -53,19 +53,19 @@
     in {
       mrs = mkUser {
         system = "x86_64-linux";
-        userModule = ./users/mrs.nix;
+        userModule = ./users/mrs/mrs.nix;
       };
       rdn = mkUser {
         system = "x86_64-linux";
-        userModule = ./users/rdn.nix;
+        userModule = ./users/rdn/rdn.nix;
       };
       rdn-blackberry-min = mkUser {
         system = "aarch64-linux";
-        userModule = ./users/rdn-blackberry-min.nix;
+        userModule = ./users/rdn/rdn-headless.nix;
       };
       rdn-headless = mkUser {
         system = "x86_64-linux";
-        userModule = ./users/rdn-headless.nix;
+        userModule = ./users/rdn/rdn-headless.nix;
       };
     };
     packages = let

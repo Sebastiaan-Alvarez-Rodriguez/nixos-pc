@@ -2,6 +2,10 @@
   # A common headless (non-graphical) user installation. User specializations must set:
   # home.username, home.homeDirectory, programs.git.userName, programs.git.userMail
 
+  imports = [
+    ../modules/home-manager/ssh-agent.nix
+  ];
+
   home.stateVersion = "23.05";
 
   home.sessionVariables = {
@@ -15,7 +19,6 @@
     (aspellWithDicts (dicts: [dicts.en dicts.en-computers dicts.en-science]))
     bintools-unwrapped
     btop
-    docker-compose
     editorconfig-core-c
     fd
     fzf
@@ -26,30 +29,25 @@
     libqalculate
     libtree
     lm_sensors
+    meld
     moreutils
     mutagen
     nix-output-monitor
     nmap
+    parted
     patchelf
     python3
     p7zip
-    ripgrep
+    tmux
     unzip
     usbutils
-    visidata
+    visidata # commandline tabular data explorer
     wget
     xclip # required by helix for copy/pasting (use `primary-clipboard-yank`)
     zip
   ];
 
   xdg.enable = true;
-
-  # TODO: Example config source for kak. Edit settings for hx copy/paste and provide file like this
-  # Kakoune config files
-  # The kakoune module is a bit too invasive, so just copy all the files in
-  # assets/kak/ to the $XDG_CONFIG_HOME/kak/ manually.
-  # TODO: Make it not use rofi in headless mode
-  # xdg.configFile."kak".source = ../assets/kak;
 
   programs.direnv = {
     enable = true;
@@ -61,24 +59,6 @@
     interactiveShellInit = ''
       tabs -4
       ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
-      set fish_greeting '
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣶⣿⣿⣷⣶⣄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣾⣿⣿⡿⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⡟⠁⣰⣿⣿⣿⡿⠿⠻⠿⣿⣿⣿⣿⣧⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣾⣿⣿⠏⠀⣴⣿⣿⣿⠉⠀⠀⠀⠀⠀⠈⢻⣿⣿⣇⠀⠀⠀
-⠀⠀⠀⠀⢀⣠⣼⣿⣿⡏⠀⢠⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⡀⠀ 
-⠀⠀⠀⣰⣿⣿⣿⣿⣿⡇⠀⢸⣿⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⡇⠀⠀
-⠀⠀⢰⣿⣿⡿⣿⣿⣿⡇⠀⠘⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⢀⣸⣿⣿⣿⠁⠀⠀   - Sus Amongus
-⠀⠀⣿⣿⣿⠁⣿⣿⣿⡇⠀⠀⠻⣿⣿⣿⣷⣶⣶⣶⣶⣶⣿⣿⣿⣿⠃⠀⠀⠀
-⠀⢰⣿⣿⡇⠀⣿⣿⣿⠀⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀
-⠀⢸⣿⣿⡇⠀⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠉⢉⣿⣿⠀⠀⠀⠀⠀⠀
-⠀⢸⣿⣿⣇⠀⣿⣿⣿⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⢸⣿⣿⣿⣷⣦⠀⠀⠀
-⠀⠀⢻⣿⣿⣶⣿⣿⣿⠀⠀⠀⠀⠀⠈⠻⣿⣿⣿⣦⡀⠀⠉⠉⠻⣿⣿⡇⠀⠀
-⠀⠀⠀⠛⠿⣿⣿⣿⣿⣷⣤⡀⠀⠀⠀⠀⠈⠹⣿⣿⣇⣀⠀⣠⣾⣿⣿⡇⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣦⣤⣤⣤⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⢿⣿⣿⣿⣿⣿⣿⠿⠋⠉⠛⠋⠉⠉⠁⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠁
-      '
       fish_vi_key_bindings
     '';
     shellAbbrs = {
@@ -141,4 +121,5 @@
     controlMaster = "auto";
     controlPersist = "10m";
   };
+  services.ssh-agent.enable = true; # uncomment when using 23.11 --> then it will be merged: https://github.com/nix-community/home-manager/blob/408ba13188ff9ce309fa2bdd2f81287d79773b00/modules/services/ssh-agent.nix#L12
 }

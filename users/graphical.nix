@@ -331,7 +331,6 @@
     systemdTarget = "river-session.target";
   };
 
-
   gtk = {
     enable = true;
     theme = {
