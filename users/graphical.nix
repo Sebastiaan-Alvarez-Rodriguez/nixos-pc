@@ -2,7 +2,7 @@
   # Adds a graphical interface when imported.
   imports = [
     ../modules/home-manager/river.nix
-    ../modules/home-manager/swaybg.nix
+    ../modules/home-manager/swaybg-dynamic.nix
   ];
 
   home.sessionVariables = {
@@ -306,7 +306,7 @@
     style = ../res/waybar/waybar-style.css;
   };
 
-  programs.swaybg = { # backgrounds
+  programs.swaybg-dynamic = { # backgrounds
     enable = true;
     mode = "fill";
     systemdTarget = "river-session.target";
