@@ -9,7 +9,7 @@ in {
   programs.fish.interactiveShellInit = ''
       tabs -4
       ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
-      eval (ssh-agent -c)
+      eval (ssh-agent -c) > /dev/null
       set fish_greeting '
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣶⣿⣿⣷⣶⣄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣾⣿⣿⡿⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀
@@ -70,6 +70,11 @@ in {
       };
     };
     setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
-  in (setDefaults {identitiesOnly = true; forwardAgent = true; } trustedHosts);
+  in (setDefaults {
+    identitiesOnly = true;
+    forwardAgent = true;
+    # addKeysToAgent = true;
+    # useKeychain = true;
+  } trustedHosts);
     # // (setDefaults { user = "git"; } gitHosts);
 }
