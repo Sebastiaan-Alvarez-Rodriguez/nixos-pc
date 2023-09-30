@@ -31,6 +31,11 @@ in {
       fish_vi_key_bindings
   '';
 
+  # LSPs for helix
+  home.packages = with pkgs; [
+    pkgs.python3Packages.python-lsp-server
+  ];
+
   programs.git.userName = "Sebastiaan-Alvarez-Rodriguez";
   programs.git.userEmail = "sebastiaanalva@gmail.com";
 
