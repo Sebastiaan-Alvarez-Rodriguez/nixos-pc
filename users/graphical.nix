@@ -31,8 +31,7 @@
     noto-fonts
     noto-fonts-cjk
     noto-fonts-emoji
-    obsidian
-    obs-studio
+    # obsidian # depends on insecure electron 24.8.6
     pavucontrol
     river # wayland tiling
     roboto # font
