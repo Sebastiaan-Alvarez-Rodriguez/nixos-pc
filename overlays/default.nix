@@ -18,6 +18,10 @@ self: super: {
   #   };
   # });
 
+  # logiops = super.logiops.overrideAttrs(old: super.callPackage ../packages/logiops.nix { });
+  logiops = super.callPackage ../packages/logiops.nix { };
+  # logiops = super.logiops.extend(old: super.callPackage ../packages/logiops.nix { });
+
   # Note: We could also just set hardware.nvidia.package, but it seems that some derivations
   # use pkgs.nvidia_x11 directly rather than this option. This makes sure that we catch
   # everything.

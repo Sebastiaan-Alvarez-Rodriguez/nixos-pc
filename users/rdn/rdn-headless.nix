@@ -58,7 +58,7 @@ in {
       };
       "orca" = {
         user = "rdn";
-        hostname = "ingrid.hypnotherapie-de-aandacht.nl";
+        hostname = "176.117.59.34";
         identityFile = "/home/${username}/.ssh/orca.rsa";
       };
       "blackberry-local" = {

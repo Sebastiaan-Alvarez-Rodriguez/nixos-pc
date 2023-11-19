@@ -79,24 +79,24 @@
 
   # Video
   hardware.nvidia = {
-    modesetting.enable = true;
+    # modesetting.enable = true;
     nvidiaSettings = true; # Enable the nvidia settings menu
     open = true; # Uses open-source variant of driver. NOTE: This is not 'nouveau'. Supported GPU's: https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
     
-    powerManagement.enable = true; # Experimental: Enables nvidia's power mgmt. May cause sleep/suspend to fail.
-    powerManagement.finegrained = true; # Experimental: Turns off GPU when not in use. Only works on gpu's having Turing or newer architecture. 
+    # powerManagement.enable = true; # Experimental: Enables nvidia's power mgmt. May cause sleep/suspend to fail.
+    # powerManagement.finegrained = true; # Experimental: Turns off GPU when not in use. Only works on gpu's having Turing or newer architecture. 
 
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
-    prime = { # WARNING: Make sure to use the correct Bus ID values for your system! Use `nix run nixpkgs#lshw -- -c display`. https://nixos.wiki/wiki/Nvidia.
-      offload = {
-      	enable = true;
-      	enableOffloadCmd = true;
-      };
-  		amdgpuBusId = "PCI:4:0:0";
-  		nvidiaBusId = "PCI:1:0:0";
-    };
+    # prime = { # WARNING: Make sure to use the correct Bus ID values for your system! Use `nix run nixpkgs#lshw -- -c display`. https://nixos.wiki/wiki/Nvidia.
+    #   offload = {
+    #   	enable = true;
+    #   	enableOffloadCmd = true;
+    #   };
+  		# amdgpuBusId = "PCI:4:0:0";
+  		# nvidiaBusId = "PCI:1:0:0";
+    # };
     # programs DO NOT use nvidia gpu by default. To activate it, use `nvidia-offload <program> <args>`
   };
 
