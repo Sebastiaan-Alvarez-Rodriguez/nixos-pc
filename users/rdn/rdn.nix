@@ -3,6 +3,9 @@
 in {
   imports = [ ./rdn-headless.nix ../graphical.nix ];
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "teams-1.5.00.23861"
+  ];
   home.packages = let
     pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
   in with pkgs; [
@@ -11,11 +14,14 @@ in {
     droidcam
     galculator
     jetbrains.idea-community
+    logiops
     nheko
+    proton-caller
     qbittorrent
     # sublime4 # removed because of openssl 1.1.0 dependency
     tdesktop
     tidal-hifi
+    teams
     teamspeak_client
     tor-browser-bundle-bin
     virt-manager # ui manager for vm's

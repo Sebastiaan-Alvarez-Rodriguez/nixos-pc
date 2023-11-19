@@ -98,8 +98,8 @@
         "${mod} H" = "send-layout-cmd rivertile 'main-ratio -0.05'";
         "${mod} L" = "send-layout-cmd rivertile 'main-ratio +0.05'";
 
-        "${mod}+Shift H" = "send-layout-cmd rivertile 'main-count +1'";
-        "${mod}+Shift L" = "send-layout-cmd rivertile 'main-count -1'";
+        # "${mod}+Shift H" = "send-layout-cmd rivertile 'main-count +1'"; # irreversible vsplit on 2 screens
+        # "${mod}+Shift L" = "send-layout-cmd rivertile 'main-count -1'";
 
         "None Print" = "spawn '${screenshot}'";
 
@@ -126,8 +126,8 @@
         "${mod} F11" = "enter-mode passthrough";
       };
       pointer = {
-        "${mod} BTN_LEFT" = "move-view";
-        "${mod} BTN_RIGHT" = "resize-view";
+        # "${mod} BTN_LEFT" = "move-view"; # untiles windows
+        # "${mod} BTN_RIGHT" = "resize-view";
       };
       passthrough = {
         "${mod} F11" = "enter-mode normal";
