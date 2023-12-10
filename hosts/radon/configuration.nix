@@ -185,5 +185,5 @@
   '';
 
 
-  system.stateVersion = "23.05"; # Do not change
+  system.stateVersion = "23.11"; # Do not change
 }
