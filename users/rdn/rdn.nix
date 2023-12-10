@@ -20,6 +20,7 @@ in {
     tidal-hifi
     teams-for-linux
     teamspeak_client
+    teamviewer
     tor-browser-bundle-bin
     virt-manager # ui manager for vm's
     vlc
