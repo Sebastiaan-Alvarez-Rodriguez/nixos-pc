@@ -2,9 +2,7 @@ self: super: {
   # Patch foot with an option that allows per-monitor scaling, so that
   # DPI and stuff isn't so horrible.
   foot = super.foot.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [
-      ../patches/foot-per-monitor-scale.patch
-    ];
+    patches = (old.patches or [ ]) ++ [ ../patches/foot-per-monitor-scale.patch ];
   });
 
   # example of overriding a package with a more recent version (in this case on git)
@@ -28,5 +26,9 @@ self: super: {
   linuxPackages_latest = super.linuxPackages_latest.extend (selfnv: supernv: {
     nvidiaPackages.stable = supernv.nvidiaPackages.latest;
     nvidia_x11 = selfnv.nvidiaPackages.stable;
+  });
+
+  prism-launcher = super.prism-launcher.overrideAttrs (old: {
+    patches = old.patches ++ [ ../patches/prism-launcher-custom.patch ];
   });
 }
