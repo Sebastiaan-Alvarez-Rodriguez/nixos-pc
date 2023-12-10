@@ -3,9 +3,6 @@
 in {
   imports = [ ./rdn-headless.nix ../graphical.nix ];
 
-  nixpkgs.config.permittedInsecurePackages = [
-    "teams-1.5.00.23861"
-  ];
   home.packages = let
     pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
   in with pkgs; [
@@ -21,7 +18,7 @@ in {
     # sublime4 # removed because of openssl 1.1.0 dependency
     tdesktop
     tidal-hifi
-    teams
+    teams-for-linux
     teamspeak_client
     tor-browser-bundle-bin
     virt-manager # ui manager for vm's
@@ -49,6 +46,11 @@ in {
 
   programs.foot.settings.main.monitor-scale = "eDP-1:1, 27GL850:1.7, G2460:1.6, QROM8HA000914:1.5";
 
+  programs.thunderbird.profiles."${username}" = {
+    isDefault = true;
+    withExternalGnupg = false;
+  };
+
   services.kanshi.profiles = {
     undocked = {
       outputs = [
@@ -60,9 +62,5 @@ in {
         }
       ];
     };
-  };
-  programs.thunderbird.profiles."${username}" = {
-    isDefault = true;
-    withExternalGnupg = false;
   };
 }

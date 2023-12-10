@@ -2,11 +2,7 @@
   # A common headless (non-graphical) user installation. User specializations must set:
   # home.username, home.homeDirectory, programs.git.userName, programs.git.userMail
 
-  imports = [
-    ../modules/home-manager/ssh-agent.nix
-  ];
-
-  home.stateVersion = "23.05";
+  home.stateVersion = "23.11";
 
   home.sessionVariables = {
     EDITOR = "${pkgs.helix}/bin/hx";
@@ -121,5 +117,4 @@
     controlMaster = "auto";
     controlPersist = "10m";
   };
-  services.ssh-agent.enable = true; # uncomment when using 23.11 --> then it will be merged: https://github.com/nix-community/home-manager/blob/408ba13188ff9ce309fa2bdd2f81287d79773b00/modules/services/ssh-agent.nix#L12
 }

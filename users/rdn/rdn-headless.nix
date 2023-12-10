@@ -9,7 +9,6 @@ in {
   programs.fish.interactiveShellInit = ''
       tabs -4
       ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
-      eval (ssh-agent -c) > /dev/null
       set fish_greeting '
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣶⣿⣿⣷⣶⣄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣾⣿⣿⡿⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀

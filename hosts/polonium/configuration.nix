@@ -139,6 +139,7 @@
     enable = true;
     wlr.enable = true;
     extraPortals = [pkgs.xdg-desktop-portal-wlr pkgs.xdg-desktop-portal-gtk];
+    config.common.default = "*";
   };
 
   # Now use wayland, xserver appears to crash
@@ -198,6 +199,16 @@
   };
   services.power-profiles-daemon.enable=false; # conflicts with tlp, https://github.com/linrunner/TLP/issues/564
 
+  # services.syncthing = {
+  #   enable = true;
+  #   user = "rdn";
+  #   overrideDevices = true; # Overrides web ui input
+  #   overrideFolders = true; # Overrides web ui input
+  #   settings.devices = {
+  #     "apex" = {id="QJOIABO-SMQWMLF-I2EX26V-UBDX6PR-LRS2ZMU-3PRAJAL-DJ3BUYO-22XBEAU";};
+  #     "polonium" = {id="US6ZAVZ-7UAT7ZU-EBJHDA7-3TAT2DM-UXEXXGR-OA3EL2P-ZAFKQYP-DGQ4PAX";};
+  #   };
+  # };
 
   # Set password with ‘passwd’.
   users.users.rdn = {
@@ -240,5 +251,5 @@
     asusctl
   ];
 
-  system.stateVersion = "23.05"; # Do not change
+  system.stateVersion = "23.11"; # Do not change
 }
