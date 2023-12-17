@@ -7,6 +7,7 @@ in {
     pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
   in with pkgs; [
     pkgs_2205.remmina
+    adbfs-rootless
     drawio
     droidcam
     galculator
