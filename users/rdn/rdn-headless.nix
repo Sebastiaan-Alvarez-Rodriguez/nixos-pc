@@ -52,7 +52,7 @@ in {
       "dsn" = {
         user = "xose";
         port = 9100;
-        hostname = "192.168.178.214";
+        hostname = "192.168.178.3";
         identityFile = "/home/${username}/.ssh/dsn.rsa";
       };
       "orca" = {
