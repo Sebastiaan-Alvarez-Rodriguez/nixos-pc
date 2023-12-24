@@ -44,6 +44,7 @@
   fonts.fontconfig.enable = true;
 
   programs.river = {
+    # styling, keybinds maybe? https://github.com/prmadev/River-Dotfiles
     enable = true;
     systemdIntegration = true;
 
@@ -101,6 +102,8 @@
         # "${mod}+Shift H" = "send-layout-cmd rivertile 'main-count +1'"; # irreversible vsplit on 2 screens
         # "${mod}+Shift L" = "send-layout-cmd rivertile 'main-count -1'";
 
+        "${mod} P" = "spawn '${pkgs.firefox-unwrapped}/bin/firefox --private-window'";
+        
         "None Print" = "spawn '${screenshot}'";
 
         "None XF86Eject" = "spawn 'eject -T'";
