@@ -119,6 +119,7 @@ in {
         # "${mod}+Shift H" = "send-layout-cmd rivertile 'main-count +1'"; # irreversible vsplit on 2 screens
         # "${mod}+Shift L" = "send-layout-cmd rivertile 'main-count -1'";
 
+        "${mod} B" = "spawn '${custom-firefox}/bin/firefox'";
         "${mod} P" = "spawn '${custom-firefox}/bin/firefox --private-window'";
         
         "None Print" = "spawn '${screenshot}'";
