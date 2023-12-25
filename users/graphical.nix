@@ -1,4 +1,21 @@
-{ inputs, lib, config, pkgs, ... }: {
+{ inputs, lib, config, pkgs, ... }: let
+  custom-firefox = pkgs.wrapFirefox pkgs.firefox-unwrapped {
+    extraPolicies = {
+      DisableFirefoxStudies = true;
+      DisablePocket = true;
+      DisableTelemetry = true;
+      DisableFirefoxAccounts = false;
+      FirefoxHome = {
+        Pocket = false;
+        Snippets = false;
+      };
+      UserMessaging = {
+        ExtensionRecommendation = false;
+        SkipOnboarding = false;
+      };
+    };
+  };
+in {
   # Adds a graphical interface when imported.
   imports = [
     ../modules/home-manager/river.nix
@@ -102,7 +119,7 @@
         # "${mod}+Shift H" = "send-layout-cmd rivertile 'main-count +1'"; # irreversible vsplit on 2 screens
         # "${mod}+Shift L" = "send-layout-cmd rivertile 'main-count -1'";
 
-        "${mod} P" = "spawn '${pkgs.firefox-unwrapped}/bin/firefox --private-window'";
+        "${mod} P" = "spawn '${custom-firefox}/bin/firefox --private-window'";
         
         "None Print" = "spawn '${screenshot}'";
 
@@ -210,22 +227,7 @@
 
   programs.firefox = {
     enable = true;
-    package = pkgs.wrapFirefox pkgs.firefox-unwrapped {
-      extraPolicies = {
-        DisableFirefoxStudies = true;
-        DisablePocket = true;
-        DisableTelemetry = true;
-        DisableFirefoxAccounts = false;
-        FirefoxHome = {
-          Pocket = false;
-          Snippets = false;
-        };
-        UserMessaging = {
-          ExtensionRecommendation = false;
-          SkipOnboarding = false;
-        };
-      };
-    };
+    package = custom-firefox;
   };
 
   programs.rofi = {
