@@ -54,9 +54,11 @@
 
   services.openssh = {
     enable = true;
-    permitRootLogin = "no";
-    passwordAuthentication = false;
-    kbdInteractiveAuthentication = false;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+    };
   };
 
   programs.fish.enable = true;
@@ -69,9 +71,13 @@
     shell = pkgs.fish;
     password = "changeme";
     openssh.authorizedKeys.keyFiles = [
-      ../../res/keys/blackberry-rdn.rsa.pub
+      ../../res/keys/blackberry.rsa.pub
     ];
   };
 
-  system.stateVersion = "22.11"; # Do not change
+  environment.systemPackages = with pkgs; [
+    home-manager
+  ];
+
+  system.stateVersion = "23.11";
 }
