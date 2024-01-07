@@ -46,6 +46,7 @@
     '';
     # Allow NTFS reading https://nixos.wifi/wiki/NTFS
     supportedFilesystems = [ "ntfs" ];
+    binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
 
   # services.openssh = {
@@ -63,6 +64,8 @@
  
   # Allow openGL. https://nixos.wiki/wiki/OpenGL
   hardware.opengl.enable = true;
+  hardware.opengl.extraPackages = with pkgs; [ amdvlk ];
+
   environment.variables = rec { # Set session env vars
       LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib";
       LD_PREFIX_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib";

@@ -28,8 +28,8 @@ nix build ".#images.blackberry"
 To write the image on an SD card, use:
 ```bash
 lsblk #find the SD card
-sudo gdisk # remove old partitions using gdisk UI
-sudo dd if=result/sd-image/nixos-sd-image-22.11.20221215.0152de2-aarch64-linux.img of=/dev/sdX bs=1024k status=progress
+sudo --preserve-env gparted # remove old partitions using gdisk UI
+sudo dd if=result/sd-image/nixos-sd-image-VERSION.DATE.HASH-aarch64-linux.img of=/dev/sdX bs=1024k status=progress
 ```
 
 Insert the SD in the raspberry Pi.

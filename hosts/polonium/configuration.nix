@@ -231,7 +231,7 @@
   
 # tracker website blocking
   networking.extraHosts = ''
-    0.0.0.0  connect.facebook.net
+    0.0.0.0 connect.facebook.net
     0.0.0.0 datadome.co
     0.0.0.0 usage.trackjs.com
     0.0.0.0 googletagmanager.com
