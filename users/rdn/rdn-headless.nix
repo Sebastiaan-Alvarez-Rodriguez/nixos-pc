@@ -52,7 +52,7 @@ in {
       "dsn" = {
         user = "xose";
         port = 9100;
-        hostname = "192.168.178.3";
+        hostname = "192.168.178.5";
         identityFile = "/home/${username}/.ssh/dsn.rsa";
       };
       "orca" = {
@@ -61,7 +61,7 @@ in {
         identityFile = "/home/${username}/.ssh/orca.rsa";
       };
       "blackberry-local" = {
-        hostname = "192.168.178.213";
+        hostname = "192.168.1.7";
         user = "rdn";
         port = 18357;
         identityFile = "/home/${username}/.ssh/blackberry.rsa";
