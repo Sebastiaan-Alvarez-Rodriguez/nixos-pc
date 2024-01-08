@@ -61,6 +61,16 @@
     };
   };
 
+  services.restic.server = { # backup server for restic.
+    # options: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/backup/restic-rest-server.nix
+    enable = true;
+    listenAddress = "0.0.0.0:1001";
+    dataDir = "/data/restic/repositories";
+    appendOnly = true; # WARN: keep this on always! If a backup-client is hacked, it can never change things.
+    extraFlags = "--htpasswd-file /data/restic/passwdfile"; # Generate this file using `htpasswd -B -c passwdfile <USERNAME>`. Outputfile will contain 'USERNAME:hash'.
+    privateRepos = true; # users can only access their own repositories. i.e. user 'abc' can only access repositories named 'abc', or subrepositories like 'abc/one', 'abc/another' etc.
+  };
+
   programs.fish.enable = true;
 
   # Define a user account. Set password with ‘passwd’.
