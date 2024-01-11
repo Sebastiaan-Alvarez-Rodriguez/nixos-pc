@@ -71,6 +71,7 @@ in {
         user = "rdn";
         port = 18357;
         identityFile = "/home/${username}/.ssh/blackberry.rsa";
+        addressFamily = "inet"; # force ipv4.
       };
     };
     setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
