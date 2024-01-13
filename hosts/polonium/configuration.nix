@@ -175,7 +175,7 @@
     pulse.enable = true;
   };
 
-  virtualisation.docker.enable = true;
+  # virtualisation.docker.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -216,7 +216,7 @@
   users.users.rdn = {
     isNormalUser = true;
     description = "rdn";
-    extraGroups = [ "networkmanager" "wheel" "video" "docker" "adbusers" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "adbusers" ]; # "docker" if we use docker
     shell = pkgs.fish;
     password = "changeme";
   };
@@ -224,7 +224,7 @@
   users.users.mrs = {
     isNormalUser = true;
     description = "mrs";
-    extraGroups = [ "networkmanager" "wheel" "video" "docker" "adbusers" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "adbusers" ]; # "docker" if we use docker
     shell = pkgs.fish;
     password = "changeme";
   };
