@@ -24,8 +24,8 @@
 
     firewall = {
       allowedTCPPorts = [
-        80    # HTTP
-        443   # HTTPS
+        # 18357 # ssh
+        18358 # restic server
         1001  # restic server
       ];
     };
@@ -54,6 +54,7 @@
 
   services.openssh = {
     enable = true;
+    # ports = [18357];
     settings = {
       PermitRootLogin = "no";
       PasswordAuthentication = false;
@@ -64,7 +65,7 @@
   services.restic.server = { # backup server for restic.
     # options: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/backup/restic-rest-server.nix
     enable = true;
-    listenAddress = "0.0.0.0:1001";
+    listenAddress = "0.0.0.0:18358";
     dataDir = "/data/restic/repositories";
     appendOnly = true; # WARN: keep this on always! If a backup-client is hacked, it can never change things.
     extraFlags = ["--htpasswd-file" "/data/restic/passwdfile"]; # Generate this file using `htpasswd -B -c passwdfile <USERNAME>`. Outputfile will contain 'USERNAME:hash'.
