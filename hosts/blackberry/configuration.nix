@@ -24,9 +24,8 @@
 
     firewall = {
       allowedTCPPorts = [
-        # 18357 # ssh
+        18357 # ssh
         18358 # restic server
-        1001  # restic server
       ];
     };
   };
@@ -60,6 +59,7 @@
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
     };
+    ports = [ 18357 ];
   };
 
   services.restic.server = { # backup server for restic.
