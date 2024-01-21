@@ -53,7 +53,7 @@
 
   services.openssh = {
     enable = true;
-    # ports = [18357];
+    ports = [18357];
     settings = {
       PermitRootLogin = "no";
       PasswordAuthentication = false;
@@ -69,7 +69,6 @@
     dataDir = "/data/restic/repositories";
     appendOnly = true; # WARN: keep this on always! If a backup-client is hacked, it can never change things.
     extraFlags = ["--htpasswd-file" "/data/restic/passwdfile"]; # Generate this file using `htpasswd -B -c passwdfile <USERNAME>`. Outputfile will contain 'USERNAME:hash'.
-    privateRepos = true; # users can only access their own repositories. i.e. user 'abc' can only access repositories named 'abc', or subrepositories like 'abc/one', 'abc/another' etc.
   };
 
   programs.fish.enable = true;
@@ -88,6 +87,7 @@
 
   environment.systemPackages = with pkgs; [
     home-manager
+    git
     rsync # somehow not installed by default
   ];
 
