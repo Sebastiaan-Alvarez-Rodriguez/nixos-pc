@@ -3,7 +3,9 @@
     ./hardware-configuration.nix
   ];
 
-  boot = {
+nix.settings.trusted-users = [ "@wheel" ]; # Required for accepting remote builds
+
+boot = {
     supportedFilesystems = [ "vfat" "f2fs" "ntfs" "cifs" ];
     # loader.raspberryPi = { # as from https://nixos.wiki/wiki/NixOS_on_ARM/Raspberry_Pi_3
     #   enable = true;
@@ -59,7 +61,6 @@
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
     };
-    ports = [ 18357 ];
   };
 
   services.restic.server = { # backup server for restic.
@@ -68,7 +69,10 @@
     listenAddress = "0.0.0.0:18358";
     dataDir = "/data/restic/repositories";
     appendOnly = true; # WARN: keep this on always! If a backup-client is hacked, it can never change things.
-    extraFlags = ["--htpasswd-file" "/data/restic/passwdfile"]; # Generate this file using `htpasswd -B -c passwdfile <USERNAME>`. Outputfile will contain 'USERNAME:hash'.
+    # extraFlags = ["--htpasswd-file" "/data/restic/passwdfile"];
+    # Above option sets a password on access to this server. It then has to be accessed using rest:http://USER:PASS@host to be allowed to do anything.
+    # Note that repositories have passwords themselves as well, which is what you specify using `restic -p <path/to/passwordfile>`.
+    # > Generate this file using `htpasswd -B -c passwdfile <USERNAME>`. Outputfile will contain 'USERNAME:hash'.
   };
 
   programs.fish.enable = true;
