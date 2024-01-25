@@ -69,14 +69,13 @@ boot = {
     listenAddress = "0.0.0.0:18358";
     dataDir = "/data/restic/repositories";
     appendOnly = true; # WARN: keep this on always! If a backup-client is hacked, it can never change things.
-    # extraFlags = ["--htpasswd-file" "/data/restic/passwdfile"];
+    extraFlags = ["--htpasswd-file" "/etc/restic/passwdfile"];
     # Above option sets a password on access to this server. It then has to be accessed using rest:http://USER:PASS@host to be allowed to do anything.
     # Note that repositories have passwords themselves as well, which is what you specify using `restic -p <path/to/passwordfile>`.
     # > Generate this file using `htpasswd -B -c passwdfile <USERNAME>`. Outputfile will contain 'USERNAME:hash'.
   };
-  file."/data" = { ensureDir = true; mode = "0755"; };
-  file."/data/restic" = { ensureDir = true; mode = "0755"; };
-  file."/data/restic/passwdfile" = { owner="restic"; group="restic"; mode="0644"; text="serveraccess:$2y$05$LciJifGZm02XxY8ige0QaezMdh.vMu14v.h9UikI3TcMzC1jmq5XK"; };
+  environment.etc."/restic/passwdfile".text = "serveraccess:$2y$05$LciJifGZm02XxY8ige0QaezMdh.vMu14v.h9UikI3TcMzC1jmq5XK"; # NOTE: world-readable, but nobody can write. Reading is ok, this is a hashed pass.
+
 
   programs.fish.enable = true;
 

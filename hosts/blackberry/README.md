@@ -52,9 +52,11 @@ Then, use:
 ```bash
 NIX_SSHOPTS="-t" nixos-rebuild switch --flake .#blackberry --target-host blackberry-local --use-remote-sudo
 ```
-You sometimes have to fill in the sudo password for the raspberry.
+> **Note**: You sometimes have to fill in the sudo password for the raspberry.
 
-> Note: It might be possible to remove the need for filling the sudo password of the raspberry, if you setup passwordless authentication for `root` as well, and use `sudo` on the build-and-deploy command.
+> **Note**: If the process seems to do nothing for a bit (e.g. 20 seconds), just hit enter. Probably it asked for remote sudo password again, but the line got overridden in terminal or something.
+
+> **Note**: It might be possible to remove the need for filling the sudo password of the raspberry, if you setup passwordless authentication for `root` as well, and use `sudo` on the build-and-deploy command.
 
 ### Connecting
 Once booted, a basic SSH connection will be open, for user `rdn` and password `changeme`.
