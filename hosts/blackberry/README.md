@@ -25,6 +25,7 @@ nix build ".#images.blackberry"
 ```
 
 ### Deployment
+#### Initial
 To write the image on an SD card, use:
 ```bash
 lsblk #find the SD card
@@ -34,6 +35,26 @@ sudo dd if=result/sd-image/nixos-sd-image-VERSION.DATE.HASH-aarch64-linux.img of
 
 Insert the SD in the raspberry Pi.
 It will automatically boot once powered.
+
+#### Afterwards
+Once NixOS is running, you can build and deploy on the raspberry itself.
+However, it is slow to do this.
+You can also remote-build and deploy to the raspberry.
+This means: Build on a beefy machine, deploy to a weak machine (in this case a raspberry).
+
+On the build host, ensure you have:
+```nix
+boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+```
+Also ensure you have an entry in your `~/.ssh/config` for the raspberry with passwordless authentication.
+
+Then, use:
+```bash
+NIX_SSHOPTS="-t" nixos-rebuild switch --flake .#blackberry --target-host blackberry-local --use-remote-sudo
+```
+You sometimes have to fill in the sudo password for the raspberry.
+
+> Note: It might be possible to remove the need for filling the sudo password of the raspberry, if you setup passwordless authentication for `root` as well, and use `sudo` on the build-and-deploy command.
 
 ### Connecting
 Once booted, a basic SSH connection will be open, for user `rdn` and password `changeme`.
