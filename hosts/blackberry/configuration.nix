@@ -20,17 +20,17 @@ boot = {
 
   hardware.bluetooth.enable = false;
 
-  networking = {
-    hostName = "blackberry";
-    # networkmanager.enable = true; # do not enable this: Compile error occurs.
-
-    firewall = {
-      allowedTCPPorts = [
-        18357 # ssh
-        18358 # restic server
-      ];
-    };
+  networking.hostName = "blackberry";
+  networking.domain = "home.alvarez-rodriguez.nl";
+  networking.firewall.allowPing = true;
+  networking.firewall = {
+    allowedTCPPorts = [
+      80 # http
+      443 # https
+      18357 # ssh
+    ];
   };
+  # networkmanager.enable = true; # do not enable this: Compile error occurs.
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
@@ -66,7 +66,7 @@ boot = {
   services.restic.server = { # backup server for restic.
     # options: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/backup/restic-rest-server.nix
     enable = true;
-    listenAddress = "0.0.0.0:18358";
+    listenAddress = "127.0.0.1:11011";
     dataDir = "/data/restic/repositories";
     appendOnly = true; # WARN: keep this on always! If a backup-client is hacked, it can never change things.
     extraFlags = ["--htpasswd-file" "/etc/restic/passwdfile"];
@@ -76,8 +76,43 @@ boot = {
   };
   environment.etc."/restic/passwdfile".text = "serveraccess:$2y$05$LciJifGZm02XxY8ige0QaezMdh.vMu14v.h9UikI3TcMzC1jmq5XK"; # NOTE: world-readable, but nobody can write. Reading is ok, this is a hashed pass.
 
+  ## Nginx config to handle TLS for restic
+  services.nginx = {
+    enable = true;
 
-  programs.fish.enable = true;
+    recommendedGzipSettings = true;
+    recommendedOptimisation = true;
+    recommendedProxySettings = true;
+    recommendedTlsSettings = true;
+
+    # nginx complains that this is required.
+    commonHttpConfig = "server_names_hash_bucket_size 64;";
+
+    virtualHosts."home.alvarez-rodriguez.nl" = {
+      enableACME = true;
+      forceSSL = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:11011"; # Reroute to restic.
+      };
+    };
+  };
+
+  ## Get cert needed for TLS
+  security.acme = {
+    acceptTerms = true;
+    certs = {
+      "home.alvarez-rodriguez.nl" = {
+        email = "sebastiaanalva@gmail.com";
+        postRun = "systemctl reload nginx.service";
+      };
+    };
+  };
+
+  ## System
+  nix.gc = {
+    automatic = true;
+    dates = "06:00";
+  };
 
   # Define a user account. Set password with ‘passwd’.
   users.users.rdn = {
@@ -97,5 +132,6 @@ boot = {
     rsync # somehow not installed by default
   ];
 
+  programs.fish.enable = true;
   system.stateVersion = "23.11";
 }
