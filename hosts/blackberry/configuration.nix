@@ -74,6 +74,9 @@ boot = {
     # Note that repositories have passwords themselves as well, which is what you specify using `restic -p <path/to/passwordfile>`.
     # > Generate this file using `htpasswd -B -c passwdfile <USERNAME>`. Outputfile will contain 'USERNAME:hash'.
   };
+  file."/data" = { ensureDir = true; mode = "0755"; };
+  file."/data/restic" = { ensureDir = true; mode = "0755"; };
+  file."/data/restic/passwdfile" = { owner="restic"; group="restic"; mode="0644"; text="serveraccess:$2y$05$LciJifGZm02XxY8ige0QaezMdh.vMu14v.h9UikI3TcMzC1jmq5XK"; };
 
   programs.fish.enable = true;
 
