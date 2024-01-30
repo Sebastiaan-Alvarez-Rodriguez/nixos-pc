@@ -26,6 +26,9 @@
       blackberry = import ./hosts/blackberry {
         inherit inputs nixpkgsConfig;
       };
+      xenon = import ./hosts/xenon {
+        inherit inputs nixpkgsConfig;
+      };
       polonium = import ./hosts/polonium {
         inherit inputs nixpkgsConfig;
       };
