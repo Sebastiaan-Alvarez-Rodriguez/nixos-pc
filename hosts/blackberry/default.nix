@@ -1,11 +1,11 @@
-{ inputs, nixpkgsConfig }:
+{ inputs, nixpkgs-config }:
 inputs.nixpkgs.lib.nixosSystem rec {
   system = "aarch64-linux";
 
   modules = [
     "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
     {
-      nixpkgs = { inherit system; } // nixpkgsConfig;
+      nixpkgs = { inherit system; } // nixpkgs-config;
       nix = import ../../nix-settings.nix { inherit inputs system; };
     }
     ./configuration.nix

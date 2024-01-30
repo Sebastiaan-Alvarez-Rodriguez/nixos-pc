@@ -7,7 +7,6 @@
       nix = import ../../nix-settings.nix { inherit inputs system; };
     }
     # Use the pinned inputs as channels in the final configuration.
-    (import ../../utils/link-inputs.nix inputs)
     ./configuration.nix
   ];
 
