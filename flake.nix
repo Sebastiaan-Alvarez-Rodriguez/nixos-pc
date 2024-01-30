@@ -8,10 +8,14 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
     home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-23.05";
+    simple-nixos-mailserver.inputs.nixpkgs.follows = "nixpkgs";
+    # sebas-webserver.url = "path:packages/sebas-webserver";
   };
 
   outputs = inputs: let
-    nixpkgsConfig = {
+    nixpkgs-config = {
       overlays = [ inputs.self.overlays.default ];
       config = {
         allowUnfree = true;
@@ -24,21 +28,21 @@
 
     nixosConfigurations = {
       blackberry = import ./hosts/blackberry {
-        inherit inputs nixpkgsConfig;
+        inherit inputs nixpkgs-config;
       };
       xenon = import ./hosts/xenon {
-        inherit inputs nixpkgsConfig;
+        inherit inputs nixpkgs-config;
       };
       polonium = import ./hosts/polonium {
-        inherit inputs nixpkgsConfig;
+        inherit inputs nixpkgs-config;
       };
       radon = import ./hosts/radon {
-        inherit inputs nixpkgsConfig;
+        inherit inputs nixpkgs-config;
       };
     };
 
     # Define a flake image from each of the host nixosConfigurations.
-    # images = nixpkgsConfig.lib.genAttrs hosts
+    # images = nixpkgs-config.lib.genAttrs hosts
     #   (host: nixosConfigurations."${host}".config.system.build.sdImage);
 
     images = {
@@ -48,7 +52,7 @@
     homeConfigurations = let
       mkUser = { system, userModule }: inputs.home-manager.lib.homeManagerConfiguration {
         modules = [
-          { nixpkgs = nixpkgsConfig; }
+          { nixpkgs = nixpkgs-config; }
           userModule
         ];
         pkgs = inputs.nixpkgs.outputs.legacyPackages.${system};
@@ -76,7 +80,7 @@
       system = "x86_64-linux";
     in {
       ${system} = import ./packages {
-        inherit system inputs nixpkgsConfig;
+        inherit system inputs nixpkgs-config;
       };
     };
   };
