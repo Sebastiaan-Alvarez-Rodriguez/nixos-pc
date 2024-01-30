@@ -73,6 +73,11 @@ in {
         identityFile = "/home/${username}/.ssh/blackberry.rsa";
         addressFamily = "inet"; # force ipv4.
       };
+      "xenon" = {
+        hostname = "62.171.150.8";
+        user = "rdn";
+        identityFile = "/home/${username}/.ssh/blackberry.rsa";
+      };
     };
     setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
   in (setDefaults {

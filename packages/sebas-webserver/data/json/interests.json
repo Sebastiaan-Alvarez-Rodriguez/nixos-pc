@@ -1,0 +1,35 @@
+{
+	"panels": [{
+		"name": "High-Performance Computing",
+		"icon": "bx-tachometer",
+		"description": ""
+	}, {
+		"name": "Cybersecurity",
+		"icon": "bx-shield-alt-2",
+		"description": ""
+	}, {
+		"name": "Software Architecture",
+		"icon": "bx-arch",
+		"description": ""
+	}, {
+		"name": "Software Engineering",
+		"icon": "bx-code-curly",
+		"description": ""
+	}, {
+		"name": "Cloud Development",
+		"icon": "bx-cloud-lightning",
+		"description": ""
+	}, {
+		"name": "Distributed Systems",
+		"icon": "bx-network-chart",
+		"description": ""
+	}, {
+		"name": "Process Automation",
+		"icon": "bx-cog",
+		"description": ""
+	}, {
+		"name": "Computer Networks",
+		"icon": "bx-pulse",
+		"description": ""
+	}]
+}

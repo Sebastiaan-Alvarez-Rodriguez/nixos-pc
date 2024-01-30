@@ -1,12 +1,12 @@
 # nixos-pc
 NixOS configs for:
 
- - `radon`: Main host (amd gpu)
+ - `xenon`: Server containing mail, password service, and backups of local devices.
  - `polonium`: Laptop host (nvidia gpu)
+ - `radon`: Main host (amd gpu)
  - [`blackberry`](hosts/blackberry): Raspberry pi 3b+ (with custom installation instructions)
 
 ## Flakes
-
 ### Installation
 
 Clone this repo, get in the project root, and execute:
@@ -45,36 +45,37 @@ home-manager switch --flake .#<USER>
 ```
 
 ## General info
+### Installing NixOS on a running instance
+I have never seen a VPS provider which provides NixOS images out of the box.
+You can pay to provide your own image.
+Alternatively, a much better option is to use [`nixos-infect`](https://github.com/elitak/nixos-infect).
 
-Info given here works for 'regular' NixOS and for flakes.
 
-### Upgrading nixOS
+### Upgrading NixOS
 NixOS brings new releases on the 5'th and 11'th month of each year.
 To upgrade, we must change the nixos channel.
-Check your current nixos channel with:
+1. Check your current nixos channel with:
 ```bash
 sudo nix-channel --list | grep nixos
 ```
-
-Change using:
+2. Change using:
 ```bash
 sudo nix-channel --add https://channels.nixos.org/[SOME-NAME-HERE] nixos
 ```
 Common names follow format `nixos-[VERSION]`.
-
-Then, upgrade using:
+3. Then, upgrade using:
 ```bash
 sudo nixos-rebuild switch --upgrade # regular NixOS
 sudo nixos-rebuild switch --flake .#[FLAKE] --upgrade # flakes
 ```
 
 
-## Regular NixOS
+### Regular NixOS
 When not dealing with flakes, we have only 3 config files:
  - `/etc/nixos/configuration.nix` (global definitions)
  - `~/.config/nixpkgs/home.nix` (local definitions)
 
-### Installation
+#### Installation
 Get the `configuration.nix` of any host in the repo's [`/hosts/`](/hosts/) repository on your device in `/etc/nixos`, then type:
 ```bash
 sudo nixos-rebuild switch
@@ -85,8 +86,16 @@ Then get the `home.nix` from any user in the repo's [`/users/`](/users/) reposit
 home-manager switch
 ```
 
-# General Advice
-## Development
+## Cheatsheet
+```bash
+nix-channel --update         # Update installed packages (requires rebuild switch for changes to take effect)
+nix-collect-garbage -d       # removes previous build leftovers
+nix search <package name>    # search for a nix package
+man configuration.nix        # docs for /etc/nixos/configuration.nix. Note: the paths below each option are the same in the nixpkgs repo.
+man home-configuration.nix   # docs for home-manager, in ~/.config/nixpkgs/home.nix
+```
+
+## Recover
 When developing, the most important is knowing your way back in case of a screw-up.
 NixOS has us covered:
 ```bash
@@ -98,20 +107,10 @@ sudo nixos-rebuild boot --rollback
 The rollback commands can be repeatedly executed to keep rolling back to previous versions of your OS installation.
 This does not change `/etc/nixos/configuration.nix`, however.
 
-## Cheatsheet
-
-```bash
-nix-channel --update         # Update installed packages (requires rebuild switch for changes to take effect)
-nix-collect-garbage -d       # removes previous build leftovers
-nix search <package name>    # search for a nix package
-man configuration.nix        # docs for /etc/nixos/configuration.nix. Note: the paths below each option are the same in the nixpkgs repo.
-man home-configuration.nix   # docs for home-manager, in ~/.config/nixpkgs/home.nix
-```
 
 ## Errors
 
 ### DBI connect
-
 When running some command (e.g. `git`):
 ```bash
 $ git

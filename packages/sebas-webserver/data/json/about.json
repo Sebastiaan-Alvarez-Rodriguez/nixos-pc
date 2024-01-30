@@ -1,0 +1,74 @@
+{
+	"social_items": {
+		"ResearchGate": {
+			"value": "https://www.researchgate.net/profile/Sebastiaan-Alvarez-Rodriguez",
+			"protected": false,
+			"class": "researchgate",
+			"icon": "bx bx-atom"
+		},
+		"Github": {
+			"value": "https://github.com/Sebastiaan-Alvarez-Rodriguez",
+			"protected": true,
+			"class": "github",
+			"icon": "bx bxl-github"
+		},
+		"LinkedIn": {
+			"value": "https://www.linkedin.com/in/sebastiaan-alvarez-rodriguez-b70484207/",
+			"protected": false,
+			"class": "linkedin",
+			"icon": "bx bxl-linkedin"
+		}
+	},
+	"fast_items": {
+		"Name": {
+			"value": "Sebastiaan Alvarez Rodriguez",
+			"protected": false
+		},
+		"Phone": {
+			"value": "+31 6 83327735",
+			"protected": true
+		},
+		"Location": {
+			"value": "Heemskerk, North-Holland, Netherlands",
+			"protected": true
+		},
+		"Age": {
+			"value": 23,
+			"protected": false
+		},
+		"Degree": {
+			"value": "Master of Science in Computer Science, drs.",
+			"protected": false
+		},
+		"Email": {
+			"value": "sebastiaan@alvarez-rodriguez.nl",
+			"protected": true
+		},
+		"Current Occupation": {
+			"value": "Software Architect at the Dutch Ministry of Defence - Marine Division",
+			"protected": true
+		}
+	},
+	"number_items": [{
+			"name": "Publications",
+			"amount": 2,
+			"icon": "icofont-laboratory",
+			"style": "color: #20b38e;"
+		}, {
+			"name": "Projects",
+			"amount": 30,
+			"icon": "icofont-document-folder",
+			"style": "color: #8a1ac2;"
+		}, {
+			"name": "Years of Experience",
+			"amount": 6,
+			"icon": "icofont-clock-time",
+			"style": "color: #2cbdee;"
+		}, {
+			"name": "Awards",
+			"amount": 3,
+			"icon": "icofont-award",
+			"style": "color: #ffb459;"
+		}
+	]
+}
