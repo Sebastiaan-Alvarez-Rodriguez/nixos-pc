@@ -23,6 +23,8 @@
     allowedTCPPorts = [
       80    # HTTP
       443   # HTTPS
+      587   # mail
+      993   # mail
       11111 # SSH
 
     ];

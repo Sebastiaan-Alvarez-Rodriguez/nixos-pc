@@ -75,6 +75,10 @@
         system = "x86_64-linux";
         userModule = ./users/rdn/rdn-headless.nix;
       };
+      mrs-headless = mkUser {
+        system = "x86_64-linux";
+        userModule = ./users/mrs/mrs-headless.nix;
+      };
     };
     packages = let
       system = "x86_64-linux";
