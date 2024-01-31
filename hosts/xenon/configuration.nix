@@ -92,7 +92,7 @@
       locations."/".proxyPass = "http://127.0.0.1:1111";
     };
     
-    virtualHosts."mijn.place" = { # required for mail, even if no site is hosted here.
+    virtualHosts."mijn.place" = { # required for mail
       enableACME = true;
       forceSSL = true;
     };
