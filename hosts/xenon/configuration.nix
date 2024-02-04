@@ -30,6 +30,51 @@
     ];
   };
 
+  services.fail2ban = {
+    enable = true;
+    maxretry = 3;
+    bantime = "24h";
+    bantime-increment = {
+      enable = true;
+      multipliers = "1 2 4 8 16 32 64";
+    };
+    jails = {
+      mailjail.settings = { # from: https://gist.github.com/pida42/58c8254475757394a055c85c9ed0ce8a
+        enabled = false;
+        filter = "mail-smtp";
+        logpath = "/var/log/mail.log"; # TODO: Where is this mail log written?
+        action = ''iptables-multiport[name=mail-smtp, port="25,587", protocol=tcp]'';
+        maxretry = 3;
+        findtime = 60;
+      };
+    };
+  };
+
+  environment.etc = {
+    # Define an action that will trigger a Ntfy push notification upon the issue of every new ban
+    "fail2ban/action.d/mailjail.local".text = pkgs.lib.mkDefault (pkgs.lib.mkAfter ''
+      [Definition]
+
+      ##
+      # May 15 07:19:07 mail postfix/smtpd[10583]: warning: unknown[185.3.133.174]: SASL LOGIN authentication failed: UGFzc3dvcmQ6
+      # May 18 12:53:45 mail postfix/smtpd[10926]: warning: 41.222.52.105: address not listed for hostname na.cyberlogic.co.za
+      # May 15 06:26:01 mail postfix/smtp[29807]: B79961A8C29F: ***, relay=none, delay=0.02, delays=0.01/0/0.01/0, dsn=4.4.1, status=deferred (connect to ***.******.**[***.***.***.***]:25: Connection refused)
+      # May 15 06:26:34 mail postfix/smtp[30395]: 403CB1A8C751: *** status=deferred (host ******[***.***.***.***] said: 454 4.7.1 ***: Relay access denied (in reply to RCPT TO command))
+      # May 18 23:09:50 mail postfix/smtp[5844]: 808EB1A8C2B7: lost connection with mta7.am0.yahoodns.net[63.250.192.46] while sending RCPT TO
+      # May 18 23:53:16 mail postfix/error[32147]: 6E6431A8C2CE: to=<rgaz1018@aol.com> *** status=deferred (delivery temporarily suspended: connect to mailin-04.mx.aol.com[64.12.88.132]:25: Connection timed out)
+      # May 14 23:26:50 mail postfix/smtpd[31643]: warning: non-SMTP command from unknown[177.11.51.103]: From: sftjh@*******
+      ##
+
+      failregex   = warning: (?:.*\[<HOST>\]\:.*) SASL (PLAIN|LOGIN) authentication failed: .*$
+                    warning: <HOST>: address not listed for hostname .*$
+                    status=deferred \(connect to (?:.*\[<HOST>\]\:.*)(?:\d.\:.*) Connection refused\)$
+                    status=deferred \(host (?:.*\[<HOST>\] said\:.*\:) Relay access denied \(.*RCPT TO.*\)\)$
+                    lost connection with (?:.*\[<HOST>\].*) while sending RCPT TO$
+                    status=deferred \(delivery temporarily suspended\: connect to (?:.*\[<HOST>\]\:.*)(?:\d.\:.*) Connection timed out\)$
+                    warning: non-SMTP command from (?:.*\[<HOST>\]\:.*) From: .*$
+     '');
+  };
+
   services.openssh = {
     enable = true;
     ports = [11111];
