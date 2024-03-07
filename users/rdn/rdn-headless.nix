@@ -57,7 +57,7 @@ in {
       };
       "orca" = {
         user = "rdn";
-        hostname = "176.117.59.34";
+        hostname = "207.180.214.239";
         identityFile = "/home/${username}/.ssh/orca.rsa";
       };
       "blackberry-local" = {
