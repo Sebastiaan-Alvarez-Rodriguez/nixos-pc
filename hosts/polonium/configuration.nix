@@ -1,7 +1,6 @@
 { inputs, config, pkgs, lib, ... }: {
   imports = [
     ./hardware-configuration.nix
-    ruckus_cp210x
   ];
 
   ## Boot
@@ -252,7 +251,7 @@
     home-manager
     # playerctl # volume keys on laptop
     asusctl
-    ruckus_cp210x
+    inputs.self.packages.${pkgs.system}.ruckus_cp210x
   ];
 
   system.stateVersion = "23.11"; # Do not change
