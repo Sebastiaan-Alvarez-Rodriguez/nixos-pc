@@ -11,7 +11,7 @@ in {
     drawio
     droidcam
     galculator
-    jetbrains.idea-community
+    # jetbrains.idea-community
     logiops
     nheko
     proton-caller
