@@ -1,6 +1,7 @@
-{ config, pkgs, ... }: {
+{ inputs, config, pkgs, lib, ... }: {
   imports = [
     ./hardware-configuration.nix
+    ruckus_cp210x
   ];
 
   ## Boot
@@ -13,7 +14,7 @@
       "/crypto_keyfile.bin" = null;
     };
     kernelPackages = pkgs.linuxPackages_latest;
-    kernelModules = [ "v4l2loopback" ];
+    kernelModules = [ "v4l2loopback" ]; # "ruckus_cp210x" ];
     extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
     extraModprobeConfig = ''
       options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
@@ -89,7 +90,7 @@
     powerManagement.finegrained = true; # Experimental: Turns off GPU when not in use. Only works on gpu's having Turing or newer architecture. 
 
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    # package = config.boot.kernelPackages.nvidiaPackages.beta;
 
     prime = { # WARNING: Make sure to use the correct Bus ID values for your system! Use `nix run nixpkgs#lshw -- -c display`. https://nixos.wiki/wiki/Nvidia.
       offload = {
@@ -251,6 +252,7 @@
     home-manager
     # playerctl # volume keys on laptop
     asusctl
+    ruckus_cp210x
   ];
 
   system.stateVersion = "23.11"; # Do not change

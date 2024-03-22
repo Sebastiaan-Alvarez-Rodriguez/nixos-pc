@@ -2,7 +2,7 @@
 let
   pkgs = import inputs.nixpkgs ({ inherit system; } // nixpkgs-config );
 in {
-  breeze-obsidian-cursor-theme = pkgs.callPackage ../packages/breeze-obsidian-cursor-theme.nix { };
-
+  breeze-obsidian-cursor-theme = pkgs.callPackage ./breeze-obsidian-cursor-theme.nix { };
+  ruckus_cp210x = pkgs.callPackage ./ruckus_cp210x { };
   inherit (pkgs) qemu;
 }

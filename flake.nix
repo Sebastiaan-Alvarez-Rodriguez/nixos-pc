@@ -80,6 +80,8 @@
         userModule = ./users/mrs/mrs-headless.nix;
       };
     };
+    nixosModules = import ./modules;
+
     packages = let
       system = "x86_64-linux";
     in {
