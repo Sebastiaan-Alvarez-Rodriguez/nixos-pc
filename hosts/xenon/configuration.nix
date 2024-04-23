@@ -143,7 +143,7 @@
       enableACME = true;
       forceSSL = true;
     };
-  
+
     virtualHosts."vwd.mijn.place" = {
       useACMEHost = "mijn.place";
       forceSSL = true;
@@ -152,6 +152,21 @@
       };
     };
   };
+
+  ## appwrite: example container running under podman - this example does not work because it is docker-only, not podman, and requires root it seems...
+  # virtualisation.oci-containers.containers."appwrite" = {
+  #   image = "appwrite/appwrite:1.5.4";
+  #   entrypoint = "install";
+  #   cmd = ["http-port=1111" "https-port=1112" "interactive=n"];
+  #   autoStart = true;
+  #   volumes = ["/data/appwrite/src:/usr/src/code/appwrite:rw" "/run/user/1001/podman/podman.sock:/var/run/docker.sock"];
+  #   # --volume /var/run/docker.sock:/var/run/docker.sock \
+  #   # --volume "$(pwd)"/appwrite:/usr/src/code/appwrite:rw \
+  # };
+  systemd.tmpfiles.rules = [ # example method to create a directory.
+    # "d '/data/appwrite/src' - ${user} ${group} - -"
+    "d '/data/appwrite/src' - - - - -"
+  ];
 
   ## SSL
   security.acme = {
