@@ -8,7 +8,8 @@ in {
   programs.spicetify = {
     enable = true;
     theme = spicePkgs.themes.catppuccin;
-    enabledExtensions = with spicePkgs.extensions; [];
+    # theme = spicePkgs.themes.SpotifyNoPremium; //Same as default spotify but without ads and anything related to getting premium
+    enabledExtensions = with spicePkgs.extensions; [adblock];
     
   };
   home.packages = let
