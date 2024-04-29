@@ -8,17 +8,18 @@ in {
   in with pkgs; [
     pkgs_2205.remmina
     adbfs-rootless
+    android-studio
     drawio
     droidcam
     galculator
-    # jetbrains.idea-community
+    jetbrains.idea-community
     logiops
     nheko
     proton-caller
     qbittorrent
-    # sublime4 # removed because of openssl 1.1.0 dependency
+    spicetify-cli
+    spotify
     tdesktop
-    tidal-hifi
     teams-for-linux
     teamspeak_client
     teamviewer

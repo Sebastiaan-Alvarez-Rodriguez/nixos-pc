@@ -11,17 +11,12 @@
 
     simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-23.11";
     simple-nixos-mailserver.inputs.nixpkgs.follows = "nixpkgs";
-    # sebas-webserver.url = "path:packages/sebas-webserver";
   };
 
   outputs = inputs: let
     nixpkgs-config = {
       overlays = [ inputs.self.overlays.default ];
-      config = {
-        allowUnfree = true;
-        # https://github.com/nix-community/home-manager/issues/2942#issuecomment-1119760100
-        allowUnfreePredicate = (pkg: true);
-      };
+      config = { allowUnfree = true; allowUnfreePredicate = (pkg: true); };
     };
   in rec {
     overlays.default = import ./overlays;
