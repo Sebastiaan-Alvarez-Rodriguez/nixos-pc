@@ -1,10 +1,16 @@
 { inputs, config, lib, pkgs, spicetify-nix, ...}: let
   username = "rdn";
-  # spicetify = inputs.spicetify-nix.outputs.pkgs;
-  spicePkgs = spicetify-nix.packages.${pkgs.system}.default;
+  spicetify-nix = inputs.spicetify-nix.outputs.packages.x86_64-linux;
+  spicePkgs = inputs.spicetify-nix.outputs.packages.${pkgs.system}.default;
 in {
-  imports = [ ./rdn-headless.nix ../graphical.nix ];
+  imports = [ inputs.spicetify-nix.outputs.homeManagerModule ./rdn-headless.nix ../graphical.nix ];
 
+  programs.spicetify = {
+    enable = true;
+    theme = spicePkgs.themes.catppuccin;
+    enabledExtensions = with spicePkgs.extensions; [];
+    
+  };
   home.packages = let
     pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
   in with pkgs; [
@@ -19,8 +25,8 @@ in {
     nheko
     proton-caller
     qbittorrent
-    spicetify-cli
-    spotify
+    # spicetify-cli
+    # spotify
     tdesktop
     teams-for-linux
     teamspeak_client

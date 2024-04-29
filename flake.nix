@@ -13,9 +13,11 @@
     simple-nixos-mailserver.inputs.nixpkgs.follows = "nixpkgs";
 
     spicetify-nix.url = "github:the-argus/spicetify-nix";
+    spicetify-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs: let
+outputs = { nixpkgs, home-manager, ... } @ inputs: let
+  # outputs = inputs: let
     nixpkgs-config = {
       overlays = [ inputs.self.overlays.default ];
       config = { allowUnfree = true; allowUnfreePredicate = (pkg: true); };
@@ -54,6 +56,7 @@
         ];
         pkgs = inputs.nixpkgs.outputs.legacyPackages.${system};
         extraSpecialArgs = { inherit inputs; };
+        # extraSpecialArgs = inputs;
       };
     in {
       mrs = mkUser {
