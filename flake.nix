@@ -11,6 +11,8 @@
 
     simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-23.11";
     simple-nixos-mailserver.inputs.nixpkgs.follows = "nixpkgs";
+
+    spicetify-nix.url = "github:the-argus/spicetify-nix";
   };
 
   outputs = inputs: let

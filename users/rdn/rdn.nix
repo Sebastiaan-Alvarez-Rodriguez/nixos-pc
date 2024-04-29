@@ -1,5 +1,7 @@
-{ inputs, config, lib, pkgs, ...}: let
+{ inputs, config, lib, pkgs, spicetify-nix, ...}: let
   username = "rdn";
+  # spicetify = inputs.spicetify-nix.outputs.pkgs;
+  spicePkgs = spicetify-nix.packages.${pkgs.system}.default;
 in {
   imports = [ ./rdn-headless.nix ../graphical.nix ];
 
