@@ -94,6 +94,8 @@
     # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
     loginAccounts = {
         "mail@mijn.place" = {
+            catchAll = [ "mijn.place" ]; # all catchAll-mailaddresses you gave to companies end here.
+            aliases = [ "@mijn.place" ]; # You can now reply using ANY address. Useful to reply to catchAll-mailaddresses.
             hashedPasswordFile = "/data/mail/mailserver.pwd";
         };
         "sebastiaan@mijn.place" = {
@@ -108,6 +110,10 @@
             sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place.";
         };
     };
+
+    rejectRecipients = []; # add owned mailadresses (e.g. 'test@me.com') to block all mails sent to them. 
+    # Useful when you have a catchAll-account AND you provided a company a catchAll address like companyname@me.com AND you want to block the company sending more mails landing in your catchAll.
+    rejectSender = []; # add mailaddresses (e.g. 'test@malicious.com', or even '@malicious.com') which may never send mails here.
 
     # Requires certificate files to exist! Currently provided by acme service in global config.
     certificateScheme = "manual";

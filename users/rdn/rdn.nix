@@ -21,6 +21,7 @@ in {
     drawio
     droidcam
     galculator
+    gamemode
     jetbrains.idea-community
     logiops
     nheko
