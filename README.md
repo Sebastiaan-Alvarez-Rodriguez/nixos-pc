@@ -1,10 +1,11 @@
 # nixos-pc
 NixOS configs for:
 
- - `xenon`: Server containing mail, password service, and backups of local devices.
- - `polonium`: Laptop host (nvidia gpu)
+ - [`blackberry`](hosts/blackberry): Raspberry pi 3b+ (with custom installation instructions) running a local backup service.
+ - `neon`: mini home server.
+ - `polonium`: Laptop host (nvidia gpu).
  - `radon`: Main host (amd gpu)
- - [`blackberry`](hosts/blackberry): Raspberry pi 3b+ (with custom installation instructions)
+ - `xenon`: Server containing mail, password service, and backups of local devices.
 
 ## Flakes
 ### Installation
