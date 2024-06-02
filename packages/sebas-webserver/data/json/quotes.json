@@ -1,8 +1,0 @@
-{
-	"dr. prof. Alexandru Uta": {
-		"name": {"value": "dr. prof. Alexandru Uta"},
-		"image": null,
-		"role": {"value": "Professor at Leiden University, Amazon Visiting Academic with AWS Lambda"},
-		"quote": {"value": "I supervised Sebastiaan with his MSc project which was done as part of a larger endeavour in an international team working on computation offloading from Apache Spark to SkyhookDM, a computational storage engine. Sebastiaan's work helped the team publishing two articles and having another one in preparation for submission. His technical skills are beyond what average MSc students can achieve, and he was able to independently design and implement a quality piece of software that connects Spark and SkyhookDM, offloading computation. Next to his technical skills, he is also a very hard worker. His work ethics and friendly personality make him an asset for any team."}
-	}
-}
