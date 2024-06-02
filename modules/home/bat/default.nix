@@ -4,7 +4,7 @@ let
 in
 {
   options.my.home.bat = with lib; {
-    enable = my.mkDisableOption "bat configuration";
+    enable = mkEnableOption "bat configuration";
   };
 
   config.programs.bat = lib.mkIf cfg.enable {

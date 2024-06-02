@@ -1,16 +1,9 @@
 { ... }:
 {
   imports = [
-    ./aliases
-    ./atuin
     ./bat
     ./bitwarden
     ./bluetooth
-    ./calibre
-    ./comma
-    ./dircolors
-    ./direnv
-    ./discord
     ./documentation
     ./feh
     ./firefox
