@@ -1,93 +1,83 @@
 {
-  description = "Rdn's NixOS confs";
-
-
+  description = "NixOS configuration with flakes";
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-23.11";
+    agenix = {
+      type = "github";
+      owner = "ryantm";
+      repo = "agenix";
+      ref = "main";
+      inputs = {
+        home-manager.follows = "home-manager";
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
+    };
+
+    flake-parts = {
+      type = "github";
+      owner = "hercules-ci";
+      repo = "flake-parts";
+      ref = "main";
+      inputs = {
+        nixpkgs-lib.follows = "nixpkgs";
+      };
+    };
+
+    futils = {
+      type = "github";
+      owner = "numtide";
+      repo = "flake-utils";
+      ref = "main";
+      inputs = {
+        systems.follows = "systems";
+      };
+    };
+
+    home-manager = {
+      url = "github:nix-community/home-manager/release-24.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixpkgs.url = "nixpkgs/nixos-24.05";
     nixpkgs_2205.url = "github:nixos/nixpkgs/nixos-22.05";
     nixos-hardware.url = "github:nixos/nixos-hardware";
-    home-manager.url = "github:nix-community/home-manager/release-23.11";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    simple-nixos-mailserver.url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-23.11";
-    simple-nixos-mailserver.inputs.nixpkgs.follows = "nixpkgs";
-
-    spicetify-nix.url = "github:the-argus/spicetify-nix";
-    spicetify-nix.inputs.nixpkgs.follows = "nixpkgs";
-  };
-
-outputs = { nixpkgs, home-manager, ... } @ inputs: let
-  # outputs = inputs: let
-    nixpkgs-config = {
-      overlays = [ inputs.self.overlays.default ];
-      config = { allowUnfree = true; allowUnfreePredicate = (pkg: true); };
+    nur = {
+      type = "github";
+      owner = "nix-community";
+      repo = "NUR";
+      ref = "master";
     };
-  in rec {
-    overlays.default = import ./overlays;
 
-    nixosConfigurations = {
-      blackberry = import ./hosts/blackberry {
-        inherit inputs nixpkgs-config;
-      };
-      xenon = import ./hosts/xenon {
-        inherit inputs nixpkgs-config;
-      };
-      polonium = import ./hosts/polonium {
-        inherit inputs nixpkgs-config;
-      };
-      radon = import ./hosts/radon {
-        inherit inputs nixpkgs-config;
+    pre-commit-hooks = {
+      type = "github";
+      owner = "cachix";
+      repo = "pre-commit-hooks.nix";
+      ref = "master";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        nixpkgs-stable.follows = "nixpkgs";
       };
     };
 
-    # Define a flake image from each of the host nixosConfigurations.
-    # images = nixpkgs-config.lib.genAttrs hosts
-    #   (host: nixosConfigurations."${host}".config.system.build.sdImage);
-
-    images = {
-      "blackberry" = nixosConfigurations."blackberry".config.system.build.sdImage;
+    simple-nixos-mailserver = {
+      url = "gitlab:simple-nixos-mailserver/nixos-mailserver/master";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-    
-    homeConfigurations = let
-      mkUser = { system, userModule }: inputs.home-manager.lib.homeManagerConfiguration {
-        modules = [
-          { nixpkgs = nixpkgs-config; }
-          userModule
-        ];
-        pkgs = inputs.nixpkgs.outputs.legacyPackages.${system};
-        extraSpecialArgs = { inherit inputs; };
-        # extraSpecialArgs = inputs;
-      };
-    in {
-      mrs = mkUser {
-        system = "x86_64-linux";
-        userModule = ./users/mrs/mrs.nix;
-      };
-      rdn = mkUser {
-        system = "x86_64-linux";
-        userModule = ./users/rdn/rdn.nix;
-      };
-      rdn-blackberry-min = mkUser {
-        system = "aarch64-linux";
-        userModule = ./users/rdn/rdn-headless.nix;
-      };
-      rdn-headless = mkUser {
-        system = "x86_64-linux";
-        userModule = ./users/rdn/rdn-headless.nix;
-      };
-      mrs-headless = mkUser {
-        system = "x86_64-linux";
-        userModule = ./users/mrs/mrs-headless.nix;
-      };
-    };
-    nixosModules = import ./modules;
 
-    packages = let
-      system = "x86_64-linux";
-    in {
-      ${system} = import ./packages {
-        inherit system inputs nixpkgs-config;
-      };
+    spicetify-nix = {
+      url = "github:the-argus/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    systems = { # seb remove
+      type = "github";
+      owner = "nix-systems";
+      repo = "default";
+      ref = "main";
     };
   };
+
+  # Can't eta-reduce a flake outputs...
+  outputs = inputs: import ./flake inputs;
 }
