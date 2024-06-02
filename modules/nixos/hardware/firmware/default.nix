@@ -5,7 +5,7 @@ in {
   options.my.hardware.firmware = with lib; {
     enable = my.mkDisableOption "firmware configuration";
 
-    cpuFlavor = mkOption {
+    cpu-flavor = mkOption {
       type = with types; nullOr (enum [ "intel" "amd" ]);
       default = null;
       example = "intel";
@@ -20,13 +20,13 @@ in {
       };
     }
 
-    (lib.mkIf (cfg.cpuFlavor == "intel") {
+    (lib.mkIf (cfg.cpu-flavor == "intel") {
       hardware = {
         cpu.intel.updateMicrocode = true;
       };
     })
 
-    (lib.mkIf (cfg.cpuFlavor == "amd") {
+    (lib.mkIf (cfg.cpu-flavor == "amd") {
       hardware = {
         cpu.amd.updateMicrocode = true;
       };

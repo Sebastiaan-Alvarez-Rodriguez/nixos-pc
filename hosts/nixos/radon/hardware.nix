@@ -24,11 +24,14 @@
 
   # powerManagement.cpuFreqGovernor = lib.mkDefault "powersave"; # seb: use for laptop?
 
-  my.hardware.firmware.cpuFlavor = "amd";
+  my.hardware.firmware.cpu-flavor = "amd";
   my.hardware.graphics.amd = {
     enable = true;
     amdvlk = true;
   };
-  my.hardware.networking.externalInterface = "eno1"; # interface used to connect to internet
-  # my.hardware.networking.wireless.enable = true; # seb: add for laptop hosts
+  my.hardware.networking = {
+    enable = true;
+    hostname = "radon";
+    block-trackers = true;
+  }
 }

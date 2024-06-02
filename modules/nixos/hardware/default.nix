@@ -1,15 +1,13 @@
 # Hardware-related modules
-{ ... }:
-
-{
+{ ... }: {
   imports = [
-    ./bluetooth
-    ./ergodox
+    ./bluetooth # seb todo
+    ./ergodox # seb todo
     ./firmware
     ./graphics
     ./networking
-    ./sound
-    ./trackball
-    ./upower
+    ./sound # seb todo
+    ./trackball # seb todo
+    ./upower # seb todo
   ];
 }

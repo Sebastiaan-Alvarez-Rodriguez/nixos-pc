@@ -1,12 +1,13 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.bitwarden;
-in
-{
+in {
   options.my.home.bitwarden = with lib; {
-    enable = my.mkDisableOption "bitwarden configuration";
-
+    enable = mkEnableOption "bitwarden configuration";
     pinentry = mkPackageOption pkgs "pinentry" { default = [ "pinentry-tty" ]; };
+    mail = mkOption {
+      type = types.str;
+      example = "a@b.com";
+    }
   };
 
   config = lib.mkIf cfg.enable {
@@ -14,7 +15,7 @@ in
       enable = true;
 
       settings = {
-        email = lib.my.mkMailAddress "bruno" "belanyi.fr";
+        email = cfg.mail;
         inherit (cfg) pinentry;
       };
     };

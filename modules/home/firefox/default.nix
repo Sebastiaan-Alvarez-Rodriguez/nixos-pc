@@ -23,7 +23,6 @@ in
       enable = mkOption {
         type = types.bool;
         description = "ff2mpv configuration";
-        example = false;
         default = config.my.home.mpv.enable;
       };
     };
@@ -56,19 +55,16 @@ in
           "media.eme.enabled" = true; # Enable DRM
           "media.gmp-widevinecdm.enabled" = true; # Enable DRM
           "media.gmp-widevinecdm.visible" = true; # Enable DRM
-          "signon.autofillForms" = false; # Disable built-in form-filling
-          "signon.rememberSignons" = false; # Disable built-in password manager
+          "signon.autofillForms" = true; # seb: todo maybe disable built-in form-filling
+          "signon.rememberSignons" = true; # seb: todo maybe disable built-in password manager
           "ui.systemUsesDarkTheme" = true; # Dark mode
         };
 
         extensions = with pkgs.nur.repos.rycee.firefox-addons; ([
-          bitwarden
-          consent-o-matic
+          # bitwarden
+          # consent-o-matic
           form-history-control
-          reddit-comment-collapser
-          reddit-enhancement-suite
           refined-github
-          sponsorblock
           ublock-origin
         ]
         ++ lib.optional (cfg.tridactyl.enable) tridactyl

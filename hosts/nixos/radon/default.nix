@@ -1,7 +1,6 @@
 { config, pkgs, ... }: {
   imports = [
     ./hardware.nix
-    ./home.nix # seb todo
     ./profiles.nix # seb todo
     ./programs.nix # seb todo
     ./secrets # seb todo
@@ -26,21 +25,25 @@
     };
   };
 
-  networking = {
-    hostName = "radon";
-    useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
-  };
-  # services.openssh = {
-  #   enable = true;
-  #   settings.PermitRootLogin = "no";
-  #   settings.PasswordAuthentication = true;
-  # };
+  my.home = { # seb: remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
+    bat.enable = true; # like cat, but with syntax highlighting & more
+    # bitwarden = {
+    #   enable = true;
+    #   pinentry = pkgs.pinentry-gtk2; # Use graphical pinentry  
+    #   mail = //... wait what? Should this not be different per-user?
+    # };
+    
+    firefox.enable = true;
+    firefox.tridactyl = true; # seb: An arcane way to use firefox
+    # gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
 
+    # packages.additionalPackages = with pkgs; [
+    #   jellyfin-media-player # Wraps the webui and mpv together
+    # ];
+    # mpv.enable = true; # Minimal video player
+  };
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  networking.hostName = "radon";
-  networking.networkmanager.enable = true;
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
@@ -101,28 +104,21 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # Adds adb program. Users must be added to the "adbusers" group
-  programs.adb.enable = true;
-  programs.fish.enable = true;
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+  
+  programs = {
+    adb.enable = true; # To use, users must be added to the "adbusers" group
+    fish.enable = true;
+    steam = {
+      enable = true;
+      remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    };
+    dconf.enable = true;
+    nix-ld.enable = true; # for all those executables with hardcoded /lib64 dynamic linker
   };
-  programs.dconf.enable = true;
-  # For all those executables with hardcoded /lib64 dynamic linker
-  programs.nix-ld.enable = true;
 
-  # Service to take over pcs of other people
-  services.teamviewer.enable = true;
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
+  services = {
+    teamviewer.enable = true;
+  };
 
   environment.systemPackages = [
     pkgs.home-manager
@@ -136,24 +132,6 @@
     shell = pkgs.fish;
     password = "changeme";
   };
-
-# tracker website blocking
-  networking.extraHosts = ''
-    0.0.0.0  connect.facebook.net
-    0.0.0.0 datadome.co
-    0.0.0.0 usage.trackjs.com
-    0.0.0.0 googletagmanager.com
-    0.0.0.0 firebaselogging-pa.googleapis.com
-    0.0.0.0 redshell.io
-    0.0.0.0 api.redshell.io
-    0.0.0.0 treasuredata.com
-    0.0.0.0 api.treasuredata.com
-    0.0.0.0 in.treasuredata.com
-    0.0.0.0 cdn.rdshll.com
-    0.0.0.0 t.redshell.io
-    0.0.0.0 innervate.us
-  '';
-
 
   system.stateVersion = "23.11"; # Do not change
 }

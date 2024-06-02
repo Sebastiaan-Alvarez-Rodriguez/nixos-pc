@@ -29,6 +29,7 @@ in
           efi.canTouchEfiVariables = true;
           efi.efiSysMountPoint = "/boot/efi";
 
+          # grub
           grub = lib.mkIf (cfg.kind == "grub") {
             enable = true;
             version = 2;
@@ -36,6 +37,7 @@ in
             efiSupport = true;
             enableCryptodisk = true;
           };
+          # systemd-boot
           systemd-boot.enable = (cfg.kind == "systemd");
         };
       }
