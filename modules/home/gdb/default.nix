@@ -1,30 +1,24 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.gdb;
-in
-{
+in {
   options.my.home.gdb = with lib; {
-    enable = my.mkDisableOption "gdb configuration";
+    enable = my.mkEnableOption "gdb configuration";
 
     rr = {
-      enable = my.mkDisableOption "rr configuration";
+      enable = my.mkEnableOption "rr configuration";
 
       package = mkOption {
         type = types.package;
         default = pkgs.rr;
         defaultText = literalExample "pkgs.rr";
-        description = ''
-          Package providing rr
-        '';
+        description = "Package providing rr";
       };
     };
   };
 
   config = lib.mkIf cfg.enable (lib.mkMerge [
     {
-      home.packages = with pkgs; [
-        gdb
-      ];
+      home.packages = with pkgs; [ gdb ];
 
       xdg = {
         configFile."gdb/gdbinit".source = ./gdbinit;
@@ -37,9 +31,7 @@ in
     }
 
     (lib.mkIf cfg.rr.enable {
-      home.packages = [
-        cfg.rr.package
-      ];
+      home.packages = [ cfg.rr.package ];
     })
   ]);
 }

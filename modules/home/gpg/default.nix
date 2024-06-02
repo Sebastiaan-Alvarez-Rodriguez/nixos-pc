@@ -1,18 +1,13 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.gpg;
-in
-{
+in {
   options.my.home.gpg = with lib; {
-    enable = my.mkDisableOption "gpg configuration";
-
+    enable = my.mkEnableOption "gpg configuration";
     pinentry = mkPackageOption pkgs "pinentry" { default = [ "pinentry-tty" ]; };
   };
 
   config = lib.mkIf cfg.enable {
-    programs.gpg = {
-      enable = true;
-    };
+    programs.gpg.enable = true;
 
     services.gpg-agent = {
       enable = true;

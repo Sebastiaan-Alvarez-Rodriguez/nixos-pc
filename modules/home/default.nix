@@ -4,18 +4,10 @@
     ./bat
     ./bitwarden
     ./bluetooth
-    ./documentation
-    ./feh
     ./firefox
-    ./flameshot
-    ./fzf
-    ./gammastep
     ./gdb
     ./gpg
     ./gtk
-    ./htop
-    ./jq
-    ./keyboard
     ./mail
     ./mpv
     ./nix
