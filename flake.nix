@@ -49,17 +49,6 @@
       ref = "master";
     };
 
-    pre-commit-hooks = {
-      type = "github";
-      owner = "cachix";
-      repo = "pre-commit-hooks.nix";
-      ref = "master";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        nixpkgs-stable.follows = "nixpkgs";
-      };
-    };
-
     simple-nixos-mailserver = {
       url = "gitlab:simple-nixos-mailserver/nixos-mailserver/master";
       inputs.nixpkgs.follows = "nixpkgs";
