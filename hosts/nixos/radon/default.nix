@@ -35,6 +35,7 @@
     
     firefox.enable = true;
     firefox.tridactyl = true; # seb: An arcane way to use firefox
+    gpg.enable = true;
     # gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
 
     # packages.additionalPackages = with pkgs; [
@@ -43,6 +44,7 @@
     # mpv.enable = true; # Minimal video player
   };
 
+  # seb: todo continue from here to bottom
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Set your time zone.

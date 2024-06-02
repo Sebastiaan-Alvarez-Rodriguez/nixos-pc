@@ -1,8 +1,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.my.home.gtk;
-in
-{
+in {
   options.my.home.gtk = with lib; {
     enable = mkEnableOption "GTK configuration";
   };
@@ -15,7 +14,7 @@ in
       name = "DejaVu Sans";
     };
 
-    gtk2 = {
+    gtk2 = { # seb: TODO make gtk3 or get out
       # That sweet, sweet clean home that I am always aiming for...
       configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
     };

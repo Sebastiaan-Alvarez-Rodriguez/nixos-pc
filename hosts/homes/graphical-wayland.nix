@@ -40,6 +40,7 @@ in {
     font-awesome_5
     gparted
     grim # screen capture <-- dev made other interesting stuff too
+    # flameshot <-- may not work for this particular wayland implementation
     hotspot
     meld
     micro
