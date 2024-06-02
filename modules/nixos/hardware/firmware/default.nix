@@ -1,8 +1,7 @@
 { config, lib, ... }:
 let
   cfg = config.my.hardware.firmware;
-in
-{
+in {
   options.my.hardware.firmware = with lib; {
     enable = my.mkDisableOption "firmware configuration";
 
@@ -21,14 +20,12 @@ in
       };
     }
 
-    # Intel CPU
     (lib.mkIf (cfg.cpuFlavor == "intel") {
       hardware = {
         cpu.intel.updateMicrocode = true;
       };
     })
 
-    # AMD CPU
     (lib.mkIf (cfg.cpuFlavor == "amd") {
       hardware = {
         cpu.amd.updateMicrocode = true;
