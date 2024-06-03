@@ -33,5 +33,6 @@
     enable = true;
     hostname = "radon";
     block-trackers = true;
-  }
+  };
+  my.hardware.sound.pipewire.enable = true;
 }

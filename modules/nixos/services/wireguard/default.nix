@@ -8,7 +8,7 @@ let
   secrets = config.age.secrets;
   hostName = config.networking.hostName;
 
-  peers = {
+  peers = { # seb TODO: set hosts here? More clean config options?
     # "Server"
     porthos = {
       clientNum = 1;
@@ -36,11 +36,10 @@ let
   thisPeer = peers."${hostName}";
   thisPeerIsServer = thisPeer ? externalIp;
   # Only connect to clients from server, and only connect to server from clients
-  otherPeers =
-    let
-      allOthers = lib.filterAttrs (name: _: name != hostName) peers;
-      shouldConnectToPeer = _: peer: thisPeerIsServer != (peer ? externalIp);
-    in
+  otherPeers = let
+    allOthers = lib.filterAttrs (name: _: name != hostName) peers;
+    shouldConnectToPeer = _: peer: thisPeerIsServer != (peer ? externalIp);
+  in
     lib.filterAttrs shouldConnectToPeer allOthers;
 
   extIface = config.my.hardware.networking.externalInterface;
@@ -53,50 +52,41 @@ let
     ];
     privateKeyFile = secrets."wireguard/private-key".path;
 
-    peers =
-      let
-        mkPeer = _: peer: lib.mkMerge [
-          {
-            inherit (peer) publicKey;
-          }
-
-          (lib.optionalAttrs thisPeerIsServer {
-            # Only forward from server to clients
-            allowedIPs = with cfg.net; [
-              "${v4.subnet}.${toString peer.clientNum}/32"
-              "${v6.subnet}::${toString peer.clientNum}/128"
-            ];
-          })
-
-          (lib.optionalAttrs (!thisPeerIsServer) {
-            # Forward all traffic through wireguard to server
-            allowedIPs = clientAllowedIPs;
-            # Roaming clients need to keep NAT-ing active
-            persistentKeepalive = 10;
-            # We know that `peer` is a server, set up the endpoint
-            endpoint = "${peer.externalIp}:${toString cfg.port}";
-          })
-        ];
-      in
+    peers = let
+      mkPeer = _: peer: lib.mkMerge [
+        { inherit (peer) publicKey; }
+        (lib.optionalAttrs thisPeerIsServer {
+          # Only forward from server to clients
+          allowedIPs = with cfg.net; [
+            "${v4.subnet}.${toString peer.clientNum}/32"
+            "${v6.subnet}::${toString peer.clientNum}/128"
+          ];
+        })
+        (lib.optionalAttrs (!thisPeerIsServer) {
+          # Forward all traffic through wireguard to server
+          allowedIPs = clientAllowedIPs;
+          # Roaming clients need to keep NAT-ing active
+          persistentKeepalive = 10;
+          # We know that `peer` is a server, set up the endpoint
+          endpoint = "${peer.externalIp}:${toString cfg.port}";
+        })
+      ];
+    in
       lib.mapAttrsToList mkPeer otherPeers;
 
     # Set up clients to use configured DNS servers
-    dns =
-      let
-        toInternalIps = peer: [
-          "${cfg.net.v4.subnet}.${toString peer.clientNum}"
-          "${cfg.net.v6.subnet}::${toString peer.clientNum}"
-        ];
-        # We know that `otherPeers` is an attribute set of servers
-        internalIps = lib.flatten
-          (lib.mapAttrsToList (_: peer: toInternalIps peer) otherPeers);
-        internalServers = lib.optionals cfg.dns.useInternal internalIps;
-      in
-      lib.mkIf (!thisPeerIsServer)
-        (internalServers ++ cfg.dns.additionalServers);
+    dns = let
+      toInternalIps = peer: [
+        "${cfg.net.v4.subnet}.${toString peer.clientNum}"
+        "${cfg.net.v6.subnet}::${toString peer.clientNum}"
+      ];
+      # We know that `otherPeers` is an attribute set of servers
+      internalIps = lib.flatten (lib.mapAttrsToList (_: peer: toInternalIps peer) otherPeers);
+      internalServers = lib.optionals cfg.dns.useInternal internalIps;
+    in
+      lib.mkIf (!thisPeerIsServer) (internalServers ++ cfg.dns.additionalServers);
   };
-in
-{
+in {
   options.my.services.wireguard = with lib; {
     enable = mkEnableOption "Wireguard VPN service";
 
@@ -141,7 +131,7 @@ in
     };
 
     net = {
-      # FIXME: use new ip library to handle this more cleanly
+      # seb FIXME: use new ip library to handle this more cleanly
       v4 = {
         subnet = mkOption {
           type = types.str;
@@ -175,10 +165,8 @@ in
 
     internal = {
       enable = mkEnableOption ''
-        Additional interface which does not route WAN traffic, but gives access
-        to wireguard peers.
-        Is useful for accessing DNS and other internal services, without having
-        to route all traffic through wireguard.
+        Additional interface which does not route WAN traffic, but gives access to wireguard peers.
+        Is useful for accessing DNS and other internal services, without having to route all traffic through wireguard.
         Is automatically disabled on server, and enabled otherwise.
       '' // {
         default = !thisPeerIsServer;
@@ -215,9 +203,7 @@ in
     })
 
     # Expose port
-    {
-      networking.firewall.allowedUDPPorts = [ cfg.port ];
-    }
+    { networking.firewall.allowedUDPPorts = [ cfg.port ]; }
 
     # Allow NATing wireguard traffic on server
     (lib.mkIf thisPeerIsServer {
