@@ -1,8 +1,6 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.mpv;
-in
-{
+in {
   options.my.home.mpv = with lib; {
     enable = mkEnableOption "mpv configuration";
   };

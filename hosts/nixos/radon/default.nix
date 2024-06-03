@@ -5,8 +5,6 @@
     ./programs.nix # seb todo
     ./secrets # seb todo
     ./services.nix # seb todo
-    ./sound.nix # seb todo
-    ./system.nix # seb todo
   ];
 
   my.system.boot = {
@@ -25,7 +23,7 @@
     };
   };
 
-  my.home = { # seb: remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
+  my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
     bat.enable = true; # like cat, but with syntax highlighting & more
     # bitwarden = {
     #   enable = true;
@@ -44,44 +42,19 @@
     # mpv.enable = true; # Minimal video player
   };
 
-  # seb: todo continue from here to bottom
+  config.my.services = {
+    wireguard.enable = true;
+  };
+
+  # seb: TODO continue from here to bottom
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
 
-  programs.xwayland.enable = true;
 
-  services.greetd = {
-    enable = true;
-    restart = false;
-    settings = rec {
-      initial_session =
-      let
-        run = pkgs.writeShellScript "start-river" ''
-          # Seems to be needed to get river to properly start
-          sleep 1
-          # Set the proper XDG desktop so that xdg-desktop-portal works
-          # This needs to be done before river is started
-          export XDG_CURRENT_DESKTOP=river
-          ${pkgs.river}/bin/river
-        '';
-      in
-      {
-        command = "${run}";
-        user = "rdn";
-      };
-      default_session = initial_session;
-    };
-  };
-
-  services.dbus.enable = true;
-
-  services.logind = {
-    #lidSwitch = "ignore";
-    #lidSwitchDocked = "ignore";
-  };
 
   xdg.portal = {
     enable = true;
@@ -90,22 +63,10 @@
     config.common.default = "*";
   };
 
-  # Enable sound with pipewire.
-  sound.enable = true;
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
-
   # virtualisation.docker.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-
   
   programs = {
     adb.enable = true; # To use, users must be added to the "adbusers" group
@@ -116,9 +77,35 @@
     };
     dconf.enable = true;
     nix-ld.enable = true; # for all those executables with hardcoded /lib64 dynamic linker
+    xwayland.enable = true;
   };
 
   services = {
+    dbus.enable = true;
+    greetd = { # seb TODO: should not have this config here, especially running stuff as a hardcoded user.
+      enable = true;
+      restart = false;
+      settings = rec {
+        initial_session = let
+          run = pkgs.writeShellScript "start-river" ''
+            # Seems to be needed to get river to properly start
+            sleep 1
+            # Set the proper XDG desktop so that xdg-desktop-portal works
+            # This needs to be done before river is started
+            export XDG_CURRENT_DESKTOP=river
+            ${pkgs.river}/bin/river
+          '';
+        in {
+          command = "${run}";
+          user = "rdn";
+        };
+        default_session = initial_session;
+      };
+    };
+    logind = {
+      #lidSwitch = "ignore";
+      #lidSwitchDocked = "ignore";
+    };
     teamviewer.enable = true;
   };
 

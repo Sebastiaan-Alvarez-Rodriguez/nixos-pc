@@ -1,10 +1,7 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.home.mail;
-
   mkRelatedOption = desc: lib.mkEnableOption desc // { default = cfg.enable; };
-in
-{
+in {
   imports = [
     ./accounts
     ./himalaya
@@ -12,7 +9,7 @@ in
   ];
 
   options.my.home.mail = with lib; {
-    enable = my.mkDisableOption "email configuration";
+    enable = mkEnableOption "email configuration";
 
     himalaya = {
       enable = mkEnableOption "himalaya configuration";
