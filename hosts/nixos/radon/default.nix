@@ -4,7 +4,6 @@
     ./profiles.nix # seb todo
     ./programs.nix # seb todo
     ./secrets # seb todo
-    ./services.nix # seb todo
   ];
 
   my.system.boot = {
@@ -42,7 +41,7 @@
     # mpv.enable = true; # Minimal video player
   };
 
-  config.my.services = {
+  my.services = {
     wireguard.enable = true;
   };
 
@@ -53,8 +52,6 @@
   # Set your time zone.
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
-
-
 
   xdg.portal = {
     enable = true;

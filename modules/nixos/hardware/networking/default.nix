@@ -1,8 +1,6 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.hardware.networking;
-in
-{
+in {
   options.my.hardware.networking = with lib; {
     enable = mkEnableOption "networking configuration";
 
@@ -12,7 +10,7 @@ in
       description = "Name of host";
     };
 
-    block-trackers = lib.mkDisableOption "block common trackers";
+    block-trackers = my.mkDisableOption "block common trackers";
 
     wireless = {
       enable = mkEnableOption "wireless configuration";
@@ -21,30 +19,31 @@ in
 
   config = lib.mkIf cfg.enable {
     networking = lib.mkMerge [
-    {
-      networkmanager.enable = true;
-      useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
-      hostname = lib.mkIf cfg.hostname cfg.hostname;
-    }
-    (lib.mkIf cfg.block-trackers {
-      extraHosts = ''
-        0.0.0.0  connect.facebook.net
-        0.0.0.0 datadome.co
-        0.0.0.0 usage.trackjs.com
-        0.0.0.0 googletagmanager.com
-        0.0.0.0 firebaselogging-pa.googleapis.com
-        0.0.0.0 redshell.io
-        0.0.0.0 api.redshell.io
-        0.0.0.0 treasuredata.com
-        0.0.0.0 api.treasuredata.com
-        0.0.0.0 in.treasuredata.com
-        0.0.0.0 cdn.rdshll.com
-        0.0.0.0 t.redshell.io
-        0.0.0.0 innervate.us
-      '';
-    })
-    (lib.mkIf cfg.wireless.enable {
-      networkmanager.enable = cfg.wireless;
-    })
-  ];
+      {
+        networkmanager.enable = true;
+        useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
+        hostName = lib.mkIf cfg.hostname cfg.hostname;
+      }
+      (lib.mkIf cfg.block-trackers {
+        extraHosts = ''
+          0.0.0.0  connect.facebook.net
+          0.0.0.0 datadome.co
+          0.0.0.0 usage.trackjs.com
+          0.0.0.0 googletagmanager.com
+          0.0.0.0 firebaselogging-pa.googleapis.com
+          0.0.0.0 redshell.io
+          0.0.0.0 api.redshell.io
+          0.0.0.0 treasuredata.com
+          0.0.0.0 api.treasuredata.com
+          0.0.0.0 in.treasuredata.com
+          0.0.0.0 cdn.rdshll.com
+          0.0.0.0 t.redshell.io
+          0.0.0.0 innervate.us
+        '';
+      })
+      (lib.mkIf cfg.wireless.enable {
+        networkmanager.enable = cfg.wireless;
+      })
+    ];
+  };
 }

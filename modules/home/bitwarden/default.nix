@@ -7,15 +7,23 @@ in {
     mail = mkOption {
       type = types.str;
       example = "a@b.com";
-    }
+      description = "The email address to use as the account name when logging into the Bitwarden server.";
+    };
+    base_url = mkOption {
+      type = types.str;
+      example = "my.domainname.com";
+      description = "Domainname for bitwarden server. Set to 'official' server at 'https://api.bitwarden.com/' if you won't host your own server.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
     programs.rbw = {
       enable = true;
-
       settings = {
         email = cfg.mail;
+        base_url =  cfg.base_url;
+        # lock_timeout = 36000; # keep master keys in memory for the entire session.
+        sync_interval = 1800; # sync after 1800 seconds.
         inherit (cfg) pinentry;
       };
     };
