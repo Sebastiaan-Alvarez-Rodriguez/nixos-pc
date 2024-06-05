@@ -10,7 +10,7 @@ in {
       description = "Name of host";
     };
 
-    block-trackers = my.mkDisableOption "block common trackers";
+    block-trackers = lib.my.mkDisableOption "block common trackers";
 
     wireless = {
       enable = mkEnableOption "wireless configuration";
@@ -22,7 +22,7 @@ in {
       {
         networkmanager.enable = true;
         useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
-        hostName = lib.mkIf cfg.hostname cfg.hostname;
+        hostName = lib.mkIf (cfg.hostname != null) cfg.hostname;
       }
       (lib.mkIf cfg.block-trackers {
         extraHosts = ''
@@ -42,7 +42,7 @@ in {
         '';
       })
       (lib.mkIf cfg.wireless.enable {
-        networkmanager.enable = cfg.wireless;
+        networkmanager.enable = true;
       })
     ];
   };

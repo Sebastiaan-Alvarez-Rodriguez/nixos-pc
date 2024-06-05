@@ -1,5 +1,4 @@
-{ ... }:
-{
+{ ... }: {
   imports = [
     ./bat
     ./bitwarden
@@ -19,7 +18,6 @@
     ./power-alert
     ./secrets
     ./ssh
-    ./terminal
     ./tmux
     ./udiskie
     ./vim

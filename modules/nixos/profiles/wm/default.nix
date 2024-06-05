@@ -19,7 +19,7 @@ in
       # i3 settings
       my.home.wm.windowManager = "i3";
       # Screenshot tool
-      my.home.flameshot.enable = true;
+      # my.home.flameshot.enable = true;
       # Auto disk mounter
       my.home.udiskie.enable = true;
       # udiskie fails if it can't find this dbus service

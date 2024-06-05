@@ -1,14 +1,11 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.system.boot;
-in
-{
+in {
   options.my.system.boot = with lib; {
     enable = mkEnableOption "custom boot configuration";
     kind = mkOption {
       type = with types; nullOr (enum ["systemd" "grub"]); # https://nlewo.github.io/nixos-manual-sphinx/development/option-declarations.xml.html
       default = null;
-      
       description = "Bootloader to use";
     };
     tmp = {
