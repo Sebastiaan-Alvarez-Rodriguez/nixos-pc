@@ -10,7 +10,7 @@ in
   options.my.home.firefox = with lib; {
     enable = mkEnableOption "firefox configuration";
 
-    tridactyl = {
+    tridactyl = { # seb: TODO how is this different from mkEnableOption?
       enable = mkOption {
         type = types.bool;
         description = "tridactyl configuration";

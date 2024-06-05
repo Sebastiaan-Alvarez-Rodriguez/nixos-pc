@@ -34,7 +34,7 @@ in {
     })
 
     # Intel GPU
-    (lib.mkIf (cfg.gpuFlavor == "intel") {
+    (lib.mkIf cfg.intel.enable {
       boot.initrd.kernelModules = lib.mkIf cfg.intel.enableKernelModule [ "i915" ];
 
       environment.variables = {

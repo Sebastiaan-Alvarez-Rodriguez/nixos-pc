@@ -2,7 +2,7 @@
   cfg = config.my.home.gpg;
 in {
   options.my.home.gpg = with lib; {
-    enable = my.mkEnableOption "gpg configuration";
+    enable = mkEnableOption "gpg configuration";
     pinentry = mkPackageOption pkgs "pinentry" { default = [ "pinentry-tty" ]; };
   };
 

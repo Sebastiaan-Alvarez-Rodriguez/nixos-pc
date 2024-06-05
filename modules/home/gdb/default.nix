@@ -2,10 +2,10 @@
   cfg = config.my.home.gdb;
 in {
   options.my.home.gdb = with lib; {
-    enable = my.mkEnableOption "gdb configuration";
+    enable = mkEnableOption "gdb configuration";
 
     rr = {
-      enable = my.mkEnableOption "rr configuration";
+      enable = mkEnableOption "rr configuration";
 
       package = mkOption {
         type = types.package;

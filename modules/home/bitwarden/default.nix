@@ -22,8 +22,8 @@ in {
       settings = {
         email = cfg.mail;
         base_url =  cfg.base_url;
-        # lock_timeout = 36000; # keep master keys in memory for the entire session.
         sync_interval = 1800; # sync after 1800 seconds.
+        # lock_timeout = 36000; # keep master keys in memory for the entire session.
         inherit (cfg) pinentry;
       };
     };
