@@ -45,6 +45,7 @@
     #   jellyfin-media-player # Wraps the webui and mpv together
     # ];
     # mpv.enable = true; # Minimal video player
+    spotify.enable = true;
   };
 
   # my.services = { # seb: TODO uncomment after handling wireguard config.
@@ -53,9 +54,7 @@
 
   # seb: TODO continue from here to bottom
 
-  # Allow unfree packages
-  
-  programs = {
+  programs = { # seb: TODO maybe these programs should be in a 'graphical' or 'graphical-wayland' profile
     adb.enable = true; # To use, users must be added to the "adbusers" group
     steam = {
       enable = true;

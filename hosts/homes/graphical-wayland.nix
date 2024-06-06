@@ -1,21 +1,4 @@
-{ inputs, lib, config, pkgs, ... }: let
-  custom-firefox = pkgs.wrapFirefox pkgs.firefox-unwrapped {
-    extraPolicies = {
-      DisableFirefoxStudies = true;
-      DisablePocket = true;
-      DisableTelemetry = true;
-      DisableFirefoxAccounts = false;
-      FirefoxHome = {
-        Pocket = false;
-        Snippets = false;
-      };
-      UserMessaging = {
-        ExtensionRecommendation = false;
-        SkipOnboarding = false;
-      };
-    };
-  };
-in {
+{ inputs, lib, config, pkgs, ... }: {
   # Adds a graphical interface when imported.
   imports = [
     ../modules/home-manager/river.nix
@@ -34,17 +17,11 @@ in {
   };
 
   home.packages = with pkgs; [
-    bluez # bluetooth
-    chromium
     dejavu_fonts
     font-awesome_5
     gparted
     grim # screen capture <-- dev made other interesting stuff too
     # flameshot <-- may not work for this particular wayland implementation
-    hotspot
-    meld
-    micro
-    moreutils
     montserrat # font
     noto-fonts
     noto-fonts-cjk
@@ -52,7 +29,6 @@ in {
     pavucontrol
     river # wayland tiling
     roboto # font
-    tdesktop
     wl-clipboard
     xdg-desktop-portal-gtk
     xdg-utils # xdg-open required for foot url thingy
@@ -181,8 +157,6 @@ in {
     '';
   };
 
-  programs.git.extraConfig.diff.tool = "meld";
-
   programs.ssh = {
     # Remote servers cannot deal with TERM=foot
     extraConfig = ''
@@ -225,11 +199,6 @@ in {
     };
   };
   systemd.user.services.foot.Install.WantedBy = lib.mkForce [ "river-session.target" ];
-
-  programs.firefox = {
-    enable = true;
-    package = custom-firefox;
-  };
 
   programs.rofi = {
     enable = true;
@@ -315,15 +284,6 @@ in {
     enable = true;
     mode = "fill";
     systemdTarget = "river-session.target";
-  };
-
-  # should set profiles in specialization
-  programs.thunderbird = {
-    enable = true;
-    package = pkgs.thunderbird-bin;
-    settings = {
-      "privacy.donottrackheader.enabled" = true;
-    };
   };
 
   services.mako = { # wayland notifications
