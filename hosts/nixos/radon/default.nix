@@ -1,8 +1,6 @@
 { config, pkgs, ... }: {
   imports = [
     ./hardware.nix
-    # ./profiles.nix # seb todo
-    # ./programs.nix # seb todo
     # ./secrets # seb todo
   ];
 
@@ -48,28 +46,32 @@
     spotify.enable = true;
   };
 
+  my.programs = {
+    # Steam configuration
+    steam.enable = true;
+  };
+  programs = {
+    adb.enable = true; # To use, users must be added to the "adbusers" group
+    dconf.enable = true;
+    nix-ld.enable = true; # for all those executables with hardcoded /lib64 dynamic linker
+  };
+
   # my.services = { # seb: TODO uncomment after handling wireguard config.
   #   wireguard.enable = true;
   # };
 
+  my.profiles = {
+    # Bluetooth configuration and GUI
+    # bluetooth.enable = true; # seb: TODO for laptop hosts, enable
+    gtk.enable = true;
+    # Laptop specific configuration
+    # laptop.enable = true; # seb: TODO checkout what this is for laptop hosts
+    # i3 configuration
   # seb: TODO continue from here to bottom
 
-  programs = { # seb: TODO maybe these programs should be in a 'graphical' or 'graphical-wayland' profile
-    adb.enable = true; # To use, users must be added to the "adbusers" group
-    steam = {
-      enable = true;
-      remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-    };
-    dconf.enable = true;
-    nix-ld.enable = true; # for all those executables with hardcoded /lib64 dynamic linker
-    xwayland.enable = true;
-  };
-
-  xdg.portal = {
-    enable = true;
-    wlr.enable = true;
-    extraPortals = [pkgs.xdg-desktop-portal-wlr pkgs.xdg-desktop-portal-gtk];
-    config.common.default = "*";
+    wm.windowManager = "i3"; # i3 is for X.
+    # X configuration
+    x.enable = true;
   };
 
   services = {

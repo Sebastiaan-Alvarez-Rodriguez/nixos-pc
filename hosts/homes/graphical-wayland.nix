@@ -280,6 +280,8 @@
     style = ../res/waybar/waybar-style.css;
   };
 
+  programs.xwayland.enable = true;
+
   programs.swaybg-dynamic = { # backgrounds
     enable = true;
     mode = "fill";
@@ -296,22 +298,10 @@
     systemdTarget = "river-session.target";
   };
 
-  gtk = {
+  xdg.portal = {
     enable = true;
-    theme = {
-      package = pkgs.numix-gtk-theme;
-      name = "Numix";
-    };
-    cursorTheme = {
-      package = inputs.self.packages.${pkgs.system}.breeze-obsidian-cursor-theme;
-      name = "Breeze_Obsidian";
-    };
-    iconTheme = {
-      package = pkgs.numix-icon-theme-circle;
-      name = "Numix-Circle-Light";
-    };
+    wlr.enable = true;
+    extraPortals = [pkgs.xdg-desktop-portal-wlr pkgs.xdg-desktop-portal-gtk];
+    config.common.default = "*";
   };
-
-  # For good measure
-  home.file.".icons/default".source = "${inputs.self.packages.${pkgs.system}.breeze-obsidian-cursor-theme}/share/icons/Breeze_Obsidian";
 }
