@@ -73,4 +73,30 @@ in
       };
     };
   };
+  # legacy:
+  # let
+  #   custom-firefox = pkgs.wrapFirefox pkgs.firefox-unwrapped {
+  #     extraPolicies = {
+  #       DisableFirefoxStudies = true;
+  #       DisablePocket = true;
+  #       DisableTelemetry = true;
+  #       DisableFirefoxAccounts = false;
+  #       FirefoxHome = {
+  #         Pocket = false;
+  #         Snippets = false;
+  #       };
+  #       UserMessaging = {
+  #         ExtensionRecommendation = false;
+  #         SkipOnboarding = false;
+  #       };
+  #     };
+  #   };
+  # in {
+  #   programs.firefox = {
+  #     enable = true;
+  #     package = custom-firefox;
+  #   };
+  # }
+
+  
 }

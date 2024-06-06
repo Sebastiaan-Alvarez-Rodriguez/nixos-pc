@@ -21,6 +21,7 @@
     libtree
     lm_sensors
     meld
+    micro
     moreutils
     mutagen
     nix-output-monitor

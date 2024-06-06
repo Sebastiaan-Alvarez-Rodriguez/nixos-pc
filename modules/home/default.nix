@@ -1,5 +1,5 @@
 { ... }: {
-  imports = [
+  imports = [ # seb: TODO check all items in this list.
     ./bat
     ./bitwarden
     ./bluetooth
@@ -17,6 +17,7 @@
     ./pager
     ./power-alert
     ./secrets
+    ./spotify
     ./ssh
     ./tmux
     ./udiskie
