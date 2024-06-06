@@ -6,27 +6,23 @@ in {
     enable = mkEnableOption "GTK configuration";
   };
 
-  config.gtk = lib.mkIf cfg.enable {
-    enable = true;
-
-    font = {
-      package = pkgs.dejavu_fonts;
-      name = "DejaVu Sans";
+  config = lib.mkIf cfg.enable {
+    gtk = {
+      enable = true;
+      theme = {
+        package = pkgs.numix-gtk-theme;
+        name = "Numix";
+      };
+      cursorTheme = {
+        package = inputs.self.packages.${pkgs.system}.breeze-obsidian-cursor-theme;
+        name = "Breeze_Obsidian";
+      };
+      iconTheme = {
+        package = pkgs.numix-icon-theme-circle;
+        name = "Numix-Circle-Light";
+      };
     };
-
-    gtk2 = { # seb: TODO make gtk3 or get out
-      # That sweet, sweet clean home that I am always aiming for...
-      configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
-    };
-
-    iconTheme = {
-      package = pkgs.gnome.gnome-themes-extra;
-      name = "Adwaita";
-    };
-
-    theme = {
-      package = pkgs.gnome.gnome-themes-extra;
-      name = "Adwaita";
-    };
+    # For good measure
+    home.file.".icons/default".source = "${inputs.self.packages.${pkgs.system}.breeze-obsidian-cursor-theme}/share/icons/Breeze_Obsidian";
   };
 }

@@ -1,8 +1,6 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.profiles.gtk;
-in
-{
+in {
   options.my.profiles.gtk = with lib; {
     enable = mkEnableOption "gtk profile";
   };
