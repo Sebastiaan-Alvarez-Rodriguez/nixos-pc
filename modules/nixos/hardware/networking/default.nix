@@ -24,7 +24,7 @@ in {
         useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
         hostName = lib.mkIf (cfg.hostname != null) cfg.hostname;
       }
-      (lib.mkIf cfg.block-trackers {
+      (lib.mkIf cfg.block-trackers { # seb TODO: to setup this stuff professionally, use: https://github.com/StevenBlack/hosts
         extraHosts = ''
           0.0.0.0  connect.facebook.net
           0.0.0.0 datadome.co

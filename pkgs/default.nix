@@ -2,12 +2,6 @@
 pkgs.lib.makeScope pkgs.newScope (pkgs: {
   bw-pass = pkgs.callPackage ./bw-pass { };
 
-  change-audio = pkgs.callPackage ./change-audio { };
-
-  change-backlight = pkgs.callPackage ./change-backlight { };
-
-  comma = pkgs.callPackage ./comma { };
-
   diff-flake = pkgs.callPackage ./diff-flake { };
 
   dragger = pkgs.callPackage ./dragger { };
@@ -27,6 +21,4 @@ pkgs.lib.makeScope pkgs.newScope (pkgs: {
   rbw-pass = pkgs.callPackage ./rbw-pass { };
 
   unbound-zones-adblock = pkgs.callPackage ./unbound-zones-adblock { };
-
-  zsh-done = pkgs.callPackage ./zsh-done { };
 })
