@@ -51,7 +51,7 @@
     wm.flameshot.enable = false; # seb: TODO explore flameshot (needs to disable grim)
     wm.mako.enable = true;
     wm.rofi.enable = true;
-    wm.swaybg.enable = true;
+    wm.wpaperd.enable = true;
     wm.waybar.enable = true;
   };
 
@@ -61,7 +61,6 @@
   };
   programs = {
     adb.enable = true; # To use, users must be added to the "adbusers" group
-    dconf.enable = true;
   };
 
   # my.services = { # seb: TODO uncomment after handling wireguard config.
@@ -78,7 +77,7 @@
   # seb: TODO continue from here to bottom
     # wm.windowManager = "river"; # i3 is for X.
     # X configuration
-    x.enable = true;
+    # x.enable = true;
   };
 
   services = {
@@ -110,9 +109,7 @@
     teamviewer.enable = true;
   };
 
-  environment.systemPackages = [
-    pkgs.home-manager
-  ];
+  environment.systemPackages = [ pkgs.home-manager ];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.rdn = {
@@ -126,5 +123,5 @@
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
 
-  system.stateVersion = "23.11"; # Do not change
+  system.stateVersion = "24.05"; # Do not change
 }
