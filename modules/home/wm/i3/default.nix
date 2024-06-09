@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 let
-  isEnabled = config.my.home.wm.windowManager == "i3";
+  isEnabled = config.my.home.wm.manager == "i3";
 
   terminal =
     if config.my.home.terminal.program != null
