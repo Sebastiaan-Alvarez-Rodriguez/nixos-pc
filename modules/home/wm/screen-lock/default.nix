@@ -1,31 +1,32 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.wm.screen-lock;
 
-  notficationCmd =
-    let
-      duration = toString (cfg.notify.delay * 1000);
-      notifyCmd = "${lib.getExe pkgs.libnotify} -u critical -t ${duration}";
-    in
+  notficationCmd = let
+    duration = toString (cfg.notify.delay * 1000);
+    notifyCmd = "${lib.getExe pkgs.libnotify} -u critical -t ${duration}";
+  in
     # Needs to be surrounded by quotes for systemd to launch it correctly
     ''"${notifyCmd} -- 'Locking in ${toString cfg.notify.delay} seconds'"'';
-in
-{
+in {
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion =
-          let
-            inherit (cfg) cornerLock notify;
-            bothEnabled = cornerLock.enable && notify.enable;
-            cornerLockHigherThanNotify = cornerLock.delay >= notify.delay;
-          in
+        assertion = let
+          inherit (cfg) cornerLock notify;
+          bothEnabled = cornerLock.enable && notify.enable;
+          cornerLockHigherThanNotify = cornerLock.delay >= notify.delay;
+        in
           bothEnabled -> cornerLockHigherThanNotify;
         message = ''
           `config.my.home.wm.notify.delay` cannot have a value higher than
           `config.my.home.wm.cornerLock.delay`.
         '';
       }
+      {
+        assertion = config.my.home.gm.manager == "xserver";
+        message = "screen-lock module requires xserver graphics manager (set my.home.gm.manager = \"xserver\")";
+      }
+
     ];
 
     services.screen-locker = {

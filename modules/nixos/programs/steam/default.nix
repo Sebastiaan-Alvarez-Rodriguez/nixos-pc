@@ -7,9 +7,12 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    programs.steam = {
-      enable = true;
-      remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    programs = {
+      steam = {
+        enable = true;
+        remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+      };
+      nix-ld.enable = true; # for all those executables with hardcoded /lib64 dynamic linker
     };
   };
 }

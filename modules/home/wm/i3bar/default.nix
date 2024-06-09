@@ -1,9 +1,13 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.wm.i3bar;
-in
-{
+in {
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = config.my.home.gm.manager == "xserver";
+        message = "i3 module requires xserver graphics manager (set my.home.gm.manager = \"xserver\")";
+      }
+    ];
     home.packages = with pkgs; [
       alsa-utils # Used by `sound` block
       lm_sensors # Used by `temperature` block

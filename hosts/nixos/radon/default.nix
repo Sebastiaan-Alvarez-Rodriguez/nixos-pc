@@ -36,6 +36,7 @@
     
     firefox.enable = true;
     firefox.tridactyl.enable = true; # seb: An arcane way to use firefox
+    gm.manager = "wayland";
     gpg.enable = true;
     # gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
 
@@ -44,6 +45,10 @@
     # ];
     # mpv.enable = true; # Minimal video player
     spotify.enable = true;
+    wm.manager = "river";
+    wm.mako.enable = true;
+    wm.rofi.enable = true;
+    wm.waybar.enable = true;
   };
 
   my.programs = {
@@ -53,7 +58,6 @@
   programs = {
     adb.enable = true; # To use, users must be added to the "adbusers" group
     dconf.enable = true;
-    nix-ld.enable = true; # for all those executables with hardcoded /lib64 dynamic linker
   };
 
   # my.services = { # seb: TODO uncomment after handling wireguard config.
@@ -68,8 +72,7 @@
     # laptop.enable = true; # seb: TODO checkout what this is for laptop hosts
     # i3 configuration
   # seb: TODO continue from here to bottom
-
-    wm.windowManager = "i3"; # i3 is for X.
+    # wm.windowManager = "river"; # i3 is for X.
     # X configuration
     x.enable = true;
   };
