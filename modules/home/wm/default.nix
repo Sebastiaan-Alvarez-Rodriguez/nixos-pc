@@ -17,8 +17,8 @@ in {
     ./river
     ./rofi
     ./screen-lock
-    ./swaybg
     ./waybar
+    ./wpaperd
   ];
 
   options.my.home.wm = with lib; {
@@ -46,11 +46,11 @@ in {
     rofi = {
       enable = mkEnableOption "desktop-menu - xserver wayland - rofi";
     };
-    swaybg = {
-      enable = mkEnableOption "background-display - wayland - swaybg";
-    };
     waybar = {
       enable = mkEnableOption "status-bar - wayland - waybar";
+    };
+    wpaperd = {
+      enable = mkEnableOption "background-display - wayland - wpaperd";
     };
 
     dunst = {
