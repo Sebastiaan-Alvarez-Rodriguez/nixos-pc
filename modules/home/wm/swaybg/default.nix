@@ -1,6 +1,7 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.home.wm.swaybg;
 in {
+  # seb TODO: Needs access to original repo's  ../modules/home-manager/swaybg-dynamic.nix
   config = lib.mkIf cfg.enable {
     assertions = [
       {
