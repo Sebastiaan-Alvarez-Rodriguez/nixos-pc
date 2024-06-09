@@ -2,6 +2,7 @@
   cfg = config.my.home.wm.river;
   isEnabled = config.my.home.wm.manager == "river";
 in {
+  # seb: TODO may need old module as in original repo,  ../modules/home-manager/river.nix
   config = lib.mkIf isEnabled {
     assertions = [
       {

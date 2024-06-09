@@ -46,8 +46,12 @@
     # mpv.enable = true; # Minimal video player
     spotify.enable = true;
     wm.manager = "river";
+    wm.dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
+    wm.grim.enable = true;
+    wm.flameshot.enable = false; # seb: TODO explore flameshot (needs to disable grim)
     wm.mako.enable = true;
     wm.rofi.enable = true;
+    wm.swaybg.enable = true;
     wm.waybar.enable = true;
   };
 

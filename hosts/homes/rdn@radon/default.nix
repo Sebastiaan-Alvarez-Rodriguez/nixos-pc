@@ -1,7 +1,7 @@
-{ inputs, config, lib, pkgs, spicetify-nix, ...}: let
+{ inputs, config, lib, pkgs, ...}: let
   username = "rdn";
 in {
-  imports = [ ../rdn/rdn-headless.nix ../graphical-wayland.nix ];
+  imports = [ ../rdn/rdn-headless.nix ];
 
   home.packages = let
     pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
@@ -14,9 +14,10 @@ in {
     droidcam
     galculator
     gamemode
+    gparted
     hotspot
     jetbrains.idea-community
-    logiops
+    # logiops
     nheko
     proton-caller
     qbittorrent
