@@ -87,7 +87,7 @@ in {
           }
 
           (lib.mkIf config.my.home.wm.rofi.enable {
-            "${mod} D" = "spawn '${programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi'";
+            "${mod} D" = "spawn '${config.programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi'";
           })
 
           (lib.mkIf config.my.home.firefox.enable {
