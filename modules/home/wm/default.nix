@@ -32,34 +32,34 @@ in {
 
     # applications to enhance window managers
     grim = {
-      enable = mkEnableOption "screenshot-tool - wayland - grim" [ "river" ];
+      enable = mkEnableOption "screenshot-tool - wayland - grim";
     };
     flameshot = {
-      enable = mkEnableOption "screenshot-tool - wayland - flameshot" [ "river" ];
+      enable = mkEnableOption "screenshot-tool - wayland - flameshot";
     };
     kanshi = {
-      enable = mkEnableOption "display-configuration - kanshi" [ "river" ];
+      enable = mkEnableOption "display-configuration - kanshi";
     };
     mako = {
-      enable = mkEnableOption "notifications - wayland - mako" [ "river" ];
+      enable = mkEnableOption "notifications - wayland - mako";
     };
     rofi = {
-      enable = mkEnableOption "desktop-menu - wayland xserver - rofi" [ "i3" "river" ];
+      enable = mkEnableOption "desktop-menu - xserver wayland - rofi";
     };
     swaybg = {
-      enable = mkEnableOption "background-display - wayland - swaybg" [ "river" ];
+      enable = mkEnableOption "background-display - wayland - swaybg";
     };
     waybar = {
-      enable = mkEnableOption "status-bar - wayland - waybar" [ "river" ];
+      enable = mkEnableOption "status-bar - wayland - waybar";
     };
 
     dunst = {
-      enable = mkEnableOption "notifications - xserver and wayland - dunst" [ "i3" "river" ];
+      enable = mkEnableOption "notifications - xserver wayland - dunst";
     };
 
 
     i3bar = { # seb TODO: checkout package & config
-      enable = mkEnableOption "status-bar - xserver - i3bar" [ "i3" ];
+      enable = mkEnableOption "status-bar - xserver - i3bar";
 
       vpn = {
         enable = my.mkDisableOption "VPN configuration";
@@ -88,7 +88,7 @@ in {
     };
 
     screen-lock = {
-      enable = mkEnableOption "automatic screen locker - xserver - screen-locker" [ "i3" ];
+      enable = mkEnableOption "automatic screen locker - xserver - screen-locker";
 
       command = mkOption {
         type = types.str;

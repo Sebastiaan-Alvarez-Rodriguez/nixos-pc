@@ -11,7 +11,7 @@ in {
 
     services.kanshi = { # display config tool
       enable = true;
-      systemdTarget = config.my.home.wm.manager == "river" then "river-session.target" else null;
+      systemdTarget = if config.my.home.wm.manager == "river" then "river-session.target" else null;
     };
   };
 }

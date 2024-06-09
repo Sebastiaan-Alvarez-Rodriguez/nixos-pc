@@ -2,7 +2,7 @@
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.terminal;
 in {
-  options.my.home.terminal = {
+  options.my.home.terminal = with lib; {
     program = mkOption {
       type = with types; nullOr (enum [ "foot" ]);
       default = null;
@@ -59,4 +59,4 @@ in {
       ];
     })
   ]);
-};
+}

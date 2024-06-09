@@ -2,7 +2,7 @@
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.gm;
 in {
-  options.my.home.gm = {
+  options.my.home.gm = with lib; {
     manager = mkOption {
       type = with types; nullOr (enum [ "x" "wayland" ]);
       default = null;
@@ -20,7 +20,7 @@ in {
       home.packages = [ pkgs.wl-clipboard pkgs.wl-clip-persist ];
       wayland.windowManager.sway = { # seb: TODO is this the way to get wayland? Probably not?
         enable = true;
-        xwayland = true; # compatibility for xserver-only programs.
+        xwayland.enable = true; # compatibility for xserver-only programs.
       };
       home.sessionVariables = {
         MOZ_ENABLE_WAYLAND = 1;
@@ -34,4 +34,4 @@ in {
       };
     })
   ]);
-};
+}

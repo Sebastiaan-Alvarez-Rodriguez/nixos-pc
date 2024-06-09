@@ -1,4 +1,4 @@
-{ config, lib, ... }: let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.hardware.sound;
 in {
   options.my.hardware.sound = with lib; {
