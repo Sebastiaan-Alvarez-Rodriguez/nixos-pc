@@ -1,41 +1,65 @@
-{ config, lib, pkgs, ... }:
-let
-  mkRelatedOption = description: relatedWMs:
-    let
-      isActivatedWm = wm: config.my.home.wm.windowManager == wm;
-    in
+{ config, lib, pkgs, ... }: let
+  mkRelatedOption = description: relatedWMs: let
+    isActivatedWm = wm: config.my.home.wm.windowManager == wm;
+  in
     (lib.mkEnableOption description) // {
       default = builtins.any isActivatedWm relatedWMs;
     };
-in
-{
+in {
   imports = [
-    ./cursor
     ./dunst
+    ./flameshot
+    ./grim
     ./i3
     ./i3bar
+    ./kanshi
+    ./mako
+    ./river
     ./rofi
     ./screen-lock
+    ./swaybg
+    ./waybar
   ];
 
   options.my.home.wm = with lib; {
-    windowManager = mkOption {
-      type = with types; nullOr (enum [ "i3" ]);
+    manager = mkOption {
+      type = with types; nullOr (enum [ "i3" "river" ]);
+      # seb: For sway, https://nixos.wiki/wiki/Sway (use homemanager)
+      # seb: For river, https://home-manager-options.extranix.com/?query=river&release=master
       default = null;
-      example = "i3";
       description = "Which window manager to use for home session";
     };
 
-    cursor = {
-      enable = mkRelatedOption "dunst configuration" [ "i3" ];
+    # applications to enhance window managers
+    grim = {
+      enable = mkEnableOption "screenshot-tool - wayland - grim" [ "river" ];
+    };
+    flameshot = {
+      enable = mkEnableOption "screenshot-tool - wayland - flameshot" [ "river" ];
+    };
+    kanshi = {
+      enable = mkEnableOption "display-configuration - kanshi" [ "river" ];
+    };
+    mako = {
+      enable = mkEnableOption "notifications - wayland - mako" [ "river" ];
+    };
+    rofi = {
+      enable = mkEnableOption "desktop-menu - wayland xserver - rofi" [ "i3" "river" ];
+    };
+    swaybg = {
+      enable = mkEnableOption "background-display - wayland - swaybg" [ "river" ];
+    };
+    waybar = {
+      enable = mkEnableOption "status-bar - wayland - waybar" [ "river" ];
     };
 
     dunst = {
-      enable = mkRelatedOption "dunst configuration" [ "i3" ];
+      enable = mkEnableOption "notifications - xserver and wayland - dunst" [ "i3" "river" ];
     };
 
-    i3bar = {
-      enable = mkRelatedOption "i3bar configuration" [ "i3" ];
+
+    i3bar = { # seb TODO: checkout package & config
+      enable = mkEnableOption "status-bar - xserver - i3bar" [ "i3" ];
 
       vpn = {
         enable = my.mkDisableOption "VPN configuration";
@@ -63,12 +87,8 @@ in
       };
     };
 
-    rofi = {
-      enable = mkRelatedOption "rofi menu" [ "i3" ];
-    };
-
     screen-lock = {
-      enable = mkRelatedOption "automatic X screen locker" [ "i3" ];
+      enable = mkEnableOption "automatic screen locker - xserver - screen-locker" [ "i3" ];
 
       command = mkOption {
         type = types.str;
@@ -79,8 +99,7 @@ in
 
       cornerLock = {
         enable = my.mkDisableOption ''
-          Move mouse to upper-left corner to lock instantly, lower-right corner to
-          disable auto-lock.
+          Move mouse to upper-left corner to lock instantly, lower-right corner to disable auto-lock.
         '';
 
         delay = mkOption {
@@ -100,8 +119,7 @@ in
           example = 15;
           description = ''
             How many seconds in advance should there be a notification.
-            This value must be at lesser than or equal to `cornerLock.delay`
-            when both options are enabled.
+            This value must be lesser than or equal to `cornerLock.delay` when both options are enabled.
           '';
         };
       };
@@ -112,6 +130,31 @@ in
         example = 1;
         description = "Inactive time interval to lock the screen automatically";
       };
+    };
+  };
+
+  config = {
+    fonts.fontconfig.enable = true;
+    home.packages = with pkgs; [
+      # all fonts
+      dejavu_fonts
+      font-awesome_5
+      montserrat
+      noto-fonts
+      noto-fonts-cjk
+      noto-fonts-emoji
+      roboto
+
+      # portal for xdg-compatible applications
+      xdg-desktop-portal-gtk
+    ];
+
+
+    xdg.portal = {
+      enable = true;
+      wlr.enable = true;
+      extraPortals = [pkgs.xdg-desktop-portal-wlr pkgs.xdg-desktop-portal-gtk];
+      config.common.default = "*";
     };
   };
 }

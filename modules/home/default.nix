@@ -6,6 +6,7 @@
     ./firefox
     ./gdb
     ./gpg
+    ./gm
     ./gtk
     ./mail
     ./mpv
@@ -19,12 +20,12 @@
     ./secrets
     ./spotify
     ./ssh
+    ./terminal
     ./tmux
     ./udiskie
     ./vim
     ./wget
     ./wm
-    ./x
     ./xdg
     ./zathura
     ./zsh

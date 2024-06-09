@@ -1,8 +1,6 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.home.wm.dunst;
-in
-{
+in {
   config = lib.mkIf cfg.enable {
     services.dunst = {
       enable = true;
@@ -11,10 +9,7 @@ in
         global = {
           alignment = "center"; # Put message in the middle of the box
           browser = "xdg-open"; # use default browser to open links
-          dmenu =
-            lib.mkIf
-              config.my.home.wm.rofi.enable
-              "rofi -p dunst -dmenu"; # use rofi for menu
+          dmenu = lib.mkIf config.my.home.wm.rofi.enable "rofi -p dunst -dmenu"; # use rofi for menu
           follow = "keyboard"; # follow keyboard focus
           font = "Monospace 8"; # Simple looking font
           frame_width = 3; # small frame

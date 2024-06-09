@@ -18,13 +18,14 @@ in {
           message = "`config.my.hardware.sound.pipewire.enable` and `config.my.hardware.sound.pulse.enable` are incompatible.";
         }
       ];
+
+      environment.systemPackages = [ pkgs.pavucontrol ];
     }
 
     (lib.mkIf cfg.pipewire.enable {
       security.rtkit.enable = true;
       sound.enable = true; # seb: TODO is this required here?
       hardware.pulseaudio.enable = false; # explicitly disable.
-
 
       services.pipewire = {
         enable = true;
