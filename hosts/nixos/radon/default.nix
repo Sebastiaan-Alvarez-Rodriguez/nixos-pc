@@ -35,7 +35,7 @@
     # };
     
     firefox.enable = true;
-    firefox.tridactyl.enable = true; # seb: An arcane way to use firefox
+    # firefox.tridactyl.enable = true; # seb: An arcane way to use firefox
     gm.manager = "wayland";
     gpg.enable = true;
     # gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
@@ -45,6 +45,7 @@
     # ];
     # mpv.enable = true; # Minimal video player
     spotify.enable = true;
+    terminal.program = "foot";
     wm.manager = "river";
     wm.dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
     wm.grim.enable = true;
@@ -138,6 +139,7 @@
         keys;
     };
   };
+  # TODO: can make this auto-discovery by iterating users.users and iterating their ~/.ssh directories
   age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";

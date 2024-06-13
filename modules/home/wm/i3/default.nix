@@ -147,9 +147,6 @@ in
         keybindings = lib.my.recursiveMerge [
           {
             # The basics
-            "${modifier}+Return" = "exec ${terminal} ${
-              lib.optionalString config.my.home.tmux.enable "-e tmux new-session"
-            }";
             "${modifier}+Shift+Return" = "exec env TMUX=nil ${terminal}";
             "${modifier}+Shift+q" = "kill";
             "${modifier}+f" = "fullscreen toggle";

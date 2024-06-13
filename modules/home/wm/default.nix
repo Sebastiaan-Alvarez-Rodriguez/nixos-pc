@@ -141,8 +141,8 @@ in {
       font-awesome_5
       montserrat
       noto-fonts
-      noto-fonts-cjk
-      noto-fonts-emoji
+      # noto-fonts-cjk
+      # noto-fonts-emoji
       roboto
 
       # portal for xdg-compatible applications

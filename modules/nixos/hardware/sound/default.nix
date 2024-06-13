@@ -32,7 +32,9 @@ in {
         alsa.enable = true;
         alsa.support32Bit = true;
         pulse.enable = true;
-        jack.enable = true; # seb: TODO what does this do?
+        # seb: NOTE: I don't know what this does, but I do know it sets the LD_LIBRARY_PATH variable to a string instead of a list, which means it cannot merge.
+        # Kind of like: https://github.com/NixOS/nixpkgs/issues/20225
+        # jack.enable = true; 
       };
     })
     
