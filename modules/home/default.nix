@@ -21,14 +21,12 @@
     ./spotify
     ./ssh
     ./terminal
-    ./tmux
     ./udiskie
     ./vim
     ./wget
     ./wm
     ./xdg
     ./zathura
-    ./zsh
   ];
 
   home.stateVersion = "24.05";

@@ -30,7 +30,6 @@
     patchelf
     python3
     p7zip
-    tmux
     unzip
     usbutils
     visidata # commandline tabular data explorer

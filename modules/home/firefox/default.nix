@@ -1,11 +1,7 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.firefox;
-in
-{
-  imports = [
-    ./tridactyl
-  ];
+in {
+  imports = [ ./tridactyl ];
 
   options.my.home.firefox = with lib; {
     enable = mkEnableOption "firefox configuration";
@@ -16,6 +12,11 @@ in
         description = "tridactyl configuration";
         example = false;
         default = config.my.home.firefox.enable;
+      };
+      term = mkOption {
+        type = types.str;
+        description = "terminal program";
+        default = config.my.home.terminal.program;
       };
     };
 

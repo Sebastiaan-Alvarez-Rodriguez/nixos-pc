@@ -14,12 +14,12 @@ in {
     };
   };
 
-  config = lib.mkIf (cfg.amd.enable || cfg.intel.enable) (lib.mkMerge [
+  config = lib.mkIf (cfg.amd.enable or cfg.intel.enable) (lib.mkMerge [
     {
       hardware.opengl.enable = true;
-      environment.variables = rec { # Set session env vars
-        LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib";
-        LD_PREFIX_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib";
+      environment.variables = { # Set session env vars
+        LD_LIBRARY_PATH = ["/run/opengl-driver/lib:/run/opengl-driver-32/lib"];
+        LD_PREFIX_PATH = ["/run/opengl-driver/lib:/run/opengl-driver-32/lib"];
       };
     }
 

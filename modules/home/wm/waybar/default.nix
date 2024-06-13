@@ -74,7 +74,7 @@ in {
           };
         };
       };
-      style = ../res/waybar/waybar-style.css;
+      style = ./waybar-style.css;
     };
   };
 }
