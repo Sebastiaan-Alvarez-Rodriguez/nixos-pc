@@ -1,9 +1,7 @@
 # Common secrets
 let
   keys = import ../../keys;
-
   all = builtins.attrValues keys.users;
-in
-{
+in {
   "github/token.age".publicKeys = all;
 }

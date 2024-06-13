@@ -1,23 +1,19 @@
 # Common modules
-{ lib, ... }:
-
-{
+{ lib, ... }: {
   imports = [
     ./hardware
     ./home
     ./profiles
     ./programs
-    ./secrets
     ./services
+    ./../../secrets
     ./system
   ];
 
-  options.my = with lib; {
+  options.my = with lib; { # seb: TODO remove this stuff, I don't want it. (multi-user support where are you)
     user = {
       name = mkOption {
         type = types.str;
-        default = "ambroisie";
-        example = "alice";
         description = "my username";
       };
 

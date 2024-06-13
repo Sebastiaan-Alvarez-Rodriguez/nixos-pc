@@ -80,6 +80,11 @@
     # x.enable = true;
   };
 
+  my.user = {
+    name = "rdn"; # seb: TODO ideally I don't need to add that here
+    home.enable = true;
+  };
+
   services = {
     dbus.enable = true;
     greetd = { # seb TODO: should not have this config here, especially running stuff as a hardcoded user.
@@ -111,14 +116,29 @@
 
   environment.systemPackages = [ pkgs.home-manager ];
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.rdn = {
-    isNormalUser = true;
-    description = "rdn";
-    extraGroups = [ "networkmanager" "wheel" "adbusers"]; # "docker" if we use docker
-    shell = pkgs.fish;
-    password = "changeme";
+  users = let # seb: TODO make this more simple, add multi-user support?
+    groupExists = grp: builtins.hasAttr grp config.users.groups;
+    groupsIfExist = builtins.filter groupExists;
+  in {
+    mutableUsers = false;
+    users.rdn = {
+      hashedPasswordFile = config.age.secrets."users/rdn/host-password".path;
+      isNormalUser = true;
+      description = "rdn";
+      extraGroups = groupsIfExist [ "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "video" "wheel" ];
+      shell = pkgs.fish;
+      # password = "changeme"; # seb: NOTE cannot change due to non-mutable user setting probably
+      openssh.authorizedKeys.keys = with builtins; let
+        keyDir = ./ssh;
+        contents = readDir keyDir;
+        names = attrNames contents;
+        files = filter (name: contents.${name} == "regular") names;
+        keys = map (basename: readFile (keyDir + "/${basename}")) files;
+      in
+        keys;
+    };
   };
+  age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
