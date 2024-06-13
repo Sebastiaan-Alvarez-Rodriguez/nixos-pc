@@ -30,7 +30,7 @@ in {
     legacyPackages = {
       homeConfigurations = let
         filteredHomes = lib.filterAttrs (_: v: v == system) homes;
-        allHomes = filteredHomes // { # sebas: fold into above expression?
+        allHomes = filteredHomes // { # seb: TODO fold into above expression?
           "rdn" = system; # default empty config
         };
       in

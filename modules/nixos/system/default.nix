@@ -9,6 +9,5 @@
     ./podman # seb TODO: get below modules in shape.
     ./polkit # seb TODO: get below modules in shape.
     ./printing
-    ./users # seb TODO: get below modules in shape.
   ];
 }

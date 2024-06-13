@@ -20,7 +20,7 @@ in {
       home.packages = [ pkgs.wl-clipboard pkgs.wl-clip-persist ];
       wayland.windowManager.sway = { # seb: TODO is this the way to get wayland? Probably not?
         enable = true;
-        xwayland.enable = true; # compatibility for xserver-only programs.
+        xwayland = true; # compatibility for xserver-only programs.
       };
       home.sessionVariables = {
         MOZ_ENABLE_WAYLAND = 1;
