@@ -1,8 +1,9 @@
 { ... }: {
-  imports = [ # seb: TODO check all items in this list.
+  imports = [
     ./bat
     ./bitwarden
     ./bluetooth
+    ./editor
     ./firefox
     ./gdb
     ./gpg
@@ -15,15 +16,10 @@
     ./nixpkgs
     ./nm-applet
     ./packages
-    ./pager
     ./power-alert
-    ./secrets
     ./spotify
     ./ssh
     ./terminal
-    ./udiskie
-    ./vim
-    ./wget
     ./wm
     ./xdg
     ./zathura
@@ -31,6 +27,6 @@
 
   home.stateVersion = "24.05";
 
-  # # Start services automatically # seb remove
+  # # Start services automatically # seb: NOTE commented below line.
   # systemd.user.startServices = "sd-switch";
 }

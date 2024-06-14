@@ -18,7 +18,7 @@
       };
 
       home = {
-        enable = my.mkDisableOption "home-manager configuration";
+        enable = mkEnableOption "home-manager configuration";
       };
     };
   };

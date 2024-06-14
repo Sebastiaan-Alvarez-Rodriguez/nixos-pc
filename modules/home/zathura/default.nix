@@ -1,8 +1,6 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.home.zathura;
-in
-{
+in {
   options.my.home.zathura = with lib; {
     enable = mkEnableOption "zathura configuration";
   };
@@ -11,10 +9,8 @@ in
     enable = true;
 
     options = {
-      # Show '~' instead of full path to '$HOME' in window title
-      "window-title-home-tilde" = true;
-      # Show '~' instead of full path to '$HOME' in status bar
-      "statusbar-home-tilde" = true;
+      "window-title-home-tilde" = true; # Show '~' instead of full path to '$HOME' in window title
+      "statusbar-home-tilde" = true; # Show '~' instead of full path to '$HOME' in status bar
     };
   };
 }

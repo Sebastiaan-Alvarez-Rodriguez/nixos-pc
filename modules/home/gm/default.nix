@@ -18,10 +18,11 @@ in {
     (lib.mkIf (cfg.manager== "wayland") {
       # programs.xwayland.enable = true; 
       home.packages = [ pkgs.wl-clipboard pkgs.wl-clip-persist ];
-      wayland.windowManager.sway = { # seb: TODO is this the way to get wayland? Probably not?
-        enable = true;
-        xwayland = true; # compatibility for xserver-only programs.
-      };
+      # seb: NOTE we don't enable wayland here. The wayland window managers, i.e. wm.river, already activate this.
+      # wayland.windowManager.sway = {
+      #   enable = true;
+      #   xwayland = true; # compatibility for xserver-only programs.
+      # };
       home.sessionVariables = {
         MOZ_ENABLE_WAYLAND = 1;
         QT_QPA_PLATFORMTHEME = "qt5ct";
