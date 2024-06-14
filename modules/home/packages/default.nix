@@ -1,8 +1,6 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.packages;
-in
-{
+in {
   options.my.home.packages = with lib; {
     enable = my.mkDisableOption "user packages";
 

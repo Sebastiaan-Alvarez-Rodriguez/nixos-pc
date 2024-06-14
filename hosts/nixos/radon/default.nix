@@ -1,8 +1,5 @@
 { config, pkgs, ... }: {
-  imports = [
-    ./hardware.nix
-    # ./secrets # seb todo
-  ];
+  imports = [ ./hardware.nix ];
 
   my.system.boot = {
     enable = true;
@@ -33,7 +30,10 @@
     #   pinentry = pkgs.pinentry-gtk2; # Use graphical pinentry  
     #   mail = //... wait what? Should this not be different per-user?
     # };
-    
+    editor.main = {
+      package = pkgs.helix;
+      path = "${pkgs.helix}/bin/hx";
+    };
     firefox.enable = true;
     # firefox.tridactyl.enable = true; # seb: An arcane way to use firefox
     gm.manager = "wayland";
@@ -54,6 +54,7 @@
     wm.rofi.enable = true;
     wm.wpaperd.enable = true;
     wm.waybar.enable = true;
+    xdg.enable = true;
   };
 
   my.programs = {
@@ -81,39 +82,61 @@
     # x.enable = true;
   };
 
-  my.user = {
-    name = "rdn"; # seb: TODO ideally I don't need to add that here
-    home.enable = true;
-  };
+  # my.user = {
+  #   name = "rdn"; # seb: TODO ideally I don't need to add that here
+  #   home.enable = true;
+  # };
 
   services = {
     dbus.enable = true;
-    greetd = { # seb TODO: should not have this config here, especially running stuff as a hardcoded user.
+    # greetd = { # seb: TODO should not have this config here, especially running stuff as a hardcoded user.
+    #   enable = true;
+    #   restart = false;
+    #   settings = rec {
+    #     initial_session = let
+    #       run = pkgs.writeShellScript "start-river" ''
+    #         # Seems to be needed to get river to properly start
+    #         sleep 1
+    #         # Set the proper XDG desktop so that xdg-desktop-portal works
+    #         # This needs to be done before river is started
+    #         export XDG_CURRENT_DESKTOP=river
+    #         ${pkgs.river}/bin/river
+    #       '';
+    #     in {
+    #       command = "${run}";
+    #       user = "rdn";
+    #     };
+    #     default_session = initial_session;
+    #   };
+    # };
+    greetd = { # seb: NOTE see https://drakerossman.com/blog/wayland-on-nixos-confusion-conquest-triumph#what-are-xorg-wayland-and-why-you-should-choose-the-latter (Adding a nice login screen)
       enable = true;
-      restart = false;
-      settings = rec {
-        initial_session = let
+      settings = {
+        default_session.command = let
           run = pkgs.writeShellScript "start-river" ''
-            # Seems to be needed to get river to properly start
-            sleep 1
-            # Set the proper XDG desktop so that xdg-desktop-portal works
-            # This needs to be done before river is started
             export XDG_CURRENT_DESKTOP=river
             ${pkgs.river}/bin/river
           '';
-        in {
-          command = "${run}";
-          user = "rdn";
-        };
-        default_session = initial_session;
+        in
+          ''
+            ${pkgs.greetd.tuigreet}/bin/tuigreet \
+              --time \
+              --asterisks \
+              --user-menu \
+              --cmd "${run}";
+          '';
       };
     };
-    logind = {
-      #lidSwitch = "ignore";
-      #lidSwitchDocked = "ignore";
-    };
+    # logind = {
+    #   lidSwitch = "ignore";
+    #   lidSwitchDocked = "ignore";
+    # };
     teamviewer.enable = true;
   };
+
+  environment.etc."greetd/environments".text = ''
+    river
+  ''; # allows users logging in to pick their window manager.
 
   environment.systemPackages = [ pkgs.home-manager ];
 
@@ -139,7 +162,7 @@
         keys;
     };
   };
-  # TODO: can make this auto-discovery by iterating users.users and iterating their ~/.ssh directories
+  # seb: TODO can make this auto-discovery by iterating users.users and iterating their ~/.ssh directories
   age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";

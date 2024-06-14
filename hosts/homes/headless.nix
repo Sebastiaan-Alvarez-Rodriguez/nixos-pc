@@ -1,8 +1,4 @@
 { inputs, lib, config, pkgs, ... }: {
-  home.sessionVariables = {
-    EDITOR = "${pkgs.helix}/bin/hx";
-  };
-
   # TODO: Trim these packages so that we dont get the X libraries for random bullshit
   home.packages = with pkgs; [
     acpi

@@ -1,8 +1,6 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.home.bat;
-in
-{
+in {
   options.my.home.bat = with lib; {
     enable = mkEnableOption "bat configuration";
   };
@@ -11,8 +9,6 @@ in
     enable = true;
     config = {
       theme = "gruvbox-dark";
-
-      pager = with config.home.sessionVariables; "${PAGER} ${LESS}";
     };
   };
 }

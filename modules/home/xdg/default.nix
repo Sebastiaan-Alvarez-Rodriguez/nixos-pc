@@ -4,21 +4,17 @@ let
 in
 {
   options.my.home.xdg = with lib; {
-    enable = my.mkDisableOption "XDG configuration";
+    enable = mkEnableOption "XDG configuration";
+    homedirs.enable = mkEnableOption "XDG configuration";
   };
 
   config.xdg = lib.mkIf cfg.enable {
-    enable = true;
-    # File types
-    mime.enable = true;
-    # File associatons
-    mimeApps = {
+    enable = true; # NOTE this manages the user directories if enabled.
+    mime.enable = true; # File types
+    mimeApps.enable = true; # File associatons
+    userDirs = { # User directories
       enable = true;
-    };
-    # User directories
-    userDirs = {
-      enable = true;
-      # I want them lowercased
+      # lowercased
       desktop = "\$HOME/desktop";
       documents = "\$HOME/documents";
       download = "\$HOME/downloads";
@@ -34,6 +30,9 @@ in
       "gdb/.keep".text = "";
       "tig/.keep".text = "";
     };
+    # configHome = "~/.config";
+    configHome = config.home.homeDirectory/.config;
+    dataHome = config.home.homeDirectory/.data;
   };
 
   # I want a tidier home
@@ -54,4 +53,13 @@ in
     XCOMPOSECACHE = "${dataHome}/X11/xcompose";
     _JAVA_OPTIONS = "-Djava.util.prefs.userRoot=${configHome}/java";
   };
+  # defaults:
+  # environment.sessionVariables = {
+  #   XDG_CACHE_HOME = "$HOME/.cache";
+  #   XDG_CONFIG_DIRS = "/etc/xdg";
+  #   XDG_CONFIG_HOME = "$HOME/.config";
+  #   XDG_DATA_DIRS = "/usr/local/share/:/usr/share/";
+  #   XDG_DATA_HOME = "$HOME/.local/share";
+  #   XDG_STATE_HOME = "$HOME/.local/state";
+  # };
 }
