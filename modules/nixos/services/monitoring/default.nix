@@ -1,9 +1,7 @@
 # Grafana dashboards for all the things!
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.monitoring;
-in
-{
+in {
   options.my.services.monitoring = with lib; {
     enable = mkEnableOption "monitoring";
 

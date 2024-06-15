@@ -1,8 +1,6 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.postgresql;
-in
-{
+in {
   options.my.services.postgresql = with lib; {
     enable = my.mkDisableOption "postgres configuration";
 

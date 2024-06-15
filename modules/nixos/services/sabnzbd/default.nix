@@ -1,10 +1,8 @@
 # Usenet binary client.
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.sabnzbd;
   port = 9090; # NOTE: not declaratively set...
-in
-{
+in {
   options.my.services.sabnzbd = with lib; {
     enable = mkEnableOption "SABnzbd binary news reader";
   };

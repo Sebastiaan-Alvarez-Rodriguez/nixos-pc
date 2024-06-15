@@ -1,8 +1,8 @@
-{ config, lib, ... }:
-let
+# grocery/recipe service
+# argumentation mealy vs grocy vs tandoor: https://www.reddit.com/r/selfhosted/comments/o1hc34/recipe_managementmeal_plannng_comments_on_mealie/
+{ config, lib, ... }: let
   cfg = config.my.services.tandoor-recipes;
-in
-{
+in {
   options.my.services.tandoor-recipes = with lib; {
     enable = mkEnableOption "Tandoor Recipes service";
 

@@ -1,9 +1,7 @@
 # A low-ressource, full-featured git forge.
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.gitea;
-in
-{
+in {
   options.my.services.gitea = with lib; {
     enable = mkEnableOption "Gitea";
     port = mkOption {

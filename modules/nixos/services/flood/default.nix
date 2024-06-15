@@ -1,9 +1,7 @@
 # A nice UI for various torrent clients
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.flood;
-in
-{
+in {
   options.my.services.flood = with lib; {
     enable = mkEnableOption "Flood UI";
 

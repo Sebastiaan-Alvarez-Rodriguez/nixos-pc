@@ -1,4 +1,5 @@
 # Backups using Backblaze B2 and `restic`
+# seb NOTE: get in shape before using.
 { config, pkgs, lib, ... }:
 let
   cfg = config.my.services.backup;

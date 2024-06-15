@@ -1,9 +1,7 @@
 # An SSH server, using 'mosh'
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.ssh-server;
-in
-{
+in {
   options.my.services.ssh-server = {
     enable = lib.mkEnableOption "SSH Server using 'mosh'";
   };
@@ -14,7 +12,6 @@ in
       enable = true;
 
       settings = {
-        # Be more secure
         PermitRootLogin = "no";
         PasswordAuthentication = false;
       };

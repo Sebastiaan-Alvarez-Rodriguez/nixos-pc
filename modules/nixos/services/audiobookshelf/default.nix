@@ -1,9 +1,7 @@
 # Audiobook and podcast library
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.audiobookshelf;
-in
-{
+in {
   options.my.services.audiobookshelf = with lib; {
     enable = mkEnableOption "Audiobookshelf, a self-hosted podcast manager";
 

@@ -1,9 +1,7 @@
 # A simple, in-kernel VPN service
 #
-# Strongly inspired by [1].
-# [1]: https://github.com/delroth/infra.delroth.net/blob/master/roles/wireguard-peer.nix
-{ config, lib, pkgs, ... }:
-let
+# Strongly inspired by https://github.com/delroth/infra.delroth.net/blob/master/roles/wireguard-peer.nix
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.wireguard;
   secrets = config.age.secrets;
   hostName = config.networking.hostName;
@@ -90,7 +88,7 @@ in {
   options.my.services.wireguard = with lib; {
     enable = mkEnableOption "Wireguard VPN service";
 
-    simpleManagement = my.mkDisableOption "manage units without password prompts";
+    simpleManagement = mkEnableOption "manage units without password prompts";
 
     startAtBoot = mkEnableOption ''
       Should the VPN service be started at boot. Must be true for the server to

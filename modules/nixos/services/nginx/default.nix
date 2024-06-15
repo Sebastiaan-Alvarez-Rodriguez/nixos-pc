@@ -1,6 +1,6 @@
-# A simple abstraction layer for almost all of my services' needs
-{ config, lib, pkgs, ... }:
-let
+# Basic nginx abstraction layer
+# NOTE: requires serious rework before use.
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.nginx;
 
   domain = config.networking.domain;
@@ -76,9 +76,7 @@ let
   });
 in
 {
-  imports = [
-    ./sso
-  ];
+  imports = [ ./sso ];
 
   options.my.services.nginx = with lib; {
     enable = mkEnableOption "Nginx";

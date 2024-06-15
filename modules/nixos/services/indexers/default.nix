@@ -1,13 +1,11 @@
 # Torrent and usenet meta-indexers
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.indexers;
 
   jackettPort = 9117;
   nzbhydraPort = 5076;
   prowlarrPort = 9696;
-in
-{
+in {
   options.my.services.indexers = with lib; {
     jackett.enable = mkEnableOption "Jackett torrent meta-indexer";
     nzbhydra.enable = mkEnableOption "NZBHydra2 usenet meta-indexer";
@@ -16,9 +14,7 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf cfg.jackett.enable {
-      services.jackett = {
-        enable = true;
-      };
+      services.jackett.enable = true;
 
       # Jackett wants to eat *all* my RAM if left to its own devices
       systemd.services.jackett = {
@@ -36,9 +32,7 @@ in
     })
 
     (lib.mkIf cfg.nzbhydra.enable {
-      services.nzbhydra2 = {
-        enable = true;
-      };
+      services.nzbhydra2.enable = true;
 
       my.services.nginx.virtualHosts = {
         nzbhydra = {
@@ -48,9 +42,7 @@ in
     })
 
     (lib.mkIf cfg.prowlarr.enable {
-      services.prowlarr = {
-        enable = true;
-      };
+      services.prowlarr.enable = true;
 
       my.services.nginx.virtualHosts = {
         prowlarr = {

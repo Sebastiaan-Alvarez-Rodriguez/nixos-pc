@@ -1,9 +1,7 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   wgCfg = config.my.services.wireguard;
   cfg = config.my.services.adblock;
-in
-{
+in {
   options.my.services.adblock = with lib; {
     enable = mkEnableOption "Hosts-based adblock using unbound";
 

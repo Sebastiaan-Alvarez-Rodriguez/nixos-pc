@@ -1,9 +1,7 @@
 # A FLOSS self-hosted, subsonic compatible music server
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.navidrome;
-in
-{
+in {
   options.my.services.navidrome = with lib; {
     enable = mkEnableOption "Navidrome Music Server";
 

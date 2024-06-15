@@ -1,9 +1,7 @@
 # A minimalist, opinionated feed reader
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.miniflux;
-in
-{
+in {
   options.my.services.miniflux = with lib; {
     enable = mkEnableOption "Miniflux feed reader";
 

@@ -1,6 +1,4 @@
 { config, inputs, lib, pkgs, ... }: let
-  # actualPath = [ "home-manager" "users" config.my.user.name "my" "home" ];
-  # actualPath = [ "home-manager" "users" "rdn" "my" "home" ];
   actualPath = [ "my" "system" "home" "generic" ];
   aliasPath = [ "my" "home" ];
   cfg = config.my.system.home;
@@ -13,9 +11,7 @@ in {
   options.my.system.home = with lib; {
     users = mkOption {
       type = with types; listOf (str);
-      default = builtins.attrNames (lib.filterAttrs (n: v: v.isNormalUser) config.users.users); # seb TODO: check if I get too many users back (e.g. all those module-defined system users)
-      # default = lib.filterAttrs (n: v: v.isNormalUser) config.users.users;
-      # default = config.users.users;
+      default = builtins.attrNames (lib.filterAttrs (n: v: v.isNormalUser) config.users.users); # NOTE: all normal i.e. user-defined users.
       description = "users";
     };
     generic = mkOption {
@@ -34,7 +30,6 @@ in {
     mkUsers = list: builtins.listToAttrs (builtins.map mkUser list);
   in {
     home-manager = {
-      # users.rdn = import "${inputs.self}/modules/home"; # works, not what I want (must iterate cfg.users)
       users = mkUsers cfg.users; # For each user, provides the methodology.
       # Above works like https://github.com/nix-community/home-manager/blob/8d5e27b4807d25308dfe369d5a923d87e7dbfda3/templates/nixos/flake.nix#L20
       # It declares home-manager config for a given 'user' from the 'system' configuration.

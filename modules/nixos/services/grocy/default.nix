@@ -1,10 +1,9 @@
 # Groceries and household management
-{ config, lib, ... }:
-let
+# argumentation mealy vs grocy vs tandoor: https://www.reddit.com/r/selfhosted/comments/o1hc34/recipe_managementmeal_plannng_comments_on_mealie/
+{ config, lib, ... }: let
   cfg = config.my.services.grocy;
   grocyDomain = "grocy.${config.networking.domain}";
-in
-{
+in {
   options.my.services.grocy = with lib; {
     enable = mkEnableOption "Grocy household ERP";
   };
