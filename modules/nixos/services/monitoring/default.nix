@@ -15,7 +15,6 @@ in {
 
       username = mkOption {
         type = types.str;
-        default = "ambroisie";
         example = "admin";
         description = "Admin username";
       };

@@ -2,9 +2,8 @@
 Personal core declarative system and user configuration.
 
 ## TODOs
-
-1. get rid of `ambroisie` in `pkgs.ambroisie.<pkg-name>` (probably alias somewhere?).
-2. get rid of `ambroisie` in the entire project.
+1. get rid of `ambroisie` in the entire project.
+2. get rid of `belanyi.fr` in the entire project.
 
 ## Steps
 

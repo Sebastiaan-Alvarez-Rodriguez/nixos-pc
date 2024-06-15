@@ -60,7 +60,7 @@
     packages = {
       enable = true;
       allowUnfree = true;
-      additionalPackages = with pkgs; [ jellyfin-media-player ]; # Wraps the webui and mpv together
+      # additionalPackages = with pkgs; [ jellyfin-media-player ]; # Wraps the webui and mpv together
     };
 
     # mpv.enable = true; # Minimal video player

@@ -1,14 +1,11 @@
-{ self, ... }:
-let
+{ self, ... }: let
   default-overlays = import "${self}/overlays";
 
   additional-overlays = {
-    # Expose custom expanded library
-    lib = _final: _prev: { inherit (self) lib; };
+    lib = _final: _prev: { inherit (self) lib; }; # Expose custom expanded library
 
-    # Expose custom packages
-    pkgs = _final: prev: {
-      ambroisie = prev.recurseIntoAttrs (import "${self}/pkgs" { pkgs = prev; });
+    pkgs = _final: prev: { # Expose custom packages
+      custompkgs = prev.recurseIntoAttrs (import "${self}/pkgs" { pkgs = prev; });
     };
   };
 in {

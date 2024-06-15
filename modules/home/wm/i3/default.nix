@@ -30,10 +30,10 @@ let
   notify-send = lib.getExe pkgs.libnotify;
 
   # Screen backlight management
-  changeBacklight = lib.getExe pkgs.ambroisie.change-backlight;
+  changeBacklight = lib.getExe pkgs.custompkgs.change-backlight;
 
   # Audio and volume management
-  changeAudio = lib.getExe pkgs.ambroisie.change-audio;
+  changeAudio = lib.getExe pkgs.custompkgs.change-audio;
 
   # Lock management
   toggleXautolock =
@@ -58,8 +58,8 @@ in
 {
   config = lib.mkIf isEnabled {
     home.packages = with pkgs; [
-      ambroisie.dragger # drag-and-drop from the CLI
-      ambroisie.i3-get-window-criteria # little helper for i3 configuration
+      custompkgs.dragger # drag-and-drop from the CLI
+      custompkgs.i3-get-window-criteria # little helper for i3 configuration
       arandr # Used by a mapping
       playerctl # Used by a mapping
       xdotool # Used by 'rofi-rbw', in a mapping
