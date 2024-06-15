@@ -4,7 +4,5 @@
     ./bluetooth
     ./gtk
     ./laptop
-    ./wm
-    ./x
   ];
 }

@@ -1,14 +1,10 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.hardware.bluetooth;
-in
-{
+in {
   options.my.hardware.bluetooth = with lib; {
     enable = mkEnableOption "bluetooth configuration";
-
-    enableHeadsetIntegration = my.mkDisableOption "A2DP sink configuration";
-
-    loadExtraCodecs = my.mkDisableOption "extra audio codecs";
+    enableHeadsetIntegration = mkEnableOption "A2DP sink configuration";
+    loadExtraCodecs = mkEnableOption "extra audio codecs";
   };
 
   config = lib.mkIf cfg.enable (lib.mkMerge [

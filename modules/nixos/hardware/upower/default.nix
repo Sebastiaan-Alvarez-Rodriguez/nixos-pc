@@ -1,8 +1,6 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.hardware.upower;
-in
-{
+in {
   options.my.hardware.upower = with lib; {
     enable = mkEnableOption "upower configuration";
 
@@ -33,11 +31,8 @@ in
   config = lib.mkIf cfg.enable {
     services.upower = {
       enable = true;
-
       percentageLow = cfg.levels.low;
-
       percentageCritical = cfg.levels.critical;
-
       percentageAction = cfg.levels.action;
     };
   };

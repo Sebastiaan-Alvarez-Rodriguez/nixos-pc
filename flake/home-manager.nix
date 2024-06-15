@@ -1,5 +1,4 @@
-{ self, inputs, lib, ... }:
-let
+{ self, inputs, lib, ... }: let
   defaultModules = [
     "${self}/modules/home"
     { programs.home-manager.enable = true; }

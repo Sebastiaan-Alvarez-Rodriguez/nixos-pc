@@ -21,6 +21,7 @@
     nix.enable = true;
     packages.enable = true;
     packages.allowUnfree = true;
+    home.users = [ "rdn" ];
   };
 
   my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
