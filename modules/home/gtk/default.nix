@@ -14,7 +14,7 @@ in {
         name = "Numix";
       };
       cursorTheme = {
-        package = pkgs.ambroisie.breeze-obsidian-cursor;
+        package = pkgs.custompkgs.breeze-obsidian-cursor;
         name = "Breeze_Obsidian";
       };
       iconTheme = {
@@ -24,6 +24,6 @@ in {
     };
     # For good measure
     # seb: NOTE was: home.file.".icons/default".source = "${inputs.self.packages.${pkgs.system}.breeze-obsidian-cursor-theme}/share/icons/Breeze_Obsidian";
-    home.file.".icons/default".source = "${pkgs.ambroisie.breeze-obsidian-cursor}/share/icons/Breeze_Obsidian";
+    home.file.".icons/default".source = "${pkgs.custompkgs.breeze-obsidian-cursor}/share/icons/Breeze_Obsidian";
   };
 }
