@@ -13,7 +13,6 @@
     ./mpv
     ./nix
     ./nix-index
-    ./nixpkgs
     ./nm-applet
     ./packages
     ./power-alert

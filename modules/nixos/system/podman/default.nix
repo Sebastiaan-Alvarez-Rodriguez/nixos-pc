@@ -1,9 +1,7 @@
 # Podman related settings
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.system.podman;
-in
-{
+in {
   options.my.system.podman = with lib; {
     enable = mkEnableOption "podman configuration";
   };
@@ -36,12 +34,8 @@ in
       # Remove unused data on a weekly basis
       autoPrune = {
         enable = true;
-
         dates = "weekly";
-
-        flags = [
-          "--all"
-        ];
+        flags = [ "--all" ];
       };
     };
   };

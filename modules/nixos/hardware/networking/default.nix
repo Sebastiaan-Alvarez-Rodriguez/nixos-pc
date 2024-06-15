@@ -5,12 +5,12 @@ in {
     enable = mkEnableOption "networking configuration";
 
     hostname = mkOption {
-      type = types.nullOr types.str;
+      type = with types; nullOr (str);
       default = null;
       description = "Name of host";
     };
 
-    block-trackers = lib.my.mkDisableOption "block common trackers";
+    block-trackers = mkEnableOption "block common trackers";
 
     wireless = {
       enable = mkEnableOption "wireless configuration";

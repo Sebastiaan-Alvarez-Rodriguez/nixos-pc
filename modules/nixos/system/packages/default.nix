@@ -6,12 +6,17 @@ in {
     enable = mkEnableOption "packages configuration";
     allowAliases = mkEnableOption "allow package aliases";
     allowUnfree = mkEnableOption "allow unfree packages";
+    default-pkgs =  mkOption {
+      type = with types; listOf (package);
+      default = [];
+      description = "Default systempackages";
+    };
   };
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ micro vim wget ];
+    environment.systemPackages = cfg.default-pkgs;
 
-    programs = {
+    programs = { # seb: TODO make configurable / set from relevant other configs.
       fish.enable = true;
     };
 

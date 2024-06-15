@@ -1,11 +1,9 @@
 # Polkit settings
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.system.polkit;
-in
-{
+in {
   options.my.system.polkit = with lib; {
-    enable = my.mkDisableOption "polkit configuration";
+    enable = mkEnableOption "polkit configuration";
   };
 
   config = lib.mkIf cfg.enable {

@@ -5,7 +5,6 @@ Personal core declarative system and user configuration.
 
 1. get rid of `ambroisie` in `pkgs.ambroisie.<pkg-name>` (probably alias somewhere?).
 2. get rid of `ambroisie` in the entire project.
-3. get rid of `mkDisableOption` in the entire project.
 
 ## Steps
 

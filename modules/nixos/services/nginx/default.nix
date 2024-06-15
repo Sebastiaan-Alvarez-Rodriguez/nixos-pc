@@ -74,8 +74,7 @@
       };
     };
   });
-in
-{
+in {
   imports = [ ./sso ];
 
   options.my.services.nginx = with lib; {
@@ -85,9 +84,12 @@ in
       credentialsFile = mkOption {
         type = types.str;
         example = "/var/lib/acme/creds.env";
-        description = ''
-          Gandi API key file as an 'EnvironmentFile' (see `systemd.exec(5)`)
-        '';
+        description = "Gandi API key file as an 'EnvironmentFile' (see `systemd.exec(5)`)";
+      };
+      default-mail = mkOption {
+        type = types.str;
+        example = "noreply@facebook.com";
+        description = "default mail address for acme certification messages.";
       };
     };
 
@@ -215,7 +217,7 @@ in
           message = "Port ${port} cannot appear in multiple virtual hosts.";
         };
       in
-      map mkAssertion nonUniques
+        map mkAssertion nonUniques
     ) ++ (
       let
         subs = lib.mapAttrsToList (_: { subdomain, ... }: subdomain) cfg.virtualHosts;
@@ -229,9 +231,8 @@ in
           '';
         };
       in
-      map mkAssertion nonUniques
-    )
-    ;
+        map mkAssertion nonUniques
+    );
 
     services.nginx = {
       enable = true;
@@ -334,20 +335,9 @@ in
           };
 
           audit_log = {
-            target = [
-              "fd://stdout"
-            ];
-            events = [
-              "access_denied"
-              "login_success"
-              "login_failure"
-              "logout"
-              "validate"
-            ];
-            headers = [
-              "x-origin-uri"
-              "x-application"
-            ];
+            target = [ "fd://stdout" ];
+            events = [ "access_denied" "login_success" "login_failure" "logout" "validate" ];
+            headers = [ "x-origin-uri" "x-application" ];
           };
 
           cookie = {
@@ -359,7 +349,7 @@ in
           };
 
           login = {
-            title = "Ambroisie's SSO";
+            title = "Simple SSO";
             default_method = "simple";
             hide_mfa_field = false;
             names = {
@@ -408,22 +398,20 @@ in
 
     networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-    # Nginx needs to be able to read the certificates
-    users.users.nginx.extraGroups = [ "acme" ];
+    users.users.nginx.extraGroups = [ "acme" ]; # Nginx needs to be able to read the certificates
 
     security.acme = {
-      defaults.email = lib.my.mkMailAddress "bruno.acme" "belanyi.fr";
+      defaults.email = cfg.acme.default-mail;
 
       acceptTerms = true;
       # Use DNS wildcard certificate
-      certs =
-        {
-          "${domain}" = {
-            extraDomainNames = [ "*.${domain}" ];
-            dnsProvider = "gandiv5";
-            inherit (cfg.acme) credentialsFile;
-          };
+      certs = {
+        "${domain}" = {
+          extraDomainNames = [ "*.${domain}" ];
+          dnsProvider = "gandiv5";
+          inherit (cfg.acme) credentialsFile;
         };
+      };
     };
 
     systemd.services."acme-${domain}" = {

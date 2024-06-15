@@ -1,9 +1,8 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.hardware.firmware;
 in {
   options.my.hardware.firmware = with lib; {
-    enable = my.mkDisableOption "firmware configuration";
+    enable = mkEnableOption "firmware configuration";
 
     cpu-flavor = mkOption {
       type = with types; nullOr (enum [ "intel" "amd" ]);

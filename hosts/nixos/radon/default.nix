@@ -18,10 +18,19 @@
   };
 
   my.system = { # contains common system packages and settings shared between hosts.
-    nix.enable = true;
-    packages.enable = true;
-    packages.allowUnfree = true;
     home.users = [ "rdn" ]; # NOTE: Define normal users here. These users' home profiles will be populated with the settings from 'my.home' configuration below.
+    nix = {
+      enable = true;
+      inputs.link = true;
+      inputs.addToRegistry = true;
+      inputs.addToNixPath = true;
+      inputs.overrideNixpkgs = true;
+    };
+    packages = {
+      enable = true;
+      allowUnfree = true;
+      default-pkgs = with pkgs; [ curl micro vim wget ];
+    };
   };
 
   my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
@@ -40,10 +49,20 @@
     gm.manager = "wayland";
     gpg.enable = true;
     # gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
+    nix = {
+      enable = true;
+      inputs.link = true;
+      inputs.addToRegistry = true;
+      inputs.addToNixPath = true;
+      inputs.overrideNixpkgs = true;
+    };
 
-    # packages.additionalPackages = with pkgs; [
-    #   jellyfin-media-player # Wraps the webui and mpv together
-    # ];
+    packages = {
+      enable = true;
+      allowUnfree = true;
+      additionalPackages = with pkgs; [ jellyfin-media-player ]; # Wraps the webui and mpv together
+    };
+
     # mpv.enable = true; # Minimal video player
     spotify.enable = true;
     terminal.program = "foot";
@@ -123,7 +142,7 @@
     #   lidSwitch = "ignore";
     #   lidSwitchDocked = "ignore";
     # };
-    teamviewer.enable = true;
+    teamviewer.enable = true; # seb: NOTE remove if it does not work.
   };
 
   environment.etc."greetd/environments".text = ''

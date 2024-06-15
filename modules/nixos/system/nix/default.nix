@@ -21,13 +21,13 @@ in {
     enable = mkEnableOption "nix configuration";
 
     inputs = {
-      link = my.mkDisableOption "link inputs to `/etc/nix/inputs/`";
+      link = mkEnableOption "link inputs to `/etc/nix/inputs/`";
 
-      addToRegistry = my.mkDisableOption "add inputs and self to registry";
+      addToRegistry = mkEnableOption "add inputs and self to registry";
 
-      addToNixPath = my.mkDisableOption "add inputs and self to nix path";
+      addToNixPath = mkEnableOption "add inputs and self to nix path";
 
-      overrideNixpkgs = my.mkDisableOption "point nixpkgs to pinned system version";
+      overrideNixpkgs = mkEnableOption "point nixpkgs to pinned system version";
     };
   };
 
@@ -36,10 +36,7 @@ in {
       assertions = [
         {
           assertion = cfg.inputs.addToNixPath -> cfg.inputs.link;
-          message = ''
-            enabling `my.system.nix.inputs.addToNixPath` needs to have
-            `my.system.nix.inputs.link = true`
-          '';
+          message = "enabling `my.system.nix.inputs.addToNixPath` needs to have `my.system.nix.inputs.link = true`";
         }
       ];
     }

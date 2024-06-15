@@ -1,9 +1,7 @@
-# Podman related settings
-{ config, lib, ... }:
-let
+# Docker related settings
+{ config, lib, ... }: let
   cfg = config.my.system.docker;
-in
-{
+in {
   options.my.system.docker = with lib; {
     enable = mkEnableOption "docker configuration";
   };
@@ -15,12 +13,8 @@ in
       # Remove unused data on a weekly basis
       autoPrune = {
         enable = true;
-
         dates = "weekly";
-
-        flags = [
-          "--all"
-        ];
+        flags = [ "--all" ];
       };
     };
   };

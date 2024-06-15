@@ -1,6 +1,5 @@
 # Nix related settings
-{ config, inputs, lib, pkgs, ... }:
-let
+{ config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.nix;
 
   channels = lib.my.merge [
@@ -20,20 +19,13 @@ let
 in
 {
   options.my.home.nix = with lib; {
-    enable = my.mkDisableOption "nix configuration";
-
-    cache = {
-      selfHosted = my.mkDisableOption "self-hosted cache";
-    };
+    enable = mkEnableOption "nix configuration";
 
     inputs = {
-      link = my.mkDisableOption "link inputs to `$XDG_CONFIG_HOME/nix/inputs/`";
-
-      addToRegistry = my.mkDisableOption "add inputs and self to registry";
-
-      addToNixPath = my.mkDisableOption "add inputs and self to nix path";
-
-      overrideNixpkgs = my.mkDisableOption "point nixpkgs to pinned system version";
+      link = mkEnableOption "link inputs to `$XDG_CONFIG_HOME/nix/inputs/`";
+      addToRegistry = mkEnableOption "add inputs and self to registry";
+      addToNixPath = mkEnableOption "add inputs and self to nix path";
+      overrideNixpkgs = mkEnableOption "point nixpkgs to pinned system version";
     };
   };
 
@@ -59,20 +51,6 @@ in
         };
       };
     }
-
-    (lib.mkIf cfg.cache.selfHosted {
-      nix = {
-        settings = {
-          extra-substituters = [
-            "https://cache.belanyi.fr/"
-          ];
-
-          extra-trusted-public-keys = [
-            "cache.belanyi.fr:LPhrTqufwfxTceg1nRWueDWf7/2zSVY9K00pq2UI7tw="
-          ];
-        };
-      };
-    })
 
     (lib.mkIf cfg.inputs.addToRegistry {
       nix.registry =

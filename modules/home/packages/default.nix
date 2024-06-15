@@ -2,10 +2,10 @@
   cfg = config.my.home.packages;
 in {
   options.my.home.packages = with lib; {
-    enable = my.mkDisableOption "user packages";
+    enable = mkEnableOption "user packages";
 
     allowAliases = mkEnableOption "allow package aliases";
-    allowUnfree = my.mkDisableOption "allow unfree packages";
+    allowUnfree = mkEnableOption "allow unfree packages";
 
     additionalPackages = mkOption {
       type = with types; listOf package;
