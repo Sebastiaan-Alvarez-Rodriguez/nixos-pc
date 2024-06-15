@@ -30,7 +30,7 @@ in {
     {
       assertions = [
         {
-          assertion = lib.unique cfg.editors;
+          assertion = lib.allUnique cfg.editors;
           message = "Remove duplicates from home.editor.editors, found: \"${builtins.toString cfg.editors}\"";
         }
       ];
