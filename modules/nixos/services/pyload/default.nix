@@ -1,8 +1,6 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.pyload;
-in
-{
+in {
   options.my.services.pyload = with lib; {
     enable = mkEnableOption "pyload download manager";
 

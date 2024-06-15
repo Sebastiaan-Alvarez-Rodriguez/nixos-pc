@@ -8,11 +8,7 @@ pkgs.lib.makeScope pkgs.newScope (pkgs: {
 
   dragger = pkgs.callPackage ./dragger { };
 
-  drone-rsync = pkgs.callPackage ./drone-rsync { };
-
   i3-get-window-criteria = pkgs.callPackage ./i3-get-window-criteria { };
-
-  lohr = pkgs.callPackage ./lohr { };
 
   matrix-notifier = pkgs.callPackage ./matrix-notifier { };
 

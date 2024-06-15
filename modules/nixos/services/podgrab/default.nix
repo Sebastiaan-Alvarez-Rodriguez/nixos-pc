@@ -1,9 +1,7 @@
 # A simple podcast fetcher
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.podgrab;
-in
-{
+in {
   options.my.services.podgrab = with lib; {
     enable = mkEnableOption "Podgrab, a self-hosted podcast manager";
 

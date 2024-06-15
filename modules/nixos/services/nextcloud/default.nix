@@ -1,9 +1,7 @@
 # A self-hosted cloud.
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.nextcloud;
-in
-{
+in {
   options.my.services.nextcloud = with lib; {
     enable = mkEnableOption "Nextcloud";
     maxSize = mkOption {
@@ -14,7 +12,6 @@ in
     };
     admin = mkOption {
       type = types.str;
-      default = "Ambroisie";
       example = "admin";
       description = "Name of the admin user";
     };
@@ -79,13 +76,8 @@ in
     };
 
     my.services.backup = {
-      paths = [
-        config.services.nextcloud.home
-      ];
-      exclude = [
-        # image previews can take up a lot of space
-        "${config.services.nextcloud.home}/data/appdata_*/preview"
-      ];
+      paths = [ config.services.nextcloud.home ];
+      exclude = [ "${config.services.nextcloud.home}/data/appdata_*/preview" ]; # image previews can take up a lot of space
     };
   };
 }

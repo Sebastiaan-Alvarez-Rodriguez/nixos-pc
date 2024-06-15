@@ -1,9 +1,6 @@
-# Backup your data, kids!
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.postgresql-backup;
-in
-{
+in {
   options.my.services.postgresql-backup = {
     enable = lib.mkEnableOption "Backup SQL databases";
   };
@@ -16,9 +13,7 @@ in
     };
 
     my.services.backup = {
-      paths = [
-        config.services.postgresqlBackup.location
-      ];
+      paths = [ config.services.postgresqlBackup.location ];
       # No need to store previous backups thanks to `restic`
       exclude = [
         (config.services.postgresqlBackup.location + "/*.prev.sql.gz")

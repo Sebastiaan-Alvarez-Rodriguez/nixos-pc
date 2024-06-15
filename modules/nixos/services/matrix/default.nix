@@ -5,17 +5,14 @@
 # Configuration shamelessly stolen from [1]
 #
 # [1]: https://github.com/alarsyo/nixos-config/blob/main/services/matrix.nix
-{ config, lib, pkgs, ... }:
-
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.matrix;
 
   federationPort = { public = 8448; private = 11338; };
   clientPort = { public = 443; private = 11339; };
   domain = config.networking.domain;
   matrixDomain = "matrix.${domain}";
-in
-{
+in {
   options.my.services.matrix = with lib; {
     enable = mkEnableOption "Matrix Synapse";
 
@@ -164,16 +161,12 @@ in
         onlySSL = true;
         useACMEHost = domain;
 
-        locations =
-          let
-            proxyToClientPort = {
-              proxyPass = "http://[::1]:${toString clientPort.private}";
-            };
-          in
-          {
-            # Or do a redirect instead of the 404, or whatever is appropriate
-            # for you. But do not put a Matrix Web client here! See the
-            # Element web section below.
+        locations = let
+          proxyToClientPort = {
+            proxyPass = "http://[::1]:${toString clientPort.private}";
+          };
+        in {
+            # Or do a redirect instead of the 404, or whatever is appropriate for you. But do not put a Matrix Web client here! See the Element web section below.
             "/".return = "404";
 
             "/_matrix" = proxyToClientPort;
@@ -214,24 +207,22 @@ in
         forceSSL = true;
         useACMEHost = domain;
 
-        locations."= /.well-known/matrix/server".extraConfig =
-          let
-            server = { "m.server" = "${matrixDomain}:${toString federationPort.public}"; };
-          in
+        locations."= /.well-known/matrix/server".extraConfig = let
+          server = { "m.server" = "${matrixDomain}:${toString federationPort.public}"; };
+        in
           ''
             add_header Content-Type application/json;
             return 200 '${builtins.toJSON server}';
           '';
 
-        locations."= /.well-known/matrix/client".extraConfig =
-          let
-            client = {
-              "m.homeserver" = { "base_url" = "https://${matrixDomain}"; };
-              "m.identity_server" = { "base_url" = "https://vector.im"; };
-              "org.matrix.msc3575.proxy" = { "url" = "https://matrix-sync.${domain}"; };
-            };
-            # ACAO required to allow element-web on any URL to request this json file
-          in
+        locations."= /.well-known/matrix/client".extraConfig = let
+          client = {
+            "m.homeserver" = { "base_url" = "https://${matrixDomain}"; };
+            "m.identity_server" = { "base_url" = "https://vector.im"; };
+            "org.matrix.msc3575.proxy" = { "url" = "https://matrix-sync.${domain}"; };
+          };
+          # ACAO required to allow element-web on any URL to request this json file
+        in
           ''
             add_header Content-Type application/json;
             add_header Access-Control-Allow-Origin *;
@@ -243,15 +234,10 @@ in
     # For administration tools.
     environment.systemPackages = [ pkgs.matrix-synapse ];
 
-    networking.firewall.allowedTCPPorts = [
-      clientPort.public
-      federationPort.public
-    ];
+    networking.firewall.allowedTCPPorts = [ clientPort.public federationPort.public ];
 
     my.services.backup = {
-      paths = [
-        config.services.matrix-synapse.dataDir
-      ];
+      paths = [ config.services.matrix-synapse.dataDir ];
     };
   };
 }

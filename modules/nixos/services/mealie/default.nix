@@ -1,8 +1,7 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.mealie;
-in
-{
+in {
+  # argumentation mealy vs grocy vs tandoor: https://www.reddit.com/r/selfhosted/comments/o1hc34/recipe_managementmeal_plannng_comments_on_mealie/
   options.my.services.mealie = with lib; {
     enable = mkEnableOption "Mealie service";
 

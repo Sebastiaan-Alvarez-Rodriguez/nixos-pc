@@ -21,7 +21,7 @@
     nix.enable = true;
     packages.enable = true;
     packages.allowUnfree = true;
-    home.users = [ "rdn" ];
+    home.users = [ "rdn" ]; # NOTE: Define normal users here. These users' home profiles will be populated with the settings from 'my.home' configuration below.
   };
 
   my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
@@ -77,16 +77,7 @@
     # Laptop specific configuration
     # laptop.enable = true; # seb: TODO checkout what this is for laptop hosts
     # i3 configuration
-  # seb: TODO continue from here to bottom
-    # wm.windowManager = "river"; # i3 is for X.
-    # X configuration
-    # x.enable = true;
   };
-
-  # my.user = {
-  #   name = "rdn"; # seb: TODO ideally I don't need to add that here
-  #   home.enable = true;
-  # };
 
   services = {
     dbus.enable = true;
@@ -141,7 +132,7 @@
 
   environment.systemPackages = [ pkgs.home-manager ];
 
-  users = let # seb: TODO make this more simple, add multi-user support?
+  users = let # seb: TODO make this more simple, move to nixos/home module for generation?
     groupExists = grp: builtins.hasAttr grp config.users.groups;
     groupsIfExist = builtins.filter groupExists;
   in {
@@ -152,15 +143,7 @@
       description = "rdn";
       extraGroups = groupsIfExist [ "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "video" "wheel" ];
       shell = pkgs.fish;
-      # password = "changeme"; # seb: NOTE cannot change due to non-mutable user setting probably
-      openssh.authorizedKeys.keys = with builtins; let
-        keyDir = ./ssh;
-        contents = readDir keyDir;
-        names = attrNames contents;
-        files = filter (name: contents.${name} == "regular") names;
-        keys = map (basename: readFile (keyDir + "/${basename}")) files;
-      in
-        keys;
+      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
     };
   };
   # seb: TODO can make this auto-discovery by iterating users.users and iterating their ~/.ssh directories

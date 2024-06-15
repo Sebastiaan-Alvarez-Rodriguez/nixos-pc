@@ -1,9 +1,7 @@
 # A FLOSS media server
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.jellyfin;
-in
-{
+in {
   options.my.services.jellyfin = {
     enable = lib.mkEnableOption "Jellyfin Media Server";
   };

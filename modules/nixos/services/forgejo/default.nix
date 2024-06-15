@@ -1,9 +1,7 @@
 # A low-ressource, full-featured git forge.
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.forgejo;
-in
-{
+in {
   options.my.services.forgejo = with lib; {
     enable = mkEnableOption "Forgejo";
     port = mkOption {

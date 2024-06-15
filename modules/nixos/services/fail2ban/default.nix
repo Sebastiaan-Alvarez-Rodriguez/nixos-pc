@@ -1,10 +1,8 @@
 # Filter and ban unauthorized access
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.fail2ban;
   wgNetCfg = config.my.services.wireguard.net;
-in
-{
+in {
   options.my.services.fail2ban = with lib; {
     enable = mkEnableOption "fail2ban daemon";
   };

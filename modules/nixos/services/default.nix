@@ -1,13 +1,8 @@
-{ ... }:
-
-{
+{ ... }: {
   imports = [
     ./adblock
     ./audiobookshelf
     ./backup
-    ./blog
-    ./calibre-web
-    ./drone
     ./fail2ban
     ./flood
     ./forgejo
@@ -15,7 +10,6 @@
     ./grocy
     ./indexers
     ./jellyfin
-    ./lohr
     ./matrix
     ./mealie
     ./miniflux
@@ -23,15 +17,11 @@
     ./navidrome
     ./nextcloud
     ./nginx
-    ./nix-cache
-    ./paperless
     ./pirate
     ./podgrab
     ./postgresql
     ./postgresql-backup
     ./pyload
-    ./quassel
-    ./rss-bridge
     ./sabnzbd
     ./ssh-server
     ./tandoor-recipes

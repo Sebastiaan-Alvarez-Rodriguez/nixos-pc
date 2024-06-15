@@ -1,13 +1,7 @@
-# Small seedbox setup.
-#
-# Inspired by [1]
-#
-# [1]: https://github.com/delroth/infra.delroth.net/blob/master/roles/seedbox.nix
-{ config, lib, pkgs, ... }:
-let
+# Small seedbox setup, inspired by https://github.com/delroth/infra.delroth.net/blob/master/roles/seedbox.nix
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.transmission;
-in
-{
+in {
   options.my.services.transmission = with lib; {
     enable = mkEnableOption "Transmission torrent client";
 

@@ -1,9 +1,6 @@
 # The total autonomous media delivery system.
-# Relevant link [1].
-#
-# [1]: https://youtu.be/I26Ql-uX6AM
-{ config, lib, ... }:
-let
+# Relevant link: https://youtu.be/I26Ql-uX6AM
+{ config, lib, ... }: let
   cfg = config.my.services.pirate;
 
   ports = {
@@ -50,8 +47,7 @@ let
     (mkService service)
     (mkRedirection service)
   ]);
-in
-{
+in {
   options.my.services.pirate = {
     enable = lib.mkEnableOption "Media automation";
 

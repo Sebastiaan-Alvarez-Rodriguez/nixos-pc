@@ -1,8 +1,11 @@
 # Nix-config
+Personal core declarative system and user configuration.
 
-My NixOS-based system configuration files.
+## TODOs
 
-Currently only used as an experiment to self-host a new server.
+1. get rid of `ambroisie` in `pkgs.ambroisie.<pkg-name>` (probably alias somewhere?).
+2. get rid of `ambroisie` in the entire project.
+3. get rid of `mkDisableOption` in the entire project.
 
 ## Steps
 

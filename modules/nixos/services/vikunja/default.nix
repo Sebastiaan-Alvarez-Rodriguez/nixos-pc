@@ -1,12 +1,10 @@
 # Todo and kanban app
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.services.vikunja;
   subdomain = "todo";
   vikunjaDomain = "${subdomain}.${config.networking.domain}";
   socketPath = "/run/vikunja/vikunja.socket";
-in
-{
+in {
   options.my.services.vikunja = with lib; {
     enable = mkEnableOption "Vikunja todo app";
 
