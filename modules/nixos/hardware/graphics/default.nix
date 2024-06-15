@@ -4,13 +4,13 @@ in {
   options.my.hardware.graphics = with lib; {
     amd = {
       enable = mkEnableOption "graphics configuration";
-      enableKernelModule = lib.my.mkDisableOption "Kernel driver module";
-      amdvlk = lib.mkEnableOption "Use AMDVLK instead of Mesa RADV driver";
+      enableKernelModule = mkEnableOption "Kernel driver module";
+      amdvlk = mkEnableOption "Use AMDVLK instead of Mesa RADV driver";
     };
 
     intel = {
       enable = mkEnableOption "graphics configuration";
-      enableKernelModule = lib.my.mkDisableOption "Kernel driver module";
+      enableKernelModule = mkEnableOption "Kernel driver module";
     };
   };
 

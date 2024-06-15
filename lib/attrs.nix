@@ -1,15 +1,6 @@
-{ lib, ... }:
-let
-  inherit (lib)
-    filterAttrs
-    foldl
-    listToAttrs
-    mapAttrs'
-    nameValuePair
-    recursiveUpdate
-    ;
-in
-{
+{ lib, ... }: let
+  inherit (lib) filterAttrs foldl listToAttrs mapAttrs' nameValuePair recursiveUpdate;
+in {
   # Filter a generated set of attrs using a predicate function.
   #
   # mapFilterAttrs ::

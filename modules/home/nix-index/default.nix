@@ -1,10 +1,8 @@
-{ config, lib, ... }:
-let
+{ config, lib, ... }: let
   cfg = config.my.home.nix-index;
-in
-{
+in {
   options.my.home.nix-index = with lib; {
-    enable = my.mkDisableOption "nix-index configuration";
+    enable = mkEnableOption "nix-index configuration";
   };
 
   config.programs.nix-index = lib.mkIf cfg.enable {

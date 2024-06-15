@@ -22,9 +22,13 @@
 
   # powerManagement.cpuFreqGovernor = lib.mkDefault "powersave"; # seb: use for laptop?
 
-  my.hardware.firmware.cpu-flavor = "amd";
+  my.hardware.firmware = {
+    enable = true;
+    cpu-flavor = "amd";
+  };
   my.hardware.graphics.amd = {
     enable = true;
+    enableKernelModule = true;
     amdvlk = false;
   };
   my.hardware.networking = {

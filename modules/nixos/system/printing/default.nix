@@ -1,8 +1,6 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.system.printing;
-in
-{
+in {
   options.my.system.printing = with lib; {
     enable = mkEnableOption "printing configuration";
 
@@ -24,11 +22,11 @@ in
     };
 
     usb = {
-      enable = my.mkDisableOption "USB printers";
+      enable = mkEnableOption "USB printers";
     };
 
     network = {
-      enable = my.mkDisableOption "network printers";
+      enable = mkEnableOption "network printers";
     };
   };
 
