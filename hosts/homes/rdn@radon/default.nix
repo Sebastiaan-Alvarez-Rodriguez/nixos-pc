@@ -21,11 +21,11 @@ in {
     nheko
     proton-caller
     qbittorrent
-    tdesktop
+    # tdesktop # seb: TODO why can this not be found?
     teams-for-linux
     teamspeak_client
     teamviewer
-    tor-browser-bundle-bin
+    # tor-browser-bundle-bin # seb: TODO why can this not be found?
     virt-manager # ui manager for vm's
     vlc
   ];

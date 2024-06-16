@@ -1,8 +1,7 @@
-{ config, lib, pkgs, ... }:
-let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.home.mail;
 
-  inherit (lib.my) mkMailAddress;
+  mkMailAddress = name: domain: "${name}@${domain}";
 
   mkConfig = { domain, address, passName, aliases ? [ ], primary ? false }: {
     realName = lib.mkDefault "Bruno BELANYI";
@@ -54,8 +53,7 @@ let
   office365Config = {
     flavor = "outlook.office365.com";
   };
-in
-{
+in {
   config.accounts.email.accounts = {
     personal = lib.mkMerge [
       # Common configuraton

@@ -33,7 +33,7 @@
     };
   };
 
-  my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
+  my.home = {
     bat.enable = true; # like cat, but with syntax highlighting & more
     # bitwarden = {
     #   enable = true;
