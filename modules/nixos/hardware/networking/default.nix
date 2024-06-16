@@ -25,7 +25,6 @@ in {
   config = lib.mkIf cfg.enable {
     networking = lib.mkMerge [
       {
-        networkmanager.enable = true;
         useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
         hostName = lib.mkIf (cfg.hostname != null) cfg.hostname;
         domain = lib.mkIf (cfg.domain != null) cfg.domain;
