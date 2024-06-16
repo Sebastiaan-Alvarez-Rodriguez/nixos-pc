@@ -22,11 +22,15 @@ in {
   };
 
   config = let
-    default-home-config = {pkgs, ...}: { 
-      imports = ["${inputs.self}/modules/home"];
-      my.home = cfg.generic;
-    };
-    mkUser = name: lib.nameValuePair name default-home-config;
+    generate-default-home-config = name: system: ({pkgs, ...}: { 
+      imports = [
+        "${inputs.self}/modules/home" # generic home module so we have access to all my.home.... options.
+        "${inputs.self}/hosts/homes/${name}@${system}" # specific home module of a user, e.g. hosts/homes/user@host.
+      ];
+      my.home = cfg.generic; # sets options of my.home modules. Options defined here are defined in the host's configuration, applied to all users.
+    });
+    simple-gen = name: generate-default-home-config name config.my.hardware.networking.hostname;
+    mkUser = name: lib.nameValuePair name (simple-gen name);
     mkUsers = list: builtins.listToAttrs (builtins.map mkUser list);
   in {
     home-manager = {

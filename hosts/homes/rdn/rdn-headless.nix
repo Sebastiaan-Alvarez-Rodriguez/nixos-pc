@@ -33,8 +33,10 @@ in {
   programs.git.userName = "Sebastiaan-Alvarez-Rodriguez";
   programs.git.userEmail = "sebastiaanalva@gmail.com";
 
-  programs.ssh.matchBlocks = let 
-    trustedHosts = {
+  programs.ssh = {
+    matchBlocks = let 
+      setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
+    in (setDefaults { identitiesOnly = true; } {
       "github.com" = {
         user = "Sebastiaan-Alvarez-Rodriguez";
         identityFile = "/home/${username}/.ssh/github.rsa";
@@ -74,13 +76,8 @@ in {
         port = 11111;
         identityFile = "/home/${username}/.ssh/xenon.rsa";
       };
-    };
-    setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
-  in (setDefaults {
-    identitiesOnly = true;
+    });
     forwardAgent = true;
-    addKeysToAgent = true;
-    # useKeychain = true;
-  } trustedHosts);
-    # // (setDefaults { user = "git"; } gitHosts);
+    addKeysToAgent = "yes";
+  };
 }
