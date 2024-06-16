@@ -155,9 +155,9 @@
     groupExists = grp: builtins.hasAttr grp config.users.groups;
     groupsIfExist = builtins.filter groupExists;
   in {
-    mutableUsers = false;
+    # mutableUsers = false;
     users.rdn = {
-      hashedPasswordFile = config.age.secrets."users/rdn/host-password".path;
+      # hashedPasswordFile = config.age.secrets."users/rdn/host-password".path;
       isNormalUser = true;
       description = "rdn";
       extraGroups = groupsIfExist [ "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "video" "wheel" ];
