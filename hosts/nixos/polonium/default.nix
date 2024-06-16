@@ -146,7 +146,7 @@
 
   environment.systemPackages = [ pkgs.home-manager ];
   # Extra configuration for console.
-  services.xserver.xkbOptions = "caps:hyper,compose:rctrl";
+  services.xserver.xkb.options = "caps:hyper,compose:rctrl";
   console.useXkbConfig = true;
 
 
