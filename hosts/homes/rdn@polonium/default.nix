@@ -1,6 +1,4 @@
-# Google Laptop configuration
-{ lib, options, pkgs, ... }:
-{
+{ lib, options, pkgs, ... }: {
   services.gpg-agent.enable = lib.mkForce false;
 
   my.home = {

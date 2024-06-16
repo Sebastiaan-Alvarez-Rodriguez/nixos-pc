@@ -6,16 +6,10 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    # Enable touchpad support
-    services.libinput.enable = true;
+    services.libinput.enable = true; # Enable touchpad support
 
-    # Enable TLP power management
-    my.services.tlp.enable = true;
-
-    # Enable upower power management
-    my.hardware.upower.enable = true;
-
-    # Enable battery notifications
-    my.home.power-alert.enable = true;
+    my.services.tlp.enable = true; # Enable TLP power management
+    my.hardware.upower.enable = true; # Enable upower power management
+    my.home.power-alert.enable = true; # Enable battery notifications
   };
 }
