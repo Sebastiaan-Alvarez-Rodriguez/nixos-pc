@@ -74,7 +74,7 @@
     wm.rofi.enable = true;
     wm.wpaperd.enable = true;
     wm.waybar.enable = true;
-    xdg.enable = true;
+    # xdg.enable = true;
   };
 
   my.programs = {
@@ -100,44 +100,49 @@
 
   services = {
     dbus.enable = true;
-    # greetd = { # seb: TODO should not have this config here, especially running stuff as a hardcoded user.
-    #   enable = true;
-    #   restart = false;
-    #   settings = rec {
-    #     initial_session = let
-    #       run = pkgs.writeShellScript "start-river" ''
-    #         # Seems to be needed to get river to properly start
-    #         sleep 1
-    #         # Set the proper XDG desktop so that xdg-desktop-portal works
-    #         # This needs to be done before river is started
-    #         export XDG_CURRENT_DESKTOP=river
-    #         ${pkgs.river}/bin/river
-    #       '';
-    #     in {
-    #       command = "${run}";
-    #       user = "rdn";
-    #     };
-    #     default_session = initial_session;
-    #   };
-    # };
-    greetd = { # seb: NOTE see https://drakerossman.com/blog/wayland-on-nixos-confusion-conquest-triumph#what-are-xorg-wayland-and-why-you-should-choose-the-latter (Adding a nice login screen)
+    services.greetd = {
       enable = true;
-      settings = {
-        default_session.command = let
+      restart = false;
+      settings = rec {
+        initial_session =
+        let
           run = pkgs.writeShellScript "start-river" ''
+            # Seems to be needed to get river to properly start
+            sleep 1
+            # Set the proper XDG desktop so that xdg-desktop-portal works
+            # This needs to be done before river is started
             export XDG_CURRENT_DESKTOP=river
             ${pkgs.river}/bin/river
           '';
         in
-          ''
-            ${pkgs.greetd.tuigreet}/bin/tuigreet \
-              --time \
-              --asterisks \
-              --user-menu \
-              --cmd "${run}";
-          '';
+        {
+          command = "${run}";
+          user = "robin";
+        };
+        default_session = initial_session;
       };
     };
+
+    # seb: TODO nice modern greetd does not work.
+    # greetd = { # seb: NOTE see https://drakerossman.com/blog/wayland-on-nixos-confusion-conquest-triumph#what-are-xorg-wayland-and-why-you-should-choose-the-latter (Adding a nice login screen)
+    #   enable = true;
+    #   settings = {
+    #     default_session.command = let
+    #       run = pkgs.writeShellScript "start-river" ''
+    #         export XDG_CURRENT_DESKTOP=river
+    #         ${pkgs.river}/bin/river
+    #       '';
+    #     in
+    #       ''
+    #         ${pkgs.greetd.tuigreet}/bin/tuigreet \
+    #           --time \
+    #           --asterisks \
+    #           --user-menu \
+    #           --cmd "${run}";
+    #       '';
+    #   };
+    # };
+
     # logind = {
     #   lidSwitch = "ignore";
     #   lidSwitchDocked = "ignore";
