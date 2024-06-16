@@ -36,6 +36,7 @@
   };
   my.hardware.networking = {
     enable = true;
+    wireless.enable = true;
     hostname = "polonium";
     block-trackers = true;
   };

@@ -13,7 +13,7 @@ in {
     };
     extraConfig = mkOption {
       type = types.attrs;
-      default = { };
+      default = {};
       description = "Any extra configuration that should be applied.";
     };
   };

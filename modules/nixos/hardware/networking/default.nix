@@ -10,11 +10,16 @@ in {
       description = "Name of host";
     };
 
+    domain = mkOption {
+      type = with types; nullOr (str);
+      default = null;
+      description = "Domain name this server hosts for.";
+      example = "test.com";
+    };
+
     block-trackers = mkEnableOption "block common trackers";
 
-    wireless = {
-      enable = mkEnableOption "wireless configuration";
-    };
+    wireless.enable = mkEnableOption "wireless configuration";
   };
 
   config = lib.mkIf cfg.enable {
@@ -23,10 +28,12 @@ in {
         networkmanager.enable = true;
         useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
         hostName = lib.mkIf (cfg.hostname != null) cfg.hostname;
+        domain = lib.mkIf (cfg.domain != null) cfg.domain;
+        networkmanager.enable = lib.mkIf cfg.wireless.enable true;
       }
       (lib.mkIf cfg.block-trackers { # seb TODO: to setup this stuff professionally, use: https://github.com/StevenBlack/hosts
         extraHosts = ''
-          0.0.0.0  connect.facebook.net
+          0.0.0.0 connect.facebook.net
           0.0.0.0 datadome.co
           0.0.0.0 usage.trackjs.com
           0.0.0.0 googletagmanager.com
