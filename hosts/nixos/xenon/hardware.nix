@@ -1,28 +1,17 @@
-# Hardware configuration
-{ modulesPath, ... }:
+{ lib, modulesPath, ... }: {
+  imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
+  boot.loader.grub.device = "/dev/sda";
+  boot.initrd.availableKernelModules = [ "ata_piix" "uhci_hcd" "xen_blkfront" "vmw_pvscsi" ];
+  boot.initrd.kernelModules = [ "nvme" ];
 
-{
-  imports = [
-    (modulesPath + "/installer/scan/not-detected.nix")
-  ];
+  fileSystems."/" = { device = "/dev/sda3"; fsType = "ext4"; };
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-label/nixos";
-    fsType = "ext4";
-  };
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-label/boot";
-    fsType = "vfat";
-  };
-
-  swapDevices = [
-    { device = "/dev/disk/by-label/swap"; }
-  ];
-
-  my.hardware = {
-    firmware = {
-      cpuFlavor = "intel";
-    };
+  my.hardware.networking = {
+    enable = true;
+    hostname = "xenon";
+    domain = "mijn.place";
+    block-trackers = true;
   };
 }
