@@ -145,6 +145,10 @@
   ''; # allows users logging in to pick their window manager.
 
   environment.systemPackages = [ pkgs.home-manager ];
+  # Extra configuration for console.
+  services.xserver.xkbOptions = "caps:hyper,compose:rctrl";
+  console.useXkbConfig = true;
+
 
   users = let # seb: TODO make this more simple, move to nixos/home module for generation?
     groupExists = grp: builtins.hasAttr grp config.users.groups;
