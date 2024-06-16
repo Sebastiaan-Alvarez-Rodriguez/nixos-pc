@@ -28,7 +28,7 @@ in {
         useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
         hostName = lib.mkIf (cfg.hostname != null) cfg.hostname;
         domain = lib.mkIf (cfg.domain != null) cfg.domain;
-        networkmanager.enable = lib.mkIf cfg.wireless.enable true;
+        networkmanager.enable = true;
       }
       (lib.mkIf cfg.block-trackers { # seb TODO: to setup this stuff professionally, use: https://github.com/StevenBlack/hosts
         extraHosts = ''
