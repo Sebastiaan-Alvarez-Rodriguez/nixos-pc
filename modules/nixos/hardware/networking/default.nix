@@ -47,9 +47,6 @@ in {
           0.0.0.0 innervate.us
         '';
       })
-      (lib.mkIf cfg.wireless.enable {
-        networkmanager.enable = true;
-      })
     ];
   };
 }
