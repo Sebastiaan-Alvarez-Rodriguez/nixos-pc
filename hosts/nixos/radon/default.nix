@@ -100,7 +100,7 @@
 
   services = {
     dbus.enable = true;
-    services.greetd = {
+    greetd = {
       enable = true;
       restart = false;
       settings = rec {
@@ -113,7 +113,7 @@
             # This needs to be done before river is started
             export XDG_CURRENT_DESKTOP=river
             ${pkgs.river}/bin/river
-          '';
+          ''; # TODO: should this not be 'my.home.packages.river'?
         in
         {
           command = "${run}";
