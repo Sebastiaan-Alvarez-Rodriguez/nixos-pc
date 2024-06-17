@@ -24,7 +24,7 @@ in {
         tmp.cleanOnBoot = cfg.tmp.clean;
         loader = {
           efi.canTouchEfiVariables = true;
-          efi.efiSysMountPoint = "/boot/efi";
+          # efi.efiSysMountPoint = "/boot/efi";
 
           # grub
           grub = lib.mkIf (cfg.kind == "grub") {
