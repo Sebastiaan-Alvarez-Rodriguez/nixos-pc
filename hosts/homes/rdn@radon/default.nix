@@ -21,6 +21,7 @@ in {
     nheko
     proton-caller
     qbittorrent
+    river # seb: TODO move to river pkg.
     # tdesktop # seb: TODO why can this not be found?
     teams-for-linux
     teamspeak_client
@@ -29,6 +30,7 @@ in {
     virt-manager # ui manager for vm's
     vlc
   ];
+
 
 
   programs.foot.settings.main.monitor-scale = "eDP-1:1, 27GL850:1.7, G2460:1.6, QROM8HA000914:1.5";
