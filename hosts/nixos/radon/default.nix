@@ -1,12 +1,19 @@
 { config, pkgs, ... }: {
   imports = [ ./hardware.nix ];
 
+  services.openssh = {
+    # Enable the OpenSSH daemon.
+    enable = true;
+
+    settings = {
+      PasswordAuthentication = true;
+    };
+  };
   my.system.boot = {
     enable = true;
     tmp.clean = true;
     kind = "systemd";
     extraConfig = {
-      initrd.secrets = { "/crypto_keyfile.bin" = null; }; # Setup keyfile
       kernelModules = [ "v4l2loopback" ];
       extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
       extraModprobeConfig = ''
@@ -117,7 +124,7 @@
         in
         {
           command = "${run}";
-          user = "robin";
+          user = "rdn";
         };
         default_session = initial_session;
       };
@@ -171,7 +178,7 @@
     };
   };
   # seb: TODO can make this auto-discovery by iterating users.users and iterating their ~/.ssh directories
-  age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
+  # age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
