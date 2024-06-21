@@ -33,20 +33,17 @@ in {
         allTags = (pwr 2 32) - 1;
         # TODO: Move to central lib
         concatAttrs = attrList: lib.fold (x: y: x // y) {} attrList;
-        tagBinds = concatAttrs (map (i: let
-          tags = pwr 2 (i - 1);
-        in {
+        tagBinds = concatAttrs (map  (i: let tags = pwr 2 (i - 1); in {
           "${mod} ${toString i}" = "set-focused-tags ${toString tags}";
           "${mod}+Shift ${toString i}" = "set-view-tags ${toString tags}";
           "${mod}+Control ${toString i}" = "toggle-focused-tags ${toString tags}";
           "${mod}+Shift+Control ${toString i}" = "toggle-view-tags ${toString tags}";
-        })
-          (lib.range 1 9));
+        }) (lib.range 1 9));
         screenshot = pkgs.writeShellScript "screenshot" ''
           ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" - | ${pkgs.wl-clipboard}/bin/wl-copy -t image/png
         '';
       in {
-        normal = tagBinds // lib.mkMerge ([
+        normal = tagBinds // (lib.mkMerge [
           {
             "${mod} Return" = "spawn '${pkgs.foot}/bin/foot'"; # TODO: Find out why footclient prints a bunch of random stuff...
             "${mod} Q" = "close";
