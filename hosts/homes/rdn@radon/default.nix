@@ -35,16 +35,23 @@ in {
 
   programs.foot.settings.main.monitor-scale = "eDP-1:1, 27GL850:1.7, G2460:1.6, QROM8HA000914:1.5";
 
-  services.kanshi.profiles = {
-    undocked = {
-      outputs = [
+  services.kanshi.settings = [
+    {
+      profile.name = "home";
+      profile.outputs = [
         {
-          criteria = "eDP-1";
+          criteria = "DP-1";
           status = "enable";
-          mode = "2560x1440@60Hz";
+          mode = "2560x1440@144Hz";
           position = "0,0";
         }
+        {
+          criteria = "DP-2";
+          status = "enable";
+          mode = "1920x1080@144Hz";
+          position = "2560,200";
+        }
       ];
-    };
-  };
+    }
+  ];
 }
