@@ -1,6 +1,13 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.home.wm.kanshi;
 in {
+  options.my.home.wm.kanshi = with lib; {
+    systemdTarget = mkOption {
+      type = with types; str;
+      default = "graphical-session.target";
+      description = "The systemd target that will automatically start the kanshi service.";
+    };
+  };
   config = lib.mkIf cfg.enable {
     assertions = [
       {
@@ -9,9 +16,9 @@ in {
       }
     ];
 
-    services.kanshi = { # display config tool
+    services.kanshi = {
       enable = true;
-      systemdTarget = if config.my.home.wm.manager == "river" then "river-session.target" else null;
+      systemdTarget = cfg.systemdTarget;
     };
   };
 }
