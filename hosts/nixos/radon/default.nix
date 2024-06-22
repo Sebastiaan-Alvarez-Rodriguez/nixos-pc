@@ -73,14 +73,26 @@
     # mpv.enable = true; # Minimal video player
     spotify.enable = true;
     terminal.program = "foot";
-    wm.manager = "river";
-    wm.dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
-    wm.grim.enable = true;
-    wm.flameshot.enable = false; # seb: TODO explore flameshot (needs to disable grim)
-    wm.mako.enable = true;
-    wm.rofi.enable = true;
-    wm.wpaperd.enable = true;
-    wm.waybar.enable = true;
+    wm = {
+      manager = "river";
+      dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
+      grim.enable = true;
+      flameshot.enable = false; # seb: TODO explore flameshot (needs to disable grim)
+      kanshi = {
+        enable = true;
+        systemdTarget = "river-session.target";
+      };
+      mako.enable = true;
+      rofi.enable = true;
+      wpaperd = {
+        enable = true;
+        systemdTarget = "river-session.target";
+      };
+    };      
+    wm.waybar = {
+      enable = true;
+      systemdTarget = "river-session.target";
+    };
     # xdg.enable = true;
   };
 

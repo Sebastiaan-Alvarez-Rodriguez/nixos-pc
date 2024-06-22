@@ -2,6 +2,13 @@
   cfg = config.my.home.wm.wpaperd;
   pkg = pkgs.wpaperd;
 in {
+  options.my.home.wm.wpaperd = with lib; {
+    systemdTarget = mkOption {
+      type = with types; str;
+      default = "graphical-session.target";
+      description = "The systemd target that will automatically start the wpaperd service.";
+    };
+  };
   config = lib.mkIf cfg.enable { # seb: NOTE https://github.com/anufrievroman/waypaper would also be nice.
     assertions = [
       {
@@ -27,10 +34,16 @@ in {
     };
 
     systemd.user.services.wpaperd = {
-      Unit.After = [ "river-session.target" ];
-      Service = {
-        ExecStart = "${pkg}/bin/wpaperd";
+      Unit = {
+        PartOf = [ "graphical-session.target" ];
+        After = [ "graphical-session.target" ];
       };
+      Service = {
+        Type = "simple";
+        ExecStart = "${pkg}/bin/wpaperd";
+        Restart = "on-failure";
+      };
+      Install.WantedBy = [ cfg.systemdTarget ];
     };
   };
 }

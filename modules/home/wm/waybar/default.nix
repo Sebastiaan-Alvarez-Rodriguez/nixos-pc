@@ -1,6 +1,13 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.home.wm.waybar;
 in {
+  options.my.home.wm.waybar = with lib; {
+    systemdTarget = mkOption {
+      type = with types; str;
+      default = "graphical-session.target";
+      description = "The systemd target that will automatically start the swaybg service.";
+    };
+  };
   config = lib.mkIf cfg.enable {
     assertions = [
       {
@@ -10,9 +17,9 @@ in {
     ];
     programs.waybar = {
       enable = true;
-      systemd = lib.mkIf (config.my.home.wm.manager == "river") { # seb: NOTE if we do not use river... Then what?
+      systemd = {
         enable = true;
-        target = "river-session.target";
+        target = cfg.systemdTarget;
       };
       settings = {
         main = {
