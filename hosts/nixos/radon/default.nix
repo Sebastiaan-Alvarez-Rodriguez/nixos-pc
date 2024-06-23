@@ -104,67 +104,39 @@
     adb.enable = true; # To use, users must be added to the "adbusers" group
   };
 
-  # my.services = { # seb: TODO uncomment after handling wireguard config.
-  #   wireguard.enable = true;
-  # };
+  my.services = { 
+    greetd.enable = true;
+  #   wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
+  };
 
   my.profiles = {
-    # Bluetooth configuration and GUI
-    # bluetooth.enable = true; # seb: TODO for laptop hosts, enable
+    # bluetooth.enable = true;
     gtk.enable = true;
-    # Laptop specific configuration
-    # laptop.enable = true; # seb: TODO checkout what this is for laptop hosts
-    # i3 configuration
+    # laptop.enable = true;
   };
 
   services = {
     dbus.enable = true;
-    greetd = {
-      enable = true;
-      restart = false;
-      settings = rec {
-        initial_session =
-        let
-          run = pkgs.writeShellScript "start-river" ''
-            # Seems to be needed to get river to properly start
-            sleep 1
-            # Set the proper XDG desktop so that xdg-desktop-portal works
-            # This needs to be done before river is started
-            export XDG_CURRENT_DESKTOP=river
-            ${pkgs.river}/bin/river
-          ''; # TODO: should this not be 'my.home.packages.river'?
-        in
-        {
-          command = "${run}";
-          user = "rdn";
-        };
-        default_session = initial_session;
-      };
-    };
-
-    # seb: TODO nice modern greetd does not work.
-    # greetd = { # seb: NOTE see https://drakerossman.com/blog/wayland-on-nixos-confusion-conquest-triumph#what-are-xorg-wayland-and-why-you-should-choose-the-latter (Adding a nice login screen)
+    # greetd = {
     #   enable = true;
-    #   settings = {
-    #     default_session.command = let
+    #   restart = false;
+    #   settings = rec {
+    #     initial_session =
+    #     let
     #       run = pkgs.writeShellScript "start-river" ''
+    #         # Seems to be needed to get river to properly start
+    #         sleep 1
+    #         export XDG_SESSION_TYPE=wayland
     #         export XDG_CURRENT_DESKTOP=river
     #         ${pkgs.river}/bin/river
-    #       '';
+    #       ''; # TODO: should this not be 'my.home.packages.river'?
     #     in
-    #       ''
-    #         ${pkgs.greetd.tuigreet}/bin/tuigreet \
-    #           --time \
-    #           --asterisks \
-    #           --user-menu \
-    #           --cmd "${run}";
-    #       '';
+    #     {
+    #       command = "${run}";
+    #       user = "rdn";
+    #     };
+    #     default_session = initial_session;
     #   };
-    # };
-
-    # logind = {
-    #   lidSwitch = "ignore";
-    #   lidSwitchDocked = "ignore";
     # };
     teamviewer.enable = true; # seb: NOTE remove if it does not work.
   };

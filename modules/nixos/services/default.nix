@@ -7,6 +7,7 @@
     ./flood
     ./forgejo
     ./gitea
+    ./greetd
     ./grocy
     ./indexers
     ./jellyfin
