@@ -33,7 +33,7 @@ in {
         allTags = (pwr 2 32) - 1;
         # TODO: Move to central lib
         concatAttrs = attrList: lib.fold (x: y: x // y) {} attrList;
-        tagBinds = concatAttrs (map  (i: let tags = pwr 2 (i - 1); in {
+        tagBinds = lib.mkMerge (map  (i: let tags = pwr 2 (i - 1); in {
           "${mod} ${toString i}" = "set-focused-tags ${toString tags}";
           "${mod}+Shift ${toString i}" = "set-view-tags ${toString tags}";
           "${mod}+Control ${toString i}" = "toggle-focused-tags ${toString tags}";
@@ -43,7 +43,7 @@ in {
           ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" - | ${pkgs.wl-clipboard}/bin/wl-copy -t image/png
         '';
       in {
-        normal = tagBinds // (lib.mkMerge [
+        normal = (lib.mkMerge [
           {
             "${mod} Return" = "spawn '${pkgs.foot}/bin/foot'"; # TODO: Find out why footclient prints a bunch of random stuff...
             "${mod} Q" = "close";
@@ -93,6 +93,7 @@ in {
 
             "${mod} F11" = "enter-mode passthrough";
           }
+          tagBinds
 
           (lib.mkIf config.my.home.wm.rofi.enable {
             "${mod} D" = "spawn '${config.programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi'";
