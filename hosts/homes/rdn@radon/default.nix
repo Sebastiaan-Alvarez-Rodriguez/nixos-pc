@@ -3,10 +3,7 @@
 in {
   imports = [ ../rdn/rdn-headless.nix ];
 
-  home.packages = let
-    pkgs_2205 = inputs.nixpkgs_2205.outputs.legacyPackages.x86_64-linux;
-  in with pkgs; [
-    pkgs_2205.remmina
+  home.packages = with pkgs; [
     adbfs-rootless
     android-studio
     chromium
@@ -22,7 +19,8 @@ in {
     proton-caller
     qbittorrent
     river # seb: TODO move to river pkg.
-    # tdesktop # seb: TODO why can this not be found?
+    tdesktop
+    # inputs.nixpkgs.outputs.legacyPackages.x86_64-linux.tdesktop # seb: TODO why can this not be found?
     teams-for-linux
     teamspeak_client
     teamviewer
