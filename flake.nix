@@ -39,7 +39,6 @@
     };
 
     nixpkgs.url = "nixpkgs/nixos-24.05";
-    nixpkgs_2205.url = "github:nixos/nixpkgs/nixos-22.05";
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     nur = {

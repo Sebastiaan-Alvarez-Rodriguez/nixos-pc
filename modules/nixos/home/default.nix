@@ -22,7 +22,7 @@ in {
   };
 
   config = let
-    generate-default-home-config = name: system: ({pkgs, ...}: { 
+    generate-default-home-config = name: system: ({pkgs, ...}: {
       imports = [
         "${inputs.self}/modules/home" # generic home module so we have access to all my.home.... options.
         "${inputs.self}/hosts/homes/${name}@${system}" # specific home module of a user, e.g. hosts/homes/user@host.
@@ -47,7 +47,7 @@ in {
 
       # Forward inputs to home-manager configuration
       extraSpecialArgs = {
-        inherit inputs;
+        inherit inputs pkgs;
       };
     };
   };

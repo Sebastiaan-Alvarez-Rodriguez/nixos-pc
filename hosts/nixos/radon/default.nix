@@ -105,7 +105,19 @@
   };
 
   my.services = { 
-    greetd.enable = true;
+    greetd = {
+      enable = true;
+      greeting = "<=================>";
+      sessions = {
+        "default_session" = pkgs.writeShellScript "start-river" ''
+          # Seems to be needed to get river to properly start
+          sleep 1
+          export XDG_SESSION_TYPE=wayland
+          export XDG_CURRENT_DESKTOP=river
+          ${pkgs.river}/bin/river
+        '';
+      };
+    };
   #   wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
   };
 
