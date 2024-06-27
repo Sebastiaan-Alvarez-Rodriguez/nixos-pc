@@ -1,4 +1,4 @@
-{ config, inputs, lib, pkgs, ... }: let
+{ config, inputs, lib, pkgs, system, ... }: let
   actualPath = [ "my" "system" "home" "generic" ];
   aliasPath = [ "my" "home" ];
   cfg = config.my.system.home;
@@ -22,10 +22,10 @@ in {
   };
 
   config = let
-    generate-default-home-config = name: system: ({pkgs, ...}: {
+    generate-default-home-config = name: host: ({pkgs, ...}: {
       imports = [
         "${inputs.self}/modules/home" # generic home module so we have access to all my.home.... options.
-        "${inputs.self}/hosts/homes/${name}@${system}" # specific home module of a user, e.g. hosts/homes/user@host.
+        "${inputs.self}/hosts/homes/${name}@${host}" # specific home module of a user, e.g. hosts/homes/user@host.
       ];
       my.home = cfg.generic; # sets options of my.home modules. Options defined here are defined in the host's configuration, applied to all users.
     });
@@ -47,7 +47,8 @@ in {
 
       # Forward inputs to home-manager configuration
       extraSpecialArgs = {
-        inherit inputs pkgs;
+        inherit inputs system;
+        pkgs = inputs.nixpkgs.outputs.legacyPackages.${system} // pkgs; # NOTE this merge allows home pkgs to include home-packages, like 'tdesktop'.
       };
     };
   };

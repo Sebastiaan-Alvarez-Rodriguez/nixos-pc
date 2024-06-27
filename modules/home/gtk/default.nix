@@ -1,6 +1,7 @@
-{ config, lib, pkgs, inputs, ... }:
+{ config, lib, pkgs, inputs, system, ... }:
 let
   cfg = config.my.home.gtk;
+  breeze-obsidian-cursor = inputs.self.packages.x86_64-linux.breeze-obsidian-cursor;
 in {
   options.my.home.gtk = with lib; {
     enable = mkEnableOption "GTK configuration";
@@ -14,7 +15,7 @@ in {
         name = "Numix";
       };
       cursorTheme = {
-        package = pkgs.custompkgs.breeze-obsidian-cursor;
+        package = breeze-obsidian-cursor;
         name = "Breeze_Obsidian";
       };
       iconTheme = {
@@ -24,6 +25,6 @@ in {
     };
     # For good measure
     # seb: NOTE was: home.file.".icons/default".source = "${inputs.self.packages.${pkgs.system}.breeze-obsidian-cursor-theme}/share/icons/Breeze_Obsidian";
-    home.file.".icons/default".source = "${pkgs.custompkgs.breeze-obsidian-cursor}/share/icons/Breeze_Obsidian";
+    home.file.".icons/default".source = "${breeze-obsidian-cursor}/share/icons/Breeze_Obsidian";
   };
 }
