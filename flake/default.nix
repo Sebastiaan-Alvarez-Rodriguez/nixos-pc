@@ -33,7 +33,7 @@ in {
       modules = defaultModules ++ [ "${self}/hosts/nixos/${name}" ];
       # pkgs = inputs.nixpkgs.outputs.legacyPackages.${system};
       specialArgs = {
-        inherit nixpkgs lib inputs; # Inject inputs to use them in global registry
+        inherit nixpkgs lib inputs system; # Inject inputs to use them in global registry
       };
     };
   in nixpkgs.lib.mapAttrs buildHost {

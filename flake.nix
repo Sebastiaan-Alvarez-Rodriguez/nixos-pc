@@ -39,6 +39,5 @@
     };
   };
 
-  # Can't eta-reduce a flake outputs...
   outputs = inputs: import ./flake inputs;
 }

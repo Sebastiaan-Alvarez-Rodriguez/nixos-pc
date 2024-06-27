@@ -1,4 +1,4 @@
-{ inputs, config, lib, pkgs, ...}: let
+{ inputs, config, lib, pkgs, system, ...}: let
   username = "rdn";
 in {
   imports = [ ../rdn/rdn-headless.nix ];
@@ -20,11 +20,10 @@ in {
     qbittorrent
     river # seb: TODO move to river pkg.
     tdesktop
-    # inputs.nixpkgs.outputs.legacyPackages.x86_64-linux.tdesktop # seb: TODO why can this not be found?
     teams-for-linux
     teamspeak_client
     teamviewer
-    # tor-browser-bundle-bin # seb: TODO why can this not be found?
+    tor-browser-bundle-bin
     virt-manager # ui manager for vm's
     vlc
   ];
