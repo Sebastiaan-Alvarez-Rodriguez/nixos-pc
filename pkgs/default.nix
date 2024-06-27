@@ -1,5 +1,5 @@
-{ pkgs }:
-pkgs.lib.makeScope pkgs.newScope (pkgs: {
+{ pkgs }: pkgs.lib.makeScope pkgs.newScope (self: with self; {
+  
   breeze-obsidian-cursor = pkgs.callPackage ./breeze-obsidian-cursor { };
 
   bw-pass = pkgs.callPackage ./bw-pass { };

@@ -13,26 +13,6 @@
     #   };
     # };
 
-    flake-parts = {
-      type = "github";
-      owner = "hercules-ci";
-      repo = "flake-parts";
-      ref = "main";
-      inputs = {
-        nixpkgs-lib.follows = "nixpkgs";
-      };
-    };
-
-    futils = {
-      type = "github";
-      owner = "numtide";
-      repo = "flake-utils";
-      ref = "main";
-      inputs = {
-        systems.follows = "systems";
-      };
-    };
-
     home-manager = {
       url = "github:nix-community/home-manager/release-24.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -56,13 +36,6 @@
     spicetify-nix = {
       url = "github:the-argus/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    systems = { # seb remove
-      type = "github";
-      owner = "nix-systems";
-      repo = "default";
-      ref = "main";
     };
   };
 
