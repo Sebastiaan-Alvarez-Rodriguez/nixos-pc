@@ -1,5 +1,5 @@
 # Automatically import all overlays in the directory
-let
+inputs: let
   files = builtins.readDir ./.;
   overlays = builtins.removeAttrs files [ "default.nix" ];
 in
