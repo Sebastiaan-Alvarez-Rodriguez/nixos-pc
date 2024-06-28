@@ -47,6 +47,11 @@ in {
         fqdn = cfg.fqdn;
         domains = cfg.domains;
 
+        # Requires certificate files to exist! Currently provided by acme service in global config.
+        certificateScheme = cfg.certificateScheme;
+        certificateFile = cfg.certificateFile;
+        keyFile = cfg.keyFile;
+
         # A list of all login accounts. To create a password hash, use
         # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
         loginAccounts = {
@@ -72,10 +77,6 @@ in {
         # Useful when you have a catchAll-account AND you provided a company a catchAll address like companyname@me.com AND you want to block the company sending more mails landing in your catchAll.
         rejectSender = []; # add mailaddresses (e.g. 'test@malicious.com', or even '@malicious.com') which may never send mails here.
 
-        # Requires certificate files to exist! Currently provided by acme service in global config.
-        certificateScheme = cfg.certificateScheme;
-        certificateFile = cfg.certificateFile;
-        keyFile = cfg.keyFile;
       };
 
       my.services.nginx.virtualHosts = let
@@ -91,10 +92,11 @@ in {
     (lib.mkIf (cfg.certificateScheme == "manual") {
       security.acme = let
         mkSpec = name: {
-          ${name} = {
+          "${name}" = {
             email = lib.mkDefault "a@b.com";
             postRun = "systemctl reload nginx.service";
             extraDomainNames = lib.mkIf (cfg.fqdn != name) [ cfg.fqdn ]; 
+            webroot = "/var/lib/acme/acme-challenge/${name}";
           };
         };
       in {
