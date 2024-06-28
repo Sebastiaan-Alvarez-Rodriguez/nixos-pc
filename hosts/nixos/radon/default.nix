@@ -72,12 +72,15 @@
 
     # mpv.enable = true; # Minimal video player
     spotify.enable = true;
+    ssh = {
+      enable = true;
+      mosh.enable = true;
+    };
     terminal.program = "foot";
     wm = {
       manager = "river";
       dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
       grim.enable = true;
-      flameshot.enable = false; # seb: TODO explore flameshot (needs to disable grim)
       kanshi = {
         enable = true;
         systemdTarget = "river-session.target";
@@ -129,27 +132,6 @@
 
   services = {
     dbus.enable = true;
-    # greetd = {
-    #   enable = true;
-    #   restart = false;
-    #   settings = rec {
-    #     initial_session =
-    #     let
-    #       run = pkgs.writeShellScript "start-river" ''
-    #         # Seems to be needed to get river to properly start
-    #         sleep 1
-    #         export XDG_SESSION_TYPE=wayland
-    #         export XDG_CURRENT_DESKTOP=river
-    #         ${pkgs.river}/bin/river
-    #       ''; # TODO: should this not be 'my.home.packages.river'?
-    #     in
-    #     {
-    #       command = "${run}";
-    #       user = "rdn";
-    #     };
-    #     default_session = initial_session;
-    #   };
-    # };
     teamviewer.enable = true; # seb: NOTE remove if it does not work.
   };
 

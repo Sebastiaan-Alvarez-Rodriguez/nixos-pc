@@ -20,5 +20,5 @@ in nixpkgs.lib.mapAttrs buildHost {
   # "neon" = "x86_64-linux";
   "polonium" = "x86_64-linux";
   "radon" = "x86_64-linux";
-  # "xenon" = "x86_64-linux";
+  "xenon" = "x86_64-linux";
 }
