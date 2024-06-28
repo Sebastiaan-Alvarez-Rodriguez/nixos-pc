@@ -1,4 +1,5 @@
-# An SSH server, using 'mosh'
+# An SSH server, using 'mosh' to not have hanging terminals when switching/losing internet access.
+# mosh requires server and clientside package to work.
 { config, lib, ... }: let
   cfg = config.my.services.ssh-server;
 in {
@@ -8,9 +9,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.openssh = {
-      # Enable the OpenSSH daemon.
       enable = true;
-
       settings = {
         PermitRootLogin = "no";
         PasswordAuthentication = false;

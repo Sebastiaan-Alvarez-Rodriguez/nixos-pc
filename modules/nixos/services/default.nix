@@ -12,6 +12,7 @@
     ./indexers
     ./jellyfin
     ./matrix
+    ./mailserver
     ./mealie
     ./miniflux
     ./monitoring

@@ -1,20 +1,16 @@
-{ lib, ... }:
-let
+{ lib, ... }: let
   inherit (lib) filter foldl';
-in
-{
+in {
   # Count the number of appararitions of each value in a list.
   #
   # countValues ::
   #   [ any ] -> ({ any = int; })
-  countValues =
-    let
-      addToCount = acc: x:
-        let
-          v = toString x;
-        in
-        acc // { ${v} = (acc.${v} or 0) + 1; };
+  countValues = let
+    addToCount = acc: x: let
+      v = toString x;
     in
+      acc // { ${v} = (acc.${v} or 0) + 1; };
+  in
     foldl' addToCount { };
 
   # Filter a list using a predicate function after applying a map.

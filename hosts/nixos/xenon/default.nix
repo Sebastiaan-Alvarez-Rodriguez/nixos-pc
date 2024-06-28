@@ -5,7 +5,6 @@
   # https://github.com/NixOS/nixpkgs/issues/71273
   networking.interfaces.ens3.tempAddress = "disabled";
 
-  # seb: TODO continue here
   my.system = { # contains common system packages and settings shared between hosts.
     home.users = [ "rdn" ]; # NOTE: Define normal users here. These users' home profiles will be populated with the settings from 'my.home' configuration below.
     nix = {
@@ -33,10 +32,7 @@
       package = pkgs.helix;
       path = "${pkgs.helix}/bin/hx";
     };
-    firefox.enable = true;
-    # firefox.tridactyl.enable = true; # seb: An arcane way to use firefox
-    gm.manager = "wayland";
-    gpg.enable = true;
+    # gpg.enable = true;
     # gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
     nix = {
       enable = true;
@@ -51,114 +47,68 @@
       allowUnfree = true;
       # additionalPackages = with pkgs; [ jellyfin-media-player ]; # Wraps the webui and mpv together
     };
-
-    # mpv.enable = true; # Minimal video player
-    spotify.enable = true;
-    terminal.program = "foot";
-    wm.manager = "river";
-    wm.dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
-    wm.grim.enable = true;
-    wm.flameshot.enable = false; # seb: TODO explore flameshot (needs to disable grim)
-    wm.mako.enable = true;
-    wm.rofi.enable = true;
-    wm.wpaperd.enable = true;
-    wm.waybar.enable = true;
-    xdg.enable = true;
   };
 
-  my.programs = {
-    # Steam configuration
-    steam.enable = true;
-  };
-  programs = {
-    adb.enable = true; # To use, users must be added to the "adbusers" group
-  };
-
-  # my.services = { # seb: TODO uncomment after handling wireguard config.
-  #   wireguard.enable = true;
-  # };
-
-  my.profiles = {
-    # Bluetooth configuration and GUI
-    # bluetooth.enable = true; # seb: TODO for laptop hosts, enable
-    gtk.enable = true;
-    # Laptop specific configuration
-    # laptop.enable = true; # seb: TODO checkout what this is for laptop hosts
-    # i3 configuration
-  };
-
-  services = {
-    dbus.enable = true;
-    # greetd = { # seb: TODO should not have this config here, especially running stuff as a hardcoded user.
-    #   enable = true;
-    #   restart = false;
-    #   settings = rec {
-    #     initial_session = let
-    #       run = pkgs.writeShellScript "start-river" ''
-    #         # Seems to be needed to get river to properly start
-    #         sleep 1
-    #         # Set the proper XDG desktop so that xdg-desktop-portal works
-    #         # This needs to be done before river is started
-    #         export XDG_CURRENT_DESKTOP=river
-    #         ${pkgs.river}/bin/river
-    #       '';
-    #     in {
-    #       command = "${run}";
-    #       user = "rdn";
-    #     };
-    #     default_session = initial_session;
-    #   };
-    # };
-    greetd = { # seb: NOTE see https://drakerossman.com/blog/wayland-on-nixos-confusion-conquest-triumph#what-are-xorg-wayland-and-why-you-should-choose-the-latter (Adding a nice login screen)
+  my.services = { # seb: TODO uncomment after handling wireguard config.
+    # wireguard.enable = true;
+    fail2ban.enable = true;
+    ssh-server.enable = true;
+    mailserver = {
       enable = true;
-      settings = {
-        default_session.command = let
-          run = pkgs.writeShellScript "start-river" ''
-            export XDG_CURRENT_DESKTOP=river
-            ${pkgs.river}/bin/river
-          '';
-        in
-          ''
-            ${pkgs.greetd.tuigreet}/bin/tuigreet \
-              --time \
-              --asterisks \
-              --user-menu \
-              --cmd "${run}";
-          '';
+      fqdn = "mail.mijn.place";
+      domains = [ "mijn.place" ];
+
+      certificateScheme = "manual";
+      certificateFile = "/var/lib/acme/mijn.place/fullchain.pem";
+      keyFile = "/var/lib/acme/mijn.place/key.pem";
+
+      extraConfig = {
+        # A list of all login accounts. To create a password hash, use
+        # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
+        loginAccounts = {
+          "mail@mijn.place" = {
+            catchAll = [ "mijn.place" ]; # all catchAll-mailaddresses you gave to companies end here.
+            aliases = [ "@mijn.place" ]; # You can now reply using ANY address. Useful to reply to catchAll-mailaddresses.
+            hashedPasswordFile = "/data/mail/mailserver.pwd";
+          };
+          "sebastiaan@mijn.place" = {
+            hashedPasswordFile = "/home/rdn/.pwd/sebastiaan-mailserver.pwd";
+          };
+          "mariska@mijn.place" = {
+            hashedPasswordFile = "/home/mrs/.pwd/mariska-mailserver.pwd";
+          };
+          "noreply@mijn.place" = {
+            hashedPasswordFile = "/home/rdn/.pwd/noreply-mailserver.pwd";
+            sendOnly = true;
+            sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place.";
+          };
+        };
+
+        rejectRecipients = []; # add owned mailadresses (e.g. 'test@me.com') to block all mails sent to them. 
+        # Useful when you have a catchAll-account AND you provided a company a catchAll address like companyname@me.com AND you want to block the company sending more mails landing in your catchAll.
+        rejectSender = []; # add mailaddresses (e.g. 'test@malicious.com', or even '@malicious.com') which may never send mails here.
       };
     };
-    # logind = {
-    #   lidSwitch = "ignore";
-    #   lidSwitchDocked = "ignore";
-    # };
-    teamviewer.enable = true; # seb: NOTE remove if it does not work.
   };
-
-  environment.etc."greetd/environments".text = ''
-    river
-  ''; # allows users logging in to pick their window manager.
 
   environment.systemPackages = [ pkgs.home-manager ];
 
-  users = let # seb: TODO make this more simple, move to nixos/home module for generation?
+  users = let
     groupExists = grp: builtins.hasAttr grp config.users.groups;
     groupsIfExist = builtins.filter groupExists;
   in {
-    mutableUsers = false;
     users.rdn = {
-      hashedPasswordFile = config.age.secrets."users/rdn/host-password".path;
+      password = "changeme";
       isNormalUser = true;
       description = "rdn";
-      extraGroups = groupsIfExist [ "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "video" "wheel" ];
+      extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
     };
   };
-  # seb: TODO can make this auto-discovery by iterating users.users and iterating their ~/.ssh directories
-  age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
 
-  system.stateVersion = "24.05"; # Do not change
+  system.stateVersion = "23.11"; # Do not change
 }

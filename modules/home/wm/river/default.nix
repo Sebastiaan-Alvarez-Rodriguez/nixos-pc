@@ -4,7 +4,6 @@
 in {
   imports = [ ./river-session.nix ];
 
-  # seb: TODO may need old module as in original repo,  ../modules/home-manager/river.nix
   config = lib.mkIf isEnabled {
     assertions = [
       {
@@ -13,7 +12,10 @@ in {
       }
     ];
 
+    home.packages = with pkgs; [ river ];
+
     programs.river = let
+      riverctl = "${pkgs.river}/bin/riverctl";
       rivertile = "${pkgs.river}/bin/rivertile";
       pamixer = "${pkgs.pamixer}/bin/pamixer";
       playerctl = "${pkgs.playerctl}/bin/playerctl";
@@ -28,24 +30,16 @@ in {
 
       bindings = let
         mod = "Mod4"; # Windows key
-        # TODO: Move to central lib
-        pwr = base: exp: lib.foldl (x: _: x * base) 1 (lib.range 1 exp);
-        allTags = (pwr 2 32) - 1;
-        # TODO: Move to central lib
-        concatAttrs = attrList: lib.fold (x: y: x // y) {} attrList;
-        tagBinds = lib.mkMerge (map  (i: let tags = pwr 2 (i - 1); in {
+        allTags = (lib.my.power 2 32) - 1;
+        tagBinds = lib.mkMerge (map  (i: let tags = lib.my.power 2 (i - 1); in {
           "${mod} ${toString i}" = "set-focused-tags ${toString tags}";
           "${mod}+Shift ${toString i}" = "set-view-tags ${toString tags}";
           "${mod}+Control ${toString i}" = "toggle-focused-tags ${toString tags}";
           "${mod}+Shift+Control ${toString i}" = "toggle-view-tags ${toString tags}";
         }) (lib.range 1 9));
-        screenshot = pkgs.writeShellScript "screenshot" ''
-          ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" - | ${pkgs.wl-clipboard}/bin/wl-copy -t image/png
-        '';
       in {
         normal = (lib.mkMerge [
           {
-            "${mod} Return" = "spawn '${pkgs.foot}/bin/foot'"; # TODO: Find out why footclient prints a bunch of random stuff...
             "${mod} Q" = "close";
             "${mod} J" = "focus-view next";
             "${mod} K" = "focus-view previous";
@@ -67,8 +61,6 @@ in {
 
             "${mod}+Shift H" = "send-layout-cmd ${rivertile} 'main-count +1'";
             "${mod}+Shift L" = "send-layout-cmd ${rivertile} 'main-count -1'";
-
-            "None Print" = "spawn '${screenshot}'";
 
             "None XF86Eject" = "spawn 'eject -T'";
 
@@ -95,6 +87,9 @@ in {
           }
           tagBinds
 
+          (lib.mkIf (config.my.home.terminal.program == "foot") {
+            "${mod} Return" = "spawn '${pkgs.foot}/bin/foot'";
+          })
           (lib.mkIf config.my.home.wm.rofi.enable {
             "${mod} D" = "spawn '${config.programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi'";
           })
@@ -102,6 +97,15 @@ in {
           (lib.mkIf config.my.home.firefox.enable {
             "${mod} B" = "spawn '${pkgs.firefox}/bin/firefox'";
             "${mod} P" = "spawn '${pkgs.firefox}/bin/firefox --private-window'";
+          })
+
+          (lib.mkIf config.my.home.wm.grim.enable {
+            "None Print" = let
+              screenshot = pkgs.writeShellScript "screenshot" ''
+                ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" - | ${pkgs.wl-clipboard}/bin/wl-copy -t image/png
+              ''; # lets user take screenshot, copies result to clipboard (pastable in e.g. tdesktop)
+            in
+              "spawn '${screenshot}'";
           })
         ]);
         pointer = {
@@ -133,8 +137,8 @@ in {
       };
 
       extraConfig = ''
-        riverctl float-filter-add app-id 'float'
-        riverctl float-filter-add app-id 'popup'
+        ${riverctl} float-filter-add app-id 'float'
+        ${riverctl} float-filter-add app-id 'popup'
       '';
     };
   };
