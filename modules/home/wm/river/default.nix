@@ -40,6 +40,7 @@ in {
       in {
         normal = (lib.mkMerge [
           {
+            # NOTE: must not use absolute '${rivertile}' here and in commands below.
             "${mod} Q" = "close";
             "${mod} J" = "focus-view next";
             "${mod} K" = "focus-view previous";
@@ -56,11 +57,11 @@ in {
             "${mod} F" = "toggle-fullscreen";
             "${mod} D" = "spawn '${pkgs.rofi-wayland}/bin/rofi -combi-modi drun,ssh -show combi -modi combi'";
 
-            "${mod} H" = "send-layout-cmd ${rivertile} 'main-ratio -0.05'";
-            "${mod} L" = "send-layout-cmd ${rivertile} 'main-ratio +0.05'";
+            "${mod} H" = "send-layout-cmd rivertile 'main-ratio -0.05'";
+            "${mod} L" = "send-layout-cmd rivertile 'main-ratio +0.05'";
 
-            "${mod}+Shift H" = "send-layout-cmd ${rivertile} 'main-count +1'";
-            "${mod}+Shift L" = "send-layout-cmd ${rivertile} 'main-count -1'";
+            "${mod}+Shift H" = "send-layout-cmd rivertile 'main-count +1'";
+            "${mod}+Shift L" = "send-layout-cmd rivertile 'main-count -1'";
 
             "None XF86Eject" = "spawn 'eject -T'";
 
