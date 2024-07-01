@@ -1,5 +1,4 @@
 # Basic nginx abstraction layer
-# NOTE: requires serious rework before use.
 { config, lib, pkgs, ... }: let
   cfg = config.my.services.nginx;
 
@@ -7,50 +6,50 @@
 
   virtualHostOption = with lib; types.submodule ({ name, ... }: {
     options = {
+      # cert-type = mkOption {
+      #   type = types.enum [ "enableACME", "useACMEHost"];
+      # };
+      enableACME = mkEnableOption "Whether to ask Let’s Encrypt to sign a certificate for this vhost. Alternately, you can use an existing certificate through useACMEHost.";
+      useACMEHost = mkOption {
+        type = with types; nullOr (str);
+        default = null;
+        description = "A host of an existing Let’s Encrypt certificate to use. This is useful if you have many subdomains and want to avoid hitting the rate limit. Alternately, you can generate a certificate through enableACME. Note that this option does not create any certificates, nor it does add subdomains to existing ones – you will need to create them manually using security.acme.certs.";
+      };
+      forceSSL = mkEnableOption "Whether to add a separate nginx server block that redirects (defaults to 301, configurable with redirectCode) all plain HTTP traffic to HTTPS. This will set defaults for listen to listen on all interfaces on the respective default ports (80, 443), where the non-SSL listens are used for the redirect vhosts.";
+
       subdomain = mkOption {
         type = types.str;
         default = name;
         example = "dev";
-        description = ''
-          Which subdomain, under config.networking.domain, to use
-          for this virtual host.
-        '';
+        description = "Which subdomain, under config.networking.domain, to use for this virtual host.";
       };
 
       port = mkOption {
         type = with types; nullOr port;
         default = null;
         example = 8080;
-        description = ''
-          Which port to proxy to, through 127.0.0.1, for this virtual host.
-        '';
+        description = "Which port to proxy to, through 127.0.0.1, for this virtual host.";
       };
 
       redirect = mkOption {
         type = with types; nullOr str;
         default = null;
         example = "https://example.com";
-        description = ''
-          Which domain to redirect to (301 response), for this virtual host.
-        '';
+        description = "Which domain to redirect to (301 response), for this virtual host.";
       };
 
       root = mkOption {
         type = with types; nullOr path;
         default = null;
         example = "/var/www/blog";
-        description = ''
-          The root folder for this virtual host.
-        '';
+        description = "The root folder for this virtual host.";
       };
 
       socket = mkOption {
         type = with types; nullOr path;
         default = null;
         example = "FIXME";
-        description = ''
-          The UNIX socket for this virtual host.
-        '';
+        description = "The UNIX socket for this virtual host.";
       };
 
       sso = {
@@ -68,9 +67,7 @@
           }
         '';
         default = { };
-        description = ''
-          Any extra configuration that should be applied to this virtual host.
-        '';
+        description = "Any extra configuration that should be applied to this virtual host.";
       };
     };
   });
@@ -81,20 +78,20 @@ in {
     enable = mkEnableOption "Nginx";
 
     acme = {
-      credentialsFile = mkOption {
-        type = types.str;
-        example = "/var/lib/acme/creds.env";
-        description = "Gandi API key file as an 'EnvironmentFile' (see `systemd.exec(5)`)";
-      };
+      # credentialsFile = mkOption {
+      #   type = types.str;
+      #   example = "/var/lib/acme/creds.env";
+      #   description = "Gandi API key file as an 'EnvironmentFile' (see `systemd.exec(5)`)";
+      # };
       default-mail = mkOption {
         type = types.str;
-        example = "noreply@facebook.com";
+        example = "a@b.com";
         description = "default mail address for acme certification messages.";
       };
     };
 
     monitoring = {
-      enable = my.mkDisableOption "monitoring through grafana and prometheus";
+      enable = mkEnableOption "monitoring through grafana and prometheus";
     };
 
     virtualHosts = mkOption {
@@ -120,25 +117,22 @@ in {
           };
         }
       '';
-      description = ''
-        List of virtual hosts to set-up using default settings.
-      '';
+      description = "List of virtual hosts to set-up using default settings.";
     };
 
     sso = {
+      enable = mkEnableOption "Nginx single-sign-on support";
       authKeyFile = mkOption {
         type = types.str;
         example = "/var/lib/nginx-sso/auth-key.txt";
-        description = ''
-          Path to the auth key.
-        '';
+        description = "Path to the auth key.";
       };
 
       subdomain = mkOption {
         type = types.str;
         default = "login";
         example = "auth";
-        description = "Which subdomain, to use for SSO.";
+        description = "Which subdomain to use for SSO.";
       };
 
       port = mkOption {
@@ -189,13 +183,11 @@ in {
 
   config = lib.mkIf cfg.enable {
     assertions = [ ]
-      ++ (lib.flip lib.mapAttrsToList cfg.virtualHosts (_: { subdomain, ... } @ args:
-      let
+      ++ (lib.flip lib.mapAttrsToList cfg.virtualHosts (_: { subdomain, ... } @ args: let
         conflicts = [ "port" "root" "socket" "redirect" ];
         optionsNotNull = builtins.map (v: args.${v} != null) conflicts;
         optionsSet = lib.filter lib.id optionsNotNull;
-      in
-      {
+      in {
         assertion = builtins.length optionsSet == 1;
         message = ''
           Subdomain '${subdomain}' must have exactly one of ${
@@ -205,10 +197,7 @@ in {
       }))
       ++ (
       let
-        ports = lib.my.mapFilter
-          (v: v != null)
-          ({ port, ... }: port)
-          (lib.attrValues cfg.virtualHosts);
+        ports = lib.my.mapFilter (v: v != null) ({ port, ... }: port) (lib.attrValues cfg.virtualHosts);
         portCounts = lib.my.countValues ports;
         nonUniquesCounts = lib.filterAttrs (_: v: v != 1) portCounts;
         nonUniques = builtins.attrNames nonUniquesCounts;
@@ -226,9 +215,7 @@ in {
         nonUniques = builtins.attrNames nonUniquesCounts;
         mkAssertion = v: {
           assertion = false;
-          message = ''
-            Subdomain '${v}' cannot appear in multiple virtual hosts.
-          '';
+          message = "Subdomain '${v}' cannot appear in multiple virtual hosts.";
         };
       in
         map mkAssertion nonUniques
@@ -245,87 +232,89 @@ in {
       recommendedTlsSettings = true;
       recommendedZstdSettings = true;
 
-      virtualHosts =
-        let
-          domain = config.networking.domain;
-          mkVHost = ({ subdomain, ... } @ args: lib.nameValuePair
-            "${subdomain}.${domain}"
-            (lib.my.recursiveMerge [
-              # Base configuration
-              {
-                forceSSL = true;
-                useACMEHost = domain;
-              }
-              # Proxy to port
-              (lib.optionalAttrs (args.port != null) {
-                locations."/".proxyPass =
-                  "http://127.0.0.1:${toString args.port}";
-              })
-              # Serve filesystem content
-              (lib.optionalAttrs (args.root != null) {
-                inherit (args) root;
-              })
-              # Serve to UNIX socket
-              (lib.optionalAttrs (args.socket != null) {
-                locations."/".proxyPass =
-                  "http://unix:${args.socket}";
-              })
-              # Redirect to a different domain
-              (lib.optionalAttrs (args.redirect != null) {
-                locations."/".return = "301 ${args.redirect}$request_uri";
-              })
-              # VHost specific configuration
-              args.extraConfig
-              # SSO configuration
-              (lib.optionalAttrs args.sso.enable {
-                extraConfig = (args.extraConfig.extraConfig or "") + ''
-                  error_page 401 = @error401;
-                '';
+      commonHttpConfig = "server_names_hash_bucket_size 64;";
+  
+      virtualHosts = let
+        domain = config.networking.domain;
+        mkVHost = ({ subdomain, ... } @ args: lib.nameValuePair "${subdomain}.${domain}" (lib.my.recursiveMerge [
+          # Base configuration
+          {
+            forceSSL = args.forceSSL;
+            useACMEHost = lib.mkIf (args.useACMEHost != null) args.useACMEHost; # use certificate from host (a wildcard domain certificate).
+            enableACME = args.enableACME;
+          }
+          (lib.optionalAttrs (args.port != null) { # Proxy to port
+            locations."/".proxyPass =
+              "http://127.0.0.1:${toString args.port}";
+          })
+          (lib.optionalAttrs (args.root != null) { # Serve filesystem content
+            inherit (args) root;
+          })
+          (lib.optionalAttrs (args.socket != null) { # Serve to UNIX socket
+            locations."/".proxyPass =
+              "http://unix:${args.socket}";
+          })
+          (lib.optionalAttrs (args.redirect != null) { # Redirect to a different domain
+            locations."/".return = "301 ${args.redirect}$request_uri";
+          })
+          args.extraConfig # VHost specific configuration
+          (lib.optionalAttrs args.sso.enable { # SSO configuration
+            extraConfig = (args.extraConfig.extraConfig or "") + ''
+              error_page 401 = @error401;
+            '';
 
-                locations."@error401".return = ''
-                  302 https://${cfg.sso.subdomain}.${config.networking.domain}/login?go=$scheme://$http_host$request_uri
-                '';
+            locations."@error401".return = ''
+              302 https://${cfg.sso.subdomain}.${config.networking.domain}/login?go=$scheme://$http_host$request_uri
+            '';
 
-                locations."/" = {
-                  extraConfig =
-                    (args.extraConfig.locations."/".extraConfig or "") + ''
-                      # Use SSO
-                      auth_request /sso-auth;
+            locations."/" = {
+              extraConfig = (args.extraConfig.locations."/".extraConfig or "") + ''
+                # Use SSO
+                auth_request /sso-auth;
 
-                      # Set username through header
-                      auth_request_set $username $upstream_http_x_username;
-                      proxy_set_header X-User $username;
+                # Set username through header
+                auth_request_set $username $upstream_http_x_username;
+                proxy_set_header X-User $username;
 
-                      # Renew SSO cookie on request
-                      auth_request_set $cookie $upstream_http_set_cookie;
-                      add_header Set-Cookie $cookie;
-                    '';
-                };
+                # Renew SSO cookie on request
+                auth_request_set $cookie $upstream_http_set_cookie;
+                add_header Set-Cookie $cookie;
+              '';
+            };
 
-                locations."/sso-auth" = {
-                  proxyPass = "http://localhost:${toString cfg.sso.port}/auth";
-                  extraConfig = ''
-                    # Do not allow requests from outside
-                    internal;
+            locations."/sso-auth" = {
+              proxyPass = "http://localhost:${toString cfg.sso.port}/auth";
+              extraConfig = ''
+                # Do not allow requests from outside
+                internal;
 
-                    # Do not forward the request body
-                    proxy_pass_request_body off;
-                    proxy_set_header Content-Length "";
+                # Do not forward the request body
+                proxy_pass_request_body off;
+                proxy_set_header Content-Length "";
 
-                    # Set X-Application according to subdomain for matching
-                    proxy_set_header X-Application "${subdomain}";
+                # Set X-Application according to subdomain for matching
+                proxy_set_header X-Application "${subdomain}";
 
-                    # Set origin URI for matching
-                    proxy_set_header X-Origin-URI $request_uri;
-                  '';
-                };
-              })
-            ])
-          );
-        in
-        lib.my.genAttrs' (lib.attrValues cfg.virtualHosts) mkVHost;
+                # Set origin URI for matching
+                proxy_set_header X-Origin-URI $request_uri;
+              '';
+            };
+          })
+        ]));
+        generatedHosts = lib.my.genAttrs' (lib.attrValues cfg.virtualHosts) mkVHost;
+      in
+        (lib.mkMerge [
+          { # required to make security.acme.certs.${domain} generate certificates using 'webroot' attribute.
+            ${domain} = {
+              enableACME = true;
+              forceSSL = true;
+              # webroot = "/var/lib/acme/acme-challenge/${domain}";
+            };
+          }
+          generatedHosts
+        ]);
 
-      sso = {
+      sso = lib.mkIf cfg.sso.enable {
         enable = true;
 
         configuration = {
@@ -358,24 +347,20 @@ in {
           };
 
           providers = {
-            simple =
-              let
-                applyUsers = lib.flip lib.mapAttrs cfg.sso.users;
-              in
-              {
-                users = applyUsers (_: v: { _secret = v.passwordHashFile; });
-
-                mfa = applyUsers (_: v: [{
-                  provider = "totp";
-                  attributes = {
-                    secret = {
-                      _secret = v.totpSecretFile;
-                    };
+            simple = let
+              applyUsers = lib.flip lib.mapAttrs cfg.sso.users;
+            in {
+              users = applyUsers (_: v: { _secret = v.passwordHashFile; });
+              mfa = applyUsers (_: v: [{
+                provider = "totp";
+                attributes = {
+                  secret = {
+                    _secret = v.totpSecretFile;
                   };
-                }]);
-
-                inherit (cfg.sso) groups;
-              };
+                };
+              }]);
+              inherit (cfg.sso) groups;
+            };
           };
 
           acl = {
@@ -390,7 +375,7 @@ in {
       };
     };
 
-    my.services.nginx.virtualHosts = {
+    my.services.nginx.virtualHosts = lib.mkIf cfg.sso.enable {
       ${cfg.sso.subdomain} = {
         inherit (cfg.sso) port;
       };
@@ -400,25 +385,23 @@ in {
 
     users.users.nginx.extraGroups = [ "acme" ]; # Nginx needs to be able to read the certificates
 
-    security.acme = {
+    security.acme = { # this config fetches a certificate for our domain.
       defaults.email = cfg.acme.default-mail;
-
       acceptTerms = true;
-      # Use DNS wildcard certificate
       certs = {
         "${domain}" = {
-          extraDomainNames = [ "*.${domain}" ];
-          dnsProvider = "gandiv5";
-          inherit (cfg.acme) credentialsFile;
+          email = cfg.acme.default-mail;
+          extraDomainNames = [ "*.${domain}" ]; # Use DNS wildcard certificate
+          postRun = "systemctl reload nginx.service";
+          # webroot = "/var/lib/acme/acme-challenge/"; # seb: NOTE this is the default value from security.acme.defaults.webroot.
+          # dnsProvider = "gandiv5"; # NOTE: dnsProvider option would be nice to use, if my dns provider were supported. For now, use webroot.
         };
       };
     };
-
     systemd.services."acme-${domain}" = {
       serviceConfig = {
         Environment = [
-          # Since I do a "weird" setup with a wildcard CNAME
-          "LEGO_DISABLE_CNAME_SUPPORT=true"
+          "LEGO_DISABLE_CNAME_SUPPORT=true" # Since I do a "weird" setup with a wildcard CNAME
         ];
       };
     };

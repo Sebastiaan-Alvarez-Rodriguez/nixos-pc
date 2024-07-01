@@ -73,7 +73,7 @@ in {
       "xenon" = {
         hostname = "62.171.150.8";
         user = "rdn";
-        port = 11111;
+        port = 22;
         identityFile = "/home/${username}/.ssh/xenon.rsa";
       };
     });
