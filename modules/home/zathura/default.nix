@@ -1,3 +1,4 @@
+# document viewer
 { config, lib, ... }: let
   cfg = config.my.home.zathura;
 in {

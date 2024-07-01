@@ -16,6 +16,9 @@ in {
       };
     };
 
+    # explicitly open network port
+    networking.firewall.allowedTCPPorts = [ 22 ];
+
     # Opens the relevant UDP ports.
     programs.mosh.enable = true;
   };

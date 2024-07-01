@@ -5,6 +5,15 @@
   # https://github.com/NixOS/nixpkgs/issues/71273
   networking.interfaces.ens3.tempAddress = "disabled";
 
+  networking.firewall = {
+    allowedTCPPorts = [
+      80    # HTTP
+      443   # HTTPS
+      587   # mail
+      993   # mail
+    ];
+  };
+
   my.system = { # contains common system packages and settings shared between hosts.
     home.users = [ "rdn" ]; # NOTE: Define normal users here. These users' home profiles will be populated with the settings from 'my.home' configuration below.
     nix = {
@@ -55,7 +64,7 @@
     ssh-server.enable = true;
     mailserver = {
       enable = true;
-      fqdn = "mail.mijn.place";
+      domain-prefix = "mail";
       domains = [ "mijn.place" ];
 
       certificateScheme = "manual";
@@ -88,6 +97,12 @@
         # Useful when you have a catchAll-account AND you provided a company a catchAll address like companyname@me.com AND you want to block the company sending more mails landing in your catchAll.
         rejectSender = []; # add mailaddresses (e.g. 'test@malicious.com', or even '@malicious.com') which may never send mails here.
       };
+    };
+    nginx = {
+      enable = true;
+      monitoring.enable = false;
+      sso.enable = false;
+      acme.default-mail = "a@b.com";
     };
   };
 
