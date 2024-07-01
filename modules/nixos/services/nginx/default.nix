@@ -386,25 +386,40 @@ in {
     users.users.nginx.extraGroups = [ "acme" ]; # Nginx needs to be able to read the certificates
 
     security.acme = { # this config fetches a certificate for our domain.
+      # NOTE: wildcard domains are only supported using dns validation using lego: https://nixos.org/manual/nixos/stable/index.html#module-security-acme-config-dns
+      # Easy if your DNS provider is supported by security.acme.certs.<name>.dnsProvider --> use config below.
+      # Otherwise, above link provides selfhosted solution (rfc2136).
+      # For now, just request certification for each extra domain name.
       defaults.email = cfg.acme.default-mail;
       acceptTerms = true;
       certs = {
         "${domain}" = {
           email = cfg.acme.default-mail;
-          extraDomainNames = [ "*.${domain}" ]; # Use DNS wildcard certificate
-          postRun = "systemctl reload nginx.service";
-          # webroot = "/var/lib/acme/acme-challenge/"; # seb: NOTE this is the default value from security.acme.defaults.webroot.
+          # extraDomainNames = [ "*.${domain}" ]; # Use DNS wildcard certificate
           # dnsProvider = "gandiv5"; # NOTE: dnsProvider option would be nice to use, if my dns provider were supported. For now, use webroot.
+          extraDomainNames = lib.attrNames config.my.services.nginx.virtualHosts;
+          postRun = "systemctl reload nginx.service";
         };
       };
     };
-    systemd.services."acme-${domain}" = {
-      serviceConfig = {
-        Environment = [
-          "LEGO_DISABLE_CNAME_SUPPORT=true" # Since I do a "weird" setup with a wildcard CNAME
-        ];
-      };
-    };
+    # security.acme = { # this config fetches a certificate for our domain.
+    #   defaults.email = cfg.acme.default-mail;
+    #   acceptTerms = true;
+    #   certs = {
+    #     "${domain}" = {
+    #       extraDomainNames = [ "*.${domain}" ]; # Use DNS wildcard certificate
+    #       dnsProvider = "gandiv5"; # NOTE: dnsProvider option would be nice to use, if my dns provider were supported. For now, use webroot.
+    #       postRun = "systemctl reload nginx.service";
+    #     };
+    #   };
+    # };
+    # systemd.services."acme-${domain}" = {
+    #   serviceConfig = {
+    #     Environment = [
+    #       "LEGO_DISABLE_CNAME_SUPPORT=true" # Since I do a "weird" setup with a wildcard CNAME
+    #     ];
+    #   };
+    # };
 
     services.grafana.provision.dashboards.settings.providers = lib.mkIf cfg.monitoring.enable [
       {
