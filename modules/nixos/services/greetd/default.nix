@@ -13,6 +13,7 @@ in {
       default = "";
       description = "One-line greeting shown at login screen";
     };
+    wait-for-graphical = mkEnableOption "If set, makes greetd wait for graphical-session.target. Nice, because console greeters do not get shifted by systemd messages. WARNING: do not use on headless systems, as they have no graphical-session.target.";
   };
 
   config = lib.mkIf cfg.enable {
@@ -30,5 +31,16 @@ in {
         };
       } // sessions;
     };
+    systemd.services.greetd.unitConfig = let
+      tty = "tty${toString config.services.greetd.vt}";
+    in lib.mkIf cfg.wait-for-graphical (lib.mkForce {
+      # as taken from https://github.com/NixOS/nixpkgs/blob/d032c1a6dfad4eedec7e35e91986becc699d7d69/nixos/modules/services/display-managers/greetd.nix#L80
+      # enhanced with optional targets to wait for if so configured (should not do this on headless systems).
+      BindsTo = [ "graphical.target" ];
+      Wants = [ "systemd-user-sessions.service" ];
+      After = [ "systemd-user-sessions.service" "getty@${tty}.service" "multi-user.target" ]
+        ++ lib.optionals (!config.services.greetd.greeterManagesPlymouth) [ "plymouth-quit-wait.service" ];
+      Conflicts = [ "getty@${tty}.service" ];
+    });
   };
 }

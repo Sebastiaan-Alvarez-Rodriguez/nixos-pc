@@ -111,6 +111,7 @@
     greetd = {
       enable = true;
       greeting = "<=================>";
+      wait-for-graphical = true;
       sessions = {
         "default_session" = pkgs.writeShellScript "start-river" ''
           # Seems to be needed to get river to properly start
