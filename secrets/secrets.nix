@@ -8,7 +8,9 @@ let
     if sufLen <= sLen && suffix == substring (sLen - sufLen) sufLen str then substring 0 (sLen - sufLen) str else str;
 
   readKey = f: removeSuffix "\n" (readFile f);
-  k = readKey keys/users/rdn.rsa.pub;
+  base = readKey keys/users/rdn.rsa.pub; 
 in {
-  "users/rdn/host-password.age".publicKeys = [ k ];
+  "users/rdn/host-password.age".publicKeys = [ base ];
+  "services/tandoor-recipes/secret.age".publicKeys = [ base ];
+  "services/pyload/secret.age".publicKeys = [ base ];
 }

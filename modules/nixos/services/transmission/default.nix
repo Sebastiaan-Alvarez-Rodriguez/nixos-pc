@@ -8,10 +8,7 @@ in {
     credentialsFile = mkOption {
       type = types.str;
       example = "/var/lib/transmission/creds.json";
-      description = ''
-        Credential file as an json configuration file to be merged with
-        the main one.
-      '';
+      description = "Credential file as a json configuration file to be merged with the main one.";
     };
 
     downloadBase = mkOption {
@@ -65,15 +62,12 @@ in {
     # Transmission wants to eat *all* my RAM if left to its own devices
     systemd.services.transmission = {
       serviceConfig = {
-        MemoryMax = "33%";
+        MemoryMax = "20%";
       };
     };
 
-    # Set-up media group
-    users.groups.media = { };
+    users.groups.media = { }; # Set-up media group
 
-    # Default transmission webui, I prefer combustion but its development
-    # seems to have stalled
     my.services.nginx.virtualHosts = {
       transmission = {
         inherit (cfg) port;

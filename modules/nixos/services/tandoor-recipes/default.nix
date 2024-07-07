@@ -16,9 +16,7 @@ in {
     secretKeyFile = mkOption {
       type = types.str;
       example = "/var/lib/tandoor-recipes/secret-key.env";
-      description = ''
-        Secret key as an 'EnvironmentFile' (see `systemd.exec(5)`)
-      '';
+      description = "Secret key as an 'EnvironmentFile' (see `systemd.exec(5)`). Must contain 'SECRET_KEY=<Django generated secret>'";
     };
   };
 

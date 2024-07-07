@@ -2,10 +2,9 @@
   cfg = config.my.services.postgresql;
 in {
   options.my.services.postgresql = with lib; {
-    enable = my.mkDisableOption "postgres configuration";
+    enable = mkEnableOption "postgres configuration";
 
-    # Transient option to be enabled for migrations
-    upgradeScript = mkEnableOption "postgres upgrade script";
+    upgradeScript = mkEnableOption "postgres upgrade script"; # Transient option to be enabled for migrations
   };
 
   config = lib.mkMerge [
@@ -16,8 +15,7 @@ in {
       };
     })
 
-    # Taken from the manual
-    (lib.mkIf cfg.upgradeScript {
+    (lib.mkIf cfg.upgradeScript { # Taken from the manual
       environment.systemPackages =
         let
           pgCfg = config.services.postgresql;
@@ -30,8 +28,7 @@ in {
           newPackage = if pgCfg.enableJIT then newPackage'.withJIT else newPackage';
           newData = "/var/lib/postgresql/${newPackage.psqlSchema}";
           newBin = "${if pgCfg.extraPlugins == [] then newPackage else newPackage.withPackages pgCfg.extraPlugins}/bin";
-        in
-        [
+        in [
           (pkgs.writeScriptBin "upgrade-pg-cluster" ''
             #!/usr/bin/env bash
 

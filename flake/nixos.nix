@@ -17,7 +17,7 @@
   };
 in nixpkgs.lib.mapAttrs buildHost {
   # "blackberry" = "aarch64-linux";
-  # "neon" = "x86_64-linux";
+  "helium" = "x86_64-linux";
   "polonium" = "x86_64-linux";
   "radon" = "x86_64-linux";
   "xenon" = "x86_64-linux";

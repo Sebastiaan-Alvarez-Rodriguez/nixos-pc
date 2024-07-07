@@ -15,7 +15,7 @@
   };
 
   my.system = { # contains common system packages and settings shared between hosts.
-    home.users = [ "rdn" ]; # NOTE: Define normal users here. These users' home profiles will be populated with the settings from 'my.home' configuration below.
+    home.users = [ "rdn" ];
     nix = {
       enable = true;
       inputs.link = true;
@@ -58,52 +58,54 @@
     };
   };
 
-  my.services = { # seb: TODO uncomment after handling wireguard config.
-    # wireguard.enable = true;
+  my.services = {
+    adblock.enable = true;
     fail2ban.enable = true;
-    ssh-server.enable = true;
-    mailserver = {
-      enable = true;
-      domain-prefix = "mail";
-      domains = [ "mijn.place" ];
+    flood.enable = true;
+    # seb: TODO create *arr config as wanted:
+    # indexers.prowlarr.enable = true;
+    # pirate = {
+    #   enable = true;
+    #   bazarr.enable = true;
+    #   lidarr.enable = true;
+    #   radarr.enable = true;
+    #   sonarr.enable = true;
+    # };
+    
+    # # FLOSS music streaming server
+    # navidrome = {
+    #   enable = true;
+    #   musicFolder = "/data/media/music";
+    # };
 
-      certificateScheme = "manual";
-      certificateFile = "/var/lib/acme/mijn.place/fullchain.pem";
-      keyFile = "/var/lib/acme/mijn.place/key.pem";
-
-      extraConfig = {
-        # A list of all login accounts. To create a password hash, use
-        # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
-        loginAccounts = {
-          "mail@mijn.place" = {
-            catchAll = [ "mijn.place" ]; # all catchAll-mailaddresses you gave to companies end here.
-            aliases = [ "@mijn.place" ]; # You can now reply using ANY address. Useful to reply to catchAll-mailaddresses.
-            hashedPasswordFile = "/data/mail/mailserver.pwd";
-          };
-          "sebastiaan@mijn.place" = {
-            hashedPasswordFile = "/home/rdn/.pwd/sebastiaan-mailserver.pwd";
-          };
-          "mariska@mijn.place" = {
-            hashedPasswordFile = "/home/mrs/.pwd/mariska-mailserver.pwd";
-          };
-          "noreply@mijn.place" = {
-            hashedPasswordFile = "/home/rdn/.pwd/noreply-mailserver.pwd";
-            sendOnly = true;
-            sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place.";
-          };
-        };
-
-        rejectRecipients = []; # add owned mailadresses (e.g. 'test@me.com') to block all mails sent to them. 
-        # Useful when you have a catchAll-account AND you provided a company a catchAll address like companyname@me.com AND you want to block the company sending more mails landing in your catchAll.
-        rejectSender = []; # add mailaddresses (e.g. 'test@malicious.com', or even '@malicious.com') which may never send mails here.
-      };
-    };
     nginx = {
       enable = true;
       monitoring.enable = false;
       sso.enable = false;
       acme.default-mail = "a@b.com";
     };
+    pyload = {
+      enable = true;
+      credentialsFile = config.age.secrets."services/pyload/secret".path;
+    };
+    ssh-server.enable = true;
+    # Recipe manager
+    tandoor-recipes = {
+      enable = true;
+      secretKeyFile = config.age.secrets."services/tandoor-recipes/secret".path;
+    };
+    # transmission = { # seedbox. seb: TODO configure seedbox?
+    #   enable = true;
+    #   credentialsFile = secrets."transmission/credentials".path; # seb: TODO Get secrets on-board.
+    # };
+    # vikunja = { # Self-hosted todo app
+    #   enable = true;
+    #   mail = {
+    #     enable = true;
+    #     configFile = secrets."vikunja/mail".path; # seb: TODO Get secrets on-board.
+    #   };
+    # };
+    # wireguard.enable = true; # seb: TODO fix wireguard config.
   };
 
   environment.systemPackages = [ pkgs.home-manager ];
@@ -121,6 +123,7 @@
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
     };
   };
+  age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.utf8";
