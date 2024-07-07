@@ -1,17 +1,16 @@
 {
   description = "NixOS configuration with flakes";
   inputs = {
-    # agenix = {
-    #   type = "github";
-    #   owner = "ryantm";
-    #   repo = "agenix";
-    #   ref = "main";
-    #   inputs = {
-    #     home-manager.follows = "home-manager";
-    #     nixpkgs.follows = "nixpkgs";
-    #     systems.follows = "systems";
-    #   };
-    # };
+    agenix = {
+      type = "github";
+      owner = "ryantm";
+      repo = "agenix";
+      ref = "main";
+      inputs = {
+        home-manager.follows = "home-manager";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
 
     home-manager = {
       url = "github:nix-community/home-manager/release-24.05";

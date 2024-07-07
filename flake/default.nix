@@ -13,5 +13,7 @@ in {
 
   packages = let
     system = "x86_64-linux";
-  in import ./packages.nix { inherit self nixpkgs system; };
+    # overlays = builtins.attrValues self.overlays;
+    overlays = [ self.overlays.default ];
+  in import ./packages.nix { inherit self nixpkgs system overlays; };
 }

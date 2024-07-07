@@ -7,7 +7,7 @@ in {
     credentialsFile = mkOption {
       type = types.path;
       example = "/run/secrets/pyload-credentials.env";
-      description = "pyload credentials";
+      description = "pyload credentials. Should contain 'PYLOAD_DEFAULT_USERNAME=<user>' and 'PYLOAD_DEFAULT_PASSWORD=<pass>'";
     };
 
     downloadDirectory = mkOption {
@@ -28,18 +28,9 @@ in {
   config = lib.mkIf cfg.enable {
     services.pyload = {
       enable = true;
-
-      # Listening on `localhost` leads to 502 with the reverse proxy...
-      listenAddress = "127.0.0.1";
-
-      inherit (cfg)
-        credentialsFile
-        downloadDirectory
-        port
-        ;
-
-      # Use media group when downloading files
-      group = "media";
+      group = "media"; # Use media group when downloading files
+      listenAddress = "127.0.0.1"; # Listening on `localhost` leads to 502 with the reverse proxy...
+      inherit (cfg) credentialsFile downloadDirectory port;
     };
 
     # Set-up media group

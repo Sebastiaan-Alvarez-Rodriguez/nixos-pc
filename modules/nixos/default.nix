@@ -6,7 +6,7 @@
     ./profiles
     ./programs
     ./services
-    # ./../../secrets # seb TODO: Enable once done configuring basics.
+    ./../../secrets
     ./system
   ];
 }

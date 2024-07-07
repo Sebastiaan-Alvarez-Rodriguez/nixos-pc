@@ -48,34 +48,44 @@
     (mkRedirection service)
   ]);
 in {
-  options.my.services.pirate = {
-    enable = lib.mkEnableOption "Media automation";
+  options.my.services.pirate = with lib; {
+    enable = mkEnableOption "Media automation";
 
     bazarr = {
-      enable = lib.my.mkDisableOption "Bazarr";
+      enable = mkEnableOption "Bazarr - For radarr & sonarr subtitles";
     };
 
     lidarr = {
-      enable = lib.my.mkDisableOption "Lidarr";
+      enable = mkEnableOption "Lidarr - For music";
     };
 
     radarr = {
-      enable = lib.my.mkDisableOption "Radarr";
+      enable = mkEnableOption "Radarr - For movies";
     };
 
     sonarr = {
-      enable = lib.my.mkDisableOption "Sonarr";
+      enable = mkEnableOption "Sonarr - For shows";
     };
   };
 
   config = lib.mkIf cfg.enable (lib.mkMerge [
     {
+      assertions = [
+        {
+          assertion = cfg.enable -> cfg.bazarr.enable or cfg.lidarr.enable or cfg.radarr.enable or cfg.sonarr.enable;
+          message = "No service is enabled.";
+        }
+        {
+          assertion = cfg.bazarr.enable -> cfg.radarr.enable or cfg.sonarr.enable;
+          message = "Enabled bazarr, which provides subtitles for radarr and sonarr, but forgot to enable any of (radarr, sonarr).";
+        }
+      ];
       # Set-up media group
       users.groups.media = { };
     }
     # Bazarr does not log authentication failures...
     (mkFullConfig "bazarr")
-    # Lidarr for music
+
     (mkFullConfig "lidarr")
     (mkFail2Ban "lidarr")
     # Radarr for movies
