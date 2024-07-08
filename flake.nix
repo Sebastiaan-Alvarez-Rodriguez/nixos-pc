@@ -9,6 +9,17 @@
       inputs = {
         home-manager.follows = "home-manager";
         nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+      };
+    };
+
+    flake-parts = {
+      type = "github";
+      owner = "hercules-ci";
+      repo = "flake-parts";
+      ref = "main";
+      inputs = {
+        nixpkgs-lib.follows = "nixpkgs";
       };
     };
 
@@ -35,6 +46,13 @@
     spicetify-nix = {
       url = "github:the-argus/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    systems = {
+      type = "github";
+      owner = "nix-systems";
+      repo = "default";
+      ref = "main";
     };
   };
 
