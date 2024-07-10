@@ -1,9 +1,11 @@
 { config, pkgs, ... }: {
   imports = [ ./hardware.nix ];
 
-  boot.tmp.cleanOnBoot = true;
-  # https://github.com/NixOS/nixpkgs/issues/71273
-  networking.interfaces.ens3.tempAddress = "disabled";
+  my.system.boot = {
+    enable = true;
+    tmp.clean = true;
+    # kind = "grub";
+  };
 
   networking.firewall = {
     allowedTCPPorts = [
@@ -115,7 +117,6 @@
     groupsIfExist = builtins.filter groupExists;
   in {
     users.rdn = {
-      password = "changeme";
       isNormalUser = true;
       description = "rdn";
       extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];

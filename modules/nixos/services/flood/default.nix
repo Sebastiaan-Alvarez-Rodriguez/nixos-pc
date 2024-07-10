@@ -40,6 +40,7 @@ in {
 
     my.services.nginx.virtualHosts = {
       flood = {
+        forceSSL = true;
         inherit (cfg) port;
       };
     };

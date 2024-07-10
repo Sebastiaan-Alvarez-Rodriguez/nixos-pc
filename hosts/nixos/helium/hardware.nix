@@ -1,11 +1,15 @@
 { lib, modulesPath, ... }: {
   imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
-  boot.loader.grub.device = "/dev/sda";
-  boot.initrd.availableKernelModules = [ "ata_piix" "uhci_hcd" "xen_blkfront" "vmw_pvscsi" ];
-  boot.initrd.kernelModules = [ "nvme" ];
+  boot.loader.grub.device = "/dev/sda"; # seb: TODO remove grub statement here. use 'my.system.boot' in accompany-'default.nix'
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "ohci_pci" "ehci_pci" "usbhid" "usb_storage" "sd_mod" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-amd" ];
+  boot.extraModulePackages = [ ];
 
-  fileSystems."/" = { device = "/dev/sda3"; fsType = "ext4"; };
-
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/67740218-f938-438f-93bf-f124de80afac";
+    fsType = "ext4";
+  };
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
   my.hardware.networking = {
