@@ -12,7 +12,7 @@
       enableACME = mkEnableOption "Whether to ask Let’s Encrypt to sign a certificate for this vhost. Alternately, you can use an existing certificate through useACMEHost.";
       useACMEHost = mkOption {
         type = with types; nullOr (str);
-        default = null;
+        default = if name == domain then null else domain;
         description = "A host of an existing Let’s Encrypt certificate to use. This is useful if you have many subdomains and want to avoid hitting the rate limit. Alternately, you can generate a certificate through enableACME. Note that this option does not create any certificates, nor it does add subdomains to existing ones – you will need to create them manually using security.acme.certs.";
       };
       forceSSL = mkEnableOption "Whether to add a separate nginx server block that redirects (defaults to 301, configurable with redirectCode) all plain HTTP traffic to HTTPS. This will set defaults for listen to listen on all interfaces on the respective default ports (80, 443), where the non-SSL listens are used for the redirect vhosts.";
@@ -185,15 +185,15 @@ in {
     assertions = [ ]
       ++ (lib.flip lib.mapAttrsToList cfg.virtualHosts (_: { subdomain, ... } @ args: let
         conflicts = [ "port" "root" "socket" "redirect" ];
-        optionsNotNull = builtins.map (v: args.${v} != null) conflicts;
-        optionsSet = lib.filter lib.id optionsNotNull;
       in {
-        assertion = builtins.length optionsSet == 1;
-        message = ''
-          Subdomain '${subdomain}' must have exactly one of ${
-            lib.concatStringsSep ", " (builtins.map (v: "'${v}'") conflicts)
-          } configured.
-        '';
+        assertion = builtins.length (lib.filter lib.id (builtins.map (v: args.${v} != null && args.${v} != false) conflicts))== 1;
+        message = ''Subdomain '${subdomain}' must have exactly one of ${ lib.concatStringsSep ", " (builtins.map (v: "'${v}'") conflicts) } configured. Now: {${ lib.concatStringsSep ", " (builtins.map(v: builtins.toString args.${v}) conflicts) }}'';
+      }))
+      ++ (lib.flip lib.mapAttrsToList cfg.virtualHosts (_: { subdomain, ... } @ args: let
+        conflicts = [ "enableACME" "useACMEHost" ];
+      in {
+        assertion = builtins.length (lib.filter lib.id (builtins.map (v: args.${v} != null && args.${v} != false) conflicts))== 1;
+        message = ''Subdomain '${subdomain}' must have exactly one of ${ lib.concatStringsSep ", " (builtins.map (v: "'${v}'") conflicts) } configured. Now: {${ lib.concatStringsSep ", " (builtins.map(v: builtins.toString args.${v}) conflicts) }}'';
       }))
       ++ (
       let
@@ -264,7 +264,7 @@ in {
             '';
 
             locations."@error401".return = ''
-              302 https://${cfg.sso.subdomain}.${config.networking.domain}/login?go=$scheme://$http_host$request_uri
+              302 https://${cfg.sso.subdomain}.${domain}/login?go=$scheme://$http_host$request_uri
             '';
 
             locations."/" = {
@@ -308,7 +308,7 @@ in {
             ${domain} = {
               enableACME = true;
               forceSSL = true;
-              # webroot = "/var/lib/acme/acme-challenge/${domain}";
+              useACMEHost = null; # This is the host so we cannot use the host-ACME.
             };
           }
           generatedHosts
@@ -330,7 +330,7 @@ in {
           };
 
           cookie = {
-            domain = ".${config.networking.domain}";
+            domain = ".${domain}";
             secure = true;
             authentication_key = {
               _secret = cfg.sso.authKeyFile;
@@ -397,7 +397,7 @@ in {
           email = cfg.acme.default-mail;
           # extraDomainNames = [ "*.${domain}" ]; # Use DNS wildcard certificate
           # dnsProvider = "gandiv5"; # NOTE: dnsProvider option would be nice to use, if my dns provider were supported. For now, use webroot.
-          extraDomainNames = lib.attrNames config.my.services.nginx.virtualHosts;
+          extraDomainNames = (builtins.map (subdomain: "${subdomain}.${domain}") (lib.attrNames config.my.services.nginx.virtualHosts));
           postRun = "systemctl reload nginx.service";
         };
       };
