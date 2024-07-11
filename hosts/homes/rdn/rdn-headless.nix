@@ -37,26 +37,6 @@ in {
     matchBlocks = let 
       setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
     in (setDefaults { identitiesOnly = true; } {
-      "github.com" = {
-        user = "Sebastiaan-Alvarez-Rodriguez";
-        identityFile = "/home/${username}/.ssh/github.rsa";
-      };
-      "cobra" = {
-        user = "sebastiaan";
-        hostname = "pythons.space";
-        identityFile = "/home/${username}/.ssh/cobra_sebastiaan.rsa";
-      };
-      "dsn" = {
-        user = "xose";
-        port = 9100;
-        hostname = "192.168.178.5";
-        identityFile = "/home/${username}/.ssh/dsn.rsa";
-      };
-      "orca" = {
-        user = "rdn";
-        hostname = "207.180.214.239";
-        identityFile = "/home/${username}/.ssh/orca.rsa";
-      };
       "blackberry-local" = {
         hostname = "192.168.178.3";
         user = "rdn";
@@ -69,6 +49,26 @@ in {
         port = 18357;
         identityFile = "/home/${username}/.ssh/blackberry.rsa";
         addressFamily = "inet"; # force ipv4.
+      };
+      "dsn" = {
+        user = "xose";
+        port = 9100;
+        hostname = "192.168.178.5";
+        identityFile = "/home/${username}/.ssh/dsn.rsa";
+      };
+      "github.com" = {
+        user = "Sebastiaan-Alvarez-Rodriguez";
+        identityFile = "/home/${username}/.ssh/github.rsa";
+      };
+      "helium" = {
+        user = "sebastiaan";
+        hostname = "h.mijn.place";
+        identityFile = "/home/${username}/.ssh/agenix";
+      };
+      "orca" = {
+        user = "rdn";
+        hostname = "207.180.214.239";
+        identityFile = "/home/${username}/.ssh/orca.rsa";
       };
       "xenon" = {
         hostname = "62.171.150.8";
