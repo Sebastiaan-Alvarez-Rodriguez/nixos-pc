@@ -16,7 +16,7 @@ in {
       type = types.str;
       default = "flood";
       example = "floodUI";
-      description = "Directory under `/var/run` for storing Flood's files";
+      description = "Directory under `/var/lib` for storing Flood's files";
     };
   };
 
@@ -40,7 +40,6 @@ in {
 
     my.services.nginx.virtualHosts = {
       flood = {
-        forceSSL = true;
         inherit (cfg) port;
       };
     };

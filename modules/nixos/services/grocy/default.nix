@@ -31,7 +31,7 @@ in {
       };
     };
 
-    services.nginx.virtualHosts."${grocyDomain}" = {
+    services.nginx.virtualHosts."${grocyDomain}" = { # seb: TODO use custom nginx here?
       forceSSL = true;
       useACMEHost = config.networking.domain;
     };
