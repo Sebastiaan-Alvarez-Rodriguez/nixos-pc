@@ -1,14 +1,6 @@
 { config, pkgs, ... }: {
   imports = [ ./hardware.nix ];
 
-  services.openssh = {
-    # Enable the OpenSSH daemon.
-    enable = true;
-
-    settings = {
-      PasswordAuthentication = true;
-    };
-  };
   my.system.boot = {
     enable = true;
     tmp.clean = true;
@@ -96,11 +88,9 @@
       enable = true;
       systemdTarget = "river-session.target";
     };
-    # xdg.enable = true;
   };
 
   my.programs = {
-    # Steam configuration
     steam.enable = true;
   };
   programs = {
@@ -108,6 +98,7 @@
   };
 
   my.services = { 
+    fail2ban.enable = true;
     greetd = {
       enable = true;
       greeting = "<=================>";
@@ -123,12 +114,11 @@
       };
     };
   #   wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
+    ssh-server.enable = true;
   };
 
   my.profiles = {
-    # bluetooth.enable = true;
     gtk.enable = true;
-    # laptop.enable = true;
   };
 
   services = {

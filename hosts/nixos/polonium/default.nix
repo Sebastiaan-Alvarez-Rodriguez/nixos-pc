@@ -84,72 +84,45 @@
       enable = true;
       systemdTarget = "river-session.target";
     };
-    # xdg.enable = true;
   };
 
   my.programs = {
-    # Steam configuration
     steam.enable = true;
   };
   programs = {
     adb.enable = true; # To use, users must be added to the "adbusers" group
   };
 
-  # my.services = { # seb: TODO uncomment after handling wireguard config.
+  my.services = { # seb: TODO uncomment after handling wireguard config.
   #   wireguard.enable = true;
-  # };
+    greetd = {
+      enable = true;
+      greeting = "<=================>";
+      wait-for-graphical = true;
+      sessions = {
+        "default_session" = pkgs.writeShellScript "start-river" ''
+          # Seems to be needed to get river to properly start
+          sleep 1
+          export XDG_SESSION_TYPE=wayland
+          export XDG_CURRENT_DESKTOP=river
+          ${pkgs.river}/bin/river
+        '';
+      };
+    };
+  };
 
   my.profiles = {
     # bluetooth.enable = true; # seb: TODO for laptop hosts, enable
     gtk.enable = true;
-    laptop.enable = true; # seb: TODO checkout what this is for laptop hosts
+    laptop.enable = true;
   };
 
   services = {
     dbus.enable = true;
-    # greetd = { # seb: TODO should not have this config here, especially running stuff as a hardcoded user.
-    #   enable = true;
-    #   restart = false;
-    #   settings = rec {
-    #     initial_session = let
-    #       run = pkgs.writeShellScript "start-river" ''
-    #         # Seems to be needed to get river to properly start
-    #         sleep 1
-    #         # Set the proper XDG desktop so that xdg-desktop-portal works
-    #         # This needs to be done before river is started
-    #         export XDG_CURRENT_DESKTOP=river
-    #         ${pkgs.river}/bin/river
-    #       '';
-    #     in {
-    #       command = "${run}";
-    #       user = "rdn";
-    #     };
-    #     default_session = initial_session;
-    #   };
-    # };
-    greetd = { # seb: NOTE see https://drakerossman.com/blog/wayland-on-nixos-confusion-conquest-triumph#what-are-xorg-wayland-and-why-you-should-choose-the-latter (Adding a nice login screen)
-      enable = true;
-      settings = {
-        default_session.command = let
-          run = pkgs.writeShellScript "start-river" ''
-            export XDG_CURRENT_DESKTOP=river
-            ${pkgs.river}/bin/river
-          '';
-        in
-          ''
-            ${pkgs.greetd.tuigreet}/bin/tuigreet \
-              --time \
-              --asterisks \
-              --user-menu \
-              --cmd "${run}";
-          '';
-      };
-    };
     # logind = {
     #   lidSwitch = "ignore";
     #   lidSwitchDocked = "ignore";
     # };
-    teamviewer.enable = true; # seb: NOTE remove if it does not work.
   };
 
   environment.etc."greetd/environments".text = ''
