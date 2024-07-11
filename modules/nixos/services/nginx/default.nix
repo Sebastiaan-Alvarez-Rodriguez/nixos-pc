@@ -6,16 +6,12 @@
 
   virtualHostOption = with lib; types.submodule ({ name, ... }: {
     options = {
-      # cert-type = mkOption {
-      #   type = types.enum [ "enableACME", "useACMEHost"];
-      # };
       enableACME = mkEnableOption "Whether to ask Let’s Encrypt to sign a certificate for this vhost. Alternately, you can use an existing certificate through useACMEHost.";
       useACMEHost = mkOption {
         type = with types; nullOr (str);
-        default = if name == domain then null else domain;
+        default = domain;
         description = "A host of an existing Let’s Encrypt certificate to use. This is useful if you have many subdomains and want to avoid hitting the rate limit. Alternately, you can generate a certificate through enableACME. Note that this option does not create any certificates, nor it does add subdomains to existing ones – you will need to create them manually using security.acme.certs.";
       };
-      forceSSL = mkEnableOption "Whether to add a separate nginx server block that redirects (defaults to 301, configurable with redirectCode) all plain HTTP traffic to HTTPS. This will set defaults for listen to listen on all interfaces on the respective default ports (80, 443), where the non-SSL listens are used for the redirect vhosts.";
 
       subdomain = mkOption {
         type = types.str;
@@ -239,7 +235,7 @@ in {
         mkVHost = ({ subdomain, ... } @ args: lib.nameValuePair "${subdomain}.${domain}" (lib.my.recursiveMerge [
           # Base configuration
           {
-            forceSSL = args.forceSSL;
+            forceSSL = true;
             useACMEHost = lib.mkIf (args.useACMEHost != null) args.useACMEHost; # use certificate from host (a wildcard domain certificate).
             enableACME = args.enableACME;
           }
