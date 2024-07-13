@@ -52,5 +52,6 @@ sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations 1 2 3 <
 
 ## TODOs
 0. get rid of 'flake-parts' if possible.
-1. get rid of `ambroisie` in the entire project.
-2. get rid of `belanyi.fr` in the entire project.
+
+## Resources
+1. Install flake using script: https://dzone.com/articles/nixos-native-flake-deployment-with-luks-and-lvm
