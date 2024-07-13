@@ -61,7 +61,7 @@ in {
         identityFile = "/home/${username}/.ssh/github.rsa";
       };
       "helium" = {
-        user = "sebastiaan";
+        user = "rdn";
         hostname = "h.mijn.place";
         identityFile = "/home/${username}/.ssh/agenix";
       };

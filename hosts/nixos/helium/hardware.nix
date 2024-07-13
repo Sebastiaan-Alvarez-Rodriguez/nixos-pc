@@ -10,6 +10,11 @@
     device = "/dev/disk/by-uuid/67740218-f938-438f-93bf-f124de80afac";
     fsType = "ext4";
   };
+  fileSystems."/data" = { # lvm disk array, setup using: https://askubuntu.com/a/7841/2355 and https://nixos.wiki/wiki/LVM
+    device = "/dev/vgroup/data";
+    fsType = "ext4";
+  };
+
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
   my.hardware.networking = {
