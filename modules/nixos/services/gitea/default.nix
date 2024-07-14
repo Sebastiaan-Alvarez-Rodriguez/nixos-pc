@@ -63,7 +63,7 @@ in {
         useWizard = false;
 
         database = {
-          type = "postgres"; # Automatic setup
+          type = "postgres"; # Automatic setup # seb: TODO where is the postgres definition then?
           user = "git"; # User needs to be the same as gitea user
           name = "git"; # Name must be the same as user for `ensureDBOwnership`
         };

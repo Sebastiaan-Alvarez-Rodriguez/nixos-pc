@@ -25,24 +25,21 @@ in {
       enable = true;
 
       port = cfg.port;
-      extraConfig =
-        let
-          tandoorRecipesDomain = "recipes.${config.networking.domain}";
-        in
-        {
-          # Use PostgreSQL
-          DB_ENGINE = "django.db.backends.postgresql";
-          POSTGRES_HOST = "/run/postgresql";
-          POSTGRES_USER = "tandoor_recipes";
-          POSTGRES_DB = "tandoor_recipes";
+      extraConfig = let
+        tandoorRecipesDomain = "recipes.${config.networking.domain}";
+      in {
+        # Use PostgreSQL
+        DB_ENGINE = "django.db.backends.postgresql";
+        POSTGRES_HOST = "/run/postgresql";
+        POSTGRES_USER = "tandoor_recipes";
+        POSTGRES_DB = "tandoor_recipes";
 
-          # Security settings
-          ALLOWED_HOSTS = tandoorRecipesDomain;
-          CSRF_TRUSTED_ORIGINS = "https://${tandoorRecipesDomain}";
+        # Security settings
+        ALLOWED_HOSTS = tandoorRecipesDomain;
+        CSRF_TRUSTED_ORIGINS = "https://${tandoorRecipesDomain}";
 
-          # Misc
-          TIMEZONE = config.time.timeZone;
-        };
+        TIMEZONE = config.time.timeZone;
+      };
     };
 
     systemd.services = {
@@ -57,7 +54,7 @@ in {
     };
 
     # Set-up database
-    services.postgresql = {
+    my.services.postgresql = {
       enable = true;
       ensureDatabases = [ "tandoor_recipes" ];
       ensureUsers = [

@@ -86,6 +86,10 @@
       sso.enable = false;
       acme.default-mail = "a@b.com";
     };
+    postgresql = {
+      enable = true;
+      dataDir = "/data/postgres";
+    };
     pyload = {
       enable = true;
       credentialsFile = config.age.secrets."services/pyload/secret".path;

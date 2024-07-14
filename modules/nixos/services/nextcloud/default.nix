@@ -53,7 +53,7 @@ in {
       };
     };
 
-    services.postgresql = {
+    my.services.postgresql = {
       enable = true;
       ensureDatabases = [ "nextcloud" ];
       ensureUsers = [

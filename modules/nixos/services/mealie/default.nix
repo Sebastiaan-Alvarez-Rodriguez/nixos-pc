@@ -51,7 +51,7 @@ in {
     };
 
     # Set-up database
-    services.postgresql = {
+    my.services.postgresql = {
       enable = true;
       ensureDatabases = [ "mealie" ];
       ensureUsers = [
@@ -66,8 +66,7 @@ in {
       mealie = {
         inherit (cfg) port;
 
-        extraConfig = {
-          # Allow bulk upload of recipes for import/export
+        extraConfig = { # Allow bulk upload of recipes for import/export
           locations."/".extraConfig = ''
             client_max_body_size 0;
           '';

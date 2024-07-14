@@ -63,12 +63,9 @@ in {
 
     systemd.services.vikunja = {
       serviceConfig = {
-        # Use a system user to simplify using the CLI
-        DynamicUser = lib.mkForce false;
-        # Set the user for postgres authentication
-        User = "vikunja";
-        # Create /run/vikunja/ to serve the UNIX socket
-        RuntimeDirectory = "vikunja";
+        DynamicUser = lib.mkForce false; # Use a system user to simplify using the CLI
+        User = "vikunja"; # Set the user for postgres authentication
+        RuntimeDirectory = "vikunja"; # Create /run/vikunja/ to serve the UNIX socket
       };
     };
 
@@ -79,10 +76,9 @@ in {
     };
     users.groups.vikunja = { };
 
-    # Allow nginx to access the UNIX socket
-    users.users.nginx.extraGroups = [ "vikunja" ];
+    users.users.nginx.extraGroups = [ "vikunja" ]; # Allow nginx to access the UNIX socket
 
-    services.postgresql = {
+    my.services.postgresql = {
       ensureDatabases = [ "vikunja" ];
       ensureUsers = [
         {
