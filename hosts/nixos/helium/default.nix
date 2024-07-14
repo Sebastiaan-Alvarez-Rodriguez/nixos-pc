@@ -111,6 +111,7 @@
     #     configFile = secrets."vikunja/mail".path; # seb: TODO Get secrets on-board.
     #   };
     # };
+    vaultwarden.enable = true;
     # wireguard.enable = true; # seb: TODO fix wireguard config.
   };
 
