@@ -48,7 +48,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    services.postgresql = {
+    services.postgresql = { # seb: TODO use custom postgres implementation
       enable = true;
       initialScript = pkgs.writeText "synapse-init.sql" ''
         CREATE ROLE "matrix-synapse" WITH LOGIN PASSWORD 'synapse';

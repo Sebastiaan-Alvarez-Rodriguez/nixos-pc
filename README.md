@@ -57,3 +57,4 @@ sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations 1 2 3 <
 
 ## Resources
 1. Install flake using script: https://dzone.com/articles/nixos-native-flake-deployment-with-luks-and-lvm
+2. Overrides in multiple ways: https://bobvanderlinden.me/customizing-packages-in-nix/
