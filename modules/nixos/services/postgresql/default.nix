@@ -4,7 +4,10 @@ in {
   options.my.services.postgresql = with lib; {
     enable = mkEnableOption "postgres configuration";
 
-    enableJIT = mkEnableOption "JIT support";
+    authentication = mkOption {
+      type = types.lines;
+      default = "";
+    };
 
     dataDir = mkOption {
       type = types.path;
@@ -18,6 +21,8 @@ in {
       description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-24.05/nixos/modules/services/databases/postgresql.nix";
       example = [ "gitea" "nextcloud" ];
     };
+
+    enableJIT = mkEnableOption "JIT support";
 
     ensureUsers = mkOption {
       type = types.listOf (types.submodule {
@@ -107,7 +112,21 @@ in {
       '';
     };
 
-     package = mkOption {
+    identMap = mkOption {
+      type = types.lines;
+      default = "";
+      example = ''
+        map-name-0 system-username-0 database-username-0
+        map-name-1 system-username-1 database-username-1
+      '';
+      description = ''
+        Defines the mapping from system users to database users.
+
+        See the [auth doc](https://postgresql.org/docs/current/auth-username-maps.html).
+      '';
+    };
+
+    package = mkOption {
       type = with types; package;
       default = pkgs.postgresql_13;
       description = "Postgresql package to use";
@@ -123,7 +142,7 @@ in {
       services.postgresql = {
         enable = true;
         inherit (cfg) package dataDir;
-        inherit (cfg) enableJIT ensureDatabases ensureUsers;
+        inherit (cfg) authentication enableJIT ensureDatabases ensureUsers identMap;
       };
       systemd.tmpfiles.rules = [
         "d ${cfg.dataDir} 0700 ${config.users.users.postgres.name} ${config.users.users.postgres.group} -"

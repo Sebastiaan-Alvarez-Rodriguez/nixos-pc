@@ -29,6 +29,7 @@
     ./tandoor-recipes
     ./tlp
     ./transmission
+    ./vaultwarden
     ./vikunja
     ./wireguard
     ./woodpecker
