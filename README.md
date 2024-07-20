@@ -53,7 +53,7 @@ sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations 1 2 3 <
 ## TODOs
 0. get rid of 'flake-parts' if possible.
 1. create custom postgresql service with datadir on LVM array (https://search.nixos.org/options?channel=24.05&show=services.postgresql.dataDir&from=0&size=50&sort=relevance&type=packages&query=services.postgresql)
-
+2. Improve style: https://www.youtube.com/watch?v=ptmiPG_V4u8
 
 ## Resources
 1. Install flake using script: https://dzone.com/articles/nixos-native-flake-deployment-with-luks-and-lvm

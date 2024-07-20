@@ -62,6 +62,13 @@
 
   my.services = {
     adblock.enable = true;
+    backup = {
+      enable = true;
+      repository = "rest:https://helium:periodic_table_monger@restic.mijn.place"; # seb: TODO use systemd EnvironmentFile for this?
+      passwordFile = "/var/lib/restic/plain_pass.txt";
+      paths = [ "/data" "/home/rdn"];
+      timerConfig = { OnCalendar = "19:30"; Persistent = true; };
+    };
     fail2ban.enable = true;
     flood.enable = true;
     # seb: TODO create *arr config as wanted:

@@ -4,5 +4,6 @@
     ./bluetooth
     ./gtk
     ./laptop
+    ./lockscreen
   ];
 }

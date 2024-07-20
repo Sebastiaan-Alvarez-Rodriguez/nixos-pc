@@ -17,6 +17,7 @@ in {
     ./river
     ./rofi
     ./screen-lock
+    ./swaylock
     ./waybar
     ./wpaperd
   ];

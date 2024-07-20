@@ -62,6 +62,7 @@ in {
       };
       "helium" = {
         user = "rdn";
+        port = 8188;
         hostname = "h.mijn.place";
         identityFile = "/home/${username}/.ssh/agenix";
       };
@@ -73,7 +74,7 @@ in {
       "xenon" = {
         hostname = "62.171.150.8";
         user = "rdn";
-        port = 22;
+        port = 8188;
         identityFile = "/home/${username}/.ssh/xenon.rsa";
       };
     });
