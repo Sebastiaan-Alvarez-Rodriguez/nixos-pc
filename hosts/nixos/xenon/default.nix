@@ -59,6 +59,13 @@
   };
 
   my.services = { # seb: TODO uncomment after handling wireguard config.
+    # backup-server = { # seb: TODO: work out concept.
+    #   enable = true;
+    #   data-dir = "/data/backup";
+    #   access = {
+    #     "helium" = "periodic_table_monger";
+    #   };
+    # };
     # wireguard.enable = true;
     fail2ban.enable = true;
     ssh-server.enable = true;

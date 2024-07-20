@@ -3,23 +3,27 @@
 { config, lib, ... }: let
   cfg = config.my.services.ssh-server;
 in {
-  options.my.services.ssh-server = {
-    enable = lib.mkEnableOption "SSH Server using 'mosh'";
+  options.my.services.ssh-server = with lib; {
+    enable = mkEnableOption "SSH Server using 'mosh'";
+    port = mkOption {
+      type = types.port;
+      description = "Port to open ssh server on. Best to not use port 22.";
+      default = 8188;
+    };
   };
 
   config = lib.mkIf cfg.enable {
     services.openssh = {
       enable = true;
+      ports = [ cfg.port ];
       settings = {
         PermitRootLogin = "no";
         PasswordAuthentication = false;
       };
     };
 
-    # explicitly open network port
-    networking.firewall.allowedTCPPorts = [ 22 ];
+    networking.firewall.allowedTCPPorts = [ cfg.port ]; # explicitly open network port
 
-    # Opens the relevant UDP ports.
-    programs.mosh.enable = true;
+    programs.mosh.enable = true; # Opens the relevant UDP ports.
   };
 }

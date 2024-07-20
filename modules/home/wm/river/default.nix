@@ -4,6 +4,14 @@
 in {
   imports = [ ./river-session.nix ];
 
+  options.my.home.wm.river = with lib; {
+    modkey = mkOption {
+      type = with types; str;
+      default = "Mod4"; # This is the 'windows' key on most keyboards.
+      description = "Modkey to use for issuing commands to river";
+    };
+  };
+
   config = lib.mkIf isEnabled {
     assertions = [
       {
@@ -29,7 +37,7 @@ in {
       };
 
       bindings = let
-        mod = "Mod4"; # Windows key
+        mod = cfg.modkey;
         allTags = (lib.my.power 2 32) - 1;
         tagBinds = lib.mkMerge (map  (i: let tags = lib.my.power 2 (i - 1); in {
           "${mod} ${toString i}" = "set-focused-tags ${toString tags}";

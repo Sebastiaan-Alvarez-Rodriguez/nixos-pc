@@ -23,8 +23,8 @@ in {
         '';
       }
       {
-        assertion = config.my.home.gm.manager == "xserver";
-        message = "screen-lock module requires xserver graphics manager (set my.home.gm.manager = \"xserver\")";
+        assertion = config.my.home.gm.manager == "x";
+        message = "screen-lock module requires x graphics manager (set my.home.gm.manager = \"x\")";
       }
 
     ];

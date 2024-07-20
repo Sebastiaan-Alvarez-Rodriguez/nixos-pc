@@ -3,6 +3,27 @@
   pkg = pkgs.wpaperd;
 in {
   options.my.home.wm.wpaperd = with lib; {
+    image = lib.mkOption {
+      type = with types; submodule {
+        options = {
+          path = lib.mkOption {
+            type = with types; nullOr (path);
+            default = null;
+            description = "image file to use as lockscreen background";
+          };
+          url = lib.mkOption {
+            type = with types; nullOr (str);
+            default = null;
+            description = "url to fetch image from, to be used as lockscreen background";
+          };
+          sha256 = lib.mkOption {
+            type = with types; nullOr (str);
+            default = null;
+            description = "url image hash";
+          };
+        };
+      };
+    };
     systemdTarget = mkOption {
       type = with types; str;
       default = "graphical-session.target";
@@ -20,17 +41,15 @@ in {
     programs.wpaperd = { # seb: TODO https://stackoverflow.com/questions/21830670
       enable = true;
       package = pkg;
-      settings = {
-        default = {
-          path = builtins.fetchurl { # Nice ones available from https://steamcommunity.com/sharedfiles/filedetails/?id=2917197433
-            url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png"; # url must have an extension in order for wpaperd to understand it.
-            sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
-          };
+      settings.default = (lib.mkMerge [
+        (lib.mkIf (cfg.image.path != null) { path = cfg.image.path; })
+        (lib.mkIf (cfg.image.url != null) { path = (builtins.fetchurl { inherit (cfg.image) url sha256; }); })
+        {
           # duration = "30m";
           apply-shadow = true;
           sorting = "random";
-        };
-      };
+        }
+      ]);
     };
 
     systemd.user.services.wpaperd = {
