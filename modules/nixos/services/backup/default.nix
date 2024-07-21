@@ -78,12 +78,18 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    my.services.backup.paths = lib.flatten [ # Essential files which should always be backed up
+    my.services.backup.paths = [
       "/etc/machine-id" # Should be unique to a given host, used by some software (e.g: ZFS)
       "/var/lib/nixos" # Contains the UID/GID map, and other useful state
-      (builtins.map (key: [ key.path "${key.path}.pub" ]) config.services.openssh.hostKeys) # SSH host keys (and public keys for convenience)
     ];
 
+    my.services.backup.exclude = let
+      normalUsers = builtins.attrNames (lib.filterAttrs (n: v: v.isNormalUser) config.users.users); # NOTE: all normal i.e. user-defined users.
+    in lib.flatten [
+      (builtins.map (user: "/home/${user}/.ssh/") normalUsers) # Do not store private keys on other hosts.
+      config.age.identityPaths # agenix secrets
+      (builtins.map (key: [ key.path "${key.path}.pub" ]) config.services.openssh.hostKeys) # for keys in other directories
+    ];
     services.restic.backups."basic" = {
       extraBackupArgs = [ "--verbose=2" ] ++ lib.optional (builtins.length cfg.exclude != 0) excludeArg; # Take care of included and excluded files
       initialize = true; # initializes the repo as well
