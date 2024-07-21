@@ -14,5 +14,8 @@ in {
   "services/pyload/secret.age".publicKeys = [ base ];
   "services/backup-server/xenon-client-helium.age".publicKeys = [ base ];
   "services/backup-server/xenon-repo-helium.age".publicKeys = [ base ];
-  "services/backup-server/xenon.age".publicKeys = [ base ];
+  "services/backup-server/xenon.age" = {
+    publicKeys = [ base ];
+    owner = "restic";
+  };
 }

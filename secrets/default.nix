@@ -3,6 +3,9 @@
   imports = [ inputs.agenix.nixosModules.age ];
 
   config.age = {
+    identityPaths = let
+      normalUsers = builtins.attrNames (lib.filterAttrs (n: v: v.isNormalUser) config.users.users); # NOTE: all normal i.e. user-defined users.
+    in builtins.map (user: "/home/${user}/.ssh/agenix") normalUsers;
     secrets = let
       toName = lib.removeSuffix ".age";
       userExists = u: builtins.hasAttr u config.users.users;
