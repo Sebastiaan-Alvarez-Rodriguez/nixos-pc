@@ -49,10 +49,25 @@ Delete generations with:
 sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations 1 2 3 <any other generation numbers>
 ```
 
+## Applying backups
+Where backups are used, the implementation is [`restic`](https://restic.readthedocs.io/en/latest/index.html).
+
+To restore a backup after disaster:
+1. List your backup snapshots:
+  ```bash
+  sudo restic-<name-in-nixos> snapshots
+  ```
+2. Pick a backup to restore.
+3. Get the backup to a local directory using:
+  ```bash
+  sudo restic-<name-in-nixos> restore <SNAPSHOT> --target <path/to/local/dir/>
+  ```
+3. Place the backup data back where it belongs. Don't forget to re-apply `chmod` and `chown` as needed.
+
 
 ## TODOs
 0. get rid of 'flake-parts' if possible.
-1. create custom postgresql service with datadir on LVM array (https://search.nixos.org/options?channel=24.05&show=services.postgresql.dataDir&from=0&size=50&sort=relevance&type=packages&query=services.postgresql)
+1. backup postgres database.
 2. Improve style: https://www.youtube.com/watch?v=ptmiPG_V4u8
 
 ## Resources
