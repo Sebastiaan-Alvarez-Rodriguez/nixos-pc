@@ -58,15 +58,13 @@
     };
   };
 
-  my.services = { # seb: TODO uncomment after handling wireguard config.
-    # backup-server = { # seb: TODO: work out concept.
-    #   enable = true;
-    #   data-dir = "/data/backup";
-    #   access = {
-    #     "helium" = "periodic_table_monger";
-    #   };
-    # };
-    # wireguard.enable = true;
+  my.services = {
+    backup-server = {
+      enable = true;
+      data-dir = "/data/backup";
+      credentials-file = config.age.secrets."services/backup-server/xenon".path;
+    };
+    # wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
     fail2ban.enable = true;
     ssh-server.enable = true;
     mailserver = {

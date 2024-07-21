@@ -3,36 +3,71 @@
   cfg = config.my.services.backup-server;
   excludeArg = with builtins; with pkgs; "--exclude-file=" + (writeText "excludes.txt" (concatStringsSep "\n" cfg.exclude));
 in {
-  options.my.services.backup = with lib; {
+  options.my.services.backup-server = with lib; {
     enable = mkEnableOption "Enable backups for this host";
+
+    append-only = mkEnableOption {
+      description = "Enable append only mode. This mode allows creation of new backups but prevents deletion and modification of existing backups.";
+      default = true;
+    };
+
+    credentials-file = mkOption {
+      type = types.path;
+      description = ''
+        Path to allowed user credentials to access the server.
+        Each line looks like `<user>:<hash>`.
+        Lines can be generated using `htpasswd -nB <user>`.
+      '';
+    };
 
     data-dir = mkOption {
       type = types.str;
       description = "data storage location (NOTE: data is encrypted at client-side, no chance to read it here)";
     };
 
-    access = mkOption {
-      type = with types; attrsOf (str);
-      description = ''
-        access credentials to the backup service as `<username> = <plaintext-password>`.
-        NOTE: the passwords can be stored plain... They don't add any real security.
-      '';
+    port = mkOption {
+      type = types:port;
+      default = 1001;
+      description = "Internal port for backup server";
+    };
+
+    private-repos = mkEnableOption {
+      description = "Enable private repos. Grants access only to a repo (i.e. a subdirectory) with the same name as the specified username.";
+      default = true;
     };
   };
 
   config = lib.mkIf cfg.enable {
-    my.services.backup.paths = lib.flatten [ # Essential files which should always be backed up
-      "/etc/machine-id" # Should be unique to a given host, used by some software (e.g: ZFS)
-      "/var/lib/nixos" # Contains the UID/GID map, and other useful state
-      (builtins.map (key: [ key.path "${key.path}.pub" ]) config.services.openssh.hostKeys) # SSH host keys (and public keys for convenience)
+    warnings = [
+      {
+        warning = !cfg.append-only;
+        message = "Append-only server should be enabled to prevent attackers with server + repo credentials to delete / change backup snapshots prior to attack!";
+      }
+      {
+        warning = !cfg.private-repos;
+        message = "Private repos should be enabled to prevent attackers with server credentials to create backup snapshots!";
+      }
     ];
 
-    services.restic.backups."basic" = {
-      extraBackupArgs = [ "--verbose=2" ] ++ lib.optional (builtins.length cfg.exclude != 0) excludeArg; # Take care of included and excluded files
-      initialize = true; # initializes the repo as well
-      # environmentFile = cfg.credentialsFile; # give B2 API key securely
+    services.restic.server = {
+      enable = true;
+      listenAddress = "127.0.0.1:${cfg.port}";
+      dataDir = cfg.data-dir;
+      appendOnly = cfg.append-only;
+      extraFlags = [ "--htpasswd-file" builtins.toString cfg.credentials-file ];
+    };
 
-      inherit (cfg) paths passwordFile pruneOpts timerConfig repository;
+    my.services.nginx.virtualHosts = {
+      restic = {
+        inherit (cfg) port;
+
+        extraConfig = {
+          # Allow bulk upload of backup data
+          locations."/".extraConfig = ''
+            client_max_body_size 0;
+          '';
+        };
+      };
     };
   };
 }

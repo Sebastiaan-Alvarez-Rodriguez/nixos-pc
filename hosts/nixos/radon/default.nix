@@ -149,7 +149,6 @@
   in {
     # mutableUsers = false;
     users.rdn = {
-      # hashedPasswordFile = config.age.secrets."users/rdn/host-password".path;
       isNormalUser = true;
       description = "rdn";
       extraGroups = groupsIfExist [ "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "video" "wheel" ];

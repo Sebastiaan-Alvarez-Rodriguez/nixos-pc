@@ -1,7 +1,9 @@
 # Backups using restic. NOTE: use 'backup-server' service to setup a repository.
-{ config, pkgs, lib, ... }: let
+{ config, pkgs, lib, utils, ... }: let
   cfg = config.my.services.backup;
   excludeArg = with builtins; with pkgs; "--exclude-file=" + (writeText "excludes.txt" (concatStringsSep "\n" cfg.exclude));
+
+  inherit (utils.systemdUtils.unitOptions) unitOption;
 in {
   options.my.services.backup = with lib; {
     enable = mkEnableOption "Enable backups for this host";
@@ -12,13 +14,35 @@ in {
       description = ''Backup location as provided by restic. See: https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html'';
     };
 
-    passwordFile = mkOption {
+    environment-file = mkOption {
       type = types.str;
-      example = "/var/lib/restic/password.txt";
+      example = "/var/lib/restic/env.txt";
       description = ''
-        Read the plaintext repository's password from this path.
-        NOTE: Ensure to chown & chmod this file to make it hard to read as an attacker.
-        NOTE: Ensure to push to append-only repos: If an attacker gets this password, they only can append to the backup repo.
+        Provide:
+         1. "RESTIC_REST_USERNAME" --> server access user.
+         2. "RESTIC_REST_PASSWORD" --> server access password.
+        NOTE: With 1+2, an attacker may access the remote server and create new repositories.
+              They cannot access existing repositories, because those also have a password.
+        NOTE: To ensure attackers with 1+2 cannot create new repositories, use `private-repo` server setting.
+      '';
+    };
+
+    exclude = mkOption {
+      type = with types; listOf str;
+      default = [ ];
+      example = [ "/var/lib/very-large-path" "**/target-temporary builddir *.objectfile" ];
+      description = "Paths to exclude from backup";
+    };
+
+    password-file = mkOption {
+      type = types.str;
+      example = "/path/to/plaintext-pass.txt";
+      description = ''
+        Plaintext password for the repository.
+        NOTE: With this, an attacker may access the repository (but only if they also have 1+2 from `environment-file` setting).
+              Depending on repository settings, attacker may update/delete backed up repositories.
+              This is mitigated by using append-only repositories, allowing attackers only to create new snapshots in the repo.
+              Their malicious work can be undone by picking a snapshot prior to the attack.
       '';
     };
 
@@ -29,14 +53,7 @@ in {
       description = "Paths to backup";
     };
 
-    exclude = mkOption {
-      type = with types; listOf str;
-      default = [ ];
-      example = [ "/var/lib/very-large-path" "**/target-temporary build artefact" ];
-      description = "Paths to exclude from backup";
-    };
-
-    pruneOpts = mkOption {
+    prune-opts = mkOption {
       type = with types; listOf str;
       default = [
         "--keep-last 10"
@@ -50,8 +67,8 @@ in {
       description = "List of options to give to the `forget` subcommand after a backup.";
     };
 
-    timerConfig = mkOption {
-      type = types.nullOr (types.attrsOf unitOption);
+    timer-config = mkOption {
+      type = with types; nullOr (attrsOf unitOption);
       default = {
         OnCalendar = "daily";
         Persistent = true;
@@ -70,9 +87,12 @@ in {
     services.restic.backups."basic" = {
       extraBackupArgs = [ "--verbose=2" ] ++ lib.optional (builtins.length cfg.exclude != 0) excludeArg; # Take care of included and excluded files
       initialize = true; # initializes the repo as well
-      # environmentFile = cfg.credentialsFile; # give B2 API key securely
+      environmentFile = cfg.environment-file; # pass credentials
+      passwordFile = cfg.password-file;
+      pruneOpts = cfg.prune-opts;
+      timerConfig = cfg.timer-config;
 
-      inherit (cfg) paths passwordFile pruneOpts timerConfig repository;
+      inherit (cfg) paths repository;
     };
   };
 }
