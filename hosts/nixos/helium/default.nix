@@ -64,10 +64,11 @@
     adblock.enable = true;
     backup = {
       enable = true;
-      repository = "rest:https://helium:periodic_table_monger@restic.mijn.place"; # seb: TODO use systemd EnvironmentFile for this?
-      passwordFile = "/var/lib/restic/plain_pass.txt";
-      paths = [ "/data" "/home/rdn"];
-      timerConfig = { OnCalendar = "19:30"; Persistent = true; };
+      repository = "rest:https://restic.mijn.place/helium/";
+      environment-file = config.age.secrets."services/backup-server/xenon-client-helium".path;
+      password-file = config.age.secrets."services/backup-server/xenon-repo-helium".path;
+      paths = [ "/data" "/home" ];
+      timer-config = { OnCalendar = "19:30"; Persistent = true; };
     };
     fail2ban.enable = true;
     flood.enable = true;

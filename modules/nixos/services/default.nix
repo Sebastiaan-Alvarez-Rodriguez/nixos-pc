@@ -3,6 +3,7 @@
     ./adblock
     ./audiobookshelf
     ./backup
+    ./backup-server
     ./fail2ban
     ./flood
     ./forgejo

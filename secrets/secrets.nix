@@ -10,7 +10,9 @@ let
   readKey = f: removeSuffix "\n" (readFile f);
   base = readKey keys/users/rdn.rsa.pub; 
 in {
-  "users/rdn/host-password.age".publicKeys = [ base ];
   "services/tandoor-recipes/secret.age".publicKeys = [ base ];
   "services/pyload/secret.age".publicKeys = [ base ];
+  "services/backup-server/xenon-client-helium.age".publicKeys = [ base ];
+  "services/backup-server/xenon-repo-helium.age".publicKeys = [ base ];
+  "services/backup-server/xenon.age".publicKeys = [ base ];
 }
