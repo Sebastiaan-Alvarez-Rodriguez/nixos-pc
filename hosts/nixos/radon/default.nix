@@ -82,10 +82,12 @@
       swaylock = {
         enable = true;
         image = {
-          url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
-          sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
+          url = "https://w.wallhaven.cc/full/zy/wallhaven-zy3l5o.jpg";
+          sha256 = "d71fce2282c21b44c26aa9a89e64d00fb89db1298d42c0e8fb8a241ce7228371";
+          pixelate = 3;
         };
       };
+      wlogout.enable = true;
       wpaperd = {
         enable = true;
         image = {

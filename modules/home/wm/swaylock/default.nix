@@ -4,31 +4,47 @@ in {
   options.my.home.wm.swaylock = with lib; {
     enable = lib.mkEnableOption "Enable lockscreen";
 
-    color = lib.mkOption {
+    color = mkOption {
       type = with types; nullOr (str);
       default = null;
       description = "color to use as lockscreen background";
     };
-    image = lib.mkOption {
+
+    image = mkOption {
       type = with types; submodule {
         options = {
-          path = lib.mkOption {
-            type = with types; nullOr (path);
+          path = mkOption {
+            type = nullOr (path);
             default = null;
             description = "image file to use as lockscreen background";
           };
-          url = lib.mkOption {
-            type = with types; nullOr (str);
+          url = mkOption {
+            type = nullOr (str);
             default = null;
             description = "url to fetch image from, to be used as lockscreen background";
           };
-          sha256 = lib.mkOption {
-            type = with types; nullOr (str);
+          sha256 = mkOption {
+            type = nullOr (str);
             default = null;
             description = "url image hash";
           };
+          fade-in = mkOption {
+            type = nullOr (int);
+            default = null;
+            description = "Fades-in lockscreen after given amount of seconds.";
+          };
+          pixelate = mkOption {
+            type = nullOr (int);
+            default = null;
+            description = "Pixelates picture using pixel groups of this size.";
+          };
         };
       };
+    };
+    package = mkOption {
+      type = types.package;
+      default = pkgs.swaylock-effects;
+      description = "Package to use for swaylock.";
     };
   };
 
@@ -44,7 +60,7 @@ in {
 
       programs.swaylock = {
         enable = true;
-        package = pkgs.swaylock-effects;
+        package = cfg.package;
         settings = (lib.mkMerge [
           { 
             ignore-empty-password = true;
@@ -63,9 +79,6 @@ in {
             clock = true;
             timestr = "%R";
             datestr = "%a, %e of %B";
-            # effects
-            # fade-in = 1;
-            effect-pixelate=5;
 
             # indicator style
             indicator = true; # show indicator?
@@ -111,6 +124,8 @@ in {
           (lib.mkIf (cfg.color != null) { color = cfg.color; })
           (lib.mkIf (cfg.image.path != null) { image = cfg.image.path; })
           (lib.mkIf (cfg.image.url != null) { image = (builtins.fetchurl { inherit (cfg.image) url sha256; }); })
+          (lib.mkIf (cfg.image.fade-in != null) { fade-in = cfg.image.fade-in; })
+          (lib.mkIf (cfg.image.pixelate != null) { effect-pixelate = cfg.image.pixelate; })
         ]);
       };
     }

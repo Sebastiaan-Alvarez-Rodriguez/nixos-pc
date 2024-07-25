@@ -19,6 +19,7 @@ in {
     ./screen-lock
     ./swaylock
     ./waybar
+    ./wlogout
     ./wpaperd
   ];
 
