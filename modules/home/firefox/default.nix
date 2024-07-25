@@ -56,8 +56,8 @@ in {
           "media.eme.enabled" = true; # Enable DRM
           "media.gmp-widevinecdm.enabled" = true; # Enable DRM
           "media.gmp-widevinecdm.visible" = true; # Enable DRM
-          "signon.autofillForms" = true; # seb: todo maybe disable built-in form-filling
-          "signon.rememberSignons" = true; # seb: todo maybe disable built-in password manager
+          "signon.autofillForms" = false; # Disable built-in form-filling
+          "signon.rememberSignons" = false; # Disable built-in password manager
           "ui.systemUsesDarkTheme" = true; # Dark mode
         };
 

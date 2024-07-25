@@ -19,7 +19,7 @@ in {
         rocketPort = cfg.port;
         domain = "http://127.0.0.1:${toString rocketPort}";
         rocketLog = "critical";
-        signupsAllowed = false;
+        signupsAllowed = true;
         databaseUrl = "postgresql:///${config.users.users.vaultwarden.name}";
       };
     };
