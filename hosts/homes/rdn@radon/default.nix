@@ -12,7 +12,6 @@ in {
     galculator
     gamemode
     gparted
-    handbrake
     hotspot
     jetbrains.idea-community
     # logiops
