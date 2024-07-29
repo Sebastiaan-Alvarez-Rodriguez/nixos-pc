@@ -87,7 +87,14 @@
           pixelate = 3;
         };
       };
-      wlogout.enable = true;
+      wlogout = {
+        enable = true;
+        image = {
+          url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
+          sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
+        };
+        accent-color = "rgb (139, 0, 0)";
+      };
       wpaperd = {
         enable = true;
         image = {
