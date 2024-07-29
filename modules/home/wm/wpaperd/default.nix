@@ -41,15 +41,12 @@ in {
     programs.wpaperd = { # seb: TODO https://stackoverflow.com/questions/21830670
       enable = true;
       package = pkg;
-      settings.default = (lib.mkMerge [
-        (lib.mkIf (cfg.image.path != null) { path = cfg.image.path; })
-        (lib.mkIf (cfg.image.url != null) { path = (builtins.fetchurl { inherit (cfg.image) url sha256; }); })
-        {
+      settings.default = {
+        path = if cfg.image.path != null then cfg.image.path else (builtins.fetchurl { inherit (cfg.image) url sha256; });
           # duration = "30m";
           apply-shadow = true;
           sorting = "random";
-        }
-      ]);
+      };
     };
 
     systemd.user.services.wpaperd = {
