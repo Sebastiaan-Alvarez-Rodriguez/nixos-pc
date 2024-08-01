@@ -26,9 +26,9 @@ in {
           layer = "bottom";
           position = "top";
           height = 25;
-
+ 
           modules-left = [] ++ lib.optionals (config.my.home.wm.manager == "river") [ "river/tags" ];
-          modules-right = [ "tray" "network" "battery" "cpu" "memory" "pulseaudio" "clock" ];
+          modules-right = [ "backlight/slider" "tray" "network" "battery" "cpu" "memory" "pulseaudio" "clock" "custom/exit" ];
 
           network = {
             format-wifi = "{essid} ({signalStrength}%) ";
@@ -78,6 +78,11 @@ in {
               default = ["" "" ""];
             };
             on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
+          };
+          "custom/exit" = lib.mkIf config.my.home.wm.wlogout.enable {
+            "format" = "";
+            "on-click" = "${config.my.home.wm.wlogout.package}/bin/wlogout";
+            "tooltip-format" = "Power Menu";
           };
         };
       };
