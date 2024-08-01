@@ -28,7 +28,8 @@ in {
           height = 25;
  
           modules-left = [] ++ lib.optionals (config.my.home.wm.manager == "river") [ "river/tags" ];
-          modules-right = [ "backlight/slider" "tray" "network" "battery" "cpu" "memory" "pulseaudio" "clock" "custom/exit" ];
+          modules-center = [ "clock" ];
+          modules-right = [ "backlight/slider" "tray" "network" "battery" "cpu" "memory" "pulseaudio" "custom/exit" ];
 
           network = {
             format-wifi = "{essid} ({signalStrength}%) ";
