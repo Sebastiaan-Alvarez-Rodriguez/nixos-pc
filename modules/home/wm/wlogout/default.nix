@@ -60,7 +60,13 @@
   '';
 in {
   options.my.home.wm.wlogout = with lib; {
-    enable = lib.mkEnableOption "Enable wlogout for logout, shutdown, hibernate etc";
+    enable = mkEnableOption "Enable wlogout for logout, shutdown, hibernate etc";
+
+    package = mkOption {
+      type = types.package;
+      default = pkgs.wlogout;
+      description = "Package to use for wlogout";
+    };
 
     lock = mkDefaultOption "lock";
     hibernate = mkDefaultOption "hibernate";
@@ -69,23 +75,23 @@ in {
     suspend = mkDefaultOption "suspend";
     reboot = mkDefaultOption "reboot";
 
-    image = lib.mkOption {
+    image = mkOption {
       type = with types; submodule {
         options = {
-          path = lib.mkOption {
+          path = mkOption {
             type = with types; nullOr (path);
             default = null;
-            description = "image file to use as wlogout background";
+            description = "Image file to use as wlogout background";
           };
-          url = lib.mkOption {
+          url = mkOption {
             type = with types; nullOr (str);
             default = null;
-            description = "url to fetch image from, to be used as wlogout background";
+            description = "Url to fetch image from, to be used as wlogout background";
           };
-          sha256 = lib.mkOption {
+          sha256 = mkOption {
             type = with types; nullOr (str);
             default = null;
-            description = "url image hash";
+            description = "Url image hash";
           };
         };
       };
