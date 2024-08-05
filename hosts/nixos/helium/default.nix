@@ -73,6 +73,12 @@
       paths = [ "/data" "/home" ];
       timer-config = { OnCalendar = "19:30"; Persistent = true; };
     };
+    postgresql-backup = {
+      enable = true;
+      backupAll = true;
+      location = "/data/postgres-backup"; # path is automatically added to backup.
+      startAt = "*-*-* 18:30:00";
+    };
     fail2ban.enable = true;
     flood.enable = true;
     # seb: TODO create *arr config as wanted:
