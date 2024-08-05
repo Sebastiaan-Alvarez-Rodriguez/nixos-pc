@@ -31,8 +31,12 @@ To go back, just select the second-highest generation.
 ## Cleaning
 This removes packages without pointers to them:
 ```bash
+nix-collect-garbage -d
 sudo nix-collect-garbage -d
 ```
+The first command removes obsoleted user packages (i.e. home-manager provided ones).
+The second command removes obsoleted system packages, but not user packages.
+
 > **Note**: previous generations still point to their packages. This ensures you can go back to previous generations.
 
 

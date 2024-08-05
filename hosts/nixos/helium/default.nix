@@ -97,6 +97,13 @@
     #   musicFolder = "/data/media/music";
     # };
 
+    nfs = {
+      enable = true;
+      folders."/data" = [{
+        subnet = "*";
+        flags = [ "rw" "hide" "insecure" "subtree_check" "fsid=root" ];
+      }];
+    };
     nginx = {
       enable = true;
       monitoring.enable = false;

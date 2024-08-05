@@ -19,6 +19,7 @@
     ./monitoring
     ./navidrome
     ./nextcloud
+    ./nfs
     ./nginx
     ./pirate
     ./podgrab
