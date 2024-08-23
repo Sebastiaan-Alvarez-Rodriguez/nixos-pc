@@ -18,6 +18,9 @@ in {
         # Keep charge between 60% and 80% to preserve battery life
         START_CHARGE_THRESH_BAT0 = 60;
         STOP_CHARGE_THRESH_BAT0 = 80;
+
+        # stop tlp from suspending usb devices
+        USB_AUTOSUSPEND = 0;
       };
     };
   };

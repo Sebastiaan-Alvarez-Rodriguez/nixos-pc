@@ -18,10 +18,8 @@
   };
 
   mkRedirection = service: {
-    my.services.nginx.virtualHosts = {
-      ${service} = {
-        port = ports.${service};
-      };
+    my.services.nginx.virtualHosts.${service} = {
+      port = ports.${service};
     };
   };
 
@@ -72,11 +70,11 @@ in {
     {
       assertions = [
         {
-          assertion = cfg.enable -> cfg.bazarr.enable or cfg.lidarr.enable or cfg.radarr.enable or cfg.sonarr.enable;
-          message = "No service is enabled.";
+          assertion = cfg.enable -> (cfg.bazarr.enable || cfg.lidarr.enable || cfg.radarr.enable || cfg.sonarr.enable);
+          message = "No service is enabled (bazarr=${builtins.toString cfg.bazarr.enable}, lidarr=${builtins.toString cfg.lidarr.enable}, radarr=${builtins.toString cfg.radarr.enable}, sonarr=${builtins.toString cfg.sonarr.enable})";
         }
         {
-          assertion = cfg.bazarr.enable -> cfg.radarr.enable or cfg.sonarr.enable;
+          assertion = cfg.bazarr.enable -> (cfg.radarr.enable || cfg.sonarr.enable);
           message = "Enabled bazarr, which provides subtitles for radarr and sonarr, but forgot to enable any of (radarr, sonarr).";
         }
       ];

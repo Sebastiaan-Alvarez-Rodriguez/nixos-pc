@@ -2,7 +2,7 @@
 # argumentation mealy vs grocy vs tandoor: https://www.reddit.com/r/selfhosted/comments/o1hc34/recipe_managementmeal_plannng_comments_on_mealie/
 { config, lib, ... }: let
   cfg = config.my.services.grocy;
-  grocyDomain = "grocy.${config.networking.domain}";
+  grocyPrefix = "grocy";
 in {
   options.my.services.grocy = with lib; {
     enable = mkEnableOption "Grocy household ERP";
@@ -13,26 +13,21 @@ in {
       enable = true;
 
       # The service sets up the reverse proxy automatically
-      hostName = grocyDomain;
+      hostName = "${grocyPrefix}.${config.networking.domain}";
 
-      # Configure SSL by hand
-      nginx = {
-        enableSSL = false;
-      };
+      nginx.enableSSL = false; # Configure SSL by hand
 
       settings = {
         currency = "EUR";
         culture = "en";
         calendar = {
-          # Start on Monday
-          firstDayOfWeek = 1;
+          firstDayOfWeek = 1; # Start on Monday
           showWeekNumber = true;
         };
       };
     };
 
-    services.nginx.virtualHosts."${grocyDomain}" = { # seb: TODO use custom nginx here?
-      forceSSL = true;
+    my.services.nginx.virtualHosts.${grocyPrefix} = {
       useACMEHost = config.networking.domain;
     };
   };

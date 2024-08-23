@@ -7,15 +7,6 @@
     # kind = "grub";
   };
 
-  networking.firewall = {
-    allowedTCPPorts = [
-      80    # HTTP
-      443   # HTTPS
-      587   # mail
-      993   # mail
-    ];
-  };
-
   my.system = { # contains common system packages and settings shared between hosts.
     home.users = [ "rdn" ];
     nix = {
@@ -80,27 +71,19 @@
       startAt = "*-*-* 18:30:00";
     };
     fail2ban.enable = true;
-    flood.enable = true;
-    # seb: TODO create *arr config as wanted:
-    # indexers.prowlarr.enable = true;
-    # pirate = {
-    #   enable = true;
-    #   bazarr.enable = true;
-    #   lidarr.enable = true;
-    #   radarr.enable = true;
-    #   sonarr.enable = true;
-    # };
-    
+    # flood.enable = true;
+    indexers.prowlarr.enable = true;
     # # FLOSS music streaming server
     # navidrome = {
     #   enable = true;
     #   musicFolder = "/data/media/music";
     # };
+    jellyfin.enable = true;
 
     nfs = {
-      enable = true;
+      enable = false; # seb: TODO see nfs config for potential exploit
       folders."/data" = [{
-        subnet = "*";
+        subnet = "192.168.2.0/24"; # Only allow local access. NFS is not meant for global internet.
         flags = [ "rw" "hide" "insecure" "subtree_check" "fsid=root" ];
       }];
     };
@@ -110,24 +93,32 @@
       sso.enable = false;
       acme.default-mail = "a@b.com";
     };
+    pirate = {
+      enable = true;
+      bazarr.enable = true;
+      lidarr.enable = true;
+      radarr.enable = true;
+      # sonarr.enable = true;
+    };
     postgresql = {
       enable = true;
       dataDir = "/data/postgres";
     };
-    pyload = {
-      enable = true;
-      credentialsFile = config.age.secrets."services/pyload/secret".path;
-    };
+    # pyload = { # seb: TODO pyload does not appear to work too well when trying to login.
+    #   enable = true;
+    #   credentialsFile = config.age.secrets."services/pyload/secret".path;
+    # };
     ssh-server.enable = true;
     # Recipe manager
     tandoor-recipes = {
       enable = true;
       secretKeyFile = config.age.secrets."services/tandoor-recipes/secret".path;
     };
-    # transmission = { # seedbox. seb: TODO configure seedbox?
-    #   enable = true;
-    #   credentialsFile = secrets."transmission/credentials".path; # seb: TODO Get secrets on-board.
-    # };
+    transmission = {
+      enable = true;
+      download-dir = "/data/downloads";
+      credentialsFile = config.age.secrets."services/transmission/secret".path;
+    };
     # vikunja = { # Self-hosted todo app
     #   enable = true;
     #   mail = {

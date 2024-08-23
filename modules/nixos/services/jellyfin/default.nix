@@ -12,12 +12,10 @@ in {
       group = "media";
     };
 
-    # Set-up media group
-    users.groups.media = { };
+    users.groups.media = { }; # Set-up media group
 
     systemd.services.jellyfin = {
-      serviceConfig = {
-        # Loose umask to make Jellyfin metadata more broadly readable
+      serviceConfig = { # Loose umask to make Jellyfin metadata more broadly readable
         UMask = lib.mkForce "0002";
       };
     };
