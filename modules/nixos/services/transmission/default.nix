@@ -6,16 +6,20 @@ in {
     enable = mkEnableOption "Transmission torrent client";
 
     credentialsFile = mkOption {
-      type = types.str;
-      example = "/var/lib/transmission/creds.json";
-      description = "Credential file as a json configuration file to be merged with the main one.";
+      type = types.path;
+      description = "Credential file as a json configuration file to be merged with the main one. Should contain `rpc-username` and `rpc-password`";
     };
 
-    downloadBase = mkOption {
+    download-dir = mkOption {
       type = types.str;
       default = "/data/downloads";
-      example = "/var/lib/transmission/download";
       description = "Download base directory";
+    };
+
+    package = mkOption {
+      type = types.package;
+      default = pkgs.transmission_4;
+      description = "Transmission package to use";
     };
 
     port = mkOption {
@@ -25,7 +29,7 @@ in {
       description = "Internal port for webui";
     };
 
-    peerPort = mkOption {
+    peer-port = mkOption {
       type = types.port;
       default = 30251;
       example = 32323;
@@ -36,18 +40,15 @@ in {
   config = lib.mkIf cfg.enable {
     services.transmission = {
       enable = true;
-      package = pkgs.transmission_4;
       group = "media";
 
       downloadDirPermissions = "775";
 
-      inherit (cfg) credentialsFile;
+      inherit (cfg) credentialsFile package;
 
       settings = {
-        download-dir = "${cfg.downloadBase}/complete";
-        incomplete-dir = "${cfg.downloadBase}/incomplete";
+        incomplete-dir = "${cfg.download-dir}/.incomplete";
 
-        peer-port = cfg.peerPort;
 
         rpc-enabled = true;
         rpc-port = cfg.port;
@@ -56,6 +57,8 @@ in {
         # Proxied behind Nginx.
         rpc-whitelist-enabled = true;
         rpc-whitelist = "127.0.0.1";
+
+        inherit (cfg) download-dir peer-port;
       };
     };
 
@@ -75,8 +78,8 @@ in {
     };
 
     networking.firewall = {
-      allowedTCPPorts = [ cfg.peerPort ];
-      allowedUDPPorts = [ cfg.peerPort ];
+      allowedTCPPorts = [ cfg.peer-port ];
+      allowedUDPPorts = [ cfg.peer-port ];
     };
   };
 }

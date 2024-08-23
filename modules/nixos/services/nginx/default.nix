@@ -393,29 +393,11 @@ in {
           email = cfg.acme.default-mail;
           # extraDomainNames = [ "*.${domain}" ]; # Use DNS wildcard certificate
           # dnsProvider = "gandiv5"; # NOTE: dnsProvider option would be nice to use, if my dns provider were supported. For now, use webroot.
-          extraDomainNames = (builtins.map (subdomain: "${subdomain}.${domain}") (lib.attrNames config.my.services.nginx.virtualHosts));
+          extraDomainNames = (builtins.map (subdomain: "${subdomain}.${domain}") (lib.attrNames config.my.services.nginx.virtualHosts)); # seb: TODO filter in only subdomains using 'domain' as ACMEHost... and add a loop for other named domains
           postRun = "systemctl reload nginx.service";
         };
       };
     };
-    # security.acme = { # this config fetches a certificate for our domain.
-    #   defaults.email = cfg.acme.default-mail;
-    #   acceptTerms = true;
-    #   certs = {
-    #     "${domain}" = {
-    #       extraDomainNames = [ "*.${domain}" ]; # Use DNS wildcard certificate
-    #       dnsProvider = "gandiv5"; # NOTE: dnsProvider option would be nice to use, if my dns provider were supported. For now, use webroot.
-    #       postRun = "systemctl reload nginx.service";
-    #     };
-    #   };
-    # };
-    # systemd.services."acme-${domain}" = {
-    #   serviceConfig = {
-    #     Environment = [
-    #       "LEGO_DISABLE_CNAME_SUPPORT=true" # Since I do a "weird" setup with a wildcard CNAME
-    #     ];
-    #   };
-    # };
 
     services.grafana.provision.dashboards.settings.providers = lib.mkIf cfg.monitoring.enable [
       {

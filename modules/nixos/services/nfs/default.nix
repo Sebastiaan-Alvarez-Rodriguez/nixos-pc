@@ -1,4 +1,7 @@
 # made with help of https://nixos.wiki/wiki/NFS
+# NOTE: NFS is NOT meant to share files over the worldwide web and does not provide sufficient security for it.
+# The combination of 'being able to access NFS anywhere' and 'only allow local NFS logins' may be achieved using: a VPN, or, kerberos.
+# Both techniques provide local-like access from the worldwide internet, after authentication.
 { config, lib, ... }: let
   cfg = config.my.services.nfs;
 in {
@@ -25,7 +28,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.nfs.server = {
-      enable = true;
+      enable = false; # seb: TODO port 111 may be used as DDoS relay, by sending incorrect login attempts with a fake 'src' address. The 'incorrect login' then forwards to the fake 'src' address, it seems.
       lockdPort = 4001;
       mountdPort = 4002;
       statdPort = 4000;
@@ -45,7 +48,7 @@ in {
     };
 
     networking.firewall = {
-      allowedTCPPorts = [ 111  2049 4000 4001 4002 20048 ]; # 2049 is for NFSv4. Others are for NFSv3.
+      allowedTCPPorts = [ 111 2049 4000 4001 4002 20048 ]; # 2049 is for NFSv4. Others are for NFSv3.
       allowedUDPPorts = [ 111 2049 4000 4001  4002 20048 ];
     };
   };

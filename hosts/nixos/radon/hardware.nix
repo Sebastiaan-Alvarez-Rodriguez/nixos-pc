@@ -20,7 +20,6 @@
   };
 
   swapDevices = [ ];
-  # powerManagement.cpuFreqGovernor = lib.mkDefault "powersave"; # seb: use for laptop?
 
   my.hardware.firmware = {
     enable = true;

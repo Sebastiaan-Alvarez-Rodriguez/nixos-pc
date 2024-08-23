@@ -73,6 +73,8 @@ To restore a backup after disaster:
 0. get rid of 'flake-parts' if possible.
 1. backup postgres database.
 2. Improve style: https://www.youtube.com/watch?v=ptmiPG_V4u8
+3. Improve security: https://discourse.nixos.org/t/automatically-ban-ports-scanner-ips-on-nixos/22110
+   Also - check out crowdsec.
 
 ## Resources
 1. Install flake using script: https://dzone.com/articles/nixos-native-flake-deployment-with-luks-and-lvm

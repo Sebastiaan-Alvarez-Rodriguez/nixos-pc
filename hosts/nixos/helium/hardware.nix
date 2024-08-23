@@ -4,6 +4,10 @@
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "ohci_pci" "ehci_pci" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelParams = [ "usbcore.autosuspend=-1" ]; # do not suspend USBs.
+  boot.extraModprobeConfig = ''
+    options usbcore autosuspend=-1
+  ''; # do not suspend USBs.
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
