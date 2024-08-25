@@ -63,20 +63,43 @@
 
     # mpv.enable = true; # Minimal video player
     spotify.enable = true;
+    ssh = {
+      enable = true;
+      mosh.enable = true;
+    };
     terminal.program = "foot";
     wm = {
       manager = "river";
       dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
       grim.enable = true;
-      flameshot.enable = false; # seb: TODO explore flameshot (needs to disable grim)
       kanshi = {
         enable = true;
         systemdTarget = "river-session.target";
       };
       mako.enable = true;
       rofi.enable = true;
+      swaylock = {
+        enable = true;
+        image = {
+          url = "https://w.wallhaven.cc/full/zy/wallhaven-zy3l5o.jpg";
+          sha256 = "d71fce2282c21b44c26aa9a89e64d00fb89db1298d42c0e8fb8a241ce7228371";
+          pixelate = 3;
+        };
+      };
+      wlogout = {
+        enable = true;
+        image = {
+          url = "https://api-rog.asus.com/recent-data/api/v3/Wallpaper/Download/1482";
+          sha256 = "sha256:1504gzj7g9mkv0pkab1i34cmkli7fzrj0vg8ga80kzqvi1xs323x";
+        };
+        accent-color = "rgb (139, 0, 0)";
+      };
       wpaperd = {
         enable = true;
+        image = {
+          url = "https://api-rog.asus.com/recent-data/api/v3/Wallpaper/Download/1482";
+          sha256 = "sha256:1504gzj7g9mkv0pkab1i34cmkli7fzrj0vg8ga80kzqvi1xs323x";
+        };
         systemdTarget = "river-session.target";
       };
     };      
