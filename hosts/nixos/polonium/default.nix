@@ -70,6 +70,9 @@
     terminal.program = "foot";
     wm = {
       manager = "river";
+      river.extra-config = ''
+        riverctl input pointer-1267-12440-ELAN1201:00_04F3:3098_Touchpad tap enabled
+      '';
       dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
       grim.enable = true;
       kanshi = {

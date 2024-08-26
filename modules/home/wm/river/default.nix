@@ -10,6 +10,11 @@ in {
       default = "Mod4"; # This is the 'windows' key on most keyboards.
       description = "Modkey to use for issuing commands to river";
     };
+    extra-config = mkOption {
+      type = with types; lines;
+      default = "";
+      description = "Extra lines to append to config of river";
+    };
   };
 
   config = lib.mkIf isEnabled {
@@ -94,11 +99,13 @@ in {
 
             "${mod} F11" = "enter-mode passthrough";
           }
+
           tagBinds
 
           (lib.mkIf (config.my.home.terminal.program == "foot") {
             "${mod} Return" = "spawn '${pkgs.foot}/bin/foot'";
           })
+
           (lib.mkIf config.my.home.wm.rofi.enable {
             "${mod} D" = "spawn '${config.programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi'";
           })
@@ -115,6 +122,10 @@ in {
               ''; # lets user take screenshot, copies result to clipboard (pastable in e.g. tdesktop)
             in
               "spawn '${screenshot}'";
+          })
+
+          (lib.mkIf config.my.home.wm.swaylock.enable {
+            "${mod} X" = "spawn '${config.my.home.wm.swaylock.package}/bin/swaylock'";
           })
         ]);
         pointer = {
@@ -148,6 +159,7 @@ in {
       extraConfig = ''
         ${riverctl} float-filter-add app-id 'float'
         ${riverctl} float-filter-add app-id 'popup'
+        ${cfg.extra-config}
       '';
     };
   };
