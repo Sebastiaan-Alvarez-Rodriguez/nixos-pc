@@ -129,10 +129,5 @@ in {
         ]);
       };
     }
-    (lib.mkIf (config.my.home.wm.manager == "river") {
-      programs.river.bindings.normal = {
-        "${config.my.home.wm.river.modkey} X" = "spawn '${config.programs.swaylock.package}/bin/swaylock'";
-      };
-    })
   ]);
 }
