@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }: let
-  cfg = config.my.home.wm.kanshi;
+  cfg = config.my.home.wm.apps.kanshi;
 in {
-  options.my.home.wm.kanshi = with lib; {
+  options.my.home.wm.apps.kanshi = with lib; {
     systemdTarget = mkOption {
       type = with types; str;
       default = "graphical-session.target";
@@ -11,8 +11,8 @@ in {
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = config.my.home.gm.manager == "wayland";
-        message = "Kanshi module requires wayland graphics manager (set my.home.gm.manager = \"wayland\")";
+        assertion = config.my.home.gm.wayland.enable;
+        message = "Kanshi module requires wayland graphics manager (set my.home.gm.wayland.enable = true)";
       }
     ];
 

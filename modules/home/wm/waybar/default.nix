@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }: let
-  cfg = config.my.home.wm.waybar;
+  cfg = config.my.home.wm.apps.waybar;
 in {
-  options.my.home.wm.waybar = with lib; {
+  options.my.home.wm.apps.waybar = with lib; {
     systemdTarget = mkOption {
       type = with types; str;
       default = "graphical-session.target";
@@ -11,8 +11,8 @@ in {
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = config.my.home.gm.manager == "wayland";
-        message = "Waybar module requires wayland graphics manager (set my.home.gm.manager = \"wayland\")";
+        assertion = config.my.home.gm.wayland.enable;
+        message = "Waybar module requires wayland graphics manager (set my.home.gm.wayland.enable = true)";
       }
     ];
     programs.waybar = {
@@ -27,7 +27,7 @@ in {
           position = "top";
           height = 25;
  
-          modules-left = [] ++ lib.optionals (config.my.home.wm.manager == "river") [ "river/tags" ];
+          modules-left = [] ++ lib.optionals config.my.home.wm.river.enable [ "river/tags" ];
           modules-center = [ "clock" ];
           modules-right = [ "backlight/slider" "tray" "network" "battery" "cpu" "memory" "pulseaudio" "custom/exit" ];
 
@@ -80,9 +80,9 @@ in {
             };
             on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
           };
-          "custom/exit" = lib.mkIf config.my.home.wm.wlogout.enable {
+          "custom/exit" = lib.mkIf config.my.home.wm.apps.wlogout.enable {
             "format" = "";
-            "on-click" = "${config.my.home.wm.wlogout.package}/bin/wlogout";
+            "on-click" = "${config.my.home.wm.apps.wlogout.package}/bin/wlogout";
             "tooltip-format" = "Power Menu";
           };
         };

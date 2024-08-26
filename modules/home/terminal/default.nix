@@ -53,10 +53,8 @@ in {
         '';
       };
 
-      systemd.user.services.foot.Install.WantedBy = lib.optionals (config.my.home.wm.manager == "river") [ "river-session.target" ];
-      home.packages = with pkgs; [
-        xdg-utils # xdg-open required for foot url thingy
-      ];
+      systemd.user.services.foot.Install.WantedBy = lib.optionals config.my.home.wm.river.enable [ "river-session.target" ];
+      home.packages = with pkgs; [ xdg-utils  ]; # xdg-open required for foot url thingy
     })
   ]);
 }

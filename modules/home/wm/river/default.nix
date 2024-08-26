@@ -1,6 +1,5 @@
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.wm.river;
-  isEnabled = config.my.home.wm.manager == "river";
 in {
   imports = [ ./river-session.nix ];
 
@@ -17,11 +16,11 @@ in {
     };
   };
 
-  config = lib.mkIf isEnabled {
+  config = lib.mkIf config.my.home.wm.river.enable {
     assertions = [
       {
-        assertion = config.my.home.gm.manager == "wayland";
-        message = "River module requires wayland graphics manager (set my.home.gm.manager = \"wayland\")";
+        assertion = config.my.home.gm.wayland.enable;
+        message = "River module requires wayland graphics manager (set my.home.gm.wayland.enable = true)";
       }
     ];
 
@@ -102,20 +101,16 @@ in {
 
           tagBinds
 
-          (lib.mkIf (config.my.home.terminal.program == "foot") {
-            "${mod} Return" = "spawn '${pkgs.foot}/bin/foot'";
-          })
-
-          (lib.mkIf config.my.home.wm.rofi.enable {
-            "${mod} D" = "spawn '${config.programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi'";
-          })
-
           (lib.mkIf config.my.home.firefox.enable {
             "${mod} B" = "spawn '${pkgs.firefox}/bin/firefox'";
             "${mod} P" = "spawn '${pkgs.firefox}/bin/firefox --private-window'";
           })
 
-          (lib.mkIf config.my.home.wm.grim.enable {
+          (lib.mkIf (config.my.home.terminal.program == "foot") {
+            "${mod} Return" = "spawn '${pkgs.foot}/bin/foot'";
+          })
+
+          (lib.mkIf config.my.home.wm.apps.grim.enable {
             "None Print" = let
               screenshot = pkgs.writeShellScript "screenshot" ''
                 ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" - | ${pkgs.wl-clipboard}/bin/wl-copy -t image/png
@@ -124,8 +119,16 @@ in {
               "spawn '${screenshot}'";
           })
 
-          (lib.mkIf config.my.home.wm.swaylock.enable {
-            "${mod} X" = "spawn '${config.my.home.wm.swaylock.package}/bin/swaylock'";
+          (lib.mkIf config.my.home.wm.apps.rofi.enable {
+            "${mod} D" = "spawn '${config.programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi'";
+          })
+
+          (lib.mkIf config.my.home.wm.apps.swaylock.enable {
+            "${mod} X" = "spawn '${config.my.home.wm.apps.swaylock.package}/bin/swaylock'";
+          })
+
+          (lib.mkIf config.my.home.wm.apps.wlogout.enable {
+            "${mod} C" = "spawn '${config.programs.wlogout.package}/bin/wlogout'";
           })
         ]);
         pointer = {
