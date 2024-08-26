@@ -1,11 +1,6 @@
 { config, lib, pkgs, ... }:
 let
-  isEnabled = config.my.home.wm.manager == "i3";
-
-  terminal =
-    if config.my.home.terminal.program != null
-    then config.my.home.terminal.program
-    else "i3-sensible-terminal";
+  terminal = if config.my.home.terminal.program != null then config.my.home.terminal.program else "i3-sensible-terminal";
 
   alt = "Mod1"; # `Alt` key
   modifier = "Mod4"; # `Super` key
@@ -15,10 +10,9 @@ let
     "(l)ock, (e)xit, switch_(u)ser, (h)ibernate, (r)eboot, (Shift+s)hutdown";
 
   # Takes an attrset of bindings for movement keys, transforms it to Vim keys
-  toVimKeyBindings =
-    let
-      toVimKeys = builtins.replaceStrings movementKeys vimMovementKeys;
-    in
+  toVimKeyBindings = let
+    toVimKeys = builtins.replaceStrings movementKeys vimMovementKeys;
+  in
     lib.my.renameAttrs toVimKeys;
 
   # Takes an attrset of bindings for movement keys, add equivalent Vim keys
@@ -36,12 +30,11 @@ let
   changeAudio = lib.getExe pkgs.custompkgs.change-audio;
 
   # Lock management
-  toggleXautolock =
-    let
-      systemctlUser = "${pkgs.systemd}/bin/systemctl --user";
-      notify = "${notify-send} -u low"
-        + " -h string:x-canonical-private-synchronous:xautolock-toggle";
-    in
+  toggleXautolock = let
+    systemctlUser = "${pkgs.systemd}/bin/systemctl --user";
+    notify = "${notify-send} -u low"
+      + " -h string:x-canonical-private-synchronous:xautolock-toggle";
+  in
     pkgs.writeScript "toggle-xautolock" ''
       #!/bin/sh
       if ${systemctlUser} is-active xautolock-session.service; then
@@ -54,9 +47,8 @@ let
         ${notify} "Enabled Xautolock"
       fi
     '';
-in
-{
-  config = lib.mkIf isEnabled {
+in {
+  config = lib.mkIf config.my.home.wm.i3.enable {
     home.packages = with pkgs; [
       custompkgs.dragger # drag-and-drop from the CLI
       custompkgs.i3-get-window-criteria # little helper for i3 configuration
@@ -71,10 +63,9 @@ in
       config = {
         inherit modifier;
 
-        bars =
-          let
-            i3status-rs = lib.getExe config.programs.i3status-rust.package;
-          in
+        bars = let
+          i3status-rs = lib.getExe config.programs.i3status-rust.package;
+        in
           assert [ "top" ] == lib.attrNames config.programs.i3status-rust.bars;
           [
             {
@@ -182,7 +173,7 @@ in
             # Focus child container
             "${modifier}+a" = "focus child";
           }
-          (lib.optionalAttrs config.my.home.wm.rofi.enable {
+          (lib.optionalAttrs config.my.home.wm.apps.rofi.enable {
             # Rofi tools
             "${modifier}+d" = "exec rofi -show drun -disable-history";
             "${modifier}+Shift+d" = "exec rofi -show run -disable-history";
@@ -276,96 +267,87 @@ in
             "${modifier}+r" = "mode resize";
             "${modifier}+Shift+space" = "mode floating";
           }
-          (lib.optionalAttrs config.my.home.wm.screen-lock.enable {
+          (lib.optionalAttrs config.my.home.wm.apps.screen-lock.enable {
             "${modifier}+x" = "exec ${toggleXautolock}";
           })
           (
             let
               execDunstctl = "exec ${pkgs.dunst}/bin/dunstctl";
             in
-            lib.optionalAttrs config.my.home.wm.dunst.enable {
-              "${modifier}+minus" = "${execDunstctl} close";
-              "${modifier}+Shift+minus" = "${execDunstctl} close-all";
-              "${modifier}+equal" = "${execDunstctl} history-pop";
-            }
+              lib.optionalAttrs config.my.home.wm.apps.dunst.enable {
+                "${modifier}+minus" = "${execDunstctl} close";
+                "${modifier}+Shift+minus" = "${execDunstctl} close-all";
+                "${modifier}+equal" = "${execDunstctl} history-pop";
+              }
           )
         ];
 
-        keycodebindings =
-          let
-            toKeycode = n: if n == 0 then 19 else n + 9;
-            createWorkspaceBindings = mapping: command:
-              let
-                createWorkspaceBinding = num:
-                  lib.nameValuePair
-                    "${mapping}+${toString (toKeycode num)}"
-                    "${command} ${toString num}";
-                oneToNine = builtins.genList (x: x + 1) 9;
-              in
-              lib.my.genAttrs' oneToNine createWorkspaceBinding;
+        keycodebindings = let
+          toKeycode = n: if n == 0 then 19 else n + 9;
+          createWorkspaceBindings = mapping: command: let
+            createWorkspaceBinding = num: lib.nameValuePair "${mapping}+${toString (toKeycode num)}" "${command} ${toString num}";
+            oneToNine = builtins.genList (x: x + 1) 9;
           in
+            lib.my.genAttrs' oneToNine createWorkspaceBinding;
+        in
           lib.my.recursiveMerge [
             (createWorkspaceBindings modifier "workspace number")
             (createWorkspaceBindings "${modifier}+Shift" "move container to workspace number")
-            {
-              "${modifier}+${toString (toKeycode 0)}" = ''mode "${shutdownMode}"'';
-            }
+            { "${modifier}+${toString (toKeycode 0)}" = ''mode "${shutdownMode}"''; }
           ];
 
-        modes =
-          let
-            makeModeBindings = attrs: (addVimKeyBindings attrs) // {
-              "Escape" = "mode default";
-              "Return" = "mode default";
-            };
-          in
-          {
-            resize = makeModeBindings {
-              # Normal movements
-              "Left" = "resize shrink width 10 px or 10 ppt";
-              "Down" = "resize grow height 10 px or 10 ppt";
-              "Up" = "resize shrink height 10 px or 10 ppt";
-              "Right" = "resize grow width 10 px or 10 ppt";
-              # Small movements
-              "Control+Left" = "resize shrink width 1 px or 1 ppt";
-              "Control+Down" = "resize grow height 1 px or 1 ppt";
-              "Control+Up" = "resize shrink height 1 px or 1 ppt";
-              "Control+Right" = "resize grow width 1 px or 1 ppt";
-              # Big movements
-              "Shift+Left" = "resize shrink width 100 px or 100 ppt";
-              "Shift+Down" = "resize grow height 100 px or 100 ppt";
-              "Shift+Up" = "resize shrink height 100 px or 100 ppt";
-              "Shift+Right" = "resize grow width 100 px or 100 ppt";
-            };
-
-            floating = makeModeBindings {
-              # Normal movements
-              "Left" = "move left 10 px";
-              "Down" = "move down 10 px";
-              "Up" = "move up 10 px";
-              "Right" = "move right 10 px";
-              # Small movements
-              "Control+Left" = "move left 1 px";
-              "Control+Down" = "move down 1 px";
-              "Control+Up" = "move up 1 px";
-              "Control+Right" = "move right 1 px";
-              # Big movements
-              "Shift+Left" = "move left 100 px";
-              "Shift+Down" = "move down 100 px";
-              "Shift+Up" = "move up 100 px";
-              "Shift+Right" = "move right 100 px";
-            };
-
-            ${shutdownMode} = makeModeBindings {
-              "l" = "exec --no-startup-id loginctl lock-session, mode default";
-              "s" = "exec --no-startup-id systemctl suspend, mode default";
-              "u" = "exec --no-startup-id dm-tool switch-to-greeter, mode default";
-              "e" = "exec --no-startup-id i3-msg exit, mode default";
-              "h" = "exec --no-startup-id systemctl hibernate, mode default";
-              "r" = "exec --no-startup-id systemctl reboot, mode default";
-              "Shift+s" = "exec --no-startup-id systemctl poweroff, mode default";
-            };
+        modes = let
+          makeModeBindings = attrs: (addVimKeyBindings attrs) // {
+            "Escape" = "mode default";
+            "Return" = "mode default";
           };
+        in {
+          resize = makeModeBindings {
+            # Normal movements
+            "Left" = "resize shrink width 10 px or 10 ppt";
+            "Down" = "resize grow height 10 px or 10 ppt";
+            "Up" = "resize shrink height 10 px or 10 ppt";
+            "Right" = "resize grow width 10 px or 10 ppt";
+            # Small movements
+            "Control+Left" = "resize shrink width 1 px or 1 ppt";
+            "Control+Down" = "resize grow height 1 px or 1 ppt";
+            "Control+Up" = "resize shrink height 1 px or 1 ppt";
+            "Control+Right" = "resize grow width 1 px or 1 ppt";
+            # Big movements
+            "Shift+Left" = "resize shrink width 100 px or 100 ppt";
+            "Shift+Down" = "resize grow height 100 px or 100 ppt";
+            "Shift+Up" = "resize shrink height 100 px or 100 ppt";
+            "Shift+Right" = "resize grow width 100 px or 100 ppt";
+          };
+
+          floating = makeModeBindings {
+            # Normal movements
+            "Left" = "move left 10 px";
+            "Down" = "move down 10 px";
+            "Up" = "move up 10 px";
+            "Right" = "move right 10 px";
+            # Small movements
+            "Control+Left" = "move left 1 px";
+            "Control+Down" = "move down 1 px";
+            "Control+Up" = "move up 1 px";
+            "Control+Right" = "move right 1 px";
+            # Big movements
+            "Shift+Left" = "move left 100 px";
+            "Shift+Down" = "move down 100 px";
+            "Shift+Up" = "move up 100 px";
+            "Shift+Right" = "move right 100 px";
+          };
+
+          ${shutdownMode} = makeModeBindings {
+            "l" = "exec --no-startup-id loginctl lock-session, mode default";
+            "s" = "exec --no-startup-id systemctl suspend, mode default";
+            "u" = "exec --no-startup-id dm-tool switch-to-greeter, mode default";
+            "e" = "exec --no-startup-id i3-msg exit, mode default";
+            "h" = "exec --no-startup-id systemctl hibernate, mode default";
+            "r" = "exec --no-startup-id systemctl reboot, mode default";
+            "Shift+s" = "exec --no-startup-id systemctl poweroff, mode default";
+          };
+        };
 
         startup = [
           # FIXME

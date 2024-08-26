@@ -1,8 +1,8 @@
 { config, lib, pkgs, ... }: let
-  cfg = config.my.home.wm.wpaperd;
+  cfg = config.my.home.wm.apps.wpaperd;
   pkg = pkgs.wpaperd;
 in {
-  options.my.home.wm.wpaperd = with lib; {
+  options.my.home.wm.apps.wpaperd = with lib; {
     image = lib.mkOption {
       type = with types; submodule {
         options = {
@@ -33,8 +33,8 @@ in {
   config = lib.mkIf cfg.enable { # seb: NOTE https://github.com/anufrievroman/waypaper would also be nice.
     assertions = [
       {
-        assertion = config.my.home.gm.manager == "wayland";
-        message = "wpaperd module requires wayland graphics manager (set my.home.gm.manager = \"wayland\")";
+        assertion = config.my.home.gm.wayland.enable;
+        message = "wpaperd module requires wayland graphics manager (set my.home.gm.wayland.enable = true)";
       }
     ];
     

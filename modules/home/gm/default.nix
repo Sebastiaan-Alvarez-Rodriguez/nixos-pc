@@ -3,19 +3,17 @@
   cfg = config.my.home.gm;
 in {
   options.my.home.gm = with lib; {
-    manager = mkOption {
-      type = with types; nullOr (enum [ "x" "wayland" ]);
-      default = null;
-      description = "Which graphics manager to use for home session";
-    };
+    x.enable = mkEnableOption "Use x as graphics manager";
+    wayland.enable = mkEnableOption "Use wayland as graphics manager";
   };
 
-  config = lib.mkIf (cfg.manager != null) (lib.mkMerge [
-    (lib.mkIf (cfg.manager== "x") {
+  config = (lib.mkMerge [
+    { assertions = [ { assertion = !(cfg.x.enable && cfg.wayland.enable); message = "Enable exactly one of `my.home.gm.x.enable` and my.home.gm.wayland.enable`"; } ]; }
+    (lib.mkIf cfg.x.enable {
       xsession.enable = true;
       home.packages = with pkgs; [ xsel ];
     })
-    (lib.mkIf (cfg.manager== "wayland") {
+    (lib.mkIf cfg.wayland.enable {
       # programs.xwayland.enable = true; 
       home.packages = [ pkgs.wl-clipboard pkgs.wl-clip-persist ];
       # seb: NOTE we don't enable wayland here. The wayland window managers, i.e. wm.river, already activate wayland.

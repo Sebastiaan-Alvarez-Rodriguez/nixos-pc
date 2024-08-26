@@ -45,7 +45,7 @@
     };
     firefox.enable = true;
     # firefox.tridactyl.enable = true; # seb: An arcane way to use firefox
-    gm.manager = "wayland";
+    gm.wayland.enable = true;
     gpg.enable = true;
     gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
     nix = {
@@ -70,43 +70,45 @@
     };
     terminal.program = "foot";
     wm = {
-      manager = "river";
-      dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
-      grim.enable = true;
-      kanshi = {
-        enable = true;
-        systemdTarget = "river-session.target";
-      };
-      mako.enable = true;
-      rofi.enable = true;
-      swaylock = {
-        enable = true;
-        image = {
-          url = "https://w.wallhaven.cc/full/zy/wallhaven-zy3l5o.jpg";
-          sha256 = "d71fce2282c21b44c26aa9a89e64d00fb89db1298d42c0e8fb8a241ce7228371";
-          pixelate = 3;
+      river.enable = true;
+      apps = {
+        dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
+        grim.enable = true;
+        kanshi = {
+          enable = true;
+          systemdTarget = "river-session.target";
+        };
+        mako.enable = true;
+        rofi.enable = true;
+        swaylock = {
+          enable = true;
+          image = {
+            url = "https://w.wallhaven.cc/full/zy/wallhaven-zy3l5o.jpg";
+            sha256 = "d71fce2282c21b44c26aa9a89e64d00fb89db1298d42c0e8fb8a241ce7228371";
+            pixelate = 3;
+          };
+        };
+        wlogout = {
+          enable = true;
+          image = {
+            url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
+            sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
+          };
+          accent-color = "rgb (139, 0, 0)";
+        };
+        wpaperd = {
+          enable = true;
+          image = {
+            url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
+            sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
+          };
+          systemdTarget = "river-session.target";
+        };
+        waybar = {
+          enable = true;
+          systemdTarget = "river-session.target";
         };
       };
-      wlogout = {
-        enable = true;
-        image = {
-          url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
-          sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
-        };
-        accent-color = "rgb (139, 0, 0)";
-      };
-      wpaperd = {
-        enable = true;
-        image = {
-          url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
-          sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
-        };
-        systemdTarget = "river-session.target";
-      };
-    };      
-    wm.waybar = {
-      enable = true;
-      systemdTarget = "river-session.target";
     };
   };
 

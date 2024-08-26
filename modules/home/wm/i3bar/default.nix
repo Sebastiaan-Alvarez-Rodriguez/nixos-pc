@@ -1,11 +1,11 @@
 { config, lib, pkgs, ... }: let
-  cfg = config.my.home.wm.i3bar;
+  cfg = config.my.home.wm.apps.i3bar;
 in {
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = config.my.home.gm.manager == "xserver";
-        message = "i3 module requires xserver graphics manager (set my.home.gm.manager = \"xserver\")";
+        assertion = config.my.home.gm.x.enable;
+        message = "i3 module requires xserver graphics manager (set my.home.gm.x.enable = true)";
       }
     ];
     home.packages = with pkgs; [
