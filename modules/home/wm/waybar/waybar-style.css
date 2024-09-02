@@ -117,6 +117,7 @@ tooltip label {
 #clock,
 #backlight,
 #battery,
+#bluetooth,
 #cpu,
 #memory,
 #disk,
@@ -139,18 +140,10 @@ tooltip label {
   background-color: transparent;
 }
 
-#bluetooth, #bluetooth.on, #bluetooth.connected {
-  margin: 10px 15px 10px 0px;
-}
-
 #bluetooth.off {
   background-color: transparent;
   padding: 0px;
   margin: 0px;
-}
-
-#battery {
-  margin: 10px 15px 10px 0px;
 }
 
 #battery.charging, #battery.plugged {
