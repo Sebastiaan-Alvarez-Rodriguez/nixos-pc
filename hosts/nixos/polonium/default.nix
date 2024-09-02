@@ -94,18 +94,12 @@
         };
         wlogout = {
           enable = true;
-          image = {
-            url = "https://api-rog.asus.com/recent-data/api/v3/Wallpaper/Download/1482";
-            sha256 = "sha256:1504gzj7g9mkv0pkab1i34cmkli7fzrj0vg8ga80kzqvi1xs323x";
-          };
+          image.path = "/etc/wallpaper.jpg";
           accent-color = "rgb (139, 0, 0)";
         };
         wpaperd = {
           enable = true;
-          image = {
-            url = "https://api-rog.asus.com/recent-data/api/v3/Wallpaper/Download/1482";
-            sha256 = "sha256:1504gzj7g9mkv0pkab1i34cmkli7fzrj0vg8ga80kzqvi1xs323x";
-          };
+          image.path = "/etc/wallpaper.jpg";
           systemdTarget = "river-session.target";
         };
         waybar = {
@@ -158,6 +152,10 @@
   environment.etc."greetd/environments".text = ''
     river
   ''; # allows users logging in to pick their window manager.
+  environment.etc."wallpaper.jpg".source = builtins.fetchurl {
+    url = "https://api-rog.asus.com/recent-data/api/v3/Wallpaper/Download/1482";
+    sha256 = "sha256:1504gzj7g9mkv0pkab1i34cmkli7fzrj0vg8ga80kzqvi1xs323x";
+  };
 
   environment.systemPackages = [ pkgs.home-manager ];
   # Extra configuration for console.

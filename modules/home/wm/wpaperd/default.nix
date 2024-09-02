@@ -5,19 +5,19 @@ in {
   options.my.home.wm.apps.wpaperd = with lib; {
     image = lib.mkOption {
       type = with types; submodule {
-        options = {
-          path = lib.mkOption {
-            type = with types; nullOr (path);
+        options = with types; {
+          path = mkOption {
+            type = nullOr (path);
             default = null;
             description = "image file to use as lockscreen background";
           };
-          url = lib.mkOption {
-            type = with types; nullOr (str);
+          url = mkOption {
+            type = nullOr (str);
             default = null;
             description = "url to fetch image from, to be used as lockscreen background";
           };
-          sha256 = lib.mkOption {
-            type = with types; nullOr (str);
+          sha256 = mkOption {
+            type = nullOr (str);
             default = null;
             description = "url image hash";
           };
