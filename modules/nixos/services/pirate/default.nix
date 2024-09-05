@@ -78,8 +78,7 @@ in {
           message = "Enabled bazarr, which provides subtitles for radarr and sonarr, but forgot to enable any of (radarr, sonarr).";
         }
       ];
-      # Set-up media group
-      users.groups.media = { };
+      users.groups.media = { }; # Set-up media group. NOTE: Do not forget to allow write permission of media group to media folder(s).
     }
     # Bazarr does not log authentication failures...
     (mkFullConfig "bazarr")
