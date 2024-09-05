@@ -25,17 +25,10 @@
 
   my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
     bat.enable = true;
-    # bitwarden = {
-    #   enable = true;
-    #   pinentry = pkgs.pinentry-gtk2; # Use graphical pinentry  
-    #   mail = //... wait what? Should this not be different per-user?
-    # };
     editor.main = {
       package = pkgs.helix;
       path = "${pkgs.helix}/bin/hx";
     };
-    # gpg.enable = true;
-    # gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
     nix = {
       enable = true;
       inputs.link = true;

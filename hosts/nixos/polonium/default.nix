@@ -45,8 +45,10 @@
     firefox.enable = true;
     # firefox.tridactyl.enable = true; # seb: An arcane way to use firefox
     gm.wayland.enable = true;
-    gpg.enable = true;
-    # gpg.pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
+    gpg = {
+      enable = false; # seb: TODO figure out how to not be annoyed
+      pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
+    };
     nix = {
       enable = true;
       inputs.link = true;
