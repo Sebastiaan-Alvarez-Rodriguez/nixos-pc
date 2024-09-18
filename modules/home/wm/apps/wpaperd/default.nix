@@ -1,4 +1,6 @@
 { config, lib, pkgs, ... }: let
+  cfg-has-wm = config.my.home ? wm;
+  cfg-has-apps = cfg-has-wm && (config.my.home.wm ? apps);
   cfg = config.my.home.wm.apps.wpaperd;
   pkg = pkgs.wpaperd;
 in {
@@ -30,7 +32,7 @@ in {
       description = "The systemd target that will automatically start the wpaperd service.";
     };
   };
-  config = lib.mkIf cfg.enable { # seb: NOTE https://github.com/anufrievroman/waypaper would also be nice.
+  config = lib.mkIf (cfg-has-wm && cfg-has-apps && cfg.enable) { # seb: NOTE https://github.com/anufrievroman/waypaper would also be nice.
     assertions = [
       {
         assertion = config.my.home.gm.wayland.enable;

@@ -6,6 +6,10 @@ in {
   options.my.services.tandoor-recipes = with lib; {
     enable = mkEnableOption "Tandoor Recipes service";
 
+    media-path = mkOption {
+      type = types.path;
+      default = "/data/tandoor";
+    };
     port = mkOption {
       type = types.port;
       default = 4536;
@@ -38,9 +42,14 @@ in {
         ALLOWED_HOSTS = tandoorRecipesDomain;
         CSRF_TRUSTED_ORIGINS = "https://${tandoorRecipesDomain}";
 
+        MEDIA_ROOT = cfg.media-path;
         TIMEZONE = config.time.timeZone;
       };
     };
+
+    systemd.tmpfiles.rules = [ # ensure directory exists
+      "d ${cfg.media-path} 0700 ${config.systemd.services.tandoor-recipes.serviceConfig.User} ${config.systemd.services.tandoor-recipes.serviceConfig.Group} -"
+    ];
 
     systemd.services = {
       tandoor-recipes = {

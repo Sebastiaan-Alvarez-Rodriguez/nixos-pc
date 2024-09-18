@@ -56,6 +56,7 @@
       password-file = config.age.secrets."services/backup-server/xenon-repo-helium".path;
       paths = [ "/data" "/home" ];
       timer-config = { OnCalendar = "19:30"; Persistent = true; };
+      prune-opts = []; # cannot prune, because --> server is append-only, so no deleting/pruning.
     };
     postgresql-backup = {
       enable = true;

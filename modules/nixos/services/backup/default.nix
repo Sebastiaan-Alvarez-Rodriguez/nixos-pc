@@ -55,7 +55,8 @@ in {
 
     prune-opts = mkOption {
       type = with types; listOf str;
-      default = [
+      default = [];
+      example = [
         "--keep-last 10"
         "--keep-hourly 24"
         "--keep-daily 7"
@@ -63,8 +64,11 @@ in {
         "--keep-monthly 12"
         "--keep-yearly 100"
       ];
-      example = [ "--keep-last 5" "--keep-weekly 2" ];
-      description = "List of options to give to the `forget` subcommand after a backup.";
+      description = ''
+        List of options to give to the `forget` subcommand after a backup.
+        NOTE: If you make the backup server `append-only`, you cannot delete data, including with this option!
+        Trying to do so results in an error after making the backup (i.e. the backup still runs).
+      '';
     };
 
     timer-config = mkOption {
@@ -73,7 +77,7 @@ in {
         OnCalendar = "daily";
         Persistent = true;
       };
-      description = ''Config setting backup frequency.'';
+      description = "Config setting backup frequency.";
     };
   };
 
