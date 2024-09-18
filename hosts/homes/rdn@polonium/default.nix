@@ -12,7 +12,6 @@ in {
     gparted
     hotspot
     # logiops
-    nheko
     proton-caller
     qbittorrent
     tdesktop

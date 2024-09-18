@@ -15,7 +15,6 @@ in {
     hotspot
     jetbrains.idea-community
     # logiops
-    nheko
     proton-caller
     qbittorrent
     tdesktop
