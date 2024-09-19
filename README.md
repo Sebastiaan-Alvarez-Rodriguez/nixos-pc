@@ -2,30 +2,77 @@
 Personal core declarative system and user configuration.
 
 
+
 ## Installation
-The easiest way:
-1. Install regular NixOS image using an USB drive.
-2. Clone this repo
-3. Copy the IDs of `/etc/nixos/hardware-configuration` into the `hosts/nixos/<system-name>/hardware.nix`.
+### Installing NixOS on a VPS instance
+To install NixOS on a VPS: [`nixos-infect`](https://github.com/elitak/nixos-infect).
 
-Secondly, take care of a few manual steps:
+### Installing NixOS directly on medium
+#### SD card
+To build the image, the following configuration is needed (for a nixos configuration called `<NAME>``):
+```nix
+images = {
+  <NAME> = nixosConfigurations.<NAME>.config.system.build.sdImage;
+};
+```
+Then:
+```bash
+nix build ".#images.<NAME>"
+````
 
-* Configure Gitea and Drone
-* Configure Lohr webhook and SSH key
-* Configure Jellyfin
-* Configure Prowlarr,Jackett and NZBHydra2
-* Configure Sonarr, Radarr, Bazarr
-* Configure Transmission's webui port
-* Configure Quassel user
-* Configure Flood account
 
 
 ## Updating
 ```bash
+nix flake update
 sudo nixos-rebuild boot --flake .#<system-name>
 ```
 After a reboot, the changes are propagated.
 To go back, just select the second-highest generation.
+
+### Major version upgrading
+NixOS brings new releases on the 5'th and 11'th month of each year. To upgrade, change the nixos channel in `flake.nix`.
+
+
+
+## deployment
+### regular update
+```bash
+sudo nixos-rebuild switch --flake .#<system-name>
+```
+> **NOTE**: some services only change after a reboot. It is better for your systems to just use `nixos-rebuild boot` instead of `switch`.
+
+### SD card
+To write and sd-card image on an SD card (see [Installation](#Installation)), use:
+```bash
+lsblk #find the SD card
+sudo --preserve-env gparted # remove old partitions using gdisk UI
+sudo dd if=result/sd-image/nixos-sd-image-VERSION.DATE.HASH-aarch64-linux.img of=/dev/sdX bs=1024k status=progress
+```
+
+> **NOTE**: If this image is for some low-resource device, never update/upgrade your distribution, it cannot handle it. Instead, use [Remote deployment](#Remote%20deployment).
+
+### Remote Deployment
+This means: Build on a beefy machine (the build host), deploy to a weak machine (the target host).
+
+On the build host, ensure you have either the same arch, or a different arch but with emulated system for the remote.
+For example, if the build host has `x86_64` and the remote is `aarch64-linux`, then emulate `aarch64-linux` on the build host:
+```nix
+boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+```
+
+Ensure you have an entry in your `~/.ssh/config` for the target with passwordless authentication.
+Then, use:
+```bash
+NIX_SSHOPTS="-t" nixos-rebuild switch --flake .#blackberry --target-host blackberry-local --use-remote-sudo
+```
+
+> **Note**: You sometimes have to fill in the sudo password for the raspberry.
+
+> **Note**: If the process seems to do nothing for a bit (e.g. 20 seconds), just hit enter. Probably it asked for remote sudo password again, but the line got overridden in terminal or something.
+
+> **Note**: It might be possible to remove the need for filling the sudo password of the raspberry, if you setup passwordless authentication for `root` as well, and use `sudo` on the build-and-deploy command.
+
 
 
 ## Cleaning
@@ -40,7 +87,7 @@ The second command removes obsoleted system packages, but not user packages.
 > **Note**: previous generations still point to their packages. This ensures you can go back to previous generations.
 
 
-## Removing old generations
+### Removing old generations
 > **Warning**: Do this only when you are sure your current generation works as it should, after you have rebooted at least once.
 
 List all available generations with:
@@ -53,7 +100,10 @@ Delete generations with:
 sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations 1 2 3 <any other generation numbers>
 ```
 
-## Applying backups
+
+
+## Usage
+### Applying backups
 Where backups are used, the implementation is [`restic`](https://restic.readthedocs.io/en/latest/index.html).
 
 To restore a backup after disaster:
@@ -69,6 +119,8 @@ To restore a backup after disaster:
 3. Place the backup data back where it belongs. Don't forget to re-apply `chmod` and `chown` as needed.
 
 
+
+
 ## TODOs
 1. Improve security: https://discourse.nixos.org/t/automatically-ban-ports-scanner-ips-on-nixos/22110
    Also - check out crowdsec.
@@ -78,3 +130,7 @@ To restore a backup after disaster:
 ## Resources
 1. Install flake using script: https://dzone.com/articles/nixos-native-flake-deployment-with-luks-and-lvm
 2. Overrides in multiple ways: https://bobvanderlinden.me/customizing-packages-in-nix/
+
+
+
+

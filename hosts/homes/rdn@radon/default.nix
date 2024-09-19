@@ -12,6 +12,7 @@ in {
     galculator
     gamemode
     gparted
+    heroic
     hotspot
     jetbrains.idea-community
     # logiops
