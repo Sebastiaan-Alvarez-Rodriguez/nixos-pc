@@ -35,7 +35,7 @@ in {
     my.services.backup = {
       paths = [ config.services.postgresqlBackup.location ];
       # No need to store previous backups thanks to `restic`
-      exclude = [ (config.services.postgresqlBackup.location + "/*.prev.sql.gz") ];
+      exclude = [ (config.services.postgresqlBackup.location + "/*.prev.sql*") ];
     };
   };
 }
