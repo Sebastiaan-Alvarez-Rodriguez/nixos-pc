@@ -58,12 +58,8 @@
       timer-config = { OnCalendar = "19:30"; Persistent = true; };
       prune-opts = []; # cannot prune, because --> server is append-only, so no deleting/pruning.
     };
-    postgresql-backup = {
-      enable = true;
-      backupAll = true;
-      location = "/data/postgres-backup"; # path is automatically added to backup.
-      startAt = "*-*-* 18:30:00";
-    };
+    grocy.enable = true;
+
     fail2ban.enable = true;
     # flood.enable = true;
     indexers.prowlarr.enable = true;
@@ -98,10 +94,21 @@
       enable = true;
       dataDir = "/data/postgres";
     };
+    postgresql-backup = {
+      enable = true;
+      backupAll = true;
+      location = "/data/postgres-backup"; # path is automatically added to backup.
+      startAt = "*-*-* 18:30:00";
+    };
     # pyload = { # seb: TODO pyload does not appear to work too well when trying to login.
     #   enable = true;
     #   credentialsFile = config.age.secrets."services/pyload/secret".path;
     # };
+    sqlite-backup = {
+      enable = true;
+      startAt = "*-*-* 18:30:00";
+    };
+
     ssh-server.enable = true;
     # Recipe manager
     tandoor-recipes = {
