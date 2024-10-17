@@ -28,6 +28,7 @@
     ./pyload
     ./sabnzbd
     ./ssh-server
+    ./sqlite-backup
     ./tandoor-recipes
     ./tlp
     ./transmission
