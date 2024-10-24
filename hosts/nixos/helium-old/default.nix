@@ -5,7 +5,6 @@
     enable = true;
     tmp.clean = true;
     # kind = "grub";
-    kind = "systemd";
   };
 
   my.system = { # contains common system packages and settings shared between hosts.
@@ -111,12 +110,13 @@
     };
 
     ssh-server.enable = true;
+    ssh-server.permitRootLogin = true; # seb: TODO: remove after building
 
     # Recipe manager
-    # tandoor-recipes = { # seb: NOTE disabled due to dependency on insecure python3.11-js2py-0.74
-    #   enable = true;
-    #   secretKeyFile = config.age.secrets."services/tandoor-recipes/secret".path;
-    # };
+    tandoor-recipes = {
+      enable = true;
+      secretKeyFile = config.age.secrets."services/tandoor-recipes/secret".path;
+    };
     transmission = {
       enable = true;
       download-dir = "/data/downloads";

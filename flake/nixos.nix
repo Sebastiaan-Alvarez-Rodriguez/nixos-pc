@@ -3,6 +3,7 @@
     {
       system.configurationRevision = self.rev or "dirty"; # Let 'nixos-version --json' know about the Git revision
       nixpkgs.overlays = (lib.attrValues self.overlays) ++ [ inputs.nur.overlay ];
+      nix.settings.trusted-users = [ "@wheel" ]; # Required for accepting remote builds
     }
     "${self}/modules/nixos" # Include generic settings
   ];

@@ -399,6 +399,9 @@ in {
       };
     };
 
+    # adds certificates into backup
+    my.services.backup.paths = lib.mapAttrsToList (_: value: value.directory) config.security.acme.certs;
+
     services.grafana.provision.dashboards.settings.providers = lib.mkIf cfg.monitoring.enable [
       {
         name = "NGINX";

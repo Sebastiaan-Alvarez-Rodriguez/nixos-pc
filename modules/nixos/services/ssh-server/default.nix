@@ -10,6 +10,7 @@ in {
       description = "Port to open ssh server on. Best to not use port 22.";
       default = 8188;
     };
+    permitRootLogin = mkEnableOption "allow root to login (best to not allow this)";
   };
 
   config = lib.mkIf cfg.enable {
@@ -17,7 +18,7 @@ in {
       enable = true;
       ports = [ cfg.port ];
       settings = {
-        PermitRootLogin = "no";
+        PermitRootLogin = if cfg.permitRootLogin then "yes" else "no";
         PasswordAuthentication = false;
       };
     };
