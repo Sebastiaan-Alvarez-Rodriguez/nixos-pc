@@ -129,15 +129,5 @@ in {
         value = createBackupService item cmd;
       }) cfg.items);
     }
-    # systemd.services = let
-    #   itemfunc = item: let
-    #     cmd = ''sqlite3 ${item.src} ".backup '${item.dst}'"'';
-    #   in {
-    #     name = "sqlite-backup-${item.name}";
-    #     value = createBackupService item cmd;
-    #   };
-    # in
-    #   listToAttrs (map itemfunc cfg.items);
-
   ];
 }

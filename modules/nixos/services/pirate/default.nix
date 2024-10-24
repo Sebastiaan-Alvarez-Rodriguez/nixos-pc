@@ -1,5 +1,4 @@
-# The total autonomous media delivery system.
-# Relevant link: https://youtu.be/I26Ql-uX6AM
+# The total autonomous media storage & delivery system.
 { config, lib, ... }: let
   cfg = config.my.services.pirate;
 
