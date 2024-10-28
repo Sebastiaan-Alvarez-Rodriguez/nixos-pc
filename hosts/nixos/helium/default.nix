@@ -71,6 +71,12 @@
     # };
     jellyfin.enable = true;
 
+    meshcentral = {
+      enable = true;
+      new-accounts = false;
+      backup-path = "/data/meshcentral/backup";
+    };
+
     nfs = {
       enable = false; # seb: TODO see nfs config for potential exploit
       folders."/data" = [{
