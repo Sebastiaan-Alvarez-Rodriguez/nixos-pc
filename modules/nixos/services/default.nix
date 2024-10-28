@@ -15,6 +15,7 @@
     ./matrix
     ./mailserver
     ./mealie
+    ./meshcentral
     ./miniflux
     ./monitoring
     ./navidrome
