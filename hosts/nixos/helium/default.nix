@@ -59,6 +59,7 @@
       timer-config = { OnCalendar = "19:30"; Persistent = true; };
       prune-opts = []; # cannot prune, because --> server is append-only, so no deleting/pruning.
     };
+    home-assistant.enable = true;
     grocy.enable = true;
 
     fail2ban.enable = true;
