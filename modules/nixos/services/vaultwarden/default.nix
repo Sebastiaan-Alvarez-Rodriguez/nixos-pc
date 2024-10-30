@@ -30,16 +30,16 @@ in {
     };
     my.services.postgresql = {
       enable = true;
-      # settings.port = 5432;
 
       # Only allow unix socket authentication for vaultwarden database
-      authentication = "local ${config.users.users.vaultwarden.name} all peer map=superuser_map"; # seb: NOTE if I ever get a conflict for this attribute, change to list option type and merge in custom service.
+      authentication = "local ${config.users.users.vaultwarden.name} all peer map=vaultwarden_map";
 
       identMap = ''
-        superuser_map root     postgres
-        superuser_map postgres postgres
-        superuser_map  /^(.*)$ \1
-      ''; # seb: NOTE if I ever get a conflict for this attribute, change to list option type and merge in custom service.
+        vaultwarden_map ${config.users.users.vaultwarden.name} ${config.users.users.vaultwarden.name}
+      '';
+        # superuser_map root     postgres
+        # superuser_map postgres postgres
+        # superuser_map  /^(.*)$ \1
 
       ensureDatabases = [ config.users.users.vaultwarden.name ];
 

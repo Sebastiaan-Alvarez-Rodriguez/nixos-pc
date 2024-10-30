@@ -53,6 +53,7 @@ in {
           # };
 
           autoBackup.backupPath = cfg.backup-path;
+          autoBackup.keepLastDaysBackup = 0; # we backup daily, no need to keep older versions.
           WANonly = true; # only handle WAN devices
           # LANonly = true; # only handle LAN devices
 
@@ -75,12 +76,20 @@ in {
               title2 = "mesh vnc";
               newAccounts = cfg.new-accounts;
               userNameIsEmail = true;
-              certUrl = "127.0.0.1";
+              # certUrl = "https://${config.networking.domain}/";
+              # certUrl = "https://127.0.0.1";
+              # certUrl = "https://${domain-prefix}.${config.networking.domain}";
+              certUrl = "https://${domain-prefix}.${config.networking.domain}:443";
+              # ignoreAgentHashCheck = true; # seb TODO: enable if certUrl wont work
             };
           };
         };
       };
     };
+
+    systemd.tmpfiles.rules = [ # ensures the backup directory exists and is world-readable.
+      "d ${cfg.backup-path} 0775 root root -"
+    ];
 
     # my.services.postgresql = {
     #   authentication = "local ${config.users.users.meshcentral.name} all peer map=superuser_map"; # seb: NOTE if I ever get a conflict for this attribute, change to list option type and merge in custom service.
@@ -96,6 +105,7 @@ in {
     my.services.backup.paths = [ cfg.backup-path ];
     my.services.nginx.virtualHosts.${domain-prefix} = {
       inherit (cfg) port;
+      useACMEHost = config.networking.domain;
 
       extraConfig = {
         locations."/".proxyWebsockets = true;

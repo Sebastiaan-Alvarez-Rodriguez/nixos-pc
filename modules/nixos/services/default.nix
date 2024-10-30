@@ -10,6 +10,7 @@
     ./gitea
     ./greetd
     ./grocy
+    ./home-assistant
     ./indexers
     ./jellyfin
     ./matrix
