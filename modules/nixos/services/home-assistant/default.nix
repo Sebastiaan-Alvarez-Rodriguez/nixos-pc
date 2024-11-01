@@ -7,7 +7,7 @@ in {
     port = mkOption {
       type = types.port;
       default = 9999;
-      description = "Port for home-assistant http server";
+      description = "Internal port for home-assistant http server";
     };
   };
 
@@ -18,8 +18,6 @@ in {
         message = "'hass' user not found.";
       }
     ];
-
-    # networking.firewall.allowedTCPPorts = [ cfg.port ]; # seb: TODO remove me after test
 
     services.home-assistant = {
       enable = true;
@@ -45,7 +43,12 @@ in {
       # unknowns: 
       config = { # Includes dependencies for a basic setup
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
-        http.server_port = cfg.port;
+        http = {
+          server_port = cfg.port;
+          server_host = "127.0.0.1";
+          trusted_proxies = [ "127.0.0.1" ];
+          use_x_forwarded_for = true;
+        };
       };
     };
   
@@ -68,6 +71,20 @@ in {
           ensureDBOwnership = true;
         }
       ];
+    };
+
+    my.services.nginx.virtualHosts.ha = {
+      inherit (cfg) port;
+      useACMEHost = config.networking.domain;
+
+      extraConfig = {
+        extraConfig = ''
+          proxy_buffering off;
+        '';
+        locations."/" = {
+          proxyWebsockets = true;
+        };
+      };
     };
   };
 }
