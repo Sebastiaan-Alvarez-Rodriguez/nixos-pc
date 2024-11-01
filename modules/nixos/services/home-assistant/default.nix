@@ -78,9 +78,9 @@ in {
       useACMEHost = config.networking.domain;
 
       extraConfig = {
-        extraConfig = ''
-          proxy_buffering off;
-        '';
+        # extraConfig = ''
+        #   proxy_buffering off;
+        # '';
         locations."/" = {
           proxyWebsockets = true;
         };
