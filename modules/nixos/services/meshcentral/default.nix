@@ -108,11 +108,16 @@ in {
       useACMEHost = config.networking.domain;
 
       extraConfig = {
-        locations."/".proxyWebsockets = true;
-        locations."/".extraConfig = ''
+        extraConfig = ''
+          proxy_buffering off;
           proxy_send_timeout 330s;
           proxy_read_timeout 330s;
         '';
+        locations."/".proxyWebsockets = true;
+        # locations."/".extraConfig = ''
+        #   proxy_send_timeout 330s;
+        #   proxy_read_timeout 330s;
+        # '';
       };
     };
   };
