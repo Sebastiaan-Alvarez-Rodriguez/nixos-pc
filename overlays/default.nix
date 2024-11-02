@@ -1,3 +1,4 @@
+# { self, nixpkgs-unstable, ... }: 
 # Automatically import all overlays in the directory
 let
   files = builtins.readDir ./.;

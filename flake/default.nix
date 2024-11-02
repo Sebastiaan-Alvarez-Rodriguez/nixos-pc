@@ -1,4 +1,4 @@
-{ flake-parts, systems, self, nixpkgs, nixos-hardware, nixpkgs-unstable, home-manager, ... } @ inputs: flake-parts.lib.mkFlake { inherit inputs; } {
+{ flake-parts, systems, self, nixpkgs, nixos-hardware, nixos-unstable, home-manager, ... } @ inputs: flake-parts.lib.mkFlake { inherit inputs; } {
   systems = import systems;
 
   imports = [
