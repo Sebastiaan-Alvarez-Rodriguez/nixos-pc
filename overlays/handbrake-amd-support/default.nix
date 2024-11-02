@@ -1,3 +1,4 @@
+{ inputs, ... }:
 self: prev: { # Patch foot with an option that allows per-monitor scaling, so that DPI and stuff isn't so horrible.
   handbrake = prev.handbrake.overrideAttrs (old: rec {
     # version = "1.16.2"; # maybe lock version

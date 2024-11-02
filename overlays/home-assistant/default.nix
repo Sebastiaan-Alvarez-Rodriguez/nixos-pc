@@ -1,5 +1,6 @@
-self: prev: { # Patch foot with an option that allows per-monitor scaling, so that DPI and stuff isn't so horrible.
-  # inherit (nixpkgs-unstable) home-assistant;
+{ inputs, ... }:
+self: prev: { # use unstable package
+  home-assistant = inputs.nixos-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.home-assistant;
 }
 
 # disabledModules = [
