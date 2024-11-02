@@ -1,3 +1,4 @@
+{ inputs, ... }:
 self: prev: { # Patch foot with an option that allows per-monitor scaling, so that DPI and stuff isn't so horrible.
   foot = prev.foot.overrideAttrs (old: rec {
     version = "1.16.2"; # Also use an older version so that we don't need to update the patches every time
