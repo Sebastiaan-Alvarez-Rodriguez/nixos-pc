@@ -23,7 +23,7 @@ in {
       enable = true;
 
       package = (pkgs.home-assistant.override { # support for postgresql
-        extraPackages = py: with py; [ psycopg2 ]; # seb: NOTE: was psycopg2 originally
+        extraPackages = py: with py; [ psycopg2 ];
       }).overrideAttrs (oldAttrs: {
         doInstallCheck = false;
       });
@@ -31,7 +31,6 @@ in {
 
       extraComponents = [
         # All packaged components are here: https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/home-assistant/component-packages.nix
-        # The quoted names are the ones available.
         
         # Components required to complete the onboarding
         "esphome"
