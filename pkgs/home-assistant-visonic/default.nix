@@ -1,4 +1,6 @@
 { pkgs, lib, fetchgit }: pkgs.stdenv.mkDerivation rec {
+  # NOTE: after installation, restart home-assistant service, then
+  # go to your website > settings > Devices & services > integrations  and search for "Visonic Intruder Alarm".
   pname = "home-assistant-visonic";
   version = "0.9.9.9";
   src = pkgs.fetchFromGitHub {
