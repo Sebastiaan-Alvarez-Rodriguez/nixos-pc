@@ -1,6 +1,10 @@
 # declarative HA
-{ config, lib, pkgs, ... }: let
+{ config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.home-assistant;
+  configpath = "/var/lib/hass";
+  ccpath = "${configpath}/custom_components"; #custom-components-path
+
+  hass-visonic = inputs.self.packages.${system}.home-assistant-visonic;
 in {
   options.my.services.home-assistant = with lib; {
     enable = mkEnableOption "home-assistant service";
@@ -52,6 +56,14 @@ in {
     };
   
     users.groups.hass = { }; # Set-up homeassistant group
+
+    systemd.tmpfiles.rules = [
+      # custom components
+      "C ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic"
+
+      # fix directory permissions
+      "Z ${ccpath} 770 hass hass - -"
+    ];
 
     my.services.postgresql = {
       enable = true;

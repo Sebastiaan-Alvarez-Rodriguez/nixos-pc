@@ -8,6 +8,8 @@
 
   dragger = pkgs.callPackage ./dragger { };
 
+  home-assistant-visonic = pkgs.callPackage ./home-assistant-visonic { };
+
   i3-get-window-criteria = pkgs.callPackage ./i3-get-window-criteria { };
 
   matrix-notifier = pkgs.callPackage ./matrix-notifier { };
