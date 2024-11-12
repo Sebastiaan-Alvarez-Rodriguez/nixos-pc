@@ -59,6 +59,7 @@ in {
 
     systemd.tmpfiles.rules = [
       # custom components
+      # NOTE: always restart home-assistant service after adding a component
       "C ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic"
 
       # fix directory permissions
