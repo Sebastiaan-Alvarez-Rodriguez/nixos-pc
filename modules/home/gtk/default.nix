@@ -1,7 +1,7 @@
 { config, lib, pkgs, inputs, system, ... }:
 let
   cfg = config.my.home.gtk;
-  breeze-obsidian-cursor = inputs.self.packages.x86_64-linux.breeze-obsidian-cursor;
+  breeze-obsidian-cursor = inputs.self.packages.${system}.breeze-obsidian-cursor;
 in {
   options.my.home.gtk = with lib; {
     enable = mkEnableOption "GTK configuration";
