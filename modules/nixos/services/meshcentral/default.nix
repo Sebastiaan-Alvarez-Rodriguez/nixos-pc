@@ -80,7 +80,7 @@ in {
               # certUrl = "https://127.0.0.1";
               # certUrl = "https://${domain-prefix}.${config.networking.domain}";
               certUrl = "https://${domain-prefix}.${config.networking.domain}:443";
-              # ignoreAgentHashCheck = true; # seb TODO: enable if certUrl wont work
+              ignoreAgentHashCheck = true; # seb TODO: enable if certUrl wont work
             };
           };
         };
