@@ -26,8 +26,11 @@ in {
     services.home-assistant = {
       enable = true;
 
-      package = (pkgs.home-assistant.override { # support for postgresql
-        extraPackages = py: with py; [ psycopg2 ];
+      package = (pkgs.home-assistant.override {
+        extraPackages = py: with py; [
+          psycopg2 # support for postgresql
+          zlib-ng  # next-gen zlib support
+        ];
       }).overrideAttrs (oldAttrs: {
         doInstallCheck = false;
       });
@@ -41,6 +44,7 @@ in {
         "met"
         "radio_browser"
 
+        "plugwise"
         "solaredge"
       ];
       # unknowns: 

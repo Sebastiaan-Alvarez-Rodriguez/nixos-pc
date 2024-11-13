@@ -2,7 +2,7 @@
 self: prev: { # use unstable package
   home-assistant = inputs.nixos-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.home-assistant;
 }
-
+# NOTE: also requires configurations:
 # disabledModules = [
 #   "services/home-automation/home-assistant.nix"
 # ];
