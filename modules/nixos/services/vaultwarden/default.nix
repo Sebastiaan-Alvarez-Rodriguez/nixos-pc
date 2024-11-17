@@ -32,7 +32,7 @@ in {
       enable = true;
 
       # Only allow unix socket authentication for vaultwarden database
-      authentication = "local ${config.users.users.vaultwarden.name} all peer map=vaultwarden_map";
+      authentication = "local ${config.users.users.vaultwarden.name} ${config.users.users.vaultwarden.name} peer map=vaultwarden_map";
 
       identMap = ''
         vaultwarden_map ${config.users.users.vaultwarden.name} ${config.users.users.vaultwarden.name}

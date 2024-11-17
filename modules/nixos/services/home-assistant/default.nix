@@ -73,7 +73,7 @@ in {
     my.services.postgresql = {
       enable = true;
       # Only allow unix socket authentication for hass database
-      authentication = "local ${config.users.users.hass.name} all peer map=homeassistant_map";
+      authentication = "local ${config.users.users.hass.name} ${config.users.users.hass.name} peer map=homeassistant_map";
 
       identMap = ''
         homeassistant_map ${config.users.users.hass.name} ${config.users.users.hass.name}
