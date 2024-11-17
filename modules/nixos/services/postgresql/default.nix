@@ -141,14 +141,14 @@ in {
     (lib.mkIf cfg.enable {
       assertions = let
         lines = lib.splitString "\n" cfg.authentication;
-        filterfunc = (elem: let splits = lib.splitString " " elem; in elem[1] == "all" && elem[2] == "all");
+        filterfunc = (elem: let splits = lib.splitString " " elem; in (((builtins.elemAt splits 1) == "all") && ((builtins.elemAt splits 2) == "all")) && !lib.hasSuffix "ALLOW_ALL" elem);
         filtered = builtins.filter filterfunc lines;
       in [
         {
           assertion = builtins.length filtered == 0;
           message = ''
             Found illegal authentication catch-all(s) (auth-strings containing "all all"):
-            ${lib.concatStringSep "\n" filtered}
+            ${lib.concatStringsSep "\n" filtered}
           '';
         }
       ];
