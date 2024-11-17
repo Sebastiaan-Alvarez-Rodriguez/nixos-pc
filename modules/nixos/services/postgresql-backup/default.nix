@@ -26,16 +26,20 @@ in {
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    services.postgresqlBackup = {
-      enable = true;
-      inherit (cfg) backupAll compression compressionLevel location startAt;
-    };
+  config = lib.mkIf cfg.enable (lib.mkMerge [
+    {
+      services.postgresqlBackup = {
+        enable = true;
+        inherit (cfg) backupAll compression compressionLevel location startAt;
+      };
+    }
 
-    my.services.backup = {
-      paths = [ config.services.postgresqlBackup.location ];
-      # No need to store previous backups thanks to `restic`
-      exclude = [ (config.services.postgresqlBackup.location + "/*.prev.sql*") ];
-    };
-  };
+    (lib.mkIf config.my.services.backup.enable {
+      my.services.backup = {
+        paths = [ config.services.postgresqlBackup.location ];
+        # No need to store previous backups thanks to `restic`
+        exclude = [ (config.services.postgresqlBackup.location + "/*.prev.sql*") ];
+      };
+    })
+  ]);
 }

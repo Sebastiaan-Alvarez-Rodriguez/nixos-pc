@@ -139,6 +139,25 @@ in {
     finalData = if cfg.dataDir != null then "${cfg.dataDir}/${cfg.package.psqlSchema}" else null;
   in lib.mkMerge [
     (lib.mkIf cfg.enable {
+      assertions = let
+        lines = lib.splitString "\n" cfg.authentication;
+        filterfunc = (elem: let splits = lib.splitString " " elem; in elem[1] == "all" && elem[2] == "all");
+        filtered = builtins.filter filterfunc lines;
+      in [
+        {
+          assertion = builtins.length filtered == 0;
+          message = ''
+            Found illegal authentication catch-all(s) (auth-strings containing "all all"):
+            ${lib.concatStringSep "\n" filtered}
+          '';
+        }
+      ];
+      my.services.postgresql.authentication = lib.mkAfter "local all all peer map=ALLOW_ALL";
+      my.services.postgresql.identMap = lib.mkAfter ''
+        ALLOW_ALL root postgres
+        ALLOW_ALL postgres postgres
+      ''; # allow root and postgres users to access all databases.
+
       services.postgresql = {
         enable = true;
         inherit (cfg) package dataDir;
@@ -148,7 +167,9 @@ in {
         "d ${cfg.dataDir} 0700 ${config.users.users.postgres.name} ${config.users.users.postgres.group} -"
       ];
     })
-
+    (lib.mkIf config.my.services.backup.enable {
+      my.services.backup.exclude = [ cfg.dataDir ]; # should not backup live database.
+    })
     (lib.mkIf cfg.upgradeScript { # Taken from the manual
       environment.systemPackages = let
         pgCfg = config.services.postgresql;

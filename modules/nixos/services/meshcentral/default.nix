@@ -92,7 +92,7 @@ in {
     ];
 
     # my.services.postgresql = {
-    #   authentication = "local ${config.users.users.meshcentral.name} all peer map=superuser_map"; # seb: NOTE if I ever get a conflict for this attribute, change to list option type and merge in custom service.
+    #   authentication = "local ${config.users.users.meshcentral.name} ${config.users.users.meshcentral.name} peer map=superuser_map"; # seb: NOTE if I ever get a conflict for this attribute, change to list option type and merge in custom service.
     #   ensureDatabases = [ pg-user ];
     #   ensureUsers = [
     #     {

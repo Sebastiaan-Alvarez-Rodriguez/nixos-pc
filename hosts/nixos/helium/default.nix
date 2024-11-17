@@ -49,9 +49,6 @@
     adblock.enable = true;
     backup = {
       enable = true;
-      exclude = [
-        "/data/postgres" # should not backup live database.
-      ];
       repository = "rest:https://restic.mijn.place/helium/";
       environment-file = config.age.secrets."services/backup-server/xenon-client-helium".path;
       password-file = config.age.secrets."services/backup-server/xenon-repo-helium".path;
