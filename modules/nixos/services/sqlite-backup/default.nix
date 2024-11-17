@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }: with lib; let
   cfg = config.my.services.sqlite-backup;
 
-  createBackupService = item: dumpCmd: let
+  createBackupService = item: let
     compressSuffixes = {
       "none" = "";
       "gzip" = ".gz";
@@ -9,17 +9,20 @@
     };
     compressSuffix = getAttr item.compression compressSuffixes;
 
-    compressCmd = getAttr item.compression {
-      "none" = "cat";
-      "gzip" = "${pkgs.gzip}/bin/gzip -c -${toString item.compressionLevel} --rsyncable";
-      "zstd" = "${pkgs.zstd}/bin/zstd -c -${toString item.compressionLevel} --rsyncable";
-    };
-
     mkSqlPath = prefix: suffix: "${item.dst}/${item.name}${prefix}.sqlite${suffix}";
     curFile = mkSqlPath "" compressSuffix;
     prevFile = mkSqlPath ".prev" compressSuffix;
     prevFiles = map (mkSqlPath ".prev") (attrValues compressSuffixes);
-    inProgressFile = mkSqlPath ".in-progress" compressSuffix;
+    inProgressDumpFile = mkSqlPath ".in-progress" "";
+    inProgressCompressFile = mkSqlPath ".in-progress" compressSuffix;
+
+    dumpCmd = ''sqlite3 ${item.src} ".backup '${inProgressDumpFile}'"'';
+    compressCmd = getAttr item.compression {
+      "none" = "cat ${inProgressDumpFile}";
+      "gzip" = "${pkgs.gzip}/bin/gzip -c -${toString item.compressionLevel} --rsyncable ${inProgressDumpFile}";
+      "zstd" = "${pkgs.zstd}/bin/zstd -c -${toString item.compressionLevel} --rsyncable ${inProgressDumpFile}";
+    };
+
   in {
     enable = true;
     description = "Backup of ${item.name} database";
@@ -35,11 +38,11 @@
         mv ${curFile} ${prevFile}
       fi
 
-      ${dumpCmd} \
-        | ${compressCmd} \
-        > ${inProgressFile}
+      ${dumpCmd} # dumps file
+      ${compressCmd} > ${inProgressCompressFile} # creates compressed file
 
-      mv ${inProgressFile} ${curFile}
+      rm ${inProgressDumpFile}
+      mv ${inProgressCompressFile} ${curFile}
     '';
 
     serviceConfig = {
@@ -122,11 +125,9 @@ in {
     })
 
     {
-      systemd.services = listToAttrs (map (item: let
-        cmd = ''sqlite3 ${item.src} ".backup '${item.dst}'"'';
-      in {
+      systemd.services = listToAttrs (map (item: {
         name = "sqlite-backup-${item.name}";
-        value = createBackupService item cmd;
+        value = createBackupService item;
       }) cfg.items);
     }
   ];
