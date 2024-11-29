@@ -94,7 +94,7 @@
       radarr.enable = true;
       # sonarr.enable = true;
     };
-    backup.exclude = [ "/data/media/movies" ]; # movies are not to be backed up.
+    backup.exclude = [ "/data/media/movies" "/data/downloads" ]; # downloads / seeds / movies are not to be backed up.
 
     postgresql = {
       enable = true;

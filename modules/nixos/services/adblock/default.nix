@@ -56,8 +56,6 @@ in {
           so-reuseport = true;
           tls-cert-bundle = "/etc/ssl/certs/ca-certificates.crt";
           tls-upstream = true;
-
-          include = "${pkgs.custompkgs.unbound-zones-adblock}/hosts";
         };
 
         forward-zone = [{
