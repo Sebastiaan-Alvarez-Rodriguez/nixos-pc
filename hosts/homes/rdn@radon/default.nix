@@ -5,7 +5,7 @@ in {
 
   home.packages = with pkgs; [
     adbfs-rootless
-    android-studio
+    # android-studio
     chromium
     drawio
     droidcam
@@ -13,17 +13,16 @@ in {
     gamemode
     gparted
     heroic
-    hotspot
-    jetbrains.idea-community
+    # hotspot
+    # jetbrains.idea-community
     # logiops
-    proton-caller
+    # proton-caller
     qbittorrent
     tdesktop
     teams-for-linux
     teamspeak_client
-    teamviewer
     tor-browser-bundle-bin
-    virt-manager # ui manager for vm's
+    # virt-manager # ui manager for vm's
     vlc
   ];
 
