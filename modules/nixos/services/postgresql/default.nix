@@ -137,40 +137,28 @@ in {
 
   config = let
     finalData = if cfg.dataDir != null then "${cfg.dataDir}/${cfg.package.psqlSchema}" else null;
+
+    lines = lib.splitString "\n" cfg.authentication;
+    matchfunc = line: let match = builtins.match "local .+ ([a-zA-Z0-9]+) peer map=(.+)" line; in if match != null && (builtins.elemAt match 1) != "all" then match else [ ]; # matches peer maps. Returns list of [user, mapname].
+    generatorfunc = pair: let username = builtins.elemAt pair 0; mapname = builtins.elemAt pair 1; in "${mapname} root ${username}"; # allows local user 'root' access to the database this map applies to, with local pg user ${username}
+    assembeIdentMapRules = lines: lib.concatStringsSep "\n" (lib.map generatorfunc (lib.map matchfunc lines)); # creates a single string with all new IdentMapRules;
   in lib.mkMerge [
     (lib.mkIf cfg.enable {
-      assertions = let
-        lines = lib.splitString "\n" cfg.authentication;
-        user-lines = lib.take ((builtins.length lines)-1) lines;
-        filterfunc = (elem: let splits = lib.splitString " " elem; in (builtins.elemAt splits 1) == "all" && (builtins.elemAt splits 2) == "all");
-        filtered = builtins.filter filterfunc user-lines;
-      in [
-        {
-          assertion = builtins.length filtered == 0;
-          message = ''
-            Found illegal authentication catch-all(s) (auth-strings containing "all all"):
-            ${lib.concatStringsSep "\n" filtered}
-          '';
-        }
-      ];
-      my.services.postgresql.authentication = lib.mkAfter "local all all peer map=ALLOW_ALL";
-      my.services.postgresql.identMap = lib.mkAfter ''
-        ALLOW_ALL root postgres
-        ALLOW_ALL postgres postgres
-      ''; # allow root and postgres users to access all databases.
+      # this piece of configuration below automatically allows system user 'root' access to any database where a peer-map is used, which has an auth string resembling "local .+ ([ascii]+) peer map=(.+)"
+      my.services.postgresql.identMap = lib.mkAfter (assembeIdentMapRules lines); # allow root and postgres users to access all databases.
 
       services.postgresql = {
         enable = true;
         inherit (cfg) package dataDir;
         inherit (cfg) authentication enableJIT ensureDatabases ensureUsers identMap;
       };
-      systemd.tmpfiles.rules = [
-        "d ${cfg.dataDir} 0700 ${config.users.users.postgres.name} ${config.users.users.postgres.group} -"
-      ];
+      systemd.tmpfiles.rules = [ "d ${cfg.dataDir} 0700 ${config.users.users.postgres.name} ${config.users.users.postgres.group} -" ];
     })
+
     (lib.mkIf config.my.services.backup.enable {
       my.services.backup.exclude = [ cfg.dataDir ]; # should not backup live database.
     })
+
     (lib.mkIf cfg.upgradeScript { # Taken from the manual
       environment.systemPackages = let
         pgCfg = config.services.postgresql;
