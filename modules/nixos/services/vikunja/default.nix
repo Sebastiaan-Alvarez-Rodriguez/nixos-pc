@@ -9,9 +9,7 @@ in {
     enable = mkEnableOption "Vikunja todo app";
 
     mail = {
-      enable = mkEnableOption {
-        description = "mailer configuration";
-      };
+      enable = mkEnableOption "mailer configuration";
 
       configFile = mkOption {
         type = types.str;
@@ -37,11 +35,9 @@ in {
 
       settings = {
         service = {
-          # Only allow registration of users through the CLI
-          enableregistration = false;
-          # Ues the host's timezone
+          enableregistration = false; # Only allow registration of users through the CLI
           timezone = config.time.timeZone;
-          # Use UNIX socket for serving the API
+          # UNIX socket for serving the API
           unixsocket = socketPath;
           unixsocketmode = "0o660";
         };
@@ -55,10 +51,8 @@ in {
     };
 
     # This is a weird setup
-    my.services.nginx.virtualHosts = {
-      ${subdomain} = {
-        socket = socketPath;
-      };
+    my.services.nginx.virtualHosts.${subdomain} = {
+      socket = socketPath;
     };
 
     systemd.services.vikunja = {
@@ -88,10 +82,6 @@ in {
       ];
     };
 
-    my.services.backup = {
-      paths = [
-        config.services.vikunja.settings.files.basepath
-      ];
-    };
+    my.services.backup.paths = [ config.services.vikunja.settings.files.basepath ];
   };
 }
