@@ -34,15 +34,9 @@ in {
       # Only allow unix socket authentication for vaultwarden database
       authentication = "local ${config.users.users.vaultwarden.name} ${config.users.users.vaultwarden.name} peer map=vaultwarden_map";
 
-      identMap = ''
-        vaultwarden_map ${config.users.users.vaultwarden.name} ${config.users.users.vaultwarden.name}
-      '';
-        # superuser_map root     postgres
-        # superuser_map postgres postgres
-        # superuser_map  /^(.*)$ \1
+      identMap = "vaultwarden_map ${config.users.users.vaultwarden.name} ${config.users.users.vaultwarden.name}";
 
       ensureDatabases = [ config.users.users.vaultwarden.name ];
-
       ensureUsers = [
         {
           inherit (config.users.users.vaultwarden) name;
