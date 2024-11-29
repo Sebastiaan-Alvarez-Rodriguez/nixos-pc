@@ -1,5 +1,5 @@
 # The total autonomous media storage & delivery system.
-{ config, lib, ... }: let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.pirate;
 
   descriptions = {
@@ -18,7 +18,7 @@
 
   mkConfig = service: lib.mkIf cfg.${service}.enable {
     services.${service} = {
-      inherit (cfg) enable package user group;
+      inherit (cfg.${service}) enable package user group;
     };
 
     my.services.nginx.virtualHosts.${service} = {
@@ -53,13 +53,13 @@
     };
 
     user = mkOption {
-      type = types.string;
+      type = types.str;
       default = "${service}";
       description = "User under which ${service} runs";
     };
 
     group = mkOption {
-      type = types.string;
+      type = types.str;
       default = "media";
       description = "Group under which ${service} runs";
     };

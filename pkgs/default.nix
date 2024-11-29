@@ -19,6 +19,4 @@
   osc777 = pkgs.callPackage ./osc777 { };
 
   rbw-pass = pkgs.callPackage ./rbw-pass { };
-
-  unbound-zones-adblock = pkgs.callPackage ./unbound-zones-adblock { };
 })
