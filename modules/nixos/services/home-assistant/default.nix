@@ -48,7 +48,7 @@ in {
         "solaredge"
       ];
       # unknowns: 
-      config = { # Includes dependencies for a basic setup
+      config = { # Found in /var/lib/hass
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
         http = {
           server_port = cfg.port;
@@ -57,6 +57,23 @@ in {
           use_x_forwarded_for = true;
         };
       };
+
+      # lovelaceConfig = { # the dashboards are created with lovelace. With this option set, we cannot edit the dashboard using the UI when this option is set.
+      #   views = [
+      #     {
+      #       title = "Home";
+      #       icon = "mdi:view-dashboard-outline";
+      #       cards = [
+      #         { type = "alarm-panel"; states = [ "arm_home" "arm_away" ]; entity = "alarm_control_panel.visonic_alarm_167313"; }
+      #         { type = "thermostat"; entity = "climate.anna"; }
+
+      #         { type = "entity"; entity = "sensor.smile_anna_outdoor_temperature" }
+      #         { type = "entity"; entity = "sensor.solaredge_current_power" }
+      #         { type = "entity"; entity = "sensor.solaredge_energy_today" }
+      #       ];
+      #     }
+      #   ];
+      # };
     };
   
     users.groups.hass = { }; # Set-up homeassistant group

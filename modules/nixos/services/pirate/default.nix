@@ -2,6 +2,13 @@
 { config, lib, ... }: let
   cfg = config.my.services.pirate;
 
+  descriptions = {
+    bazarr = "For radarr & sonarr subtitles";
+    lidarr = "For music";
+    radarr = "For movies";
+    sonarr = "For shows";
+  };
+
   ports = {
     bazarr = 6767;
     lidarr = 8686;
@@ -9,20 +16,15 @@
     sonarr = 8989;
   };
 
-  mkService = service: {
+  mkConfig = service: lib.mkIf cfg.${service}.enable {
     services.${service} = {
-      enable = true;
-      group = "media";
+      inherit (cfg) enable package user group;
     };
-  };
 
-  mkRedirection = service: {
     my.services.nginx.virtualHosts.${service} = {
       port = ports.${service};
     };
-  };
 
-  mkFail2Ban = service: lib.mkIf cfg.${service}.enable {
     services.fail2ban.jails = {
       ${service} = ''
         enabled = true
@@ -40,38 +42,39 @@
     };
   };
 
-  mkFullConfig = service: lib.mkIf cfg.${service}.enable (lib.mkMerge [
-    (mkService service)
-    (mkRedirection service)
-  ]);
-in {
-  options.my.services.pirate = with lib; {
-    enable = mkEnableOption "Media automation";
 
-    bazarr = {
-      enable = mkEnableOption "Bazarr - For radarr & sonarr subtitles";
+  mkDefaultOptions = service: with lib; {
+    enable = mkEnableOption (builtins.getAttr service descriptions);
+
+    package = mkOption {
+      type = types.package;
+      default = pkgs.${service};
+      description = "${service} package to use";
     };
 
-    lidarr = {
-      enable = mkEnableOption "Lidarr - For music";
+    user = mkOption {
+      type = types.string;
+      default = "${service}";
+      description = "User under which ${service} runs";
     };
 
-    radarr = {
-      enable = mkEnableOption "Radarr - For movies";
-    };
-
-    sonarr = {
-      enable = mkEnableOption "Sonarr - For shows";
+    group = mkOption {
+      type = types.string;
+      default = "media";
+      description = "Group under which ${service} runs";
     };
   };
+in {
+  options.my.services.pirate = with lib; {
+    bazarr = mkDefaultOptions "bazarr";
+    lidarr = mkDefaultOptions "lidarr";
+    radarr = mkDefaultOptions "radarr";
+    sonarr = mkDefaultOptions "sonarr";
+  };
 
-  config = lib.mkIf cfg.enable (lib.mkMerge [
+  config = (lib.mkMerge [
     {
       assertions = [
-        {
-          assertion = cfg.enable -> (cfg.bazarr.enable || cfg.lidarr.enable || cfg.radarr.enable || cfg.sonarr.enable);
-          message = "No service is enabled (bazarr=${builtins.toString cfg.bazarr.enable}, lidarr=${builtins.toString cfg.lidarr.enable}, radarr=${builtins.toString cfg.radarr.enable}, sonarr=${builtins.toString cfg.sonarr.enable})";
-        }
         {
           assertion = cfg.bazarr.enable -> (cfg.radarr.enable || cfg.sonarr.enable);
           message = "Enabled bazarr, which provides subtitles for radarr and sonarr, but forgot to enable any of (radarr, sonarr).";
@@ -79,16 +82,10 @@ in {
       ];
       users.groups.media = { }; # Set-up media group. NOTE: Do not forget to allow write permission of media group to media folder(s).
     }
-    # Bazarr does not log authentication failures...
-    (mkFullConfig "bazarr")
 
-    (mkFullConfig "lidarr")
-    (mkFail2Ban "lidarr")
-    # Radarr for movies
-    (mkFullConfig "radarr")
-    (mkFail2Ban "radarr")
-    # Sonarr for shows
-    (mkFullConfig "sonarr")
-    (mkFail2Ban "sonarr")
+    (mkConfig "bazarr") # NOTE: Bazarr does not log authentication failures...
+    (mkConfig "lidarr")
+    (mkConfig "radarr")
+    (mkConfig "sonarr")
   ]);
 }

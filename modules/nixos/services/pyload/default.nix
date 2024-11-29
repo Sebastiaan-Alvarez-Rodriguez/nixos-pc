@@ -1,3 +1,5 @@
+# Download manager
+# seb NOTE: Does not seam to work too well.
 { config, lib, ... }: let
   cfg = config.my.services.pyload;
 in {

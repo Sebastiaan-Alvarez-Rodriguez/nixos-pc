@@ -73,16 +73,18 @@
         # A list of all login accounts. To create a password hash, use
         # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
         loginAccounts = {
+          "sebastiaan@mijn.place" = {
+            aliasesRegexp = [ "sebastiaan-.*@mijn.place" ];
+            hashedPasswordFile = "/home/rdn/.pwd/sebastiaan-mailserver.pwd";
+          };
+          "mariska@mijn.place" = {
+            aliasesRegexp = [ "mariska-.*@mijn.place" ];
+            hashedPasswordFile = "/home/mrs/.pwd/mariska-mailserver.pwd";
+          };
           "mail@mijn.place" = {
             catchAll = [ "mijn.place" ]; # all catchAll-mailaddresses you gave to companies end here.
             aliases = [ "@mijn.place" ]; # You can now reply using ANY address. Useful to reply to catchAll-mailaddresses.
             hashedPasswordFile = "/data/mail/mailserver.pwd";
-          };
-          "sebastiaan@mijn.place" = {
-            hashedPasswordFile = "/home/rdn/.pwd/sebastiaan-mailserver.pwd";
-          };
-          "mariska@mijn.place" = {
-            hashedPasswordFile = "/home/mrs/.pwd/mariska-mailserver.pwd";
           };
           "noreply@mijn.place" = {
             hashedPasswordFile = "/home/rdn/.pwd/noreply-mailserver.pwd";

@@ -89,12 +89,13 @@
       acme.default-mail = "a@b.com";
     };
     pirate = {
-      enable = true;
       bazarr.enable = true;
       lidarr.enable = true;
       radarr.enable = true;
       # sonarr.enable = true;
     };
+    backup.exclude = [ "/data/media/movies" ]; # movies are not to be backed up.
+
     postgresql = {
       enable = true;
       dataDir = "/data/postgres";
@@ -102,13 +103,9 @@
     postgresql-backup = {
       enable = true;
       backupAll = true;
-      location = "/data/postgres-backup"; # path is automatically added to backup.
+      location = "/data/postgres-backup"; # this path is automatically added to backup.
       startAt = "*-*-* 18:30:00";
     };
-    # pyload = { # seb: TODO pyload does not appear to work too well when trying to login.
-    #   enable = true;
-    #   credentialsFile = config.age.secrets."services/pyload/secret".path;
-    # };
     sqlite-backup = {
       enable = true;
       startAt = "*-*-* 18:30:00";
@@ -116,7 +113,6 @@
 
     ssh-server.enable = true;
 
-    # Recipe manager
     # tandoor-recipes = { # seb: NOTE disabled due to dependency on insecure python3.11-js2py-0.74
     #   enable = true;
     #   secretKeyFile = config.age.secrets."services/tandoor-recipes/secret".path;
@@ -126,13 +122,7 @@
       download-dir = "/data/downloads";
       credentialsFile = config.age.secrets."services/transmission/secret".path;
     };
-    # vikunja = { # Self-hosted todo app
-    #   enable = true;
-    #   mail = {
-    #     enable = true;
-    #     configFile = secrets."vikunja/mail".path; # seb: TODO Get secrets on-board.
-    #   };
-    # };
+    vikunja.enable = true;
     vaultwarden.enable = true;
     # wireguard.enable = true; # seb: TODO fix wireguard config.
   };
