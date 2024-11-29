@@ -103,31 +103,25 @@ in {
     };
   };
 
-  config = mkMerge [
-    {
-      assertions = [] ++ lib.map (item: {
-        assertion = lib.all item.compression == "none" ||
-          (item.compression == "gzip" && item.compressionLevel >= 1 && item.compressionLevel <= 9) ||
-          (item.compression == "zstd" && item.compressionLevel >= 1 && item.compressionLevel <= 19);
-        message = "config.services.sqlite-backup.compressionLevel must be set between 1 and 9 for gzip and 1 and 19 for zstd";
-      }) cfg.items;
-    }
+  config = (mkIf cfg.enable {
+    assertions = [] ++ lib.map (item: {
+      assertion = lib.all item.compression == "none" ||
+        (item.compression == "gzip" && item.compressionLevel >= 1 && item.compressionLevel <= 9) ||
+        (item.compression == "zstd" && item.compressionLevel >= 1 && item.compressionLevel <= 19);
+      message = "config.services.sqlite-backup.compressionLevel must be set between 1 and 9 for gzip and 1 and 19 for zstd";
+    }) cfg.items;
 
-    (mkIf cfg.enable {
-      systemd.tmpfiles.rules = let
-        filterfunc = item: item.mkdirIfNeeded;
-        dstfunc = item: "d '${item.dst}' 0700 :root - - -";
-      in
-        lib.map dstfunc (builtins.filter filterfunc cfg.items);
-    })
+    systemd.tmpfiles.rules = let
+      filterfunc = item: item.mkdirIfNeeded;
+      dstfunc = item: "d '${item.dst}' 0700 :root - - -";
+    in
+      lib.map dstfunc (builtins.filter filterfunc cfg.items);
 
-    {
-      systemd.services = listToAttrs (map (item: let
-        cmd = ''sqlite3 ${item.src} ".backup '${item.dst}'"'';
-      in {
-        name = "sqlite-backup-${item.name}";
-        value = createBackupService item cmd;
-      }) cfg.items);
-    }
-  ];
+    systemd.services = listToAttrs (map (item: let
+      cmd = ''sqlite3 ${item.src} ".backup '${item.dst}'"'';
+    in {
+      name = "sqlite-backup-${item.name}";
+      value = createBackupService item cmd;
+    }) cfg.items);
+  });
 }

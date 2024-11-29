@@ -73,6 +73,11 @@ in {
     users.users.nginx.extraGroups = [ "vikunja" ]; # Allow nginx to access the UNIX socket
 
     my.services.postgresql = {
+      enable = true;
+
+      authentication = "local vikunja vikunja peer map=vikunja_map";
+      identMap = "vikunja_map vikunja vikunja";
+
       ensureDatabases = [ "vikunja" ];
       ensureUsers = [
         {
