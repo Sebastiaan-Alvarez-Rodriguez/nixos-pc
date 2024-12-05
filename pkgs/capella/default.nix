@@ -26,9 +26,12 @@
 # , swt-jdk8-gtk3
 , webkitgtk
 }:
+# inspired from:
+# 1. https://github.com/NixOS/nixpkgs/pull/154188/files
+# 2. https://fzakaria.com/2020/07/20/packaging-a-maven-application-with-nix.html
 
-(maven.buildMavenPackage.override {
-}) rec {
+# NOTE: buildMavenPackage collects defined dependencies from the m2 file
+maven.buildMavenPackage {
   pname = "capella";
   version1 = "7";
   version2 = "0";
@@ -44,7 +47,13 @@
   };
 
   # mvnSha256 = "YyUuSH0RlRBAHToWSnrE7/5gM2hAj9ZhnVft5B4ZI0A=";
-  # mvnParameters = "";
+  # mvnHash = "";
+  mvnParameters = lib.escapeShellArgs [
+    # "-Dfile.encoding=ISO-8859-1"
+    "-Dfile.encoding=UTF-8"
+    "-Dproject.build.sourceEncoding=UTF-8"
+    "-Dproject.reporting.outputEncoding=UTF-8"
+  ];
 
   nativeBuildInputs = [
     autoPatchelfHook
@@ -79,12 +88,14 @@
   LC_ALL = "C.UTF-8";
   # mvnParameters = "--errors --debug";
 
+  buildPhase = ''
+    
+  '';
   installPhase =
     let
       productTargetPath = "$NIX_BUILD_TOP/${src.name}/products/target/products/org.polarsys.capella";
     in
       if stdenv.hostPlatform.isLinux then ''
-    runHook preInstall
     mkdir --parents $out/bin
     cp -rv \
       ${productTargetPath}/linux/gtk/x86_64/Modelio\ ${version12}/* \
