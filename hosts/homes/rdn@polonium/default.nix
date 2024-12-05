@@ -16,7 +16,7 @@ in {
     qbittorrent
     tdesktop
     teams-for-linux
-    teamspeak_client
+    teamspeak3
     tor-browser-bundle-bin
     vlc
   ];

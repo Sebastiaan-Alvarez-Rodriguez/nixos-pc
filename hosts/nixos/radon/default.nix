@@ -1,4 +1,6 @@
-{ config, pkgs, ... }: {
+{ inputs, config, pkgs, system, ... }: let
+    capella = inputs.self.packages.${system}.capella;
+in {
   imports = [ ./hardware.nix ];
 
   my.system.boot = {
@@ -61,7 +63,6 @@
     packages = {
       enable = true;
       allowUnfree = true;
-      # additionalPackages = with pkgs; [ jellyfin-media-player ]; # Wraps the webui and mpv together
     };
 
     # mpv.enable = true; # Minimal video player
@@ -154,7 +155,7 @@
     river
   ''; # allows users logging in to pick their window manager.
 
-  environment.systemPackages = [ pkgs.home-manager ];
+  environment.systemPackages = [ pkgs.home-manager capella ];
 
   users = let # seb: TODO make this more simple, move to nixos/home module for generation?
     groupExists = grp: builtins.hasAttr grp config.users.groups;
