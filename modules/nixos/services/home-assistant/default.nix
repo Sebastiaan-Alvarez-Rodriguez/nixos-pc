@@ -47,7 +47,6 @@ in {
         "plugwise"
         "solaredge"
       ];
-      # unknowns: 
       config = { # Found in /var/lib/hass
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
         http = {
@@ -58,22 +57,42 @@ in {
         };
       };
 
-      # lovelaceConfig = { # the dashboards are created with lovelace. With this option set, we cannot edit the dashboard using the UI when this option is set.
-      #   views = [
-      #     {
-      #       title = "Home";
-      #       icon = "mdi:view-dashboard-outline";
-      #       cards = [
-      #         { type = "alarm-panel"; states = [ "arm_home" "arm_away" ]; entity = "alarm_control_panel.visonic_alarm_167313"; }
-      #         { type = "thermostat"; entity = "climate.anna"; }
-
-      #         { type = "entity"; entity = "sensor.smile_anna_outdoor_temperature" }
-      #         { type = "entity"; entity = "sensor.solaredge_current_power" }
-      #         { type = "entity"; entity = "sensor.solaredge_energy_today" }
-      #       ];
-      #     }
-      #   ];
-      # };
+      lovelaceConfig = {
+        # Dashboards can be created using the edit UI, or using Lovelace. Using one disables the other way.
+        # This option defines the config for lovelace.
+        views = [
+          {
+            type = "panel";
+            title = "alarm-mono";
+            path = "alarm-mono";
+            icon = "mdi:shield-home-outline";
+            cards = [
+              { type = "alarm-panel"; states = [ "arm_home", "arm_away" ]; entity = "alarm_control_panel.visonic_alarm_167313"; }
+            ];
+          }
+          {
+            type = "panel";
+            path = "anna";
+            title = "anna";
+            icon = "mdi:thermostat";
+            cards = [
+              { type = "thermostat"; entity = "climate.anna"; show_current_as_primary = true; }
+            ];
+          }
+          {
+            type = "sidebar";
+            path = "sun";
+            title = "sun";
+            icon = "mdi:sun-clock";
+            cards = [
+              { type = "gauge"; entity = "sensor.solaredge_energy_today"; min = 0; max = 50000; }
+              { type = "gauge"; entity = "sensor.solaredge_current_power"; min = 0; max = 10000; needle = false; }
+              { type = "entity"; entity = "sensor.solaredge_lifetime_energy"; }
+              }
+            ]
+          }
+        ];
+      };
     };
   
     users.groups.hass = { }; # Set-up homeassistant group
