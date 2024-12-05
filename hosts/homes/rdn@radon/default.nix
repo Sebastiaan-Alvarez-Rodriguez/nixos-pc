@@ -20,7 +20,7 @@ in {
     qbittorrent
     tdesktop
     teams-for-linux
-    teamspeak_client
+    teamspeak3
     tor-browser-bundle-bin
     # virt-manager # ui manager for vm's
     vlc

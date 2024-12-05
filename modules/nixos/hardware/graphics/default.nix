@@ -67,7 +67,7 @@ in {
           message = "When using nvidia.prime.offload/sync, then exactly 1 of nvidia.prime.amdgpuBusId, nividia.prime.intelgpuBusId must be set. found: \"${builtins.toString [cfg.nvidia.prime.amdgpuBusId cfg.nvidia.prime.intelgpuBusId]}\"";
         }
       ];
-      hardware.opengl.enable = true;
+      hardware.graphics.enable = true;
       environment.variables = { # Set session env vars
         LD_LIBRARY_PATH = ["/run/opengl-driver/lib:/run/opengl-driver-32/lib"];
         LD_PREFIX_PATH = ["/run/opengl-driver/lib:/run/opengl-driver-32/lib"];
@@ -78,7 +78,7 @@ in {
     (lib.mkIf cfg.amd.enable {
       boot.initrd.kernelModules = lib.mkIf cfg.amd.enableKernelModule [ "amdgpu" ];
 
-      hardware.opengl = {
+      hardware.graphics = {
         extraPackages = with pkgs; [ rocmPackages.clr rocmPackages.clr.icd ] ++ lib.optional cfg.amd.amdvlk amdvlk; # first part adds rocm-openCL
         extraPackages32 = with pkgs; [ ] ++ lib.optional cfg.amd.amdvlk driversi686Linux.amdvlk ;
       };
@@ -92,7 +92,7 @@ in {
         VDPAU_DRIVER = "va_gl";
       };
 
-      hardware.opengl = {
+      hardware.graphics = {
         extraPackages = with pkgs; [
           # Open CL
           intel-compute-runtime
@@ -121,7 +121,7 @@ in {
         # Optionally, you may need to select the appropriate driver version for your specific GPU.
         package = cfg.nvidia.package;
 
-        prime = { 
+        prime = {
           offload = lib.mkIf cfg.nvidia.prime.offload {
           	enable = true;
           	enableOffloadCmd = true;
