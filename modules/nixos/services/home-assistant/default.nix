@@ -67,7 +67,7 @@ in {
             path = "alarm-mono";
             icon = "mdi:shield-home-outline";
             cards = [
-              { type = "alarm-panel"; states = [ "arm_home", "arm_away" ]; entity = "alarm_control_panel.visonic_alarm_167313"; }
+              { type = "alarm-panel"; states = [ "arm_home" "arm_away" ]; entity = "alarm_control_panel.visonic_alarm_167313"; }
             ];
           }
           {
@@ -88,8 +88,7 @@ in {
               { type = "gauge"; entity = "sensor.solaredge_energy_today"; min = 0; max = 50000; }
               { type = "gauge"; entity = "sensor.solaredge_current_power"; min = 0; max = 10000; needle = false; }
               { type = "entity"; entity = "sensor.solaredge_lifetime_energy"; }
-              }
-            ]
+            ];
           }
         ];
       };

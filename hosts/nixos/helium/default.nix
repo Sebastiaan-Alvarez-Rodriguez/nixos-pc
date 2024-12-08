@@ -9,7 +9,7 @@
   };
 
   my.system = { # contains common system packages and settings shared between hosts.
-    home.users = [ "rdn" ];
+    home.users = [ "mrs" "rdn" ];
     nix = {
       enable = true;
       inputs.link = true;
@@ -133,12 +133,19 @@
     groupExists = grp: builtins.hasAttr grp config.users.groups;
     groupsIfExist = builtins.filter groupExists;
   in {
-    users.rdn = {
+    users.mrs = {
       isNormalUser = true;
       description = "rdn";
       extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
+    };
+    users.rdn = {
+      isNormalUser = true;
+      description = "rdn";
+      extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];
+      shell = pkgs.fish;
+      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/mrs.rsa.pub) ];
     };
   };
   age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
