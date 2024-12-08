@@ -57,7 +57,7 @@ in {
         identityFile = "/home/${username}/.ssh/dsn.rsa";
       };
       "github.com" = {
-        user = "Sebastiaan-Alvarez-Rodriguez";
+        user = config.programs.git.userName;
         identityFile = "/home/${username}/.ssh/github.rsa";
       };
       "helium" = {
