@@ -74,16 +74,16 @@
         # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
         loginAccounts = {
           "sebastiaan@mijn.place" = {
-            aliasesRegexp = [ "sebastiaan-.*@mijn.place" ];
+            aliasesRegexp = [ "/^sebastiaan-.*@mijn.place$/" ];
             hashedPasswordFile = "/home/rdn/.pwd/sebastiaan-mailserver.pwd";
           };
           "mariska@mijn.place" = {
-            aliasesRegexp = [ "mariska-.*@mijn.place" ];
+            aliasesRegexp = [ "/^mariska-.*@mijn.place$/" ];
             hashedPasswordFile = "/home/mrs/.pwd/mariska-mailserver.pwd";
           };
           "mail@mijn.place" = {
             catchAll = [ "mijn.place" ]; # all catchAll-mailaddresses you gave to companies end here.
-            aliases = [ "@mijn.place" ]; # You can now reply using ANY address. Useful to reply to catchAll-mailaddresses.
+            aliasesRegexp = [ "/^(?!sebastiaan)(?!mariska).+@mijn.place$/" ]; # You can now reply using ANY address. Useful to reply to catchAll-mailaddresses. # TODO: disallow using sebastiaan@ or mariska@
             hashedPasswordFile = "/data/mail/mailserver.pwd";
           };
           "noreply@mijn.place" = {
@@ -91,6 +91,10 @@
             sendOnly = true;
             sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place.";
           };
+        };
+        extraVirtualAliases = { # valiases take precedence over catchAll.
+          "/^sebastiaan-.*@mijn.place$/" = "sebastiaan@mijn.place";
+          "/^mariska-.*@mijn.place$/" = "mariska@mijn.place";
         };
 
         rejectRecipients = []; # add owned mailadresses (e.g. 'test@me.com') to block all mails sent to them. 
