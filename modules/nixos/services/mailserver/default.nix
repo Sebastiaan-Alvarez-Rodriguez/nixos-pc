@@ -6,6 +6,10 @@ in {
 
   options.my.services.mailserver = with lib; {
     enable = mkEnableOption "mailserver";
+    webserver = {
+      enable = mkEnableOption "A web interface for the mailserver";
+    };
+
     domain-prefix = mkOption {
       type = types.str;
       description = "Prefix to add to config.networking.domain for mail routing";
@@ -43,7 +47,20 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    # seb: TODO warn if security.acme.certs does not contain config.networking.domain.
+    assertions = [
+      {
+        assertion = cfg.webserver.enable -> cfg.enable;
+        message = "Enable the mailserver if you enable the webinterface.";
+      }
+      {
+        assertion = cfg.enable -> builtins.elem 993 config.networking.firewall.allowedTCPPorts;
+        message = "Open port `993` in your firewall to allow the mailserver to communicate with clients.";
+      }
+      {
+        assertion = cfg.webserver.enable -> builtins.elem 587 config.networking.firewall.allowedTCPPorts;
+        message = "Open port `587` in your firewall to allow the webserver to communicate.";
+      }
+    ];
     mailserver = (lib.mkMerge [
       {
         enable = true;
@@ -57,5 +74,19 @@ in {
       }
       cfg.extraConfig
     ]);
+
+    services.roundcube = lib.mkIf (cfg.enable && cfg.webserver.enable) { # a webmail server
+      enable = true;
+      # this is the url of the vhost, not necessarily the same as the fqdn of the mailserver
+      hostName = "${cfg.domain-prefix}.${config.networking.domain}";
+      extraConfig = ''
+        # starttls needed for authentication, so fqdn is required to match the certificate
+        $config['smtp_server'] = "tls://${cfg.domain-prefix}.${config.networking.domain}";
+        $config['smtp_user'] = "%u";
+        $config['smtp_pass'] = "%p";
+        $config['smtp_port'] = 587;
+      '';
+  };
+
   };
 }

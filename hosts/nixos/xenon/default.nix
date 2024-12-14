@@ -62,6 +62,8 @@
     ssh-server.enable = true;
     mailserver = {
       enable = true;
+      webserver.enable = true;
+
       domain-prefix = "mail";
       domains = [ "mijn.place" ];
 
@@ -74,7 +76,7 @@
         # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
         loginAccounts = {
           "sebastiaan@mijn.place" = {
-            aliasesRegexp = [ "/^sebastiaan-.*@mijn.place$/" ];
+            aliasesRegexp = [ "/^sebastiaan-.*@mijn.place$/" ]; # allows to reply using any matched address. NOTE: use PCRE regex. Start and end with `/` character. Make a full match.
             hashedPasswordFile = "/home/rdn/.pwd/sebastiaan-mailserver.pwd";
           };
           "mariska@mijn.place" = {
@@ -82,8 +84,8 @@
             hashedPasswordFile = "/home/mrs/.pwd/mariska-mailserver.pwd";
           };
           "mail@mijn.place" = {
-            catchAll = [ "mijn.place" ]; # all catchAll-mailaddresses you gave to companies end here.
-            aliasesRegexp = [ "/^(?!sebastiaan)(?!mariska).+@mijn.place$/" ]; # You can now reply using ANY address. Useful to reply to catchAll-mailaddresses. # TODO: disallow using sebastiaan@ or mariska@
+            catchAll = [ "mijn.place" ]; # a sink for all otherwise unmatched emails by (in order): existing mailboxes; (virtual) aliases;
+            aliasesRegexp = [ "/^(?!sebastiaan)(?!mariska).+@mijn.place$/" ];
             hashedPasswordFile = "/data/mail/mailserver.pwd";
           };
           "noreply@mijn.place" = {
@@ -91,10 +93,6 @@
             sendOnly = true;
             sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place.";
           };
-        };
-        extraVirtualAliases = { # valiases take precedence over catchAll.
-          "/^sebastiaan-.*@mijn.place$/" = "sebastiaan@mijn.place";
-          "/^mariska-.*@mijn.place$/" = "mariska@mijn.place";
         };
 
         rejectRecipients = []; # add owned mailadresses (e.g. 'test@me.com') to block all mails sent to them. 
