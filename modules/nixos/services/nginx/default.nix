@@ -84,6 +84,13 @@ in {
         example = "a@b.com";
         description = "default mail address for acme certification messages.";
       };
+
+      extra-domains = mkOption {
+        type = with types; listOf (str);
+        example = [ "mail.domain.com" ];
+        default = [];
+        description = "Extra domain names to get acme certification for";
+      };
     };
 
     monitoring = {
@@ -393,7 +400,7 @@ in {
           email = cfg.acme.default-mail;
           # extraDomainNames = [ "*.${domain}" ]; # Use DNS wildcard certificate
           # dnsProvider = "gandiv5"; # NOTE: dnsProvider option would be nice to use, if my dns provider were supported. For now, use webroot.
-          extraDomainNames = (builtins.map (subdomain: "${subdomain}.${domain}") (lib.attrNames config.my.services.nginx.virtualHosts)); # seb: TODO filter in only subdomains using 'domain' as ACMEHost... and add a loop for other named domains
+          extraDomainNames = cfg.acme.extra-domains ++ (builtins.map (subdomain: "${subdomain}.${domain}") (lib.attrNames config.my.services.nginx.virtualHosts)); # seb: TODO filter in only subdomains using 'domain' as ACMEHost... and add a loop for other named domains
           postRun = "systemctl reload nginx.service";
         };
       };

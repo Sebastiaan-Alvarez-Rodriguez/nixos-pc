@@ -119,6 +119,8 @@ in {
       '';
     };
 
+    my.services.nginx.acme.extra-domains = lib.mkIf cfg.webserver.enable [ "${cfg.domain-prefix}.${config.networking.domain}" ];
+
     services.fail2ban.jails."roundcube" = lib.mkIf cfg.webserver.enable {
       enabled = true;
       settings = {
