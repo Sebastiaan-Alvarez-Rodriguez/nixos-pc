@@ -49,10 +49,6 @@ in {
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.webserver.enable -> cfg.enable;
-        message = "Enable the mailserver if you enable the webinterface.";
-      }
-      {
         assertion = cfg.enable -> builtins.elem 993 config.networking.firewall.allowedTCPPorts;
         message = "Open port `993` in your firewall to allow the mailserver to communicate with clients.";
       }
@@ -75,7 +71,42 @@ in {
       cfg.extraConfig
     ]);
 
-    services.roundcube = lib.mkIf (cfg.enable && cfg.webserver.enable) { # a webmail server
+    services.fail2ban.jails = {
+      "postfix-extra" = {
+        enabled = true;
+        settings = {
+          filter = "postfix"; # uses default-available postfix filter (from fail2ban package).
+          action = "iptables-allports";
+          mode = "extra";
+        };
+      };
+      "postfix-sasl-custom" = {
+        enabled = true;
+        settings = {
+          filter = "postfix-sasl-custom";
+          action = "iptables-allports";
+          findtime = "2h";
+          bantime = "10m";
+          bantime-increment = true;
+          bantime-maxtime = "5w";
+          maxretry = 2;
+        };
+      };
+      "dovecot" = {
+        enabled = true;
+        settings = {
+          filter = "dovecot"; # uses default-available dovecot filter (from fail2ban package).
+          action = "iptables-allports";
+        };
+      };
+    };
+    environment.etc."fail2ban/filter.d/postfix-sasl-custom.conf".text = ''
+      [Definition]
+      failregex = ^(.*)\[\d+\]: warning: unknown\[<HOST>\]: SASL (?:LOGIN|PLAIN) authentication failed:.*$
+      journalmatch = _SYSTEMD_UNIT=postfix.service _SYSTEMD_UNIT=postfix@-.service
+    '';
+
+    services.roundcube = lib.mkIf cfg.webserver.enable { # a webmail server
       enable = true;
       # this is the url of the vhost, not necessarily the same as the fqdn of the mailserver
       hostName = "${cfg.domain-prefix}.${config.networking.domain}";
@@ -86,7 +117,14 @@ in {
         $config['smtp_pass'] = "%p";
         $config['smtp_port'] = 587;
       '';
-  };
+    };
 
+    services.fail2ban.jails."roundcube" = lib.mkIf cfg.webserver.enable {
+      enabled = true;
+      settings = {
+        filter = "roundcube-auth"; # uses default-available dovecot filter by Martin Waschbuesh et al (from fail2ban package).
+        action = "iptables-allports";
+      };
+    };
   };
 }
