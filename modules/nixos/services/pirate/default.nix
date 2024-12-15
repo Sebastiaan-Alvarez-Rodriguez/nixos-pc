@@ -25,21 +25,19 @@
       port = ports.${service};
     };
 
-    services.fail2ban.jails = {
-      ${service} = ''
-        enabled = true
-        filter = ${service}
-        action = iptables-allports
-      '';
+    services.fail2ban.jails.${service} = {
+      enabled = true;
+      settings = {
+        filter = "${service}";
+        action = "iptables-allports";
+      };
     };
 
-    environment.etc = {
-      "fail2ban/filter.d/${service}.conf".text = ''
-        [Definition]
-        failregex = ^.*\|Warn\|Auth\|Auth-Failure ip <HOST> username .*$
-        journalmatch = _SYSTEMD_UNIT=${service}.service
-      '';
-    };
+    environment.etc."fail2ban/filter.d/${service}.conf".text = ''
+      [Definition]
+      failregex = ^.*\|Warn\|Auth\|Auth-Failure ip <HOST> username .*$
+      journalmatch = _SYSTEMD_UNIT=${service}.service
+    '';
   };
 
 
