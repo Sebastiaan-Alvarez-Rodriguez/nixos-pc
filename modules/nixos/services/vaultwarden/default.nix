@@ -30,6 +30,20 @@ in {
         inherit (cfg) port;
       };
     };
+    services.fail2ban.jails."vaultwarden" = {
+      enabled = true;
+      settings = {
+        filter = "vaultwarden";
+        action = "iptables-allports";
+      };
+    };
+
+    environment.etc."fail2ban/filter.d/vaultwarden.conf".text = ''
+      [Definition]
+      failregex = ^.+\[vaultwarden::api::identity\]\[ERROR\] Username or password is incorrect. Try again. IP: (<HOST>).+$
+      journalmatch = _SYSTEMD_UNIT=vaultwarden.service
+    '';
+    
     my.services.postgresql = {
       enable = true;
 
