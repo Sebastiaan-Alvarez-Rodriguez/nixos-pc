@@ -22,11 +22,21 @@
       inherit inputs system;
     };
   };
-in {
+  buildImageHost = name: system: let
+    base = buildHost name system;
+  in { modules = defaultModules ++ [ "${self}/hosts/nixos/${name}" "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix" ];} // base;
+
+in rec {
   flake.nixosConfigurations = lib.mapAttrs buildHost {
-  "helium" = "x86_64-linux";
-  "polonium" = "x86_64-linux";
-  "radon" = "x86_64-linux";
-  "xenon" = "x86_64-linux";
+    "helium" = "x86_64-linux";
+    "polonium" = "x86_64-linux";
+    "radon" = "x86_64-linux";
+    "xenon" = "x86_64-linux";
+  } // lib.mapAttrs buildImageHost {
+    "blackberry" = "aarch64-linux";
+  };
+
+  flake.images = {
+    "blackberry" = flake.nixosConfigurations."blackberry".config.system.build.sdImage;
   };
 }
