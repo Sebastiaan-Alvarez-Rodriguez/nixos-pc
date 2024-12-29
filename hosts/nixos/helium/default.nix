@@ -69,10 +69,14 @@
     # };
     jellyfin.enable = true;
 
-    meshcentral = {
+    # meshcentral = {
+    #   enable = true;
+    #   new-accounts = false;
+    #   backup-path = "/data/meshcentral/backup";
+    # };
+    rustdesk = {
       enable = true;
-      new-accounts = false;
-      backup-path = "/data/meshcentral/backup";
+      keypass = "hello test"; #config.age.secrets."services/rustdesk/semisecret".path;
     };
 
     nfs = {
