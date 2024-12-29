@@ -14,6 +14,7 @@ in {
     # logiops
     proton-caller
     qbittorrent
+    stremio
     tdesktop
     teams-for-linux
     teamspeak3

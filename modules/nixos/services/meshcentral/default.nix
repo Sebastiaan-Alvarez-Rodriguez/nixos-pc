@@ -17,6 +17,7 @@ in {
     };
 
     new-accounts = mkEnableOption "enable creation of new accounts";
+    ignore-hash = mkEnableOption "Sometimes clients cannot connect due to web cert hash mismatches. If set, ignores hashes.";
 
     port = mkOption {
       type = types.port;
@@ -80,7 +81,7 @@ in {
               # certUrl = "https://127.0.0.1";
               # certUrl = "https://${domain-prefix}.${config.networking.domain}";
               certUrl = "https://${domain-prefix}.${config.networking.domain}:443";
-              ignoreAgentHashCheck = true; # seb TODO: enable if certUrl wont work
+              ignoreAgentHashCheck = cfg.ignore-hash;
             };
           };
         };
@@ -88,7 +89,7 @@ in {
     };
 
     systemd.tmpfiles.rules = [ # ensures the backup directory exists and is world-readable.
-      "d ${cfg.backup-path} 0775 root root -"
+      "d ${cfg.backup-path} 0777 root root -"
     ];
 
     # my.services.postgresql = {
