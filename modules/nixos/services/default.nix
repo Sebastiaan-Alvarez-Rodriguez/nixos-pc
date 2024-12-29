@@ -28,6 +28,7 @@
     ./postgresql
     ./postgresql-backup
     ./pyload
+    ./rustdesk
     ./sabnzbd
     ./ssh-server
     ./sqlite-backup

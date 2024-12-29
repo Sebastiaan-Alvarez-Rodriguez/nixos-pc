@@ -13,6 +13,7 @@ in {
     hotspot
     # logiops
     proton-caller
+    rustdesk-flutter
     qbittorrent
     stremio
     tdesktop
