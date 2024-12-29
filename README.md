@@ -9,12 +9,14 @@ To install NixOS on a VPS: [`nixos-infect`](https://github.com/elitak/nixos-infe
 
 ### Installing NixOS directly on medium
 #### SD card
-To build the image, the following configuration is needed (for a nixos configuration called `<NAME>``):
+To build the image, add the following configuration in [flake/nixos.nix](/flake/nixos.nix) (for a nixos configuration called `<NAME>``):
 ```nix
-images = {
-  <NAME> = nixosConfigurations.<NAME>.config.system.build.sdImage;
+flake.images = {
+  <NAME> = flake.nixosConfigurations.<NAME>.config.system.build.sdImage;
 };
 ```
+Of course, ensure you have defined `flake.nixosConfigurations.<NAME>`.
+
 Then:
 ```bash
 nix build ".#images.<NAME>"
