@@ -22,7 +22,7 @@ in {
     port = mkOption {
       type = types.port;
       default = 3344;
-      description = "Enable Intel AMT for Intels Active Management Technology";
+      description = "Listen port for meshcentral web server";
     };
   };
 
@@ -42,8 +42,8 @@ in {
       settings = {
         # uses settings from: https://raw.githubusercontent.com/Ylianst/MeshCentral/master/meshcentral-config-schema.json
         # example config: https://github.com/Ylianst/MeshCentral/blob/master/sample-config.json
-        settings = { # I need to do this because the wrap is incorrect.
-          cert = "${domain-prefix}.${config.networking.domain}";
+        settings = {
+          cert = "${domain-prefix}.${config.networking.domain}"; # ok
 
           # postgres = {
           #   host = "127.0.0.1";
@@ -55,34 +55,35 @@ in {
 
           autoBackup.backupPath = cfg.backup-path;
           autoBackup.keepLastDaysBackup = 0; # we backup daily, no need to keep older versions.
-          WANonly = true; # only handle WAN devices
+          # WANonly = true; # only handle WAN devices
           # LANonly = true; # only handle LAN devices
 
-          # port settings
-          port = cfg.port;
-          aliasPort = 443;
-          redirPort = 0;
-          exactports = true;
+          port = cfg.port; # ok
+          aliasPort = 443; # ok
+          redirPort = 0; # ok - needed
+          exactports = true; # ok
 
+          agentPong = 300; # sure
+
+          # tlsOffload = "127.0.0.1,::1";
+          tlsOffload = "127.0.0.1";
           # intel AMT related settings
           amtManager = cfg.enableIntelAMT;
           amtScanner = !(config.services.meshcentral ? LANonly && config.services.meshcentral.LANonly) && cfg.enableIntelAMT;
           mpsPort = if cfg.enableIntelAMT then 4433 else 0;
           mpsHighSecurity = lib.mkIf cfg.enableIntelAMT true;
-
-          tlsOffload = "127.0.0.1,::1";
-          domains = {
-            "" = {
-              title = "Helium";
-              title2 = "mesh vnc";
-              newAccounts = cfg.new-accounts;
-              userNameIsEmail = true;
-              # certUrl = "https://${config.networking.domain}/";
-              # certUrl = "https://127.0.0.1";
-              # certUrl = "https://${domain-prefix}.${config.networking.domain}";
-              certUrl = "https://${domain-prefix}.${config.networking.domain}:443";
-              ignoreAgentHashCheck = cfg.ignore-hash;
-            };
+        };
+        domains = {
+          "" = {
+            title = "Helium";
+            title2 = "mesh vnc";
+            newAccounts = cfg.new-accounts;
+            userNameIsEmail = true;
+            # certUrl = "https://${config.networking.domain}/";
+            certUrl = "https://127.0.0.1:443";
+            # certUrl = "https://${domain-prefix}.${config.networking.domain}";
+            # certUrl = "https://${domain-prefix}.${config.networking.domain}:443";
+            IgnoreAgentHashCheck = cfg.ignore-hash;
           };
         };
       };
