@@ -71,7 +71,8 @@
 
     meshcentral = {
       enable = true;
-      new-accounts = false;
+      new-accounts = true;
+      ignore-hash = true;
       backup-path = "/data/meshcentral/backup";
     };
 
