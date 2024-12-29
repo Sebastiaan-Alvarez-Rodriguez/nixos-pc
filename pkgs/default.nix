@@ -4,8 +4,6 @@
 
   bw-pass = pkgs.callPackage ./bw-pass { };
 
-  capella = pkgs.callPackage ./capella { };
-
   diff-flake = pkgs.callPackage ./diff-flake { };
 
   dragger = pkgs.callPackage ./dragger { };

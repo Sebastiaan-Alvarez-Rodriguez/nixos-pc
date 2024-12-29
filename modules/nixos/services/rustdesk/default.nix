@@ -1,9 +1,13 @@
 # A vnc server
 
 # configure clients:
-# The 'Server ID' field: enter <url>:port of signal server, e.g. hbbs.example.com:21116
-# THe 'Key' field: enter the key found at /var/lib/private/rustdesk/id_ed25519.pub
-# the other fields can be left blank.
+# 'Server ID' field: enter url or ip address of signal server, e.g. hbbs.example.com
+# 'Relay server' field: enter the same as in 'Server ID'
+# 'Key' field: enter the key found at /var/lib/private/rustdesk/id_ed25519.pub
+# All other fields can be left blank.
+
+# if the machine is not supposed to be taken over, enable 'IP whitelist', with only '127.0.0.1' in the whitelist.
+# if the machine should be taken over unattended, configure a 'permanent password'. Depending on the device type (android, windows, linux,...) ensure the application has all permissions to run in the background.
 
 { config, lib, ... }: let
   cfg = config.my.services.rustdesk;
@@ -17,7 +21,7 @@ in {
     enforce-key = mkOption {
       type = types.bool;
       default = true;
-      description = "If set, enforces use of set keys (for encrypted comms). Clients without the proper key cannot connect. This keeps random's well away from the server."
+      description = "If set, enforces use of set keys (for encrypted comms). Clients without the proper key cannot connect. This keeps random's well away from the server.";
     };
     signal-port = mkOption {
       type = types.port;
@@ -47,28 +51,17 @@ in {
       };
     };
 
-    networking.firewall.allowedTCPPorts = [ 
-      21115 # signal server (extra port for NAT tests)
-      cfg.signal-port
-      cfg.relay-port
-      21118 # signal websocket
-      21119 # relay websocket
-    ];
-    networking.firewall.allowedUDPPorts = [ cfg.signal-port ];
+    networking.firewall = {
+      allowedTCPPorts = [ 
+        21115 # signal server (extra port for NAT tests)
+        cfg.signal-port
+        cfg.relay-port
+        21118 # signal websocket
+        21119 # relay websocket
+      ];
+      allowedUDPPorts = [ cfg.signal-port ];
+    };
 
-    # my.services.backup.paths = [ cfg.backup-path ]; seb TODO: backup of anything?
-    # my.services.nginx.virtualHosts.${signal-domain-prefix} = {
-    #   inherit (cfg) signal-port;
-    #   useACMEHost = config.networking.domain;
-
-    #   extraConfig = {
-    #     extraConfig = ''
-    #       proxy_buffering off;
-    #       proxy_send_timeout 330s;
-    #       proxy_read_timeout 330s;
-    #     '';
-    #     locations."/".proxyWebsockets = true;
-    #   };
-    # };
+    # seb TODO: backup of key (or manual configuration of key)
   };
 }

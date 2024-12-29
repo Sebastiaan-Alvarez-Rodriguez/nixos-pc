@@ -1,6 +1,4 @@
-{ inputs, config, pkgs, system, ... }: let
-    capella = inputs.self.packages.${system}.capella;
-in {
+{ inputs, config, pkgs, system, ... }: {
   imports = [ ./hardware.nix ];
 
   my.system.boot = {
@@ -155,7 +153,7 @@ in {
     river
   ''; # allows users logging in to pick their window manager.
 
-  environment.systemPackages = [ pkgs.home-manager capella ];
+  environment.systemPackages = [ pkgs.home-manager ];
 
   users = let # seb: TODO make this more simple, move to nixos/home module for generation?
     groupExists = grp: builtins.hasAttr grp config.users.groups;
