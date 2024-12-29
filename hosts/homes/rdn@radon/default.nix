@@ -18,6 +18,7 @@ in {
     # logiops
     # proton-caller
     qbittorrent
+    rustdesk-flutter
     tdesktop
     teams-for-linux
     teamspeak3
