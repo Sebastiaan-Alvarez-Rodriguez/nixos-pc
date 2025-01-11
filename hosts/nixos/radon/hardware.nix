@@ -27,7 +27,8 @@
   };
   my.hardware.graphics.amd = {
     enable = true;
-    enableKernelModule = true;
+    enable-kernelmodule = true;
+    enable-vaapi = true;
     amdvlk = false;
   };
   my.hardware.networking = {
