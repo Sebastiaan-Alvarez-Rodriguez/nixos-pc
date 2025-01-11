@@ -4,13 +4,15 @@ in {
   options.my.hardware.graphics = with lib; {
     amd = {
       enable = mkEnableOption "graphics configuration";
-      enableKernelModule = mkEnableOption "Kernel driver module";
+      enable-kernelmodule = mkEnableOption "Kernel driver module";
+      enable-vaapi = mkEnableOption "Enable vaapi driver (needed for video hardware accelleration)";
       amdvlk = mkEnableOption "Use AMDVLK instead of Mesa RADV driver";
     };
 
     intel = {
       enable = mkEnableOption "graphics configuration";
-      enableKernelModule = mkEnableOption "Kernel driver module";
+      enable-kernelmodule = mkEnableOption "Kernel driver module";
+      enable-vaapi = mkEnableOption "Enable vaapi driver (needed for video hardware accelleration)";
     };
 
     nvidia = {
@@ -76,32 +78,30 @@ in {
 
     # AMD GPU
     (lib.mkIf cfg.amd.enable {
-      boot.initrd.kernelModules = lib.mkIf cfg.amd.enableKernelModule [ "amdgpu" ];
+      boot.initrd.kernelModules = lib.mkIf cfg.amd.enable-kernelmodule [ "amdgpu" ];
 
-      hardware.graphics = {
-        extraPackages = with pkgs; [ rocmPackages.clr rocmPackages.clr.icd ] ++ lib.optional cfg.amd.amdvlk amdvlk; # first part adds rocm-openCL
-        extraPackages32 = with pkgs; [ ] ++ lib.optional cfg.amd.amdvlk driversi686Linux.amdvlk ;
+      environment.variables = lib.mkIf cfg.amd.enable-vaapi {
+        VDPAU_DRIVER = "va_gl";
+      };
+
+      hardware.graphics = with pkgs; {
+        extraPackages = [ rocmPackages.clr rocmPackages.clr.icd ] ++ lib.optional cfg.amd.amdvlk amdvlk ++ lib.optionals cfg.amd.enable-vaapi [libva-vdpau-driver libvdpau-va-gl]; # first part adds rocm-openCL
+        extraPackages32 = [ ] ++ lib.optional cfg.amd.amdvlk driversi686Linux.amdvlk ;
       };
     })
 
     # Intel GPU
     (lib.mkIf cfg.intel.enable {
-      boot.initrd.kernelModules = lib.mkIf cfg.intel.enableKernelModule [ "i915" ];
+      boot.initrd.kernelModules = lib.mkIf cfg.intel.enable-kernelmodule [ "i915" ];
 
-      environment.variables = {
+    environment.sessionVariables = lib.mkIf cfg.intel.enable-vaapi {
         VDPAU_DRIVER = "va_gl";
+        LIBVA_DRIVER_NAME = "iHD"; # force intel media driver
       };
 
-      hardware.graphics = {
-        extraPackages = with pkgs; [
-          # Open CL
-          intel-compute-runtime
-
-          # VA API
-          intel-media-driver
-          intel-vaapi-driver
-          libvdpau-va-gl
-        ];
+      hardware.graphics = with pkgs; {
+        extraPackages = [ intel-compute-runtime ] ++ lib.optionals cfg.intel.enable-vaapi [ intel-media-driver intel-vaapi-driver libvdpau-va-gl ];# first part adds support for Open CL
+        extraPackages32 = [ pkgsi686Linux.intel-vaapi-driver ];
       };
     })
 

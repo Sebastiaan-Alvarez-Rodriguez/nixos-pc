@@ -153,7 +153,7 @@
     river
   ''; # allows users logging in to pick their window manager.
 
-  environment.systemPackages = [ pkgs.home-manager ];
+  environment.systemPackages = with pkgs; [ home-manager ffmpeg ];
 
   users = let # seb: TODO make this more simple, move to nixos/home module for generation?
     groupExists = grp: builtins.hasAttr grp config.users.groups;
