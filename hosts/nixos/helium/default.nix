@@ -24,7 +24,7 @@
     };
   };
 
-  my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
+  my.home = {
     bat.enable = true;
     editor.main = {
       package = pkgs.helix;
@@ -51,7 +51,7 @@
       enable = true;
       repository = "rest:https://restic.mijn.place/helium/";
       environment-file = config.age.secrets."services/backup-server/xenon-client-helium".path;
-      password-file = config.age.secrets."services/backup-server/xenon-repo-helium".path;
+      password-file = config.age.secrets."services/backup-server/repo-helium".path;
       paths = [ "/data" "/home" ];
       timer-config = { OnCalendar = "19:30"; Persistent = true; };
       prune-opts = []; # cannot prune, because --> server is append-only, so no deleting/pruning.
@@ -69,18 +69,13 @@
     # };
     jellyfin.enable = true;
 
-    # meshcentral = {
-    #   enable = true;
-    #   new-accounts = false;
-    #   backup-path = "/data/meshcentral/backup";
-    # };
     rustdesk = {
       enable = true;
-      keypass = "hello test"; #config.age.secrets."services/rustdesk/semisecret".path;
+      keypass = "hello test"; # seb: TODO manual config of key to join network? #config.age.secrets."services/rustdesk/semisecret".path;
     };
 
     nfs = {
-      enable = false; # seb: TODO see nfs config for potential exploit
+      enable = false; # seb: NOTE nfs ports must be closed to the WAN due to potential ddos forward behavior.
       folders."/data" = [{
         subnet = "192.168.2.0/24"; # Only allow local access. NFS is not meant for global internet.
         flags = [ "rw" "hide" "insecure" "subtree_check" "fsid=root" ];

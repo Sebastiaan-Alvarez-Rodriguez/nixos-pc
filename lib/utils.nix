@@ -9,4 +9,6 @@ in rec {
   #   name = name;
   # };
   power = base: exp: lib.foldl (x: _: x * base) 1 (lib.range 1 exp);
+
+  hasprefix-any = patterns: string: lib.any (pattern: lib.hasPrefix pattern string) patterns;
 }
