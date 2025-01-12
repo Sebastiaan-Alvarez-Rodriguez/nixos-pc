@@ -16,7 +16,7 @@
     ];
     pkgs = import inputs.nixpkgs {
       inherit system;
-      overlays = (lib.attrValues self.overlays) ++ [ inputs.nur.overlay ];
+      overlays = (lib.attrValues self.overlays) ++ [ inputs.nur.overlays.default ];
     };
     extraSpecialArgs = { inherit inputs; };
   };
