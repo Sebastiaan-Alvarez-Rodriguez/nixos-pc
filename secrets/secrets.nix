@@ -10,13 +10,15 @@ let
   readKey = f: removeSuffix "\n" (readFile f);
   base = readKey keys/users/rdn.rsa.pub; 
 in {
-  "services/backup-server/xenon-client-helium.age".publicKeys = [ base ];
-  "services/backup-server/xenon-repo-helium.age".publicKeys = [ base ];
-  "services/backup-server/xenon.age" = {
+  # note: by default, only keys starting with "hosts/<hostname>/..." are loaded for host named "hostname" (as provided in config.my.hardware.networking.hostname)
+  "hosts/helium/services/backup-server/xenon-client-helium.age".publicKeys = [ base ];
+  "hosts/helium/services/backup-server/repo-helium.age".publicKeys = [ base ];
+  "hosts/helium/services/transmission/secret.age".publicKeys = [ base ];
+  # "hosts/helium/services/pyload/secret.age".publicKeys = [ base ];
+  # "hosts/helium/services/tandoor-recipes/secret.age".publicKeys = [ base ];
+
+  "hosts/xenon/services/backup-server/xenon.age" = {
     publicKeys = [ base ];
     owner = "restic";
   };
-  "services/pyload/secret.age".publicKeys = [ base ];
-  "services/tandoor-recipes/secret.age".publicKeys = [ base ];
-  "services/transmission/secret.age".publicKeys = [ base ];
 }
