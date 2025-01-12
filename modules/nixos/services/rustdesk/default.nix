@@ -33,9 +33,21 @@ in {
       default = 21117;
       description = "Listen port for relay server";
     };
+    private-keyfile = mkOption {
+      type = types.str;
+      description = "path to file containing secret-key to verify & encrypt connections to this rustdesk network. Only verified when `rustdesk.enforce-key` is set.";
+    };
+    public-keyfile = mkOption {
+      type = types.str;
+      description = "path to file containing public-key to join this rustdesk network. Only verified when `rustdesk.enforce-key` is set.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      { assertion = config.users.users ? "rustdesk"; }
+      { assertion = config.users.groups ? "rustdesk"; }
+    ];
     services.rustdesk-server = {
       enable = true;
       openFirewall = false; # we manually do this below
@@ -62,6 +74,14 @@ in {
       allowedUDPPorts = [ cfg.signal-port ];
     };
 
-    # seb TODO: backup of key (or manual configuration of key)
+    systemd.tmpfiles.rules = [
+      "d /var/lib/private 0700 root root -"
+      "d /var/lib/private/rustdesk 0750 rustdesk rustdesk -"
+      "L+ /var/lib/rustdesk/id_ed25519 - - - - ${cfg.private-keyfile}"
+      "L+ /var/lib/rustdesk/id_ed25519.pub - - - - ${cfg.public-keyfile}"
+    ];
+
+    # private: ?
+    # public : -rw-r--r-- rustdesk rustdesk
   };
 }

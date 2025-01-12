@@ -13,6 +13,14 @@ in {
   # note: by default, only keys starting with "hosts/<hostname>/..." are loaded for host named "hostname" (as provided in config.my.hardware.networking.hostname)
   "hosts/helium/services/backup-server/xenon-client-helium.age".publicKeys = [ base ];
   "hosts/helium/services/backup-server/repo-helium.age".publicKeys = [ base ];
+  "hosts/helium/services/rustdesk/private-key.age" = {
+    publicKeys = [ base ];
+    owner = "rustdesk";
+  };
+  "hosts/helium/services/rustdesk/public-key.age" = {
+    publicKeys = [ base ];
+    owner = "rustdesk";
+  };
   "hosts/helium/services/transmission/secret.age".publicKeys = [ base ];
   # "hosts/helium/services/pyload/secret.age".publicKeys = [ base ];
   # "hosts/helium/services/tandoor-recipes/secret.age".publicKeys = [ base ];
