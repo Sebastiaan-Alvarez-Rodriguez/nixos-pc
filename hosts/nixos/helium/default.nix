@@ -50,8 +50,8 @@
     backup = {
       enable = true;
       repository = "rest:https://restic.mijn.place/helium/";
-      environment-file = config.age.secrets."services/backup-server/xenon-client-helium".path;
-      password-file = config.age.secrets."services/backup-server/repo-helium".path;
+      environment-file = config.age.secrets."hosts/helium/services/backup-server/xenon-client-helium".path;
+      password-file = config.age.secrets."hosts/helium/services/backup-server/repo-helium".path;
       paths = [ "/data" "/home" ];
       timer-config = { OnCalendar = "19:30"; Persistent = true; };
       prune-opts = []; # cannot prune, because --> server is append-only, so no deleting/pruning.
@@ -71,7 +71,9 @@
 
     rustdesk = {
       enable = true;
-      keypass = "hello test"; # seb: TODO manual config of key to join network? #config.age.secrets."services/rustdesk/semisecret".path;
+      enforce-key = true;
+      private-keyfile = config.age.secrets."hosts/helium/services/rustdesk/private-key".path;
+      public-keyfile = config.age.secrets."hosts/helium/services/rustdesk/public-key".path;
     };
 
     nfs = {
@@ -114,12 +116,12 @@
 
     # tandoor-recipes = { # seb: NOTE disabled due to dependency on insecure python3.11-js2py-0.74
     #   enable = true;
-    #   secretKeyFile = config.age.secrets."services/tandoor-recipes/secret".path;
+    #   secretKeyFile = config.age.secrets."hosts/helium/services/tandoor-recipes/secret".path;
     # };
     transmission = {
       enable = true;
       download-dir = "/data/downloads";
-      credentialsFile = config.age.secrets."services/transmission/secret".path;
+      credentialsFile = config.age.secrets."hosts/helium/services/transmission/secret".path;
     };
     vikunja.enable = true;
     vaultwarden.enable = true;

@@ -50,7 +50,7 @@
       data-dir = "/data/backup";
       append-only = true;
       private-repos = true;
-      credentials-file = config.age.secrets."services/backup-server/blackberry".path;
+      credentials-file = config.age.secrets."hosts/blackberry/services/backup-server/blackberry".path;
     };
     # wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
     fail2ban.enable = true;

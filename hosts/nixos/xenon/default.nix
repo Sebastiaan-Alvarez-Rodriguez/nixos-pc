@@ -55,7 +55,7 @@
     backup-server = {
       enable = true;
       data-dir = "/data/backup";
-      credentials-file = config.age.secrets."services/backup-server/xenon".path;
+      credentials-file = config.age.secrets."hosts/xenon/services/backup-server/xenon".path;
     };
     # wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
     fail2ban.enable = true;
