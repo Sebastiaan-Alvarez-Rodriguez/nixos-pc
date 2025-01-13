@@ -49,20 +49,20 @@
     backup = {
       enable = true;
       routes = let # common configuration below
-        password-file = config.age.secrets."hosts/helium/services/backup-server/repo-helium".path;
+        password-file = config.age.secrets."hosts/helium/services/backup-client/repo-helium".path;
         paths = [ "/data" "/home" "/etc/machine-id" "/var/lib/nixos"]; # /etc/machine-id should be unique to a given host, used by some software (e.g: ZFS). /var/lib/nixos contains the UID/GID map, and other useful state.
         exclude = [ "/data/media/movies" "/data/downloads" ]; # downloads / seeds / movies are not to be backed up.
         timer-config = { OnCalendar = "19:30"; Persistent = true; };
         prune-opts = []; # cannot prune, because --> servers are append-only, so no deleting/pruning.
       in {
+        # blackberry = { # seb TODO: point blackberry.mijn.place
+        #   repository = "rest:https://restic.blackberry.mijn.place/helium/";
+        #   environment-file = config.age.secrets."hosts/helium/services/backup-client/blackberry-client-helium".path; # seb TODO: make a new secret
+        #   inherit password-file paths exclude timer-config prune-opts;
+        # };
         xenon = {
           repository = "rest:https://restic.mijn.place/helium/";
-          environment-file = config.age.secrets."hosts/helium/services/backup-server/xenon-client-helium".path;
-          inherit password-file paths exclude timer-config prune-opts;
-        };
-        blackberry = { # seb TODO: point blackberry.mijn.place
-          repository = "rest:https://restic.blackberry.mijn.place/helium/";
-          environment-file = config.age.secrets."hosts/helium/services/backup-server/blackberry-client-helium".path; # seb TODO: make a new secret
+          environment-file = config.age.secrets."hosts/helium/services/backup-client/xenon-client-helium".path;
           inherit password-file paths exclude timer-config prune-opts;
         };
       };
@@ -70,12 +70,12 @@
     backup-server = {
       enable = true;
       data-dir = "/data/backup";
-      credentials-file = config.age.secrets."hosts/helium/services/backup-server/helium".path; # seb TODO: make a new secret
+      credentials-file = config.age.secrets."hosts/helium/services/backup-server/helium".path;
     };
     home-assistant.enable = true;
     grocy = {
       enable = true;
-      backup-routes = [ "xenon" "blackberry" ];
+      backup-routes = [ "xenon" ];
     };
 
     fail2ban.enable = true;
@@ -107,7 +107,7 @@
       monitoring.enable = false;
       sso.enable = false;
       acme.default-mail = "a@b.com";
-      acme.backup-routes = [ "xenon" "blackberry" ];
+      acme.backup-routes = [ "xenon" ];
     };
     pirate = {
       bazarr.enable = true;
@@ -125,7 +125,7 @@
       backupAll = true;
       location = "/data/postgres-backup"; # this path is automatically added to backup.
       startAt = "*-*-* 18:30:00";
-      backup-routes = [ "xenon" "blackberry" ];
+      backup-routes = [ "xenon" ];
     };
     sqlite-backup = {
       enable = true;
@@ -145,7 +145,7 @@
     };
     vikunja = {
       enable = true;
-      backup-routes = [ "xenon" "blackberry" ];
+      backup-routes = [ "xenon" ];
     };
     vaultwarden.enable = true;
     # wireguard.enable = true; # seb: TODO fix wireguard config.
