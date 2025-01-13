@@ -17,6 +17,12 @@ in {
         description = "Configuration for the mailer connection, using environment variables.";
       };
     };
+
+    backup-routes = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Restic backup routes to use for this data.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -87,6 +93,6 @@ in {
       ];
     };
 
-    my.services.backup.paths = [ config.services.vikunja.settings.files.basepath ];
+    my.services.backup.routes = (lib.my.toAttrsUniform cfg.backup-routes { paths = [ config.services.vikunja.settings.files.basepath ]; });
   };
 }

@@ -91,6 +91,12 @@ in {
         default = [];
         description = "Extra domain names to get acme certification for";
       };
+
+      backup-routes = mkOption {
+        type = with types; listOf str;
+        default = [];
+        description = "Restic backup routes to use for this data.";
+      };
     };
 
     monitoring = {
@@ -407,7 +413,7 @@ in {
     };
 
     # adds certificates into backup
-    my.services.backup.paths = lib.mapAttrsToList (_: value: value.directory) config.security.acme.certs;
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.acme.backup-routes { paths = lib.mapAttrsToList (_: value: value.directory) config.security.acme.certs; };
 
     services.grafana.provision.dashboards.settings.providers = lib.mkIf cfg.monitoring.enable [
       {

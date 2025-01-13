@@ -156,7 +156,7 @@ in {
     })
 
     (lib.mkIf config.my.services.backup.enable {
-      my.services.backup.exclude = [ cfg.dataDir ]; # should not backup live database.
+      my.services.backup.global-excludes = [ cfg.dataDir ]; # should not backup live database.
     })
 
     (lib.mkIf cfg.upgradeScript { # Taken from the manual

@@ -26,4 +26,12 @@ in {
   # nullableToList ::
   #   (nullable a) -> [ a ]
   nullableToList = x: if x != null then [ x ] else [ ];
+
+  # Transform a list of names and 1 data definition to a attrset where each name points to the passed data.
+  #
+  # toAttrsUniform ::
+  #   [str]
+  #   any
+  #   { str = any; }
+  toAttrsUniform = names: data: builtins.listToAttrs (lib.map (elem: lib.nameValuePair elem data ) names);
 }

@@ -4,6 +4,7 @@
 in {
   options.my.services.nextcloud = with lib; {
     enable = mkEnableOption "Nextcloud";
+
     maxSize = mkOption {
       type = types.str;
       default = "512M";
@@ -18,10 +19,13 @@ in {
     passwordFile = mkOption {
       type = types.str;
       example = "/var/lib/nextcloud/password.txt";
-      description = ''
-        Path to a file containing the admin's password, must be readable by
-        'nextcloud' user.
-      '';
+      description = "Path to a file containing the admin's password, must be readable by 'nextcloud' user.";
+    };
+
+    backup-routes = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Restic backup routes to use for this data.";
     };
   };
 
@@ -75,9 +79,9 @@ in {
       useACMEHost = config.networking.domain;
     };
 
-    my.services.backup = {
-      paths = [ config.services.nextcloud.home ];
-      exclude = [ "${config.services.nextcloud.home}/data/appdata_*/preview" ]; # image previews can take up a lot of space
+    my.services.backup = lib.mkIf config.my.services.backup.enable {
+      global-excludes = [ "${config.services.nextcloud.home}/data/appdata_*/preview" ]; # image previews can take up a lot of space
+      routes = lib.my.toAttrsUniform cfg.backup-routes {paths = [ config.services.nextcloud.home ]; };
     };
   };
 }

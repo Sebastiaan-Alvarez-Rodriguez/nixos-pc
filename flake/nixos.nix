@@ -22,9 +22,15 @@
       inherit inputs system;
     };
   };
-  buildImageHost = name: system: let
-    base = buildHost name system;
-  in { modules = defaultModules ++ [ "${self}/hosts/nixos/${name}" "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix" ];} // base;
+
+  buildImageHost = name: system: lib.nixosSystem {
+    inherit system;
+    modules = defaultModules ++ [ "${self}/hosts/nixos/${name}" "${inputs.nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix" ];
+    specialArgs = {
+      inherit (self) lib; # use custom lib when configuring.
+      inherit inputs system;
+    };
+  };
 
 in rec {
   flake.nixosConfigurations = lib.mapAttrs buildHost {

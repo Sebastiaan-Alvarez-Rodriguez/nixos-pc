@@ -5,6 +5,7 @@ in {
   options.my.services.postgresql-backup = with lib; {
     enable = mkEnableOption "Backup SQL databases";
     backupAll = mkEnableOption "postgres backupAll option";
+
     compression = mkOption {
       type = with types; enum ["none" "gzip" "zstd"];
       default = "zstd";
@@ -24,22 +25,29 @@ in {
       default = "*-*-* 01:15:00"; # every day at 01:15
       description = "When to run the backup service, as a cronstring";
     };
+
+    backup-routes = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Restic backup routes to use for this data.";
+    };
   };
 
-  config = lib.mkIf cfg.enable (lib.mkMerge [
-    {
-      services.postgresqlBackup = {
-        enable = true;
-        inherit (cfg) backupAll compression compressionLevel location startAt;
-      };
-    }
+  config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = config.my.services.backup.enable;
+        message = "must set `my.services.backup.enable` to use postgresql backups.";
+      }
+    ];
+    services.postgresqlBackup = {
+      enable = true;
+      inherit (cfg) backupAll compression compressionLevel location startAt;
+    };
 
-    (lib.mkIf config.my.services.backup.enable {
-      my.services.backup = {
-        paths = [ config.services.postgresqlBackup.location ];
-        # No need to store previous backups thanks to `restic`
-        exclude = [ (config.services.postgresqlBackup.location + "/*.prev.sql*") ];
-      };
-    })
-  ]);
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes {
+      paths = [ config.services.postgresqlBackup.location ];
+      exclude = [ (config.services.postgresqlBackup.location + "/*.prev.sql*") ]; # No need to store previous backups thanks to `restic`
+    };
+  };
 }

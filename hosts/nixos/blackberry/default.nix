@@ -4,7 +4,6 @@
   my.system.boot = {
     enable = true;
     tmp.clean = true;
-    # kind = "grub";
     kind = "systemd";
   };
 
