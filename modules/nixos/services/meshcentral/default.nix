@@ -11,12 +11,6 @@ in {
     enable = mkEnableOption "meshcentral Media Server";
     enableIntelAMT = mkEnableOption "enable Intel AMT";
 
-    backup-path = mkOption {
-      type = types.str;
-      default = "/var/lib/meshcentral/backups";
-      description = "location for meshcentral backups";
-    };
-
     new-accounts = mkEnableOption "enable creation of new accounts";
     ignore-hash = mkEnableOption "Sometimes clients cannot connect due to web cert hash mismatches. If set, ignores hashes.";
 
@@ -24,6 +18,17 @@ in {
       type = types.port;
       default = 3344;
       description = "Listen port for meshcentral web server";
+    };
+
+    backup-routes = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Restic backup routes to use for this data.";
+    };
+    backup-path = mkOption {
+      type = types.str;
+      default = "/var/lib/meshcentral/backups";
+      description = "location for meshcentral backups";
     };
   };
 
@@ -78,7 +83,7 @@ in {
       "d ${cfg.backup-path} 0777 root root -"
     ];
 
-    my.services.backup.paths = [ cfg.backup-path ];
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.backup-path ]; };
     my.services.nginx.virtualHosts.${domain-prefix} = {
       inherit (cfg) port;
       useACMEHost = config.networking.domain;

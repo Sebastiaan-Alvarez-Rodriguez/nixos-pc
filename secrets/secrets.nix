@@ -11,6 +11,11 @@ let
   base = readKey keys/users/rdn.rsa.pub; 
 in {
   # note: by default, only keys starting with "hosts/<hostname>/..." are loaded for host named "hostname" (as provided in config.my.hardware.networking.hostname)
+  "hosts/blackberry/services/backup-server/blackberry.age" = {
+    publicKeys = [ base ];
+    owner = "restic";
+  };
+  "hosts/helium/services/backup-server/blackberry-client-helium.age".publicKeys = [ base ];
   "hosts/helium/services/backup-server/xenon-client-helium.age".publicKeys = [ base ];
   "hosts/helium/services/backup-server/repo-helium.age".publicKeys = [ base ];
   "hosts/helium/services/rustdesk/private-key.age" = {

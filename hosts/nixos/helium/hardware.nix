@@ -5,7 +5,6 @@
 
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
-  # boot.loader.grub.device = "/dev/nvme0n1"; # seb: TODO remove grub statement here. use 'my.system.boot' in accompany-'default.nix'
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];

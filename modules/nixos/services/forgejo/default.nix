@@ -41,6 +41,12 @@ in {
         example = "smtp";
         description = "Protocol for connection";
       };
+
+      backup-routes = mkOption {
+        type = with types; listOf str;
+        default = [];
+        description = "Restic backup routes to use for this data.";
+      };
     };
   };
 
@@ -55,12 +61,10 @@ in {
       }
     ];
 
-    services.forgejo =
-      let
+    services.forgejo = let
         inherit (config.networking) domain;
         forgejoDomain = "git.${domain}";
-      in
-      {
+      in {
         enable = true;
 
         user = "git";
@@ -134,12 +138,7 @@ in {
       };
     };
 
-    my.services.backup = {
-      paths = [
-        config.services.forgejo.lfs.contentDir
-        config.services.forgejo.repositoryRoot
-      ];
-    };
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ config.services.forgejo.lfs.contentDir config.services.forgejo.repositoryRoot ]; };
 
     services.fail2ban.jails = {
       forgejo = ''

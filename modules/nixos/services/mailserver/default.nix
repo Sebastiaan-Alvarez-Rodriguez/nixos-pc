@@ -44,6 +44,12 @@ in {
       default = {};
       description = "List of session names and commands to execute after-login";
     };
+
+    backup-routes = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Restic backup routes to use for this data.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -120,6 +126,7 @@ in {
     };
 
     my.services.nginx.acme.extra-domains = lib.mkIf cfg.webserver.enable [ "${cfg.domain-prefix}.${config.networking.domain}" ];
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ config.mailserver.mailDirectory config.mailserver.dkimKeyDirectory ]; };
 
     services.fail2ban.jails."roundcube" = lib.mkIf cfg.webserver.enable {
       enabled = true;

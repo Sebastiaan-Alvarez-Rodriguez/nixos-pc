@@ -41,6 +41,12 @@ in {
         example = "smtp";
         description = "Protocol for connection";
       };
+
+      backup-routes = mkOption {
+        type = with types; listOf str;
+        default = [];
+        description = "Restic backup routes to use for this data.";
+      };
     };
   };
 
@@ -122,12 +128,7 @@ in {
       };
     };
 
-    my.services.backup = {
-      paths = [
-        config.services.gitea.lfs.contentDir
-        config.services.gitea.repositoryRoot
-      ];
-    };
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ config.services.gitea.lfs.contentDir config.services.gitea.repositoryRoot ]; };
 
     services.fail2ban.jails = {
       gitea = ''

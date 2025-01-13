@@ -45,6 +45,12 @@ in {
         Configuration file for mail setup.
       '';
     };
+
+    backup-routes = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "Restic backup routes to use for this data.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -236,8 +242,6 @@ in {
 
     networking.firewall.allowedTCPPorts = [ clientPort.public federationPort.public ];
 
-    my.services.backup = {
-      paths = [ config.services.matrix-synapse.dataDir ];
-    };
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ config.services.matrix-synapse.dataDir ]; };
   };
 }

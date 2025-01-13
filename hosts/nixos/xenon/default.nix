@@ -52,6 +52,23 @@
   };
 
   my.services = {
+    # backup = {
+    #   enable = true;
+    #   routes = let # common configuration below
+    #     password-file = config.age.secrets."hosts/xenon/services/backup-server/repo-xenon".path;
+    #     paths = [ "/data" "/home" "/etc/machine-id" "/var/lib/nixos"]; # /etc/machine-id should be unique to a given host, used by some software (e.g: ZFS). /var/lib/nixos contains the UID/GID map, and other useful state.
+    #     exclude = [ "/data/backup" ]; # don't backup the stuff backed-up from this host, or cycles will appear!
+    #     timer-config = { OnCalendar = "19:30"; Persistent = true; };
+    #     prune-opts = []; # cannot prune, because --> servers are append-only, so no deleting/pruning.
+    #   in {
+    #     # seb TODO: make helium backup route here
+    #     blackberry = {
+    #       repository = "rest:https://restic.blackberry.mijn.place/helium/";
+    #       environment-file = config.age.secrets."hosts/xenon/services/backup-server/blackberry-client-xenon".path;
+    #       inherit password-file paths exclude timer-config prune-opts;
+    #     };
+    #   };
+    # };
     backup-server = {
       enable = true;
       data-dir = "/data/backup";
