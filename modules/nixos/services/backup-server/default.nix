@@ -68,5 +68,7 @@ in {
         };
       };
     };
+
+    my.services.backup.global-excludes = lib.mkIf config.my.services.backup.enable [cfg.data-dir ]; # never backup the backup-directory, to prevent cycle-forming.
   };
 }

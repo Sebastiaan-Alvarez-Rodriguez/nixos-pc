@@ -15,9 +15,10 @@ in {
     publicKeys = [ base ];
     owner = "restic";
   };
-  "hosts/helium/services/backup-server/blackberry-client-helium.age".publicKeys = [ base ];
-  "hosts/helium/services/backup-server/xenon-client-helium.age".publicKeys = [ base ];
-  "hosts/helium/services/backup-server/repo-helium.age".publicKeys = [ base ];
+  # "hosts/helium/services/backup-client/blackberry-client-helium.age".publicKeys = [ base ];
+  "hosts/helium/services/backup-client/xenon-client-helium.age".publicKeys = [ base ];
+  "hosts/helium/services/backup-client/repo-helium.age".publicKeys = [ base ];
+  "hosts/helium/services/backup-server/helium.age".publicKeys = [ base ];
   "hosts/helium/services/rustdesk/private-key.age" = {
     publicKeys = [ base ];
     owner = "rustdesk";
@@ -30,6 +31,8 @@ in {
   # "hosts/helium/services/pyload/secret.age".publicKeys = [ base ];
   # "hosts/helium/services/tandoor-recipes/secret.age".publicKeys = [ base ];
 
+  "hosts/xenon/services/backup-client/helium-client-xenon.age".publicKeys = [ base ];
+  "hosts/xenon/services/backup-client/repo-xenon.age".publicKeys = [ base ];
   "hosts/xenon/services/backup-server/xenon.age" = {
     publicKeys = [ base ];
     owner = "restic";
