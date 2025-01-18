@@ -18,7 +18,10 @@ in {
   # "hosts/helium/services/backup-client/blackberry-client-helium.age".publicKeys = [ base ];
   "hosts/helium/services/backup-client/xenon-client-helium.age".publicKeys = [ base ];
   "hosts/helium/services/backup-client/repo-helium.age".publicKeys = [ base ];
-  "hosts/helium/services/backup-server/helium.age".publicKeys = [ base ];
+  "hosts/helium/services/backup-server/helium.age" = {
+    publicKeys = [ base ];
+    owner = "restic";
+  };
   "hosts/helium/services/rustdesk/private-key.age" = {
     publicKeys = [ base ];
     owner = "rustdesk";

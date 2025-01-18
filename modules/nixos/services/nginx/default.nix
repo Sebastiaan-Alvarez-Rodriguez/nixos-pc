@@ -413,7 +413,10 @@ in {
     };
 
     # adds certificates into backup
-    my.services.backup.routes = lib.my.toAttrsUniform cfg.acme.backup-routes { paths = lib.mapAttrsToList (_: value: value.directory) config.security.acme.certs; };
+    my.services.backup = {
+      global-excludes = [ "/var/lib/acme/acme-challenge" ]; # challenges rotate frequently, no need to backup either.
+      routes = lib.my.toAttrsUniform cfg.acme.backup-routes { paths = lib.mapAttrsToList (_: value: value.directory) config.security.acme.certs; };
+    };
 
     services.grafana.provision.dashboards.settings.providers = lib.mkIf cfg.monitoring.enable [
       {
