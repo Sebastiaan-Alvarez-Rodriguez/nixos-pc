@@ -41,7 +41,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     warnings = if !cfg.append-only
-      then [ "Append-only server should be enabled to prevent attackers with server + repo credentials to delete / change backup snapshots prior to attack!" ]
+      then [ "Append-only server should be enabled to prevent attackers with server + repo credentials to delete / change backup snapshots!" ]
       else if !cfg.private-repos
       then [ "Private repos should be enabled to prevent attackers with server credentials to create backup snapshots!" ]
       else [];

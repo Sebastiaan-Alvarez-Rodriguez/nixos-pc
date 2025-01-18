@@ -69,6 +69,7 @@
     };
     backup-server = {
       enable = true;
+      append-only = true;
       data-dir = "/data/backup";
       credentials-file = config.age.secrets."hosts/helium/services/backup-server/helium".path;
     };

@@ -67,7 +67,7 @@
         #   inherit password-file paths timer-config prune-opts;
         # };
         helium = {
-          repository = "rest:https://restic.h.mijn.place/helium";
+          repository = "rest:https://restic.h.mijn.place/xenon";
           environment-file = config.age.secrets."hosts/xenon/services/backup-client/helium-client-xenon".path;
           inherit password-file paths timer-config prune-opts;
         };
@@ -75,6 +75,7 @@
     };
     backup-server = {
       enable = true;
+      append-only = true;
       data-dir = "/data/backup";
       credentials-file = config.age.secrets."hosts/xenon/services/backup-server/xenon".path;
     };
