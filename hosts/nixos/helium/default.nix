@@ -88,6 +88,10 @@
     #   musicFolder = "/data/media/music";
     # };
     jellyfin.enable = true;
+    music-assistant = {
+      enable = false; # seb TODO enable to continue development
+      providers = [ "spotify" ];
+    };
 
     rustdesk = {
       enable = true;

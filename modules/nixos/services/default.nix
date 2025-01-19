@@ -19,6 +19,7 @@
     ./meshcentral
     ./miniflux
     ./monitoring
+    ./music-assistant
     ./navidrome
     ./nextcloud
     ./nfs

@@ -44,6 +44,7 @@ in {
         "met"
         "radio_browser"
 
+        # my own added components
         "plugwise"
         "solaredge"
       ];
