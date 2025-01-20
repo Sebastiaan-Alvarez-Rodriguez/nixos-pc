@@ -5,6 +5,7 @@
     ./backup
     ./backup-server
     ./fail2ban
+    ./fancontrol
     ./flood
     ./forgejo
     ./gitea
