@@ -45,12 +45,13 @@
   };
 
   my.services = {
+    secrets.prefixes = [ "hosts/${config.my.hardware.networking.hostname}" "common/ddns-updater" ];
     adblock.enable = true;
     backup = {
       enable = true;
       routes = let # common configuration below
         password-file = config.age.secrets."hosts/helium/services/backup-client/repo-helium".path;
-        paths = [ "/data" "/home" "/etc/machine-id" "/var/lib/nixos"]; # /etc/machine-id should be unique to a given host, used by some software (e.g: ZFS). /var/lib/nixos contains the UID/GID map, and other useful state.
+        paths = [ "/data" "/home" "/etc/machine-id" "var/lib" "/var/lib/nixos"]; # /etc/machine-id should be unique to a given host, used by some software (e.g: ZFS). /var/lib/nixos contains the UID/GID map, and other useful state.
         exclude = [ "/data/media/movies" "/data/downloads" ]; # downloads / seeds / movies are not to be backed up.
         timer-config = { OnCalendar = "19:30"; Persistent = true; };
         prune-opts = []; # cannot prune, because --> servers are append-only, so no deleting/pruning.
@@ -74,6 +75,8 @@
       credentials-file = config.age.secrets."hosts/helium/services/backup-server/helium".path;
     };
     ddns-updater = {
+      enable = true;
+      package = ; # TODO: use unstable pkg for critical fixes
       settings = [
         {
           provider = "porkbun";
@@ -89,8 +92,8 @@
         }
       ];
       secrets = {
-        "@DDNS--api-key@" = config.age.secrets."hosts/helium/services/ddns/-api-key".path;
-        "@DDNS-secret-api-key@" = config.age.secrets."hosts/helium/services/ddns/secret-api-key".path;
+        "@DDNS-api-key@" = config.age.secrets."common/ddns-updater/api-key".path;
+        "@DDNS-secret-api-key@" = config.age.secrets."common/ddns-updater/secret-api-key".path;
       };
     };
     home-assistant.enable = true;
