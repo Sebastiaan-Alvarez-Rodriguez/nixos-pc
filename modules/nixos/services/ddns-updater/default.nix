@@ -1,10 +1,18 @@
 # declarative MA
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.ddns-updater;
+  statedir = "/var/lib/ddns-updater"; # state directory path as created by systemd StateDirectory definition.
+  envpath = "${statedir}/settings.env"; # path to env specification for ddns-updater.
 in {
   options.my.services.ddns-updater = with lib; {
     enable = mkEnableOption "dynamic-dns update service (to automatically update DNS records when this node's IP changes)";
-    settings = lib.mkOption {
+    package = mkPackageOption pkgs "ddns-updater" { };
+    # data-path = mkOption {
+    #   type = types.path;
+    #   default = "/var/lib/ddns-updater";
+    #   description = "Location where ddns-updater creates its internal data directory";
+    # };
+    settings = mkOption {
       type = with types; listOf (attrs);
       example = [
         {
@@ -37,32 +45,56 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    services.ddns-updater = {
-      enable = true;
-      environment = {
-        "SERVER_ENABLED" = cfg.web-ui.enable;
-        "LISTENING_ADDRESS" = ":${cfg.web-ui.port}";
+    # services.ddns-updater = {
+    #   enable = true;
+    #   environment = {
+    #     "SERVER_ENABLED" = cfg.web-ui.enable;
+    #     "LISTENING_ADDRESS" = ":${builtins.toString cfg.web-ui.port}";
+    #   };
+    # };
+    assertions = [
+      {
+        assertion = !config.services.ddns-updater.enable; message = "Cannot use ddns-updater alongside this service, as it screws up secret permissions.";
+      }
+    ];
+
+    systemd.services.ddns-updater = {
+      wantedBy = [ "multi-user.target" ];
+      wants = [ "network-online.target" ];
+      after = [ "network-online.target" ];
+
+      preStart = let
+        f = pkgs.writeText "config.env" ''
+          CONFIG = ${(builtins.toJSON { settings = cfg.settings; })}
+        '';
+        replace-func = token: secret-path: "${pkgs.replace-secret}/bin/replace-secret ${token} ${secret-path} ${envpath}";
+      in ''
+        ${pkgs.coreutils}/bin/install --mode 600 -D ${f} ${envpath}
+      '' + lib.concatStringsSep "\n" (lib.mapAttrsToList replace-func cfg.secrets);
+      path = with pkgs; [ coreutils replace-secret ];
+
+      unitConfig.Description = "DDNS-updater service";
+      serviceConfig = {
+        EnvironmentFile = "-${envpath}"; # prefix path with - to get it evaluated at ExecStart time only.
+        ExecStart = lib.getExe cfg.package;
+        DynamicUser = lib.mkForce false;
+        User = "ddns-updater";
+        StateDirectory = "ddns-updater";
+        Restart = "on-failure";
+        RestartSec = 30;
+        TimeoutSec = "5min";
       };
     };
-    systemd.services.ddns-updater = let
-      f = pkgs.writeText "config.json" builtins.toJSON { settings = cfg.settings; }; 
-      replace-func = token: secret-path: "${pkgs.replace-secret}/bin/replace-secret @testing-it@ ${cfg.secrets} /var/lib/ddns-updater/cfg.json";
-    in {
-      preStart = ''
-        install --owner root --mode 400 -D ${f} /var/lib/ddns-updater/cfg.json
-      '' +  lib.concatMapAttrsStringSep "\n" replace-func cfg.secrets;
-      path = with pkgs; [ replace-secret ];
 
-      environment = lib.mkForce {}; # seb TODO: test if removed: https://discourse.nixos.org/t/how-to-remove-an-attribute-from-another-nixos-file/383/4
-      serviceConfig.EnvironmentFile = "/var/lib/ddns-updater/cfg.json"; # seb TODO: make path configurable.
+    users.users.ddns-updater = {
+      description = "ddns-updater Service";
+      group = "ddns-updater";
+      isSystemUser = true;
     };
+    users.groups.ddns-updater = {};
 
     my.services.nginx.virtualHosts.ddns = {
       inherit (cfg.web-ui) port;
     };
-
-    # systemd.tmpfiles.rules = [
-    #   "d ${cfg.config-path} 0755 music-assistant music-assistant -"
-    # ];
   };
 }
