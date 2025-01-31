@@ -1,11 +1,11 @@
 { config, pkgs, ... }: {
   imports = [ ./hardware.nix ];
 
-  my.system.boot = {
-    enable = true;
-    tmp.clean = true;
-    kind = "systemd";
-  };
+  # my.system.boot = {
+  #   enable = true;
+  #   tmp.clean = true;
+  #   kind = "systemd";
+  # };
 
   my.system = { # contains common system packages and settings shared between hosts.
     home.users = [ "rdn" ];
@@ -50,6 +50,22 @@
       append-only = true;
       private-repos = true;
       credentials-file = config.age.secrets."hosts/blackberry/services/backup-server/blackberry".path;
+    };
+    ddns-updater = {
+      settings = [
+        {
+          provider = "porkbun";
+          domain = config.networking.domain;
+          api_key = "@DDNS-api-key@";
+          secret_api_key = "@DDNS-secret-api-key@";
+        }
+        {
+          provider = "porkbun";
+          domain = "*.${config.networking.domain}";
+          api_key = "@DDNS-api-key@";
+          secret_api_key = "@DDNS-secret-api-key@";
+        }
+      ];
     };
     # wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
     fail2ban.enable = true;
