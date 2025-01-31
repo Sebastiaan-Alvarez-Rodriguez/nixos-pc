@@ -1,5 +1,6 @@
 { lib, modulesPath, ... }: {
   imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
+  # imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
   boot.initrd.availableKernelModules = [ "ata_piix" "uhci_hcd" "xen_blkfront" "vmw_pvscsi" ];
   boot.initrd.kernelModules = [ "nvme" ];
 
@@ -9,8 +10,8 @@
 
   my.hardware.networking = {
     enable = true;
-    hostname = "xenon";
-    domain = "mijn.place";
+    hostname = "blackberry";
+    domain = "blackberry.mijn.place";
     block-trackers = true;
   };
 }

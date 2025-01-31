@@ -73,6 +73,26 @@
       data-dir = "/data/backup";
       credentials-file = config.age.secrets."hosts/helium/services/backup-server/helium".path;
     };
+    ddns-updater = {
+      settings = [
+        {
+          provider = "porkbun";
+          domain = config.networking.domain;
+          api_key = "@DDNS-api-key@";
+          secret_api_key = "@DDNS-secret-api-key@";
+        }
+        {
+          provider = "porkbun";
+          domain = "*.${config.networking.domain}";
+          api_key = "@DDNS-api-key@";
+          secret_api_key = "@DDNS-secret-api-key@";
+        }
+      ];
+      secrets = {
+        "@DDNS--api-key@" = config.age.secrets."hosts/helium/services/ddns/-api-key".path;
+        "@DDNS-secret-api-key@" = config.age.secrets."hosts/helium/services/ddns/secret-api-key".path;
+      };
+    };
     home-assistant.enable = true;
     grocy = {
       enable = true;
