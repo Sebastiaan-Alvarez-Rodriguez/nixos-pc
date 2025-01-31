@@ -4,6 +4,9 @@ It uses `sshd` to find private keys, and decrypts `.age` files on demand without
 
 A nice tutorial can be found [here](https://github.com/ryantm/agenix#tutorial).
 
+## Creating a password/key
+See section 'Encrypting a password/key'.
+
 ## Decrypting a password/key
 Requires you to define secret files in your configurations like this:
 ```nix

@@ -6,7 +6,6 @@
     ./backup-server
     ./ddns-updater
     ./fail2ban
-    ./fancontrol
     ./flood
     ./forgejo
     ./gitea
