@@ -46,11 +46,11 @@ in {
     };
     systemd.services.ddns-updater = let
       f = pkgs.writeText "config.json" builtins.toJSON { settings = cfg.settings; }; 
+      replace-func = token: secret-path: "${pkgs.replace-secret}/bin/replace-secret @testing-it@ ${cfg.secrets} /var/lib/ddns-updater/cfg.json";
     in {
       preStart = ''
         install --owner root --mode 400 -D ${f} /var/lib/ddns-updater/cfg.json
-        ${pkgs.replace-secret}/bin/replace-secret @testing-it@ ${cfg.secrets} /var/lib/ddns-updater/cfg.json
-      ''; # seb TODO: generate replace command for each secret
+      '' +  lib.concatMapAttrsStringSep "\n" replace-func cfg.secrets;
       path = with pkgs; [ replace-secret ];
 
       environment = lib.mkForce {}; # seb TODO: test if removed: https://discourse.nixos.org/t/how-to-remove-an-attribute-from-another-nixos-file/383/4

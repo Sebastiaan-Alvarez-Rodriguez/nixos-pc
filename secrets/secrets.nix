@@ -10,6 +10,9 @@ let
   readKey = f: removeSuffix "\n" (readFile f);
   base = readKey keys/users/rdn.rsa.pub; 
 in {
+  "common/ddns-updater/api-key.age".publicKeys = [base];
+  "common/ddns-updater/secret-api-key.age".publicKeys = [base];
+
   # note: by default, only keys starting with "hosts/<hostname>/..." are loaded for host named "hostname" (as provided in config.my.hardware.networking.hostname)
   "hosts/blackberry/services/backup-server/blackberry.age" = {
     publicKeys = [ base ];
