@@ -76,7 +76,7 @@
     };
     ddns-updater = {
       enable = true;
-      package = ; # TODO: use unstable pkg for critical fixes
+      package = pkgs.unstable-ddns-updater;
       settings = [
         {
           provider = "porkbun";

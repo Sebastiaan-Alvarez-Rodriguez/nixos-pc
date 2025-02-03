@@ -2,14 +2,14 @@
   defaultModules = [
     {
       system.configurationRevision = self.rev or "dirty"; # Let 'nixos-version --json' know about the Git revision
+    }
+    {
       nixpkgs.overlays = (lib.attrValues self.overlays) ++ [ inputs.nur.overlays.default ];
       nix.settings.trusted-users = [ "@wheel" ]; # Required for accepting remote builds
-      disabledModules = [
-        "services/home-automation/home-assistant.nix" # override with unstable (note: also needs package overlay)
-      ];
-      imports = [
-        "${inputs.nixos-unstable}/nixos/modules/services/home-automation/home-assistant.nix" # override default services.home-assistant
-      ];
+    }
+    { # override home-assistant
+      disabledModules = [ "services/home-automation/home-assistant.nix" ]; # override with unstable (note: also needs package overlay)
+      imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/home-automation/home-assistant.nix" ]; # override default services.home-assistant
     }
     "${self}/modules/nixos" # Include generic settings
   ];
