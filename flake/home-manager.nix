@@ -1,24 +1,17 @@
 # user-home definitions for flake.
 { self, inputs, lib, nixpkgs, ... }: let
   mkHome = { system, userModule }: inputs.home-manager.lib.homeManagerConfiguration {
-    modules = [
-      "${self}/modules/home"
-      {
-        nixpkgs = {
-          overlays = [ self.overlays.default self.overlays.customlib self.overlays.custompkgs ];
-          config = {
-            allowUnfree = true;
-            allowUnfreePredicate = (pkg: true);
-          };
-        };
-      }
-      userModule
-    ];
     pkgs = import inputs.nixpkgs {
       inherit system;
       overlays = (lib.attrValues self.overlays) ++ [ inputs.nur.overlays.default ];
     };
-    extraSpecialArgs = { inherit inputs; };
+    modules = [
+      "${self}/modules/home"
+      userModule
+    ];
+    extraSpecialArgs = {
+      inherit inputs;
+    };
   };
 in {
   perSystem = { system, ... }: {
