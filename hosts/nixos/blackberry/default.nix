@@ -44,6 +44,7 @@
   };
 
   my.services = {
+    secrets.prefixes = [ "common/ddns-updater" ];
     backup-server = {
       enable = true;
       data-dir = "/data/backup";
@@ -52,6 +53,8 @@
       credentials-file = config.age.secrets."hosts/blackberry/services/backup-server/blackberry".path;
     };
     ddns-updater = {
+      enable = true;
+      package = pkgs.unstable-ddns-updater;
       settings = [
         {
           provider = "porkbun";
@@ -66,6 +69,10 @@
           secret_api_key = "@DDNS-secret-api-key@";
         }
       ];
+      secrets = {
+        "@DDNS-api-key@" = config.age.secrets."common/ddns-updater/api-key".path;
+        "@DDNS-secret-api-key@" = config.age.secrets."common/ddns-updater/secret-api-key".path;
+      };
     };
     # wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
     fail2ban.enable = true;
