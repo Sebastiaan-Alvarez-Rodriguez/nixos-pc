@@ -45,7 +45,7 @@
   };
 
   my.services = {
-    secrets.prefixes = [ "hosts/${config.my.hardware.networking.hostname}" "common/ddns-updater" ];
+    secrets.prefixes = [ "common/ddns-updater" ];
     adblock.enable = true;
     backup = {
       enable = true;
