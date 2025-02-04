@@ -2,16 +2,11 @@
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.ddns-updater;
   statedir = "/var/lib/ddns-updater"; # state directory path as created by systemd StateDirectory definition.
-  envpath = "${statedir}/settings.env"; # path to env specification for ddns-updater.
+  configpath = "${statedir}/config.json"; # path to env specification for ddns-updater.
 in {
   options.my.services.ddns-updater = with lib; {
     enable = mkEnableOption "dynamic-dns update service (to automatically update DNS records when this node's IP changes)";
     package = mkPackageOption pkgs "ddns-updater" { };
-    # data-path = mkOption {
-    #   type = types.path;
-    #   default = "/var/lib/ddns-updater";
-    #   description = "Location where ddns-updater creates its internal data directory";
-    # };
     settings = mkOption {
       type = with types; listOf (attrs);
       example = [
@@ -45,13 +40,6 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    # services.ddns-updater = {
-    #   enable = true;
-    #   environment = {
-    #     "SERVER_ENABLED" = cfg.web-ui.enable;
-    #     "LISTENING_ADDRESS" = ":${builtins.toString cfg.web-ui.port}";
-    #   };
-    # };
     assertions = [
       {
         assertion = !config.services.ddns-updater.enable; message = "Cannot use ddns-updater alongside this service, as it screws up secret permissions.";
@@ -64,18 +52,16 @@ in {
       after = [ "network-online.target" ];
 
       preStart = let
-        f = pkgs.writeText "config.env" ''
-          CONFIG = ${(builtins.toJSON { settings = cfg.settings; })}
-        '';
-        replace-func = token: secret-path: "${pkgs.replace-secret}/bin/replace-secret ${token} ${secret-path} ${envpath}";
+        f = pkgs.writeText "config.json" "${(builtins.toJSON { settings = cfg.settings; })}";
+        replace-func = token: secret-path: "${pkgs.replace-secret}/bin/replace-secret ${token} ${secret-path} ${configpath}";
       in ''
-        ${pkgs.coreutils}/bin/install --mode 600 -D ${f} ${envpath}
+        ${pkgs.coreutils}/bin/install --mode 600 -D ${f} ${configpath}
       '' + lib.concatStringsSep "\n" (lib.mapAttrsToList replace-func cfg.secrets);
       path = with pkgs; [ coreutils replace-secret ];
 
       unitConfig.Description = "DDNS-updater service";
       serviceConfig = {
-        EnvironmentFile = "-${envpath}"; # prefix path with - to get it evaluated at ExecStart time only.
+        Environment = "DATADIR=${statedir}"; # DDNS-updater will use this dir to read the 'config.json' file
         ExecStart = lib.getExe cfg.package;
         DynamicUser = lib.mkForce false;
         User = "ddns-updater";
