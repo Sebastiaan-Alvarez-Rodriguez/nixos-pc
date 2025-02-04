@@ -1,5 +1,7 @@
 # Nix-config
 Personal core declarative system and user configuration.
+Inspired from [this config](https://github.com/ambroisie/nix-config/tree/main).
+
 
 
 
