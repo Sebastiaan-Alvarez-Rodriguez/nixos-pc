@@ -1,12 +1,15 @@
-{ lib, modulesPath, ... }: {
-  imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
-  # imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
-  boot.initrd.availableKernelModules = [ "ata_piix" "uhci_hcd" "xen_blkfront" "vmw_pvscsi" ];
-  boot.initrd.kernelModules = [ "nvme" ];
+{ pkgs, lib, modulesPath, ... }: {
+  imports = [
+    (modulesPath + "/profiles/minimal.nix")
+    (modulesPath + "/installer/sd-card/sd-image-aarch64.nix")
+  ];
 
-  # fileSystems."/" = { device = "/dev/sda3"; fsType = "ext4"; };
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_rpi3;
+  boot.initrd.availableKernelModules = lib.mkOverride 0 [ ];
+  boot.supportedFilesystems = lib.mkOverride 0 [ ];
 
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  sdImage.compressImage = false;
+
 
   my.hardware.networking = {
     enable = true;
