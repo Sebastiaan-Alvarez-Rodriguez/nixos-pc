@@ -4,6 +4,7 @@
     ./audiobookshelf
     ./backup
     ./backup-server
+    ./ddclient
     ./ddns-updater
     ./fail2ban
     ./flood

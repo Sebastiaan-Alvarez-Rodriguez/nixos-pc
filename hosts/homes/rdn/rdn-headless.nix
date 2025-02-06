@@ -37,18 +37,12 @@ in {
     matchBlocks = let 
       setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
     in (setDefaults { identitiesOnly = true; } {
-      "blackberry-local" = {
-        hostname = "192.168.178.3";
-        user = "rdn";
-        port = 18357;
-        identityFile = "/home/${username}/.ssh/blackberry.rsa";
-      };
       "blackberry" = {
-        hostname = "home.alvarez-rodriguez.nl";
+        hostname = "blackberry.mijn.place";
         user = "rdn";
-        port = 18357;
+        port = 8188;
         identityFile = "/home/${username}/.ssh/blackberry.rsa";
-        addressFamily = "inet"; # force ipv4.
+        # addressFamily = "inet"; # force ipv4.
       };
       "dsn" = {
         user = "xose";
