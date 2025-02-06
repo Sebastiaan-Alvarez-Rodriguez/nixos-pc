@@ -1,4 +1,4 @@
-# declarative MA
+# declarative DDNS update client
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.ddns-updater;
   statedir = "/var/lib/ddns-updater"; # state directory path as created by systemd StateDirectory definition.
@@ -26,7 +26,7 @@ in {
           "@other-com@" = config.age.secrets."some/other".path;
         }
       '';
-      description = "Secret tag mapping to secret location (tags are substituted securely with path contents).";
+      description = "Secret tag mapping to secret location (tags are substituted securely with pointed file's contents).";
     };
 
     web-ui = {

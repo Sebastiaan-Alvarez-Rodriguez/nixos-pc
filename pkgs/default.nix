@@ -4,6 +4,8 @@
 
   bw-pass = pkgs.callPackage ./bw-pass { };
 
+  ddclient = pkgs.callPackage ./ddclient { };
+
   diff-flake = pkgs.callPackage ./diff-flake { };
 
   dragger = pkgs.callPackage ./dragger { };
