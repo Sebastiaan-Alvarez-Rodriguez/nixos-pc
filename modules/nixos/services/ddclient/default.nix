@@ -21,6 +21,11 @@ in {
       '';
     };
 
+    root-domain = lib.mkOption {
+      type = types.str;
+      description = "root-domain registered at host";
+    };
+
     interval = lib.mkOption {
       default = "10min";
       type = types.str;
@@ -33,13 +38,11 @@ in {
       description = "Protocol to use with dynamic DNS provider (see https://ddclient.net/protocols.html).";
     };
 
-      quiet = lib.mkOption {
-        default = false;
-        type = types.bool;
-        description = ''
-          Print no messages for unnecessary updates.
-        '';
-      };
+    quiet = lib.mkOption {
+      default = false;
+      type = types.bool;
+      description = "Print no messages for unnecessary updates.";
+    };
 
     server = lib.mkOption {
       default = "";
@@ -103,6 +106,9 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    warnings = let
+      pred = item: item == "*.${cfg.root-domain}";
+    in lib.optional (builtins.any pred cfg.domains) "It is not known whether asterisk rootdomain (e.g. '*.example.org') works with this software, see e.g: https://github.com/ddclient/ddclient/issues/569. Note: it does work when updating asterisk entries in a subdomain, e.g. '*.subdomain.example.org'";
     systemd.services.ddclient = let
       boolToStr = bool: if bool then "yes" else "no";
       configfile = pkgs.writeText "ddclient.conf" ''
@@ -118,6 +124,7 @@ in {
         wildcard=YES
         quiet=${boolToStr cfg.quiet}
         verbose=${boolToStr cfg.verbose}
+        root-domain=${cfg.root-domain}
         ${cfg.extraConfig}
         ${lib.concatStringsSep "," cfg.domains}
       '';    
@@ -130,19 +137,35 @@ in {
       preStart = let
         replace-func = token: secret-path: "${pkgs.replace-secret}/bin/replace-secret ${token} ${secret-path} ${configpath}";
       in ''
-        ${pkgs.coreutils}/bin/install --mode 600 --owner=$USER -D ${configfile} ${configpath}
+        ${pkgs.coreutils}/bin/install --mode 600 -D ${configfile} ${configpath}
       '' + lib.concatStringsSep "\n" (lib.mapAttrsToList replace-func cfg.secrets);
       path = with pkgs; [ coreutils replace-secret ] ++ (lib.optional (lib.hasPrefix "if," cfg.use || lib.hasPrefix "ifv4," cfg.usev4 || lib.hasPrefix "ifv6," cfg.usev6) pkgs.iproute2);
 
       serviceConfig = {
-        DynamicUser = true;
+        DynamicUser = false;
+        User = "ddclient";
         RuntimeDirectoryMode = "0700";
         RuntimeDirectory = builtins.baseNameOf statedir;
         StateDirectory = builtins.baseNameOf statedir;
         Type = "oneshot";
         ExecStart = "${lib.getExe cfg.package} -file ${configpath}";
+        # ExecStartPre = let
+        #   replace-func = token: secret-path: "${pkgs.replace-secret}/bin/replace-secret ${token} ${secret-path} ${configpath}";
+        #   scriptfile = pkgs.writeScript "ddclient-script" ''
+        #     #!/bin/sh
+        #     ${pkgs.coreutils}/bin/install --mode 600 --owner=%u -D ${configfile} ${configpath}
+        #     ${lib.concatStringsSep "\n" (lib.mapAttrsToList replace-func cfg.secrets)}
+        #   '';
+        # in "+${scriptfile}"; # run scriptfile as root.
       };
     };
+
+    users.users.ddclient = {
+      description = "ddclient Service";
+      group = "ddclient";
+      isSystemUser = true;
+    };
+    users.groups.ddclient = {};
 
     systemd.timers.ddclient = {
       description = "Run ddclient";

@@ -2,8 +2,7 @@
 
 let
   myPerl = perl.withPackages (ps: [ ps.JSONPP ]);
-in
-perlPackages.buildPerlPackage rec {
+in perlPackages.buildPerlPackage rec {
   pname = "ddclient";
   version = "4.0.0";
 
@@ -13,7 +12,7 @@ perlPackages.buildPerlPackage rec {
     owner = "ddclient";
     repo = "ddclient";
     rev = "v${version}";
-    sha256 = "sha256-d1G+AM28nBpMWh1QBjm78KKeOL5b5arxERYRCXohwBg=";
+    sha256 = "sha256-RCE24RKcW4EhicOTwgz5UE/gzqLxw+UNNk960vFx5Gs=";
   };
 
   postPatch = ''
@@ -22,16 +21,11 @@ perlPackages.buildPerlPackage rec {
 
   nativeBuildInputs = [ autoreconfHook ];
 
-  buildInputs = [
-    curl
-    myPerl
-  ];
+  buildInputs = [ curl myPerl ];
 
   # Prevent ddclient from picking up build time perl which is implicitly added
   # by buildPerlPackage.
-  configureFlags = [
-    "--with-perl=${lib.getExe myPerl}"
-  ];
+  configureFlags = [ "--with-perl=${lib.getExe myPerl}" ];
 
   installPhase = ''
     runHook preInstall
@@ -49,7 +43,7 @@ perlPackages.buildPerlPackage rec {
     description = "An up-to-date version of ddclient";
     homepage = "https://ddclient.net";
     license = with licenses; [ mit ];
-    mainProgram = "dd-client";
+    mainProgram = "ddclient";
     platforms = platforms.linux;
   };
 }

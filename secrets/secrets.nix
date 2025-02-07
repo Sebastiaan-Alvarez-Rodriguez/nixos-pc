@@ -10,13 +10,13 @@ let
   readKey = f: removeSuffix "\n" (readFile f);
   base = readKey keys/users/rdn.rsa.pub; 
 in {
-  "common/ddns-updater/api-key.age" = {
+  "common/ddns/api-key.age" = {
     publicKeys = [base];
-    owner = "ddns-updater";
+    owner = "ddclient";
   };
-  "common/ddns-updater/secret-api-key.age" = {
+  "common/ddns/secret-api-key.age" = {
     publicKeys = [base];
-    owner = "ddns-updater";
+    owner = "ddclient";
   };
 
   # note: by default, only keys starting with "hosts/<hostname>/..." are loaded for host named "hostname" (as provided in config.my.hardware.networking.hostname)
