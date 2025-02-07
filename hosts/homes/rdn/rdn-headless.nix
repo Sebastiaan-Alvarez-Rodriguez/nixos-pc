@@ -41,8 +41,14 @@ in {
         hostname = "blackberry.mijn.place";
         user = "rdn";
         port = 8188;
-        identityFile = "/home/${username}/.ssh/blackberry.rsa";
+        identityFile = "/home/${username}/.ssh/agenix";
         # addressFamily = "inet"; # force ipv4.
+      };
+      "blackberry-local" = {
+        hostname = "192.168.0.17";
+        user = "rdn";
+        port = 8188;
+        identityFile = "/home/${username}/.ssh/agenix";
       };
       "dsn" = {
         user = "xose";
