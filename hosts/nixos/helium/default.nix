@@ -45,7 +45,7 @@
   };
 
   my.services = {
-    secrets.prefixes = [ "common/ddns-updater" ];
+    secrets.prefixes = [ "common/ddns" ];
     adblock.enable = true;
     backup = {
       enable = true;
@@ -76,15 +76,18 @@
     };
     ddclient = {
       enable = true;
+      usev6="no";
       protocol = "porkbun";
+      server = "api.porkbun.com";
       domains = [ config.networking.domain "*.${config.networking.domain}"];
+      root-domain = "mijn.place";
       extraConfig = ''
         apikey=@DDNS-api-key@
         secretapikey=@DDNS-secret-api-key@
       '';
       secrets = {
-        "@DDNS-api-key@" = config.age.secrets."common/ddns-updater/api-key".path;
-        "@DDNS-secret-api-key@" = config.age.secrets."common/ddns-updater/secret-api-key".path;
+        "@DDNS-api-key@" = config.age.secrets."common/ddns/api-key".path;
+        "@DDNS-secret-api-key@" = config.age.secrets."common/ddns/secret-api-key".path;
       };
     };
     home-assistant.enable = true;
