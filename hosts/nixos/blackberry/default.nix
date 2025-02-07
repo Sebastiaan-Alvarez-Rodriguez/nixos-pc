@@ -44,7 +44,7 @@
   };
 
   my.services = {
-    secrets.prefixes = [ "common/ddns-updater" ];
+    secrets.prefixes = [ "common/ddns" ];
     backup-server = {
       enable = true;
       data-dir = "/data/backup";
@@ -52,26 +52,20 @@
       private-repos = true;
       credentials-file = config.age.secrets."hosts/blackberry/services/backup-server/blackberry".path;
     };
-    ddns-updater = {
+    ddclient = {
       enable = true;
-      package = pkgs.unstable-ddns-updater;
-      settings = [
-        {
-          provider = "porkbun";
-          domain = config.networking.domain;
-          api_key = "@DDNS-api-key@";
-          secret_api_key = "@DDNS-secret-api-key@";
-        }
-        {
-          provider = "porkbun";
-          domain = "*.${config.networking.domain}";
-          api_key = "@DDNS-api-key@";
-          secret_api_key = "@DDNS-secret-api-key@";
-        }
-      ];
+      usev6="no";
+      protocol = "porkbun";
+      server = "api.porkbun.com";
+      domains = [ config.networking.domain "*.${config.networking.domain}"];
+      root-domain = "mijn.place";
+      extraConfig = ''
+        apikey=@DDNS-api-key@
+        secretapikey=@DDNS-secret-api-key@
+      '';
       secrets = {
-        "@DDNS-api-key@" = config.age.secrets."common/ddns-updater/api-key".path;
-        "@DDNS-secret-api-key@" = config.age.secrets."common/ddns-updater/secret-api-key".path;
+        "@DDNS-api-key@" = config.age.secrets."common/ddns/api-key".path;
+        "@DDNS-secret-api-key@" = config.age.secrets."common/ddns/secret-api-key".path;
       };
     };
     # wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.

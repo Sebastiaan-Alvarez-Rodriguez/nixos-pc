@@ -146,7 +146,6 @@
 
   services = {
     dbus.enable = true;
-    teamviewer.enable = true; # seb: NOTE remove if it does not work.
   };
 
   environment.etc."greetd/environments".text = ''
