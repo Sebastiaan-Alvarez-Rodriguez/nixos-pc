@@ -170,7 +170,9 @@
       backup-routes = [ "xenon" ];
     };
     vaultwarden.enable = true;
-    # wireguard.enable = true; # seb: TODO fix wireguard config.
+    wireguard = {
+      enable = true;
+    };
   };
 
   environment.systemPackages = [ pkgs.home-manager ];

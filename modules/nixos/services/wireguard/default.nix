@@ -3,44 +3,44 @@
 # Strongly inspired by https://github.com/delroth/infra.delroth.net/blob/master/roles/wireguard-peer.nix
 { config, lib, pkgs, ... }: let
   cfg = config.my.services.wireguard;
-  secrets = config.age.secrets;
-  hostName = config.networking.hostName;
 
+  # rings = { # all wireguard networks
+  #   core = {
+  #     servers = {
+  #       helium = {
+  #         ips = [ "10.100.0.1/24" ];
+  #         listenPort = 50505;
+          
+  #       };
+  #     };
+  #     clients = [];
+  #   };
+  # };
   peers = { # seb TODO: set hosts here? More clean config options?
     # "Server"
-    porthos = {
+    helium = {
       clientNum = 1;
       publicKey = "PLdgsizztddri0LYtjuNHr5r2E8D+yI+gM8cm5WDfHQ=";
       externalIp = "37.187.146.15";
     };
 
     # "Clients"
-    aramis = {
+    radon = {
       clientNum = 2;
       publicKey = "QJSWIBS1mXTpxYybLlKu/Y5wy0GFbUfn4yPzpF1DZDc=";
     };
-
-    richelieu = {
-      clientNum = 3;
-      publicKey = "w4IADAj2Tt7Qe95a0RxDv9ovg/Dr/f3q1LrVOPF48Rk=";
-    };
-
-    # Sarah's iPhone
-    milady = {
-      clientNum = 4;
-      publicKey = "3MKEu4F6o8kww54xeAao5Uet86fv8z/QsZ2L2mOzqDQ=";
-    };
   };
-  thisPeer = peers."${hostName}";
+  thisPeer = peers."${config.networking.hostName}";
   thisPeerIsServer = thisPeer ? externalIp;
   # Only connect to clients from server, and only connect to server from clients
   otherPeers = let
-    allOthers = lib.filterAttrs (name: _: name != hostName) peers;
+    allOthers = lib.filterAttrs (name: _: name != config.networking.hostName) peers;
     shouldConnectToPeer = _: peer: thisPeerIsServer != (peer ? externalIp);
   in
     lib.filterAttrs shouldConnectToPeer allOthers;
 
-  extIface = config.my.hardware.networking.externalInterface;
+  # extIface = config.my.hardware.networking.externalInterface;
+  extIface = "eno1"; # seb TODO remove this, uncomment above.
 
   mkInterface = clientAllowedIPs: {
     listenPort = cfg.port;
@@ -48,25 +48,19 @@
       "${v4.subnet}.${toString thisPeer.clientNum}/${toString v4.mask}"
       "${v6.subnet}::${toString thisPeer.clientNum}/${toHexString v6.mask}"
     ];
-    privateKeyFile = secrets."wireguard/private-key".path;
+    # privateKeyFile = config.age.secrets."wireguard/private-key".path;
+    privateKey = ""; # seb TODO: remove this and uncomment above
 
     peers = let
       mkPeer = _: peer: lib.mkMerge [
         { inherit (peer) publicKey; }
-        (lib.optionalAttrs thisPeerIsServer {
-          # Only forward from server to clients
-          allowedIPs = with cfg.net; [
-            "${v4.subnet}.${toString peer.clientNum}/32"
-            "${v6.subnet}::${toString peer.clientNum}/128"
-          ];
+        (lib.optionalAttrs thisPeerIsServer { # Only forward from server to clients
+          allowedIPs = with cfg.net; [ "${v4.subnet}.${toString peer.clientNum}/32" "${v6.subnet}::${toString peer.clientNum}/128" ];
         })
         (lib.optionalAttrs (!thisPeerIsServer) {
-          # Forward all traffic through wireguard to server
-          allowedIPs = clientAllowedIPs;
-          # Roaming clients need to keep NAT-ing active
-          persistentKeepalive = 10;
-          # We know that `peer` is a server, set up the endpoint
-          endpoint = "${peer.externalIp}:${toString cfg.port}";
+          allowedIPs = clientAllowedIPs; # Forward all traffic through wireguard to server
+          persistentKeepalive = 10; # Roaming clients need to keep NAT-ing active
+          endpoint = "${peer.externalIp}:${toString cfg.port}"; # We know that `peer` is a server, set up the endpoint
         })
       ];
     in
@@ -90,10 +84,7 @@ in {
 
     simpleManagement = mkEnableOption "manage units without password prompts";
 
-    startAtBoot = mkEnableOption ''
-      Should the VPN service be started at boot. Must be true for the server to
-      work reliably.
-    '';
+    startAtBoot = mkEnableOption "Should the VPN service be started at boot. Must be true for the server to work reliably.";
 
     iface = mkOption {
       type = types.str;
@@ -104,8 +95,8 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 51820;
-      example = 55555;
+      default = 50505;
+      example = 51820;
       description = "Port to configure for Wireguard";
     };
 
@@ -116,14 +107,7 @@ in {
 
       additionalServers = mkOption {
         type = with types; listOf str;
-        default = [
-          "1.0.0.1"
-          "1.1.1.1"
-        ];
-        example = [
-          "8.8.4.4"
-          "8.8.8.8"
-        ];
+        default = [ "1.0.0.1" "1.1.1.1" ];
         description = "Which DNS servers to use in addition to adblock ones";
       };
     };
@@ -186,18 +170,12 @@ in {
   config = lib.mkIf cfg.enable (lib.mkMerge [
     # Normal interface should route all traffic from client through server
     {
-      networking.wg-quick.interfaces."${cfg.iface}" = mkInterface [
-        "0.0.0.0/0"
-        "::/0"
-      ];
+      networking.wg-quick.interfaces."${cfg.iface}" = mkInterface [ "0.0.0.0/0" "::/0" ];
     }
 
     # Additional inteface is only used to get access to "LAN" from wireguard
     (lib.mkIf cfg.internal.enable {
-      networking.wg-quick.interfaces."${cfg.internal.name}" = mkInterface [
-        "${cfg.net.v4.subnet}.0/${toString cfg.net.v4.mask}"
-        "${cfg.net.v6.subnet}::/${toString cfg.net.v6.mask}"
-      ];
+      networking.wg-quick.interfaces."${cfg.internal.name}" = mkInterface [ "${cfg.net.v4.subnet}.0/${toString cfg.net.v4.mask}" "${cfg.net.v6.subnet}::/${toString cfg.net.v6.mask}" ];
     })
 
     # Expose port
@@ -207,7 +185,7 @@ in {
     (lib.mkIf thisPeerIsServer {
       networking.nat = {
         enable = true;
-        externalInterface = extIface;
+        externalInterface = "eno1"; # seb: TODO uncomment and make like target: extIface;
         internalInterfaces = [ cfg.iface ];
       };
     })
