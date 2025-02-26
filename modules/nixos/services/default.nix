@@ -34,6 +34,7 @@
     ./rustdesk
     ./sabnzbd
     ./ssh-server
+    ./snapserver
     ./sqlite-backup
     ./tandoor-recipes
     ./tlp

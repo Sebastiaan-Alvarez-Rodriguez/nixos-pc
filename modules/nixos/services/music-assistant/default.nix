@@ -6,8 +6,8 @@ in {
     enable = mkEnableOption "music-assistant service";
     port = mkOption {
       type = types.port;
-      default = 8095;
-      description = "Internal port for music-assistant http server";
+      default = 3345;
+      description = "Port for music-assistant web interface (note: does not have authentication, keep on LAN)";
     };
 
     config-path = mkOption {
@@ -51,10 +51,12 @@ in {
       useACMEHost = config.networking.domain;
 
       extraConfig = {
-        # extraConfig = ''
-        #   proxy_buffering off;
-        # '';
+        extraConfig = ''
+        allow 192.168.0.0/24;
+        deny all;
+        ''; # NOTE: this config instructs nginx reverse proxy to only accept local requests.
         locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString cfg.port}/";
           proxyWebsockets = true;
         };
       };

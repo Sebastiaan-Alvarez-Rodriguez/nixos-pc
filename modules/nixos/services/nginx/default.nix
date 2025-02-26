@@ -319,6 +319,10 @@ in {
               forceSSL = true;
               useACMEHost = null; # This is the host so we cannot use the host-ACME.
             };
+            default = { # default virtualhost, which just shows 404.
+              default = true;
+              locations."/".return = "404";
+            };
           }
           generatedHosts
         ]);
@@ -410,6 +414,31 @@ in {
           postRun = "systemctl reload nginx.service";
         };
       };
+    };
+
+    services.fail2ban.jails."nginx-bad-request.conf" = {
+      enabled = true;
+      settings = { filter = "nginx-bad-request"; action = "iptables-allports"; };
+    };
+    services.fail2ban.jails."nginx-botsearch.conf" = {
+      enabled = true;
+      settings = { filter = "nginx-botsearch"; action = "iptables-allports"; };
+    };
+    services.fail2ban.jails."nginx-error-common.conf" = {
+      enabled = true;
+      settings = { filter = "nginx-error-common"; action = "iptables-allports"; };
+    };
+    # services.fail2ban.jails."nginx-forbidden.conf" = {
+    #   enabled = true;
+    #   settings = { filter = "nginx-forbidden"; action = "iptables-allports"; };
+    # };
+    services.fail2ban.jails."nginx-http-auth.conf" = {
+      enabled = true;
+      settings = { filter = "nginx-http-auth"; action = "iptables-allports"; };
+    };
+    services.fail2ban.jails."nginx-limit-req.conf" = {
+      enabled = true;
+      settings = { filter = "nginx-limit-req"; action = "iptables-allports"; };
     };
 
     # adds certificates into backup
