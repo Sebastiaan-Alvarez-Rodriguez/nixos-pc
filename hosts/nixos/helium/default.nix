@@ -106,7 +106,7 @@
     # };
     jellyfin.enable = true;
     music-assistant = {
-      enable = false; # seb TODO enable to continue development
+      enable = true; # seb TODO enable to continue development
       providers = [ "spotify" ];
     };
 
@@ -155,6 +155,7 @@
     };
 
     ssh-server.enable = true;
+    # snapserver.enable = true;
 
     # tandoor-recipes = { # seb: NOTE disabled due to dependency on insecure python3.11-js2py-0.74
     #   enable = true;
