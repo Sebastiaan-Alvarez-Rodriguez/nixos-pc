@@ -57,6 +57,8 @@
       repo = "default";
       ref = "main";
     };
+
+    zen-browser.url = "github:0xc000022070/zen-browser-flake";
   };
 
   outputs = inputs: import ./flake inputs;

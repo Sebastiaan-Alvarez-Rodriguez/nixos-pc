@@ -416,27 +416,27 @@ in {
       };
     };
 
-    services.fail2ban.jails."nginx-bad-request.conf" = {
+    services.fail2ban.jails.nginx-bad-request = {
       enabled = true;
       settings = { filter = "nginx-bad-request"; action = "iptables-allports"; };
     };
-    services.fail2ban.jails."nginx-botsearch.conf" = {
+    services.fail2ban.jails.nginx-botsearch = {
       enabled = true;
       settings = { filter = "nginx-botsearch"; action = "iptables-allports"; };
     };
-    services.fail2ban.jails."nginx-error-common.conf" = {
+    services.fail2ban.jails.nginx-error-common = {
       enabled = true;
       settings = { filter = "nginx-error-common"; action = "iptables-allports"; };
     };
-    # services.fail2ban.jails."nginx-forbidden.conf" = {
-    #   enabled = true;
-    #   settings = { filter = "nginx-forbidden"; action = "iptables-allports"; };
-    # };
-    services.fail2ban.jails."nginx-http-auth.conf" = {
+    services.fail2ban.jails.nginx-forbidden = {
+      enabled = true;
+      settings = { filter = "nginx-forbidden"; action = "iptables-allports"; };
+    };
+    services.fail2ban.jails.nginx-http-auth = {
       enabled = true;
       settings = { filter = "nginx-http-auth"; action = "iptables-allports"; };
     };
-    services.fail2ban.jails."nginx-limit-req.conf" = {
+    services.fail2ban.jails.nginx-limit-req = {
       enabled = true;
       settings = { filter = "nginx-limit-req"; action = "iptables-allports"; };
     };
