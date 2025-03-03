@@ -22,6 +22,7 @@
     ./wm
     ./xdg
     ./zathura
+    ./zen-browser
   ];
 
   home.stateVersion = "24.05";

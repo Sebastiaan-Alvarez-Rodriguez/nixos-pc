@@ -52,7 +52,7 @@ in {
       after = [ "network-online.target" ];
 
       preStart = let
-        f = pkgs.writeText "config.json" "${(builtins.toJSON { settings = cfg.settings; })}";
+        f = pkgs.writeText "config.json" (builtins.toJSON { settings = cfg.settings; });
         replace-func = token: secret-path: "${pkgs.replace-secret}/bin/replace-secret ${token} ${secret-path} ${configpath}";
       in ''
         ${pkgs.coreutils}/bin/install --mode 600 -D ${f} ${configpath}

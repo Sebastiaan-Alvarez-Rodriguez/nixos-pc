@@ -43,8 +43,9 @@
       package = pkgs.helix;
       path = "${pkgs.helix}/bin/hx";
     };
-    firefox.enable = true;
+    firefox.enable = false;
     # firefox.tridactyl.enable = true; # seb: An arcane way to use firefox
+    zen-browser.enable = true;
     gm.wayland.enable = true;
     gpg = {
       enable = false; # seb: TODO figure out how to not be annoyed
