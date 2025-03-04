@@ -9,6 +9,7 @@
     ./gpg
     ./gm
     ./gtk
+    ./librewolf
     ./mail
     ./mpv
     ./nix
