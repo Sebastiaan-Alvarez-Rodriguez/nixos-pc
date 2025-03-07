@@ -103,7 +103,7 @@ in {
 
           (lib.mkIf config.my.home.librewolf.enable {
             "${mod} B" = "spawn '${config.programs.librewolf.package}/bin/librewolf'";
-            "${mod} P" = "spawn '${pkgs.programs.librewolf.package}/bin/librewolf --private-window'";
+            "${mod} P" = "spawn '${config.programs.librewolf.package}/bin/librewolf --private-window'";
           })
 
           (lib.mkIf (config.my.home.terminal.program == "foot") {
