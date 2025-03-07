@@ -420,9 +420,16 @@ in {
       enabled = true;
       settings = { filter = "nginx-bad-request"; action = "iptables-allports"; };
     };
-    services.fail2ban.jails.nginx-botsearch = {
+    services.fail2ban.jails.nginx-botsearch-custom = {
       enabled = true;
-      settings = { filter = "nginx-botsearch"; action = "iptables-allports"; };
+      settings = { filter = "nginx-botsearch-custom"; action = "iptables-allports"; bantime = "2h"; bantime-increment = true; bantime-maxtime = "5w"; maxretry = 5; };
+    };
+    environment.etc = {
+      "fail2ban/filter.d/nginx-botsearch-custom.conf".text = ''
+        [Definition]
+        failregex = ^ \[error\] \d+#\d+: \*\d+ (\S+ )?\"\S+\" (failed|is not found) \(2\: No such file or directory\), client\: <HOST>.*$
+        journalmatch = _SYSTEMD_UNIT=nginx.service + _COMM=nginx
+      '';
     };
     services.fail2ban.jails.nginx-error-common = {
       enabled = true;
