@@ -107,7 +107,9 @@
     jellyfin.enable = true;
     kitchenowl = {
       enable = true;
+
       data-dir = "/data/kitchenowl";
+      settings.open-registration = false; # no randoms
       settings.use-natural-language = true;
     };
     music-assistant = {
