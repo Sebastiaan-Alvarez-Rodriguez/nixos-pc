@@ -86,6 +86,8 @@ in {
     users.groups.kitchenowl = { };
     users.users.nginx.extraGroups = [ "kitchenowl" ]; # Allow nginx to access the UNIX socket
 
+    systemd.tmpfiles.rules = [ "d ${cfg.data-dir} 0700 ${config.users.users.kitchenowl.name} ${config.users.users.kitchenowl.group} -" ];
+
     my.services.kitchenowl.extra-settings = {
       FRONT_URL = "https://${kitchenowlDomain}";
 
@@ -128,8 +130,8 @@ in {
         EnvironmentFile = if builtins.isList cfg.settings-file then cfg.settings-file else [ cfg.settings-file ];
         User = "kitchenowl";
         Group = "kitchenowl";
-        DynamicUser = true;
-        PrivateTmp = true;
+        # DynamicUser = true;
+        # PrivateTmp = true;
         StateDirectory = "kitchenowl";
         ExecStartPre = pkgs.writeShellScript "kitchenowl-pre-start" ''
           mkdir -p ${cfg.data-dir}/upload
