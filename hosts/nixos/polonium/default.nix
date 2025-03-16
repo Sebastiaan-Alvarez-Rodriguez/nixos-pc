@@ -140,7 +140,10 @@
   my.profiles = {
     # bluetooth.enable = true; # seb: TODO for laptop hosts, enable
     gtk.enable = true;
-    laptop.enable = true;
+    laptop = {
+      enable = true;
+      extra-silent = true;
+    };
   };
 
   services = {
