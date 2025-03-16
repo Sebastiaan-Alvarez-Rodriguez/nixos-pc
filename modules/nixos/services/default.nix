@@ -15,6 +15,7 @@
     ./home-assistant
     ./indexers
     ./jellyfin
+    ./kitchenowl
     ./matrix
     ./mailserver
     ./mealie

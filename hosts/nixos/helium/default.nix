@@ -105,6 +105,11 @@
     #   musicFolder = "/data/media/music";
     # };
     jellyfin.enable = true;
+    kitchenowl = {
+      enable = true;
+      data-dir = "/data/kitchenowl";
+      settings.use-natural-language = true;
+    };
     music-assistant = {
       enable = true; # seb TODO enable to continue development
       providers = [ "spotify" ];
@@ -119,8 +124,8 @@
 
     nfs = {
       enable = false; # seb: NOTE nfs ports must be closed to the WAN due to potential ddos forward behavior.
-      folders."/data" = [{
-        subnet = "192.168.2.0/24"; # Only allow local access. NFS is not meant for global internet.
+      folders."/data/storage" = [{
+        subnet = "192.168.0.0/24"; # Only allow local access. NFS is not meant for global internet.
         flags = [ "rw" "hide" "insecure" "subtree_check" "fsid=root" ];
       }];
     };
