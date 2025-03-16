@@ -34,11 +34,6 @@
 
   my.home = {
     bat.enable = true; # like cat, but with syntax highlighting & more
-    # bitwarden = {
-    #   enable = true;
-    #   pinentry = pkgs.pinentry-gtk2; # Use graphical pinentry  
-    #   mail = //... wait what? Should this not be different per-user?
-    # };
     editor.main = {
       package = pkgs.helix;
       path = "${pkgs.helix}/bin/hx";

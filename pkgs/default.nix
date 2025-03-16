@@ -14,6 +14,10 @@
 
   i3-get-window-criteria = pkgs.callPackage ./i3-get-window-criteria { };
 
+  kitchenowl-desktop = callPackage ./kitchenowl/frontend { targetFlutterPlatform = "linux"; };
+  kitchenowl-web = callPackage ./kitchenowl/frontend { targetFlutterPlatform = "web"; };
+  kitchenowl-backend = callPackage ./kitchenowl/backend { };
+
   matrix-notifier = pkgs.callPackage ./matrix-notifier { };
 
   osc52 = pkgs.callPackage ./osc52 { };
