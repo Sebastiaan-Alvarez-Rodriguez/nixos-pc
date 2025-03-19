@@ -1,6 +1,17 @@
-# declarative MA
+# declarative music assistant
+# to use with snapcast, make snapcast listen for tcp requests, because [that is how music-assistant sends audio to it](https://github.com/SantiagoSotoC/music-assistant-server/blob/c6b2cb04414e192ba22c9ad00fcbcbc412a55cb8/music_assistant/providers/snapcast/__init__.py#L648)
+#
+# Intel
+# interesting shairport cfg:
+# https://github.com/OptimoSupreme/nixos-configs/blob/main/server/shairport-sync.nix
+# it seems there may be an issue with external snapcast player - https://github.com/music-assistant/support/issues/3740
+
+# note: error `(MainThread) [music_assistant.webserver] Error handling message: config/providers/get_entries: [Errno 2] No such file or directory: 'snapserver'`
+# maybe because of providers/snapcast__init__.py:129 (if there is no `snapserver` found in env)... although expected other output 'command not found'
+
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.music-assistant;
+  unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
 in {
   options.my.services.music-assistant = with lib; {
     enable = mkEnableOption "music-assistant service";
@@ -13,7 +24,7 @@ in {
     port = mkOption {
       type = types.port;
       default = 8095;
-      description = "Port for music-assistant web interface (note: does not have authentication, keep on LAN)";
+      description = "Port for music-assistant web interface (note: only listens to connections from 192.168.0.0/24 so a global-facing port can be used)";
     }; # seb TODO: make port nixos-configurable if possible, or remove this option. For now, it only works if 8095 is used.
 
     config-path = mkOption {
@@ -24,7 +35,6 @@ in {
 
     backup-routes = mkOption {
       type = with types; listOf str;
-      default = [];
       description = "Restic backup routes to use for this data.";
     };
 
@@ -42,11 +52,20 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = "snapcast" ? cfg.providers -> config.my.services.snapserver.enable;
+        message = "To use snapcast integration, enable the snapserver on this host using `config.my.services.snapserver.enable = true;`";
+      }
+    ];
     services.music-assistant = {
       enable = true;
       providers = cfg.providers ++ lib.optionals config.my.services.home-assistant.enable [ "hass" "hass_players" ] ++ lib.optional config.my.services.jellyfin.enable "jellyfin";
-      extraOptions = [ "--config" cfg.config-path ];
+      extraOptions = [ "--config" cfg.config-path "--log-level" "DEBUG" ];
+      package = unstable.music-assistant;
     };
+
+    systemd.services.music-assistant.path = lib.optional (builtins.elem "snapcast" cfg.providers) config.services.snapserver.package;
 
     services.home-assistant.extraComponents = [ "music_assistant" ];
   
