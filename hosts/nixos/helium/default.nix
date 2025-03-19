@@ -107,6 +107,7 @@
     jellyfin.enable = true;
     kitchenowl = {
       enable = true;
+      backup-routes = [ "xenon" ];
 
       data-dir = "/data/kitchenowl";
       settings.open-registration = false; # no randoms
@@ -114,7 +115,34 @@
     };
     music-assistant = {
       enable = true; # seb TODO enable to continue development
-      providers = [ "spotify" ];
+      backup-routes = [ "xenon" ];
+      port = 8095;
+      # providers = [ # music providers
+      #   "spotify"
+      # ] ++ [ # player providers
+      #   "snapcast"
+      # ];
+      providers = [ "spotify" "snapcast" ];
+    };
+    snapserver = {
+      enable = true;
+      port = 9001; # for clients
+      json-rpc.tcp = {
+        enable = true;
+        port = 9002;
+      };
+
+      streams.default = {
+        type = "tcp"; # this is what music-assistant sends (TODO: make this hard-configured)
+        codec = "flac";
+        sampleFormat = "48000:16:2";
+        query = { mode = "client"; };
+        location = "127.0.0.1:9004"; # seb TODO: found here: https://github.com/SantiagoSotoC/music-assistant-server/blob/c6b2cb04414e192ba22c9ad00fcbcbc412a55cb8/music_assistant/providers/snapcast/__init__.py#L228
+        # TODO is: make configurable in music-assistant: DEFAULT_SNAPSERVER_PORT
+        # note that in snapserver, this port should be the 'json-rpc tcp' port.
+        # query = { mode = "server"; };
+        # location = "127.0.0.1:9004";
+      };
     };
 
     rustdesk = {
@@ -162,7 +190,6 @@
     };
 
     ssh-server.enable = true;
-    # snapserver.enable = true;
 
     # tandoor-recipes = { # seb: NOTE disabled due to dependency on insecure python3.11-js2py-0.74
     #   enable = true;

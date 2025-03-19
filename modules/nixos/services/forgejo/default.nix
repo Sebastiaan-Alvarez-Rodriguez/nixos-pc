@@ -44,7 +44,6 @@ in {
 
       backup-routes = mkOption {
         type = with types; listOf str;
-        default = [];
         description = "Restic backup routes to use for this data.";
       };
     };
