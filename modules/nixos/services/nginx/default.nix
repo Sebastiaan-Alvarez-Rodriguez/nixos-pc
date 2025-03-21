@@ -52,6 +52,8 @@
         enable = mkEnableOption "SSO authentication";
       };
 
+      local-only = mkEnableOption "Only allow inbound traffic from the local subnet, effectively blocking WAN access";
+
       extraConfig = mkOption {
         type = types.attrs; # FIXME: forward type of virtualHosts
         example = litteralExample ''
@@ -96,6 +98,12 @@ in {
         type = with types; listOf str;
         description = "Restic backup routes to use for this data.";
       };
+    };
+
+    local-subnet = mkOption {
+      type = types.str;
+      description = "local subnet. When defining any 'local-only' vhosts, only accepts traffic from local subnet. (set local subnet using `nginx.local-subnet = ...`)";
+      default = "192.168.0.0/24";
     };
 
     monitoring = {
@@ -264,6 +272,12 @@ in {
           })
           (lib.optionalAttrs (args.redirect != null) { # Redirect to a different domain
             locations."/".return = "301 ${args.redirect}$request_uri";
+          })
+          (lib.optionalAttrs args.local-only {
+            extraConfig = ''
+              allow ${cfg.local-subnet};
+              deny all;
+            '';
           })
           args.extraConfig # VHost specific configuration
           (lib.optionalAttrs args.sso.enable { # SSO configuration

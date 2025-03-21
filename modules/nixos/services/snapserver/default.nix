@@ -127,12 +127,10 @@ in {
 
       tcp = {
         inherit (cfg.json-rpc.tcp) enable port;
-        listenAddress = "127.0.0.1";
       };
       
       http = {
         inherit (cfg.json-rpc.http) enable port;
-        listenAddress = "127.0.0.1";
       };
 
       inherit (cfg) streams;
@@ -160,21 +158,23 @@ in {
       # '';
     # };
 
-    # seb TODO: Is below really what I want? It exposes control to outside world via https
     my.services.nginx.virtualHosts.snapserver = lib.mkIf cfg.json-rpc.http.enable {
+      # seb TODO: this does not work yet...
+      # https://github.com/badaix/snapweb/issues/54
       port = cfg.json-rpc.http.port;
-      extraConfig = {
-        locations."/" = {
-          extraConfig = ''
-            proxy_buffering off;
-          '';
-        };
+      local-only = true;
+      # extraConfig = {
+        # locations."/" = {
+        #   extraConfig = ''
+        #     proxy_buffering off;
+        #   '';
+        # };
         # Too bad for the repetition...
-        locations."/socket" = {
-          proxyPass = "http://127.0.0.1:${toString cfg.json-rpc.http.port}/";
-          proxyWebsockets = true;
-        };
-      };
+        # locations."/socket" = {
+        #   proxyPass = "http://127.0.0.1:${toString cfg.json-rpc.http.port}/";
+        #   proxyWebsockets = true;
+        # };
+      # };
     };
   };
 }
