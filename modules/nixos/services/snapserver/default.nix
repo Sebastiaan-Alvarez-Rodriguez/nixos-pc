@@ -147,22 +147,19 @@ in {
       Group = "snapserver";
     };
 
-    # networking.firewall = {
-    #   allowedTCPPorts = [ cfg.port ]
-      # seb TODO: should next command parts be disabled? Probably yes, I don't want to expose json-rpc to remotes.
-      # ++ lib.optional (cfg.json-rpc.tcp.enable cfg.json-rpc.tcp.port; # no need to enable json-rpc.http.port, we just setup nginx to passthrough below if enabled.
-      # seb NOTE: below statements probably should drop incoming traffic from the outside network to ports... But not sure. It seems to break internal comms?
-      # extraCommands = ''
-      #   iptables -A INPUT -p tcp --dport ${toString cfg.port} -j DROP
-      #   iptables -A INPUT -p tcp --dport ${toString cfg.json-rpc.tcp.port} -j DROP
-      # '';
-    # };
+    networking.firewall = {
+      allowedTCPPorts = [ cfg.port ];
+      allowedUDPPorts = [ cfg.port ];
+    };
 
     my.services.nginx.virtualHosts.snapserver = lib.mkIf cfg.json-rpc.http.enable {
       # seb TODO: this does not work yet...
       # https://github.com/badaix/snapweb/issues/54
       port = cfg.json-rpc.http.port;
       local-only = true;
+      extraConfig = {
+        locations."/".proxyWebsockets = true;
+      };
       # extraConfig = {
         # locations."/" = {
         #   extraConfig = ''
