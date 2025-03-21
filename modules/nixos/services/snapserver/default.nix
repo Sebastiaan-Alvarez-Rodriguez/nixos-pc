@@ -137,6 +137,17 @@ in {
 
       inherit (cfg) streams;
     };
+    users.users.snapserver = {
+      description = "snapserver Service";
+      group = "snapserver";
+      isSystemUser = true;
+    };
+    users.groups.snapserver = { };
+    systemd.services.snapserver.serviceConfig = {
+      DynamicUser = lib.mkForce false; # otherwise, error when starting avahi client in daemon: https://github.com/eworm-de/pacredir/issues/1#issuecomment-1085017998
+      User = "snapserver";
+      Group = "snapserver";
+    };
 
     # networking.firewall = {
     #   allowedTCPPorts = [ cfg.port ]
