@@ -113,8 +113,9 @@
       settings.open-registration = false; # no randoms
       settings.use-natural-language = true;
     };
+    avahi.enable = false;# seb TODO enable?
     music-assistant = {
-      enable = true; # seb TODO enable to continue development
+      enable = false; # seb TODO enable to continue development
       backup-routes = [ "xenon" ];
       port = 8095;
       # providers = [ # music providers
@@ -125,7 +126,7 @@
       providers = [ "spotify" "snapcast" ];
     };
     snapserver = {
-      enable = true;
+      enable = false; # seb TODO enable to continue development
       port = 9001; # for clients
       json-rpc.tcp = {
         enable = true;
