@@ -4,6 +4,18 @@
 in {
   options.my.services.avahi = with lib; {
     enable = mkEnableOption "avahi mDNS";
+    host = mkOption {
+      type = types.str;
+      default = config.networking.hostName;
+      description = "Hostname part used in advertisements (<hostname>.<domain>)";
+      example = "h";
+    };
+    domain = mkOption {
+      type = types.str;
+      default = "local";
+      description = "Domainname part used in advertisements (<hostname>.<domain>)";
+      example = "mijn.place";
+    };
 
     allow-interfaces = mkOption {
       type = with types; nullOr (listOf str);
@@ -16,8 +28,14 @@ in {
     services = {
       avahi = {
         enable = true;
+        # nssmdns = true;
+        publish.enable = true; # otherwise services cannot publish themselves
+        publish.userServices = true;
+
+        hostName = cfg.host;
+        domainName = cfg.domain;
         # hostName = config.my.hardware.networking.domain;
-        domainName = config.my.hardware.networking.domain;
+        # domainName = config.my.hardware.networking.domain;
         allowInterfaces = cfg.allow-interfaces;
         openFirewall = true; # NOTE: this opens 5353 udp. Ensure no WAN traffic can enter here.
       };

@@ -113,7 +113,11 @@
       settings.open-registration = false; # no randoms
       settings.use-natural-language = true;
     };
-    avahi.enable = true;# seb TODO enable?
+    avahi = {
+      enable = true;
+      host = "h";
+      # domain = "mijn.place";
+    };
     music-assistant = {
       enable = true; # seb TODO enable to continue development
       backup-routes = [ "xenon" ];
@@ -131,6 +135,10 @@
       json-rpc.tcp = {
         enable = true;
         port = 9002;
+      };
+      json-rpc.http = {
+        enable = true;
+        port = 9003;
       };
 
       streams.default = {
@@ -162,6 +170,7 @@
     };
     nginx = {
       enable = true;
+      local-subnet = "192.168.0.0/24";
       monitoring.enable = false;
       sso.enable = false;
       acme.default-mail = "a@b.com";
