@@ -127,7 +127,7 @@
       # ] ++ [ # player providers
       #   "snapcast"
       # ];
-      providers = [ "spotify" "snapcast" ];
+      providers = [ "spotify_connect" "snapcast" ];
     };
     snapserver = {
       enable = true; # seb TODO enable to continue development
