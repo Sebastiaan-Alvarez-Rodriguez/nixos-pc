@@ -62,7 +62,13 @@ in {
       enable = true;
       providers = cfg.providers ++ lib.optionals config.my.services.home-assistant.enable [ "hass" "hass_players" ] ++ lib.optional config.my.services.jellyfin.enable "jellyfin";
       extraOptions = [ "--config" cfg.config-path "--log-level" "DEBUG" ];
-      package = unstable.music-assistant;
+      package = unstable.music-assistant.override { librespot = pkgs.librespot; }; # seb NOTE: using librespot 0.5.0 because librespot 0.6.0 complains:
+      # "... ERROR librespot] Credentials are required if discovery and oauth login are disabled."
+      # seb TODO: spotify auth doesn't work. It seems librespot packaged with ma has 'check-auth' but the officiall librespot never provides it...
+      # The binary custom packaged by music-assistant does have it though.
+      # https://github.com/NixOS/nixpkgs/blame/d1c33372d10e7700fef57b986feec6d1051f5a8b/pkgs/by-name/mu/music-assistant/package.nix#L62
+      # note: only spotify premium accounts work
+      # note: probably I just want spotify connect
     };
 
     systemd.services.music-assistant.path = lib.optional (builtins.elem "snapcast" cfg.providers) config.services.snapserver.package;
@@ -139,7 +145,6 @@ in {
     # seb: TODO is this enough of a backup?
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ "${cfg.config-path}/.musicassistant" ]; };
 
-    # seb: NOTE there is no login system at all. We should not expose this thing to the internet... Perhaps we can generate the required configuration, and then skip the webui altogether (or local-bind it).
     my.services.nginx.virtualHosts.ma = {
       inherit (cfg) port;
       useACMEHost = config.networking.domain;
