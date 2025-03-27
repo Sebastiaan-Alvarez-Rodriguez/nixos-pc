@@ -2,10 +2,7 @@
   description = "NixOS configuration with flakes";
   inputs = {
     agenix = {
-      type = "github";
-      owner = "ryantm";
-      repo = "agenix";
-      ref = "main";
+      url = "github:ryantm/agenix/main";
       inputs = {
         home-manager.follows = "home-manager";
         nixpkgs.follows = "nixpkgs";
@@ -14,13 +11,8 @@
     };
 
     flake-parts = {
-      type = "github";
-      owner = "hercules-ci";
-      repo = "flake-parts";
-      ref = "main";
-      inputs = {
-        nixpkgs-lib.follows = "nixpkgs";
-      };
+      url = "github:hercules-ci/flake-parts/main";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
     home-manager = {
@@ -51,12 +43,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    systems = {
-      type = "github";
-      owner = "nix-systems";
-      repo = "default";
-      ref = "main";
-    };
+    systems.url = "github:nix-systems/default/main";
 
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
   };
