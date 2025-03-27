@@ -151,11 +151,11 @@ in {
       local-only = true;
 
       extraConfig = {
-        # extraConfig = ''
-        # allow 192.168.0.0/24;
-        # deny all;
-        # ''; # NOTE: this config instructs nginx reverse proxy to only accept local requests.
         locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString cfg.port}/";
+          proxyWebsockets = true;
+        };
+        locations."/ws" = {
           proxyPass = "http://127.0.0.1:${toString cfg.port}/";
           proxyWebsockets = true;
         };

@@ -1,6 +1,4 @@
-{ lib, fetchFromGitHub, perlPackages, autoreconfHook, perl, curl, }:
-
-let
+{ lib, fetchFromGitHub, perlPackages, autoreconfHook, perl, curl, }: let
   myPerl = perl.withPackages (ps: [ ps.JSONPP ]);
 in perlPackages.buildPerlPackage rec {
   pname = "ddclient";

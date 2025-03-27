@@ -1,4 +1,4 @@
-{ pkgs }: pkgs.lib.makeScope pkgs.newScope (self: with self; {
+{ pkgs }: {
   
   breeze-obsidian-cursor = pkgs.callPackage ./breeze-obsidian-cursor { };
 
@@ -6,17 +6,15 @@
 
   ddclient = pkgs.callPackage ./ddclient { };
 
-  diff-flake = pkgs.callPackage ./diff-flake { };
-
   dragger = pkgs.callPackage ./dragger { };
 
   home-assistant-visonic = pkgs.callPackage ./home-assistant-visonic { };
 
   i3-get-window-criteria = pkgs.callPackage ./i3-get-window-criteria { };
 
-  kitchenowl-desktop = callPackage ./kitchenowl/frontend { targetFlutterPlatform = "linux"; };
-  kitchenowl-web = callPackage ./kitchenowl/frontend { targetFlutterPlatform = "web"; };
-  kitchenowl-backend = callPackage ./kitchenowl/backend { };
+  kitchenowl-desktop = pkgs.callPackage ./kitchenowl/frontend { targetFlutterPlatform = "linux"; };
+  kitchenowl-web = pkgs.callPackage ./kitchenowl/frontend { targetFlutterPlatform = "web"; };
+  kitchenowl-backend = pkgs.callPackage ./kitchenowl/backend { };
 
   matrix-notifier = pkgs.callPackage ./matrix-notifier { };
 
@@ -25,4 +23,4 @@
   osc777 = pkgs.callPackage ./osc777 { };
 
   rbw-pass = pkgs.callPackage ./rbw-pass { };
-})
+}
