@@ -45,4 +45,8 @@ in rec {
   flake.images = {
     "blackberry" = flake.nixosConfigurations."blackberry".config.system.build.sdImage;
   };
+
+  flake.nixosModules = { # used for export only
+    nixos-pc = import "${self}/modules";
+  };
 }
