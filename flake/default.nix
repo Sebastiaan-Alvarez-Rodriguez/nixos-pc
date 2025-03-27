@@ -2,7 +2,6 @@
   systems = import systems;
 
   imports = [
-    ./apps.nix
     ./home-manager.nix
     ./lib.nix
     ./nixos.nix
