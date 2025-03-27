@@ -106,7 +106,7 @@ sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations 1 2 3 <
 
 
 
-## Usage
+## OS Usage
 ### Applying backups
 Where backups are used, the implementation is [`restic`](https://restic.readthedocs.io/en/latest/index.html).
 
@@ -124,6 +124,12 @@ To restore a backup after disaster:
 
 
 
+## Exposed data
+This repo exposes **packages**, **overlays**, and **modules**.
+To see what is exposed for other flakes to depend on, use:
+```bash
+nix flake show .
+```
 
 ## TODOs
 1. Improve security: https://discourse.nixos.org/t/automatically-ban-ports-scanner-ips-on-nixos/22110
