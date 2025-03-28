@@ -17,7 +17,7 @@ in {
   perSystem = { system, ... }: {
     legacyPackages.homeConfigurations = {
       headless = mkHome {
-        system = "x86_64-linux";
+        # system = "x86_64-linux";
         userModule = ../hosts/homes/headless.nix;
       };
     };
