@@ -46,15 +46,24 @@ in rec {
     "blackberry" = flake.nixosConfigurations."blackberry".config.system.build.sdImage;
   };
 
+  # perSystem = { inputs', system, ...}: {
+    # extraSpecialArgs = { inherit inputs' system;};
+
   flake.nixosModules = let
-    nested-paths = (import ../modules/nixos {inherit lib;}).imports;
-    unnest-import = path: (import path { }).imports;
-    import-paths = paths: lib.flatten (builtins.map unnest-import paths); # --> [ [./something ./other] [./hi ]} ] --> [ ./something ./other ./hi ...]
-    final-paths = import-paths nested-paths;
+    # nested-paths = (import ../modules/nixos {inherit lib system;}).imports;
+    # unnest-import = path: (import path { }).imports;
+    # import-paths = paths: lib.flatten (builtins.map unnest-import paths); # --> [ [./something ./other] [./hi ]} ] --> [ ./something ./other ./hi ...]
+    # final-paths = import-paths nested-paths;
+    nested-paths = (import ../modules/nixos/services {inherit lib;}).imports;
+    final-paths = nested-paths;
     name-it = path: let
       parts = builtins.split "/" (toString path);
     in lib.nameValuePair (builtins.elemAt parts (builtins.length parts -1)) path;
   in lib.listToAttrs (builtins.map name-it final-paths);
+  # {
+  #   nixos-pc = lib.listToAttrs (builtins.map name-it final-paths);
+  # };
+  # };
     # {jellyfin = import ../modules/nixos/services/jellyfin; }
   # flake.nixosModules = import ../modules/nixos { inherit lib; };
 

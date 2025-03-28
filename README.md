@@ -131,6 +131,11 @@ To see what is exposed for other flakes to depend on, use:
 nix flake show .
 ```
 
+For the modules, you can only see 1 wrap named `nixos-pc`. To better see what modules are exposed exactly:
+```nix
+nix eval '.#nixosModules.nixos-pc'
+```
+
 ## TODOs
 1. Improve security: https://discourse.nixos.org/t/automatically-ban-ports-scanner-ips-on-nixos/22110
    Also - check out crowdsec.
