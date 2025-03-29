@@ -1,5 +1,5 @@
 # Common modules
-{ lib, system, ... }: {
+{ lib, ... }: {
   imports = [
     ./hardware
     ./home
