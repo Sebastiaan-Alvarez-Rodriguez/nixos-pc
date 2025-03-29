@@ -132,8 +132,9 @@ nix flake show .
 ```
 
 For the modules, you can only see 1 wrap named `nixos-pc`. To better see what modules are exposed exactly:
-```nix
+```bash
 nix eval '.#nixosModules.nixos-pc'
+nix eval '.#nixosModules.nixos-pc' | nixfmt # for pretty printing
 ```
 
 ## TODOs

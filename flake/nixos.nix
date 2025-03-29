@@ -50,15 +50,22 @@ in rec {
     # extraSpecialArgs = { inherit inputs' system;};
 
   flake.nixosModules.nixos-pc = let
-    # nested-paths = (import ../modules/nixos {inherit lib system;}).imports;
-    # unnest-import = path: (import path { }).imports;
-    # import-paths = paths: lib.flatten (builtins.map unnest-import paths); # --> [ [./something ./other] [./hi ]} ] --> [ ./something ./other ./hi ...]
-    # final-paths = import-paths nested-paths;
-    final-paths = (import ../modules/nixos/services {inherit lib;}).imports;
+  #   nested-paths = (import ../modules/nixos {inherit lib system;}).imports;
+  #   unnest-import = path: (import path { }).imports;
+  #   import-paths = paths: lib.flatten (builtins.map unnest-import paths); # --> [ [./something ./other] [./hi ]} ] --> [ ./something ./other ./hi ...]
+  #   final-paths = import-paths nested-paths;
+  #   name-it = path: let
+  #     parts = builtins.split "/" (toString path);
+  #   in lib.nameValuePair (builtins.elemAt parts (builtins.length parts -1)) path;
+  # in lib.listToAttrs (builtins.map name-it final-paths);
+    mk-paths = paths: lib.flatten (builtins.map (p: (import p {inherit lib;}).imports) paths);
     name-it = path: let
       parts = builtins.split "/" (toString path);
     in lib.nameValuePair (builtins.elemAt parts (builtins.length parts -1)) path;
-  in lib.listToAttrs (builtins.map name-it final-paths);
+    expose-modules = paths: lib.listToAttrs (builtins.map name-it (mk-paths paths));
+  in (expose-modules [ ../modules/nixos/hardware ../modules/nixos/programs ../modules/nixos/services  ../modules/nixos/system]) // {
+    secrets = ../secrets;
+  };
   # };
     # {jellyfin = import ../modules/nixos/services/jellyfin; }
   # flake.nixosModules = import ../modules/nixos { inherit lib; };
