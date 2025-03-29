@@ -50,6 +50,7 @@ in rec {
     # extraSpecialArgs = { inherit inputs' system;};
 
   flake.nixosModules.nixos-pc = let
+  # try 1
   #   nested-paths = (import ../modules/nixos {inherit lib system;}).imports;
   #   unnest-import = path: (import path { }).imports;
   #   import-paths = paths: lib.flatten (builtins.map unnest-import paths); # --> [ [./something ./other] [./hi ]} ] --> [ ./something ./other ./hi ...]
@@ -58,14 +59,22 @@ in rec {
   #     parts = builtins.split "/" (toString path);
   #   in lib.nameValuePair (builtins.elemAt parts (builtins.length parts -1)) path;
   # in lib.listToAttrs (builtins.map name-it final-paths);
+  # try 2 (exposes paths, did not import them?)
+  #   mk-paths = paths: lib.flatten (builtins.map (p: (import p {inherit lib;}).imports) paths);
+  #   name-it = path: let
+  #     parts = builtins.split "/" (toString path);
+  #   in lib.nameValuePair (builtins.elemAt parts (builtins.length parts -1)) path;
+  #   expose-modules = paths: lib.listToAttrs (builtins.map name-it (mk-paths paths));
+  # in (expose-modules [ ../modules/nixos/hardware ../modules/nixos/programs ../modules/nixos/services  ../modules/nixos/system]) // {
+  #   secrets = ../secrets;
+  # };
+    # try 3
     mk-paths = paths: lib.flatten (builtins.map (p: (import p {inherit lib;}).imports) paths);
-    name-it = path: let
-      parts = builtins.split "/" (toString path);
-    in lib.nameValuePair (builtins.elemAt parts (builtins.length parts -1)) path;
+    name-it = path: let parts = builtins.split "/" (toString path); in lib.nameValuePair (builtins.elemAt parts (builtins.length parts -1)) (import path);
     expose-modules = paths: lib.listToAttrs (builtins.map name-it (mk-paths paths));
   in (expose-modules [ ../modules/nixos/hardware ../modules/nixos/programs ../modules/nixos/services  ../modules/nixos/system]) // {
-    secrets = ../secrets;
-  };
+    secrets = import ../secrets;
+  }; 
   # };
     # {jellyfin = import ../modules/nixos/services/jellyfin; }
   # flake.nixosModules = import ../modules/nixos { inherit lib; };
