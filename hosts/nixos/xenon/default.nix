@@ -1,10 +1,6 @@
 { config, pkgs, ... }: {
   imports = [ ./hardware.nix ];
 
-  boot.tmp.cleanOnBoot = true;
-  # https://github.com/NixOS/nixpkgs/issues/71273
-  networking.interfaces.ens3.tempAddress = "disabled";
-
   networking.firewall = {
     allowedTCPPorts = [
       80    # HTTP
