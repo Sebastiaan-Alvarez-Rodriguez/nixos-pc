@@ -46,7 +46,6 @@
 
   my.services = {
     secrets.prefixes = [ "common/ddns" ];
-    adblock.enable = true;
     backup = {
       enable = true;
       routes = let # common configuration below
