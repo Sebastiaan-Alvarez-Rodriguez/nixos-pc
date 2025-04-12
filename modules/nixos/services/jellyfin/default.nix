@@ -2,8 +2,13 @@
 { config, lib, ... }: let
   cfg = config.my.services.jellyfin;
 in {
-  options.my.services.jellyfin = {
-    enable = lib.mkEnableOption "Jellyfin Media Server";
+  options.my.services.jellyfin = with lib; {
+    enable = mkEnableOption "Jellyfin Media Server";
+    port = mkOption {
+      type = types.port;
+      default = 8096;
+      description = "Internal port for webui";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -22,7 +27,7 @@ in {
 
     my.services.nginx.virtualHosts = {
       jellyfin = {
-        port = 8096;
+        inherit (cfg) port;
         extraConfig = {
           locations."/" = {
             extraConfig = ''

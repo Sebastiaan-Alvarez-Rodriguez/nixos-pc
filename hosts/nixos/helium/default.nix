@@ -118,14 +118,9 @@
       # domain = "mijn.place";
     };
     music-assistant = {
-      enable = true; # seb TODO enable to continue development
+      enable = true;
       backup-routes = [ "xenon" ];
       port = 8095;
-      # providers = [ # music providers
-      #   "spotify"
-      # ] ++ [ # player providers
-      #   "snapcast"
-      # ];
       providers = [ "jellyfin" "snapcast" ];
     };
     snapserver = {

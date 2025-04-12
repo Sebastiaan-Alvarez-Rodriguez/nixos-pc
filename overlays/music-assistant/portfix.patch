@@ -1,0 +1,83 @@
+diff --git a/music_assistant/providers/snapcast/__init__.py b/music_assistant/providers/snapcast/__init__.py
+index 1f011889..9af460cd 100644
+--- a/music_assistant/providers/snapcast/__init__.py
++++ b/music_assistant/providers/snapcast/__init__.py
+@@ -65,6 +65,8 @@ CONF_SERVER_TRANSPORT_CODEC = "snapcast_server_built_in_codec"
+ CONF_SERVER_SEND_AUDIO_TO_MUTED = "snapcast_server_built_in_send_muted"
+ CONF_STREAM_IDLE_THRESHOLD = "snapcast_stream_idle_threshold"
+ 
++CONF_MA_STREAM_PORT_START = "snapcast_stream_port_start"
++CONF_MA_STREAM_PORT_END = "snapcast_stream_port_end"
+ 
+ CONF_CATEGORY_GENERIC = "generic"
+ CONF_CATEGORY_ADVANCED = "advanced"
+@@ -83,6 +85,9 @@ DEFAULT_SNAPSERVER_IP = "127.0.0.1"
+ DEFAULT_SNAPSERVER_PORT = 1705
+ DEFAULT_SNAPSTREAM_IDLE_THRESHOLD = 60000
+ 
++DEFAULT_MA_STREAM_PORT_START = 4953
++DEFAULT_MA_STREAM_PORT_END = 5153
++
+ SNAPWEB_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent.resolve().joinpath("snapweb")
+ 
+ 
+@@ -103,7 +108,6 @@ DEFAULT_SNAPCAST_PCM_FORMAT = AudioFormat(
+     channels=2,
+ )
+ 
+-
+ async def setup(
+     mass: MusicAssistant, manifest: ProviderManifest, config: ProviderConfig
+ ) -> ProviderInstanceType:
+@@ -242,6 +246,26 @@ async def get_config_entries(
+             required=True,
+             category=CONF_CATEGORY_ADVANCED,
+         ),
++        ConfigEntry(
++            key=CONF_MA_STREAM_PORT_START,
++            type=ConfigEntryType.INTEGER,
++            default_value=DEFAULT_MA_STREAM_PORT_START,
++            label="Music-assistant stream port range start (1 port used for each stream)",
++            required=False,
++            category=(
++                CONF_CATEGORY_ADVANCED if local_snapserver_present else CONF_CATEGORY_GENERIC
++            ),
++        ),
++        ConfigEntry(
++            key=CONF_MA_STREAM_PORT_END,
++            type=ConfigEntryType.INTEGER,
++            default_value=DEFAULT_MA_STREAM_PORT_END,
++            label="Music-assistant stream port range end (1 port used for each stream)",
++            required=False,
++            category=(
++                CONF_CATEGORY_ADVANCED if local_snapserver_present else CONF_CATEGORY_GENERIC
++            ),
++        ),
+     )
+ 
+ 
+@@ -258,6 +282,15 @@ class SnapCastProvider(PlayerProvider):
+     _ids_map: bidict  # ma_id / snapclient_id
+     _stop_called: bool
+ 
++    def _get_port(self) -> int:
++        start = self.config.get_value(CONF_MA_STREAM_PORT_START)
++        end = self.config.get_value(CONF_MA_STREAM_PORT_END)
++        if start == end:
++            return start
++        if start > end:
++            start, end = end, start # user specified range counter-intuitively
++        return random.randint(start, end)
++
+     def _get_snapclient_id(self, player_id: str) -> str:
+         search_dict = self._ids_map
+         return search_dict.get(player_id)
+@@ -642,7 +675,7 @@ class SnapCastProvider(PlayerProvider):
+         while attempts:
+             attempts -= 1
+             # pick a random port
+-            port = random.randint(4953, 4953 + 200)
++            port = self._get_port()
+             name = f"MusicAssistant--{port}"
+             result = await self._snapserver.stream_add_stream(
+                 # NOTE: setting the sampleformat to something else
