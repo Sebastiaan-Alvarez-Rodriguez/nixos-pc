@@ -100,6 +100,8 @@ in {
           };
         };
       });
+      default = [];
+      description = "Definition for sqlite files to backup.";
     };
   };
 

@@ -73,6 +73,14 @@
       data-dir = "/data/backup";
       credentials-file = config.age.secrets."hosts/helium/services/backup-server/helium".path;
     };
+    bind = {
+      enable = true;
+      zones.${config.networking.domain}.conf = ''
+        ns           IN      A       192.168.0.16
+        @            IN      A       192.168.0.16
+        *            IN      A       192.168.0.16
+      ''; # routes all nameserver-requests and all domain requests for "*.h.mijn.place" and "h.mijn.place" itself to helium.
+    };
     ddclient = {
       enable = true;
       usev6="no";
@@ -90,14 +98,9 @@
       };
     };
     home-assistant.enable = true;
-    grocy = {
-      enable = true;
-      backup-routes = [ "xenon" ];
-    };
 
     fail2ban.enable = true;
     # flood.enable = true;
-    indexers.prowlarr.enable = true;
     # # FLOSS music streaming server
     # navidrome = {
     #   enable = true;
@@ -175,6 +178,11 @@
       lidarr.enable = true;
       radarr.enable = true;
       # sonarr.enable = true;
+      backup-routes = [ "xenon" ];
+    };
+    prowlarr = {
+      enable = true;
+      backup-routes = [ "xenon" ];
     };
 
     postgresql = {
@@ -222,7 +230,7 @@
   in {
     users.mrs = {
       isNormalUser = true;
-      description = "rdn";
+      description = "mrs";
       extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/mrs.rsa.pub) ];
