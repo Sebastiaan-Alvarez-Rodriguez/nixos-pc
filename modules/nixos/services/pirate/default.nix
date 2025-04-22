@@ -64,10 +64,31 @@
   };
 in {
   options.my.services.pirate = with lib; {
-    bazarr = mkDefaultOptions "bazarr";
-    lidarr = mkDefaultOptions "lidarr";
-    radarr = mkDefaultOptions "radarr";
-    sonarr = mkDefaultOptions "sonarr";
+    bazarr = (mkDefaultOptions "bazarr") // {
+      backup-path = mkOption {
+        type = with types; nullOr path;
+        default = "/var/lib/bazarr/backup";
+      };
+    };
+    lidarr = mkDefaultOptions "lidarr" // {
+      backup-path = mkOption {
+        type = with types; nullOr path;
+        default = "/var/lib/lidarr/.config/Lidarr/Backups";
+      };
+    };
+    radarr = mkDefaultOptions "radarr" // {
+      backup-path = mkOption {
+        type = with types; nullOr path;
+        default = "/var/lib/radarr/.config/Radarr/Backups";
+      };
+    };
+
+    sonarr = mkDefaultOptions "sonarr"; # seb TODO: check if sonarr requires any backups
+
+    backup-routes = mkOption {
+      type = with types; listOf str;
+      description = "Restic backup routes to use for this data.";
+    };
   };
 
   config = (lib.mkMerge [
@@ -79,11 +100,20 @@ in {
         }
       ];
       users.groups.media = { }; # Set-up media group. NOTE: Do not forget to allow write permission of media group to media folder(s).
+      my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [] ++
+        (lib.optional cfg.bazarr.enable cfg.bazarr.backup-path) ++
+        (lib.optional cfg.lidarr.enable cfg.lidarr.backup-path) ++
+        (lib.optional cfg.radarr.enable cfg.radarr.backup-path);
+      };
     }
 
     (mkConfig "bazarr") # NOTE: Bazarr does not log authentication failures...
     (mkConfig "lidarr")
     (mkConfig "radarr")
     (mkConfig "sonarr")
+
+    (lib.mkIf cfg.lidarr.enable {
+      my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.lidarr.backup-path ]; };
+    })
   ]);
 }

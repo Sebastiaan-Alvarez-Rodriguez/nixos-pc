@@ -5,6 +5,7 @@
     ./audiobookshelf
     ./backup
     ./backup-server
+    ./bind
     ./ddclient
     ./ddns-updater
     ./fail2ban
@@ -14,7 +15,7 @@
     ./greetd
     ./grocy
     ./home-assistant
-    ./indexers
+    ./jackett
     ./jellyfin
     ./kitchenowl
     ./matrix
@@ -28,10 +29,12 @@
     ./nextcloud
     ./nfs
     ./nginx
+    ./nzbhydra
     ./pirate
     ./podgrab
     ./postgresql
     ./postgresql-backup
+    ./prowlarr
     ./pyload
     ./rustdesk
     ./sabnzbd
