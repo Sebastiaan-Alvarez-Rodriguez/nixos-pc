@@ -48,6 +48,8 @@ After installing with nixOS...
   8. Set `import extra files` (entry below 8) to `srt`.
   9. Set `unmonitor deleted movies`.
   10. All the way down, add `/data/media/movies` as a root folder.
+3. Go to `Settings > Download clients`.
+  1. Add `transmission`.
 
 #### Music
 1. Setup username/password.
@@ -55,7 +57,8 @@ After installing with nixOS...
   1. Unhide the advanced settings (cog icon left top).
   2. Set `Use Hardlinks instead of Copy`.
   3. All the way at the top, add `/data/media/music` as a root folder.
-
+3. Go to `Settings > Download clients`.
+  1. Add `transmission`.
 
 ### Prowlarr
 1. Setup username/password
@@ -73,7 +76,7 @@ After installing with nixOS...
 5. go to `Settings > Apps`
   1. Add an app, e.g. `Lidarr` for music.
   2. Fix the server url if needed.
-  3. Add the API key from `Lidarr`, as found in `Settings > General`
+  3. Add the API key from e.g. `Lidarr`, as found in Lidarr's `Settings > General`
 
 
 ### Configure Jellyfin
