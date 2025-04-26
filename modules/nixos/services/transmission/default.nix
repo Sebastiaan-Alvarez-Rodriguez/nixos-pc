@@ -25,14 +25,12 @@ in {
     port = mkOption {
       type = types.port;
       default = 9091;
-      example = 8080;
       description = "Internal port for webui";
     };
 
     peer-port = mkOption {
       type = types.port;
       default = 30251;
-      example = 32323;
       description = "Peering port";
     };
   };
