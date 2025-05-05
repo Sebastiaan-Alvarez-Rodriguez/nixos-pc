@@ -28,6 +28,8 @@ in {
 
       package = (pkgs.home-assistant.override {
         extraPackages = py: with py; [
+          getmac # because it just keeps on complaining otherwise
+
           psycopg2 # support for postgresql
           zlib-ng  # next-gen zlib support
         ];

@@ -72,10 +72,10 @@ in {
         identityFile = "/home/${username}/.ssh/orca.rsa";
       };
       "xenon" = {
-        hostname = "62.171.150.8";
+        hostname = "164.68.108.153";
         user = "rdn";
         port = 8188;
-        identityFile = "/home/${username}/.ssh/xenon.rsa";
+        identityFile = "/home/${username}/.ssh/agenix";
       };
     });
     forwardAgent = true;

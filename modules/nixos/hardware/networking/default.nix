@@ -17,6 +17,13 @@ in {
       example = "test.com";
     };
 
+    nameservers = mkOption {
+      type = with types; nullOr (listOf str);
+      default = null;
+      example = [ "1.1.1.1" "1.0.0.1" ];
+      description = "IPs of domain name servers to use for this host.";
+    };
+
     block-trackers = mkEnableOption "block common trackers";
 
     wireless.enable = mkEnableOption "wireless configuration";
@@ -29,6 +36,8 @@ in {
         hostName = lib.mkIf (cfg.hostname != null) cfg.hostname;
         domain = lib.mkIf (cfg.domain != null) cfg.domain;
         networkmanager.enable = true;
+
+        nameservers = lib.mkIf (cfg.nameservers != null) cfg.nameservers;
       }
       (lib.mkIf cfg.block-trackers { # seb TODO: to setup this stuff professionally, use: https://github.com/StevenBlack/hosts
         extraHosts = ''
