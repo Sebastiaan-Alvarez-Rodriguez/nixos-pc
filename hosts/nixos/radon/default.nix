@@ -115,7 +115,7 @@
   };
 
   my.services = { 
-    fail2ban.enable = true;
+    # fail2ban.enable = true;
     greetd = {
       enable = true;
       greeting = "<=================>";
