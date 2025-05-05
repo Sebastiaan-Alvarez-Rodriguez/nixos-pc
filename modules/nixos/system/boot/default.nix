@@ -29,10 +29,9 @@ in {
           # grub
           grub = lib.mkIf (cfg.kind == "grub") {
             enable = true;
-            version = 2;
-            device = "nodev";
-            efiSupport = true;
-            enableCryptodisk = true;
+            device = lib.mkDefault "nodev";
+            efiSupport = lib.mkDefault true;
+            enableCryptodisk = lib.mkDefault true;
           };
           # systemd-boot
           systemd-boot.enable = (cfg.kind == "systemd");

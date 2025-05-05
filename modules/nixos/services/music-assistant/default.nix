@@ -11,7 +11,7 @@
 
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.music-assistant;
-  unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
+  # unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
 in {
   options.my.services.music-assistant = with lib; {
     enable = mkEnableOption "music-assistant service";
@@ -62,13 +62,10 @@ in {
       enable = true;
       providers = cfg.providers ++ lib.optionals config.my.services.home-assistant.enable [ "hass" "hass_players" ] ++ lib.optional config.my.services.jellyfin.enable "jellyfin";
       extraOptions = [ "--config" cfg.config-path "--log-level" "DEBUG" ];
-      package = unstable.music-assistant.override { librespot = pkgs.librespot; }; # seb NOTE: using librespot 0.5.0 because librespot 0.6.0 complains:
-      # "... ERROR librespot] Credentials are required if discovery and oauth login are disabled."
-      # seb TODO: spotify auth doesn't work. It seems librespot packaged with ma has 'check-auth' but the officiall librespot never provides it...
-      # The binary custom packaged by music-assistant does have it though.
-      # https://github.com/NixOS/nixpkgs/blame/d1c33372d10e7700fef57b986feec6d1051f5a8b/pkgs/by-name/mu/music-assistant/package.nix#L62
-      # note: only spotify premium accounts work
-      # note: probably I just want spotify connect
+      # package = unstable.music-assistant.override { librespot = pkgs.librespot; }; # seb NOTE: using librespot 0.5.0 because librespot 0.6.0 complains:
+      # package = unstable.music-assistant;
+      package = pkgs.music-assistant;
+
     };
 
     systemd.services.music-assistant.path = lib.optional (builtins.elem "snapcast" cfg.providers) config.services.snapserver.package;
@@ -155,10 +152,10 @@ in {
           proxyPass = "http://127.0.0.1:${toString cfg.port}/";
           proxyWebsockets = true;
         };
-        locations."/ws" = {
-          proxyPass = "http://127.0.0.1:${toString cfg.port}/";
-          proxyWebsockets = true;
-        };
+        # locations."/ws" = {
+        #   proxyPass = "http://127.0.0.1:${toString cfg.port}/";
+        #   proxyWebsockets = true;
+        # };
       };
     };
   };

@@ -49,7 +49,7 @@ in rec {
   # perSystem = { inputs', system, ...}: {
     # extraSpecialArgs = { inherit inputs' system;};
 
-  flake.nixosModules.nixos-pc = let
+  flake.nixosModules = let
   # try 1
   #   nested-paths = (import ../modules/nixos {inherit lib system;}).imports;
   #   unnest-import = path: (import path { }).imports;
