@@ -201,6 +201,13 @@
 
     ssh-server.enable = true;
 
+    syncthing = {
+      enable = true;
+      private-keyfile = config.age.secrets."hosts/helium/services/syncthing/key".path;
+      certfile = config.age.secrets."hosts/helium/services/syncthing/cert".path;
+      backup-routes = [ "xenon" ];
+    };
+
     # tandoor-recipes = { # seb: NOTE disabled due to dependency on insecure python3.11-js2py-0.74
     #   enable = true;
     #   secretKeyFile = config.age.secrets."hosts/helium/services/tandoor-recipes/secret".path;

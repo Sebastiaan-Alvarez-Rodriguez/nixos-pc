@@ -38,6 +38,7 @@
     ./ssh-server
     ./snapserver
     ./sqlite-backup
+    ./syncthing
     ./tandoor-recipes
     ./tlp
     ./transmission

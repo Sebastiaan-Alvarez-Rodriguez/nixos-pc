@@ -39,6 +39,14 @@ in {
     publicKeys = [ base ];
     owner = "rustdesk";
   };
+  "hosts/helium/services/syncthing/cert.age" = {
+    publicKeys = [ base ];
+    owner = "restic";
+  };
+  "hosts/helium/services/syncthing/key.age" = {
+    publicKeys = [ base ];
+    owner = "restic";
+  };
   "hosts/helium/services/transmission/secret.age".publicKeys = [ base ];
   # "hosts/helium/services/pyload/secret.age".publicKeys = [ base ];
   # "hosts/helium/services/tandoor-recipes/secret.age".publicKeys = [ base ];
