@@ -88,7 +88,7 @@ in {
     };
 
     my.services.backup.routes = (lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.cfg-dir strong-path ]; });
-    my.services.backup.global-excludes = [ cfg.data-dir cfg.sync-dir strong-path ];
+    my.services.backup.global-excludes = [ cfg.data-dir cfg.sync-dir ];
 
     # services.fail2ban.jails."syncthing" = {
     #   enabled = true;
