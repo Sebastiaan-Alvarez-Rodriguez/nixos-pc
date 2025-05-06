@@ -203,11 +203,23 @@
 
     ssh-server.enable = true;
 
-    syncthing = {
-      enable = true;
-      private-keyfile = config.age.secrets."hosts/helium/services/syncthing/key".path;
-      certfile = config.age.secrets."hosts/helium/services/syncthing/cert".path;
-      backup-routes = [ "xenon" ];
+    syncthing = let
+      identity = import ./../../../modules/nixos/services/syncthing/id.nix { age-secrets = config.age.secrets; };
+    in {
+      sync-dir = "/data/syncthing/data";
+      cfg-dir = "/data/syncthing/config";
+      data-dir = "/data/storage/syncthing";
+      # client = {
+        # enable = true;
+      #   server-name = "helium";
+      #   server-id = identity.helium.id;
+      # };
+      server = {
+        enable = true;
+        private-keyfile = identity.helium.private-keyfile;
+        certfile = identity.helium.certfile;
+        backup-routes = [ "xenon" ];
+      };
     };
 
     # tandoor-recipes = { # seb: NOTE disabled due to dependency on insecure python3.11-js2py-0.74
