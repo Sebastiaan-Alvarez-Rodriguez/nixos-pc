@@ -6,33 +6,21 @@
   strong-path = "${cfg.data-dir}/${strong-name}";
 in {
   options.my.services.syncthing = with lib; {
-    enable = mkEnableOption "syncthing configuration";
-
     sync-dir = mkOption {
       type = with types; str;
-      default = "/data/syncthing/data";
+      default = "/var/lib/syncthing/data";
       description = "Storage location for synchronised directories";
     };
 
     cfg-dir = mkOption {
       type = with types; str;
-      default = "/data/syncthing/config";
+      default = "/var/lib/syncthing/config";
       description = "Config storage location";
     };
 
     data-dir = mkOption {
       type = with types; str;
-      default = "/data/storage/syncthing";
       description = "Storage location for our shared folders";
-    };
-
-    private-keyfile = mkOption {
-      type = types.str;
-      description = "path to file containing secret-key.";
-    };
-    certfile = mkOption {
-      type = types.str;
-      description = "path to file containing cert identifying this node.";
     };
 
     port = mkOption {
@@ -41,68 +29,96 @@ in {
       description = "syncthing web-gui port";
     };
 
-    backup-routes = mkOption {
-      type = with types; listOf str;
-      description = "Restic backup routes to use for this data (only backups strong-backup).";
-    };
-  };
-
-  config = lib.mkIf cfg.enable {
-    services.syncthing = {
-      enable = true;
-
-      relay.enable = false;
-      dataDir = cfg.sync-dir;
-      configDir = cfg.cfg-dir;
-      guiAddress = "127.0.0.1:${toString cfg.port}";
-
-      key = cfg.private-keyfile;
-      cert = cfg.certfile;
-
-      settings = {
-        gui.insecureSkipHostcheck = true;
-        devices = { # the IDs are not secret at all, src: https://forum.syncthing.net/t/should-i-keep-my-node-ids-as-secret-as-possible/230
-          "rdn-phone" = { id = "NABS66G-LYDPC6H-QWVOGEX-YGMA7NS-HTDHYNH-RYKPW67-7QVK4XY-RAP7MQM"; };
-        };
-        folders = {
-          "${base-name}" = { # basic files to be shared between the server and clients
-            path = base-path;
-            devices = builtins.attrNames config.services.syncthing.settings.devices; # i.e. all configured devices above.
-          };
-          "${strong-name}" = { # files to be shared between servers, clients, and to be backed up using the backup system as well.
-            path = strong-path;
-            devices = builtins.attrNames config.services.syncthing.settings.devices; # i.e. all configured devices above.
-          };
-        };
-        urAccepted = -1; # do not send usage data
+    client = {
+      enable = mkEnableOption "syncthing configuration";
+      server-name = mkOption {
+        type = with types; str;
+        description = "Name of central server";
+      };
+      server-id = mkOption {
+        type = with types; str;
+        description = "syncthing id for the central server";
       };
     };
-    systemd.tmpfiles.rules = [ "d ${cfg.data-dir} 0700 ${config.users.users.syncthing.name} ${config.users.users.syncthing.group} -" ];
-    systemd.services.syncthing.environment.STNODEFAULTFOLDER = "true"; # Don't create default ~/Sync folder
-
-    networking.firewall.allowedTCPPorts = [ 22000 ]; # not configurable :(
-    networking.firewall.allowedUDPPorts = [ 21027 22000 ]; # not configurable :(
-
-    my.services.nginx.virtualHosts.sync = {
-      inherit (cfg) port;
+    server = {
+      enable = mkEnableOption "syncthing server (i.e. folder creator)";
+      private-keyfile = mkOption {
+        type = with types; str;
+        description = "Path to file containing secret-key.";
+      };
+      certfile = mkOption {
+        type = with types; str;
+        description = "path to file containing cert identifying this node.";
+      };
+      backup-routes = mkOption {
+        type = with types; (listOf str);
+        description = "Restic backup routes to use for this data (only backups strong-backup). Only need to do this for 1 server.";
+      };
     };
-
-    my.services.backup.routes = (lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.cfg-dir strong-path ]; });
-    my.services.backup.global-excludes = [ cfg.data-dir cfg.sync-dir ];
-
-    # services.fail2ban.jails."syncthing" = {
-    #   enabled = true;
-    #   settings = {
-    #     filter = "syncthing";
-    #     action = "iptables-allports";
-    #   };
-    # };
-
-    # environment.etc."fail2ban/filter.d/syncthing.conf".text = ''
-    #   [Definition]
-    #   failregex = ^.+\[syncthing::api::identity\]\[ERROR\] Username or password is incorrect. Try again. IP: (<HOST>).+$
-    #   journalmatch = _SYSTEMD_UNIT=syncthing.service
-    # '';
-    # TODO: Syncthing detection
   };
+
+  config = lib.mkIf (cfg.client.enable || cfg.server.enable) (lib.mkMerge [
+    {
+      services.syncthing = {
+        enable = true;
+
+        relay.enable = false;
+
+        dataDir = cfg.sync-dir;
+        configDir = cfg.cfg-dir;
+
+        guiAddress = "127.0.0.1:${toString cfg.port}";
+
+        settings = {
+          urAccepted = -1; # do not send usage data
+          overrideFolders = false; # just keep it lax a bit
+          overrideDevices = false; # just keep it lax a bit
+
+          folders = { # when 2 nodes have the same folder name, they just merge.
+            "${base-name}" = { # basic files to be shared between the server and clients
+              path = base-path;
+              devices = builtins.attrNames config.services.syncthing.settings.devices; # i.e. all configured devices above.
+            };
+            "${strong-name}" = { # files to be shared between servers, clients, and to be backed up using the backup system as well.
+              path = strong-path;
+              devices = builtins.attrNames config.services.syncthing.settings.devices; # i.e. all configured devices above.
+            };
+          };
+        };
+      };
+      systemd.tmpfiles.rules = [ "d ${cfg.data-dir} 0770 ${config.users.users.syncthing.name} ${config.users.users.syncthing.group} -" ];
+      # just add users to the 'syncthing' group to allow them to read/write without su rights.
+      systemd.services.syncthing.environment.STNODEFAULTFOLDER = "true"; # Don't create default ~/Sync folder
+
+      networking.firewall.allowedTCPPorts = [ 22000 ]; # not configurable :(
+      networking.firewall.allowedUDPPorts = [ 21027 22000 ]; # not configurable :(
+    }
+    (lib.mkIf cfg.server.enable {
+      services.syncthing = {
+        key = cfg.server.private-keyfile;
+        cert = cfg.server.certfile;
+
+        settings = {
+          devices = {}; # devices will announce themselves to the server
+          # overrideFolders = true; # the server decides which folders should exist.
+          # overrideDevices = false; # clients sign in on the server.
+          gui.insecureSkipHostcheck = true; # we are behind a reverse proxy, so stop checking whether connections come from "127.0.0.1" in the application.
+        };
+      };
+
+      my.services.nginx.virtualHosts.sync = {
+        inherit (cfg) port;
+      };
+
+      my.services.backup.routes = (lib.my.toAttrsUniform cfg.server.backup-routes { paths = [ cfg.cfg-dir strong-path ]; });
+      my.services.backup.global-excludes = [ cfg.data-dir cfg.sync-dir ];
+    })
+    (lib.mkIf cfg.client.enable {
+      services.syncthing.settings = {
+        devices = {
+          "${cfg.client.server-name}" = { id = cfg.client.server-id; };
+        };
+      };
+    })
+  ]);
 }

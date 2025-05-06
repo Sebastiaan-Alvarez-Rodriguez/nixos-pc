@@ -129,6 +129,16 @@
         '';
       };
     };
+    syncthing = {
+      data-dir = "/data/syncthing";
+      client = let
+        identity = import ./../../../modules/nixos/services/syncthing/id.nix { age-secrets = config.age.secrets; };
+      in {
+        enable = true;
+        server-name = "helium";
+        server-id = identity.helium.id;
+      };
+    };
   };
 
   my.profiles = {
@@ -170,7 +180,7 @@
     users.rdn = {
       isNormalUser = true;
       description = "rdn";
-      extraGroups = groupsIfExist [ "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "video" "wheel" ];
+      extraGroups = groupsIfExist [ "syncthing" "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "video" "wheel" ];
       shell = pkgs.fish;
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
     };

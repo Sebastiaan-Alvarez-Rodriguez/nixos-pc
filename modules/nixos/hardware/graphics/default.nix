@@ -53,7 +53,7 @@ in {
     };
   };
 
-  config = lib.mkIf (cfg.amd.enable or cfg.intel.enable) (lib.mkMerge [
+  config = lib.mkIf (cfg.amd.enable || cfg.intel.enable) (lib.mkMerge [
     {
       assertions = [
         {
