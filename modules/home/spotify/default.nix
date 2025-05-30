@@ -10,7 +10,7 @@ in {
 
   config.programs.spicetify = lib.mkIf cfg.enable {
     enable = true;
-    theme = spicePkgs.themes.spotifyNoPremium;
-    enabledExtensions = with spicePkgs.extensions; [ adblock hidePodcasts ];
+    theme = spicePkgs.themes.catppuccin;
+    enabledExtensions = with spicePkgs.extensions; [ adblockify shuffle hidePodcasts ]; # shuffle = shuffle+ extension of adblockify.
   };
 }
