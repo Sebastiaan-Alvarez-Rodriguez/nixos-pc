@@ -10,7 +10,7 @@ in {
     ];
     services.mako = { # wayland notifications
       enable = true;
-      defaultTimeout = 3000;
+      settings.default-timeout = 3000;
     };
   };
 }

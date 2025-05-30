@@ -18,7 +18,7 @@ in {
     ensureDatabases = mkOption {
       type = types.listOf types.str;
       default = [];
-      description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-24.11/nixos/modules/services/databases/postgresql.nix";
+      description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-25.05/nixos/modules/services/databases/postgresql.nix";
       example = [ "gitea" "nextcloud" ];
     };
 
@@ -29,17 +29,17 @@ in {
         options = {
           name = mkOption {
             type = types.str;
-            description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-24.11/nixos/modules/services/databases/postgresql.nix";
+            description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-25.05/nixos/modules/services/databases/postgresql.nix";
           };
 
           ensureDBOwnership = mkOption {
             type = types.bool;
             default = false;
-            description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-24.11/nixos/modules/services/databases/postgresql.nix";
+            description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-25.05/nixos/modules/services/databases/postgresql.nix";
           };
 
           ensureClauses = mkOption {
-            description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-24.11/nixos/modules/services/databases/postgresql.nix";
+            description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-25.05/nixos/modules/services/databases/postgresql.nix";
             example = literalExpression ''
               {
                 superuser = true;
@@ -98,7 +98,7 @@ in {
         };
       });
       default = [];
-      description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-24.11/nixos/modules/services/databases/postgresql.nix";
+      description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-25.05/nixos/modules/services/databases/postgresql.nix";
       example = literalExpression ''
         [
           {
