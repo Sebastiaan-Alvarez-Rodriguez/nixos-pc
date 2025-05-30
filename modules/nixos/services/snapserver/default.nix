@@ -1,5 +1,5 @@
 # A FLOSS media server
-{ config, lib, ... }: let
+{ config, lib, pkgs, ... }: let
   cfg = config.my.services.snapserver;
 in {
   options.my.services.snapserver = with lib; {
@@ -122,6 +122,7 @@ in {
   config = lib.mkIf cfg.enable {
     services.snapserver = {
       enable = true;
+      package = pkgs.snapcast; # should use the override
       port = cfg.port;
       listenAddress = cfg.listen-address;
 

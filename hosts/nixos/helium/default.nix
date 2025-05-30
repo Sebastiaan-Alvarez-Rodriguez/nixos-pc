@@ -123,7 +123,9 @@
     music-assistant = {
       enable = true;
       backup-routes = [ "xenon" ];
-      port = 8095;
+      port-management = 8095;
+      port-free.start = 9004;
+      port-free.end = 9005;
       providers = [ "jellyfin" "snapcast" ];
     };
     snapserver = {
@@ -257,7 +259,7 @@
     users.rdn = {
       isNormalUser = true;
       description = "rdn";
-      extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];
+      extraGroups = groupsIfExist [ "syncthing" "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
     };

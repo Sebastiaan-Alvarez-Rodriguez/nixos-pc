@@ -3,8 +3,8 @@
 #
 # Intel
 # interesting shairport cfg:
-# https://github.com/OptimoSupreme/nixos-configs/blob/main/server/shairport-sync.nix
-# it seems there may be an issue with external snapcast player - https://github.com/music-assistant/support/issues/3740
+# https://github.com/OptimoSupreme/nixos-configs/blob/main/server/shairport-management-sync.nix
+# it seems there may be an issue with external snapcast player - https://github.com/music-assistant/support-management/issues/3740
 
 # note: error `(MainThread) [music_assistant.webserver] Error handling message: config/providers/get_entries: [Errno 2] No such file or directory: 'snapserver'`
 # maybe because of providers/snapcast__init__.py:129 (if there is no `snapserver` found in env)... although expected other output 'command not found'
@@ -21,12 +21,34 @@ in {
     #   default = "0.0.0.0";
     #   description = "base_url for webserver";
     # }
-    port = mkOption {
+    port-management = mkOption {
       type = types.port;
       default = 8095;
-      description = "Port for music-assistant web interface (note: only listens to connections from 192.168.0.0/24 so a global-facing port can be used)";
-    }; # seb TODO: make port nixos-configurable if possible, or remove this option. For now, it only works if 8095 is used.
+      description = "Management port for music-assistant web interface (note: only listens to connections from 192.168.0.0/24 so a global-facing port-management can be used)";
+    }; # seb TODO: make port-management nixos-configurable if possible, or remove this option. For now, it only works if 8095 is used.
 
+    port-free = {
+      start = mkOption {
+        type = types.port;
+        default = 9004;
+        description = "start of free port range. The free range can be used by music-assistant when needed.";
+      };
+      end = mkOption {
+        type = types.port;
+        default = 9005;
+        description = "end of free port range. The free range can be used by music-assistant when needed.";
+      };
+
+      # current facts:
+      # must use < 0.30 snapserver
+      # The docs about it: https://github.com/badaix/snapcast/blob/develop/doc/json_rpc_api/control.md#streamaddstream
+      # (check different release versions)
+      #
+      # current research:
+      # 1. What happens when I use multiple speakers? Can I indeed sync with snapcast?
+      # 2. Do I have to use port 9004 only, because this is what the default stream of snapcast has configured?
+      # 
+    };
     config-path = mkOption {
       type = types.str;
       default = "/var/lib/music-assistant/";
@@ -123,7 +145,7 @@ in {
             webserver = {
               values = {
                 base_url = "https://ma.${config.networking.domain}";
-                bind_port = cfg.port;
+                bind_port-management = cfg.port-management;
               };
               domain = "webserver";
               last_error = null;
@@ -143,21 +165,27 @@ in {
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ "${cfg.config-path}/.musicassistant" ]; };
 
     my.services.nginx.virtualHosts.ma = {
-      inherit (cfg) port;
+      port = cfg.port-management;
       useACMEHost = config.networking.domain;
       local-only = true;
 
       extraConfig = {
         locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString cfg.port}/";
+          proxyPass = "http://127.0.0.1:${toString cfg.port-management}/";
           proxyWebsockets = true;
         };
         # locations."/ws" = {
-        #   proxyPass = "http://127.0.0.1:${toString cfg.port}/";
+        #   proxyPass = "http://127.0.0.1:${toString cfg.port-management}/";
         #   proxyWebsockets = true;
         # };
       };
     };
+
+    networking.firewall = {
+      allowedTCPPorts = lib.range cfg.port-free.start cfg.port-free.end;
+      allowedUDPPorts = lib.range cfg.port-free.start cfg.port-free.end;
+    };
+    
   };
   ## sample config of 'settings.json'
   # {
@@ -211,7 +239,7 @@ in {
   #     "webserver": {
   #         "values": {
   #           "base_url": "http://192.168.0.16:8099",
-  #           "bind_port": 8099
+  #           "bind_port-management": 8099
   #         },
   #       "domain": "webserver",
   #       "last_error": null
@@ -221,7 +249,7 @@ in {
 
   # {"core":{
   #  "metadata":{"domain":"metadata","last_error":"null","values":{"language":"en_US"} }
-  #  "webserver":{"domain":"webserver","last_error":"null","values":{"base_url":"https://ma.h.mijn.place","bind_port":8095}}
+  #  "webserver":{"domain":"webserver","last_error":"null","values":{"base_url":"https://ma.h.mijn.place","bind_port-management":8095}}
   #}
   # ,"providers":{"builtin--RKeSqDHn":{"domain":"builtin","enabled":true,"instance_id":"builtin--RKeSqDHn","last_error":"null","name":"Music Assistant","type":"music","values":{}}
   # ,"fanarttv--Sjgft6XD":{"domain":"fanarttv","enabled":true,"instance_id":"fanarttv--Sjgft6XD","last_error":"null","name":"fanart.tv","type":"metadata","values":{}}
