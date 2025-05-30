@@ -42,7 +42,7 @@ in {
       # https://github.com/nix-community/home-manager/blob/8d5e27b4807d25308dfe369d5a923d87e7dbfda3/docs/manual/installation/nix-darwin.md?plain=1#L35
 
       # Nix Flakes compatibility
-      useGlobalPkgs = true;
+      # useGlobalPkgs = true; # seb NOTE: cannot have `nixpkgs.config` and/or `nixpkgs.overlays` while using `home-manager.useGlobalPkgs`
       useUserPackages = true;
 
       # Forward inputs to home-manager configuration

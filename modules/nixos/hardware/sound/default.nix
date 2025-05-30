@@ -24,7 +24,7 @@ in {
 
     (lib.mkIf cfg.pipewire.enable {
       security.rtkit.enable = true;
-      hardware.pulseaudio.enable = false; # explicitly disable.
+      services.pulseaudio.enable = false; # explicitly disable.
 
       services.pipewire = {
         enable = true;
@@ -40,7 +40,7 @@ in {
     # Pulseaudio setup
     (lib.mkIf cfg.pulse.enable {
       # ALSA
-      hardware.pulseaudio.enable = true;
+      services.pulseaudio.enable = true;
     })
   ]);
 }

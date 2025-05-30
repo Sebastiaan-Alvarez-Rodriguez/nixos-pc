@@ -38,14 +38,12 @@ in {
       }
     ];
     
-    programs.wpaperd = { # seb: TODO https://stackoverflow.com/questions/21830670
+    services.wpaperd = { # seb: TODO https://stackoverflow.com/questions/21830670
       enable = true;
       package = pkg;
       settings.default = {
         path = if cfg.image.path != null then cfg.image.path else (builtins.fetchurl { inherit (cfg.image) url sha256; });
-          # duration = "30m";
-          apply-shadow = true;
-          sorting = "random";
+        apply-shadow = true;
       };
     };
 
@@ -57,7 +55,7 @@ in {
       Service = {
         Type = "simple";
         ExecStart = "${pkg}/bin/wpaperd";
-        Restart = "on-failure";
+        Restart = lib.mkForce "on-failure";
       };
       Install.WantedBy = [ cfg.systemdTarget ];
     };
