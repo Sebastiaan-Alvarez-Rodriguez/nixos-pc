@@ -22,7 +22,7 @@ Of course, ensure you have defined `flake.nixosConfigurations.<NAME>`.
 Then:
 ```bash
 nix build ".#images.<NAME>"
-````
+```
 
 
 

@@ -106,6 +106,7 @@
     #   enable = true;
     #   musicFolder = "/data/media/music";
     # };
+    immich.enable = false; # seb TODO: Package ‘pgvecto-rs-0.3.0’ is broken.
     jellyfin.enable = true;
     kitchenowl = {
       enable = true;
@@ -252,7 +253,7 @@
     users.mrs = {
       isNormalUser = true;
       description = "mrs";
-      extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];
+      extraGroups = groupsIfExist [ "syncthing" "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/mrs.rsa.pub) ];
     };

@@ -15,6 +15,7 @@
     ./greetd
     ./grocy
     ./home-assistant
+    ./immich
     ./jackett
     ./jellyfin
     ./kitchenowl
