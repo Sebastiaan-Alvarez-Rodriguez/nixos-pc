@@ -31,6 +31,7 @@
     ./nfs
     ./nginx
     ./nzbhydra
+    ./photoprism
     ./pirate
     ./podgrab
     ./postgresql
