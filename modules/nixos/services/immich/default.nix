@@ -19,6 +19,15 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    # seb TODO:
+    # Package "pgvecto-rs-0.3.0" is broken
+    # In nixpkgs: https://github.com/NixOS/nixpkgs/issues/381551
+    #
+    # Alternatively I build another package myself, e.g. lycheeorg/lychee or piwigo.
+    # for lychee:
+    # sample laravel package: https://github.com/NixOS/nixpkgs/blob/57443256a0191e0d9f5f6cd130e930096581be48/nixos/modules/services/web-apps/pixelfed.nix
+    # nix thread: https://discourse.nixos.org/t/how-to-deploy-laravel-app-to-nixos-machine/12572/3
+
     services.immich = {
       enable = true;
       host = "localhost";

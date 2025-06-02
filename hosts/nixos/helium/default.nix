@@ -106,7 +106,6 @@
     #   enable = true;
     #   musicFolder = "/data/media/music";
     # };
-    immich.enable = false; # seb TODO: Package ‘pgvecto-rs-0.3.0’ is broken.
     jellyfin.enable = true;
     kitchenowl = {
       enable = true;
@@ -154,6 +153,10 @@
       };
     };
 
+    photoprism = {
+      enable = true;
+      backup-routes = [ "xenon" ];
+    };
     rustdesk = {
       enable = true;
       enforce-key = true;

@@ -36,7 +36,7 @@ in {
           };
           # Too bad for the repetition...
           locations."/socket" = {
-            proxyPass = "http://127.0.0.1:8096/";
+            proxyPass = "http://127.0.0.1:${toString cfg.port}/";
             proxyWebsockets = true;
           };
         };
