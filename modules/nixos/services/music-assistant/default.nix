@@ -162,7 +162,7 @@ in {
     ];
 
     # seb: TODO is this enough of a backup?
-    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ "${cfg.config-path}/.musicassistant" ]; };
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.config-path ]; };
 
     my.services.nginx.virtualHosts.ma = {
       port = cfg.port-management;
@@ -174,14 +174,10 @@ in {
           proxyPass = "http://127.0.0.1:${toString cfg.port-management}/";
           proxyWebsockets = true;
         };
-        # locations."/ws" = {
-        #   proxyPass = "http://127.0.0.1:${toString cfg.port-management}/";
-        #   proxyWebsockets = true;
-        # };
       };
     };
 
-    networking.firewall = {
+    networking.firewall = { # seb: TODO: can do without this stuff because I stay on local machine?
       allowedTCPPorts = lib.range cfg.port-free.start cfg.port-free.end;
       allowedUDPPorts = lib.range cfg.port-free.start cfg.port-free.end;
     };

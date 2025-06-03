@@ -7,7 +7,7 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/febab299-adca-4f01-96e6-6623add5f4bb";
+    device = "/dev/disk/by-label/radon-main";
     fsType = "ext4";
   };
 

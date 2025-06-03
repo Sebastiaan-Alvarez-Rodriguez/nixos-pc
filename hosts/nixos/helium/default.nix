@@ -237,10 +237,6 @@
       download-dir = "/data/downloads";
       credentialsFile = config.age.secrets."hosts/helium/services/transmission/secret".path;
     };
-    vikunja = {
-      enable = true;
-      backup-routes = [ "xenon" ];
-    };
     vaultwarden.enable = true;
     wireguard = {
       enable = true;
