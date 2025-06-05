@@ -121,6 +121,7 @@ in {
       preStart = ''
         exec ${photoprism-manage} migrations run -f
       '';
+      path = with pkgs; [ sqlite ];
 
       unitConfig.Description = "Photoprism server";
       serviceConfig = {
