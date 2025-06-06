@@ -137,15 +137,16 @@ in {
 
   config = let
     finalData = if cfg.dataDir != null then "${cfg.dataDir}/${cfg.package.psqlSchema}" else null;
-
-    lines = lib.splitString "\n" cfg.authentication;
-    matchfunc = line: let match = builtins.match "local .+ ([a-zA-Z0-9]+) peer map=(.+)" line; in if match != null && (builtins.elemAt match 1) != "all" then match else [ ]; # matches peer maps. Returns list of [user, mapname].
-    generatorfunc = pair: let username = builtins.elemAt pair 0; mapname = builtins.elemAt pair 1; in "${mapname} root ${username}"; # allows local user 'root' access to the database this map applies to, with local pg user ${username}
-    assembeIdentMapRules = lines: lib.concatStringsSep "\n" (lib.map generatorfunc (lib.map matchfunc lines)); # creates a single string with all new IdentMapRules;
   in lib.mkMerge [
     (lib.mkIf cfg.enable {
-      # this piece of configuration below automatically allows system user 'root' access to any database where a peer-map is used, which has an auth string resembling "local .+ ([ascii]+) peer map=(.+)"
-      my.services.postgresql.identMap = lib.mkAfter (assembeIdentMapRules lines); # allow root and postgres users to access all databases.
+      my.services.postgresql.ensureUsers = [{ # adds a root user which is superuser and may access all tables. Access this user by being root and typing `psql -U root -d <some-db>` (e.g. with `postgres` as the db).
+        name = "root";
+        ensureClauses = {
+          superuser = true;
+          createrole = true;
+          createdb = true;
+        };
+      }];
 
       services.postgresql = {
         enable = true;

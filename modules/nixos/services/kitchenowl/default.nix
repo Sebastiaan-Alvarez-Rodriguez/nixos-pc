@@ -97,16 +97,16 @@ in {
       DB_NAME = cfg.settings.db.name;
     };
 
-    services.postgresql = mkIf (cfg.settings.db.type == "postgresql") {
+    my.services.postgresql = mkIf (cfg.settings.db.type == "postgresql") {
       enable = true;
+      authentication = "local ${config.users.users.kitchenowl.name} ${config.users.users.kitchenowl.name} peer map=kitchenowl_map";
+      identMap = "kitchenowl_map ${config.users.users.kitchenowl.name} ${config.users.users.kitchenowl.name}";
+
       ensureDatabases = [ config.users.users.kitchenowl.name ];
       ensureUsers = [{
         inherit (config.users.users.kitchenowl) name;
         ensureDBOwnership = true;
       }];
-      # Only allow unix socket authentication for kitchenowl database
-      authentication = "local ${config.users.users.kitchenowl.name} ${config.users.users.kitchenowl.name} peer map=kitchenowl_map";
-      identMap = "kitchenowl_map ${config.users.users.kitchenowl.name} ${config.users.users.kitchenowl.name}";
     };
 
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.data-dir ]; };

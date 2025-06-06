@@ -19,7 +19,7 @@ in {
         rocketPort = cfg.port;
         domain = "http://127.0.0.1:${toString rocketPort}";
         rocketLog = "critical";
-        signupsAllowed = false;
+        signupsAllowed = true;
         databaseUrl = "postgresql:///${config.users.users.vaultwarden.name}";
         logLevel = "error";
         extendedLogging = true;
@@ -49,7 +49,6 @@ in {
 
       # Only allow unix socket authentication for vaultwarden database
       authentication = "local ${config.users.users.vaultwarden.name} ${config.users.users.vaultwarden.name} peer map=vaultwarden_map";
-
       identMap = "vaultwarden_map ${config.users.users.vaultwarden.name} ${config.users.users.vaultwarden.name}";
 
       ensureDatabases = [ config.users.users.vaultwarden.name ];

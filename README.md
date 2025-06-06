@@ -106,8 +106,7 @@ sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations 1 2 3 <
 
 
 
-## OS Usage
-### Applying backups
+## Applying backups
 Where backups are used, the implementation is [`restic`](https://restic.readthedocs.io/en/latest/index.html).
 
 To restore a backup after disaster:
@@ -115,13 +114,51 @@ To restore a backup after disaster:
   ```bash
   sudo restic-<name-in-nixos> snapshots
   ```
-2. Pick a backup to restore.
+2. Pick a backup to restore by using it's hash.
 3. Get the backup to a local directory using:
   ```bash
-  sudo restic-<name-in-nixos> restore <SNAPSHOT> --target <path/to/local/dir/>
+  sudo restic-<name-in-nixos> restore <SNAPSHOT-hash> --target <path/to/local/dir/>
   ```
-3. Place the backup data back where it belongs. Don't forget to re-apply `chmod` and `chown` as needed.
+  E.g. to take the latest snapshot (check if the latest is ok) and automatically restore it, use:
+  ```bash
+  sudo restic-<name-in-nixos> restore latest --target /
+  ```
+  > **NOTE**: Optionally, use `--include /some/path` to only include one path from the backup instead of fetching everything.
+4. Restore specific dumps:
+  - postgresql
+  - home-assistant
+  - photoprism
 
+### Postgresql
+This is needed when the original data is no longer loaded, e.g. due to a host change / storage change.
+It should look like:
+1. Check database names:
+```bash
+sudo psql -l
+```
+2. Stop active connections:
+```bash
+sudo systemctl stop vaultwarden kitchenowl-backend home-assistant
+```
+3. Drop databases one by one:
+```bash
+sudo dropdb <database-name>
+```
+4. Deflate backup file:
+```bash
+unzstd <filename>.sql.zstd
+```
+5. Apply backup file:
+```bash
+psql -X -f <path/to/filename>.sql -d postgres
+```
+6. Restart stopped services
+
+7. Check if it worked:
+```bash
+psql -d <some-database> -c "SELECT * FROM <some-table>;"
+```
+Pick a database and table which should contain info, and check the results.
 
 
 ## Exposed data
