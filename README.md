@@ -128,6 +128,9 @@ To restore a backup after disaster:
   - postgresql
   - home-assistant
   - photoprism
+  - syncthing
+5. Verify all services run. If not, some common problems:
+  - the service UUID has changed, which means they no longer own their `/var/lib/<service-name>` folder. A `chown -R` sets this straight.
 
 ### Postgresql
 This is needed when the original data is no longer loaded, e.g. due to a host change / storage change.
@@ -159,6 +162,18 @@ psql -X -f <path/to/filename>.sql -d postgres
 psql -d <some-database> -c "SELECT * FROM <some-table>;"
 ```
 Pick a database and table which should contain info, and check the results.
+
+### Home-assistant
+After a fresh start, home-assistant checks for configuration inside its backup directory. It automatically reapplies if a backup is found.
+
+### Photoprism
+TODO get experiences here. Probably should rescan the orignals folder, but nothing more.
+
+### Syncthing
+Accept connections again. For the non-backed up folders, syncthing will give an error about missing folder markers.
+The simplest solution is to remove the folder from syncthing, then re-add it and set to sharing with other devices.
+Then, the other devices will simply re-upload the data.
+
 
 
 ## Exposed data

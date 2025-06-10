@@ -66,12 +66,7 @@ in {
     my.services.postgresql = {
       enable = true;
       ensureDatabases = [ "tandoor_recipes" ];
-      ensureUsers = [
-        {
-          name = "tandoor_recipes";
-          ensureDBOwnership = true;
-        }
-      ];
+      ensureUsers = [ { name = "tandoor_recipes"; ensureDBOwnership = true; } ];
     };
 
     my.services.nginx.virtualHosts = {
