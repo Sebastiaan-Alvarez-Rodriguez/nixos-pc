@@ -100,21 +100,21 @@
     home-assistant.enable = true;
 
     fail2ban.enable = true;
-    # flood.enable = true;
     # # FLOSS music streaming server
     # navidrome = {
     #   enable = true;
     #   musicFolder = "/data/media/music";
     # };
     jellyfin.enable = true;
-    kitchenowl = {
-      enable = true;
-      backup-routes = [ "xenon" ];
+    # kitchenowl = {
+    #   enable = false;
+    #   backup-routes = [ "xenon" ];
 
-      data-dir = "/data/kitchenowl";
-      settings.open-registration = false; # no randoms
-      settings.use-natural-language = true;
-    };
+    #   data-dir = "/data/kitchenowl";
+    #   settings.open-registration = false; # no randoms
+    #   settings.use-natural-language = true;
+    # };
+
     avahi = {
       enable = true;
       host = "h";
@@ -153,6 +153,10 @@
       };
     };
 
+    pingvin-share = {
+      enable = true;
+      backup-routes = [ "xenon" ];
+    };
     photoprism = {
       enable = true;
       backup-routes = [ "xenon" ];
@@ -215,11 +219,6 @@
       sync-dir = "/data/syncthing/data";
       cfg-dir = "/data/syncthing/config";
       data-dir = "/data/storage/syncthing";
-      # client = {
-        # enable = true;
-      #   server-name = "helium";
-      #   server-id = identity.helium.id;
-      # };
       server = {
         enable = true;
         private-keyfile = identity.helium.private-keyfile;
@@ -228,10 +227,10 @@
       };
     };
 
-    # tandoor-recipes = { # seb: NOTE disabled due to dependency on insecure python3.11-js2py-0.74
-    #   enable = true;
-    #   secretKeyFile = config.age.secrets."hosts/helium/services/tandoor-recipes/secret".path;
-    # };
+    tandoor-recipes = {
+      enable = true;
+      secretKeyFile = config.age.secrets."hosts/helium/services/tandoor-recipes/secret".path;
+    };
     transmission = {
       enable = true;
       download-dir = "/data/downloads";

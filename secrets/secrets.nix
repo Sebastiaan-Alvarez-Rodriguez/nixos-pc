@@ -49,7 +49,7 @@ in {
   };
   "hosts/helium/services/transmission/secret.age".publicKeys = [ base ];
   # "hosts/helium/services/pyload/secret.age".publicKeys = [ base ];
-  # "hosts/helium/services/tandoor-recipes/secret.age".publicKeys = [ base ];
+  "hosts/helium/services/tandoor-recipes/secret.age".publicKeys = [ base ];
 
   "hosts/xenon/services/backup-client/helium-client-xenon.age".publicKeys = [ base ];
   "hosts/xenon/services/backup-client/repo-xenon.age".publicKeys = [ base ];

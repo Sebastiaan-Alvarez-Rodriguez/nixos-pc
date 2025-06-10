@@ -32,6 +32,7 @@
     ./nginx
     ./nzbhydra
     ./photoprism
+    ./pingvin-share
     ./pirate
     ./podgrab
     ./postgresql
