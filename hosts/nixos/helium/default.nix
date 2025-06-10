@@ -153,10 +153,10 @@
       };
     };
 
-    pingvin-share = {
-      enable = true;
-      backup-routes = [ "xenon" ];
-    };
+    # pingvin-share = { # seb TODO: wait until a version `>1.13.0` on unstable.
+    #   enable = true;
+    #   backup-routes = [ "xenon" ];
+    # };
     photoprism = {
       enable = true;
       backup-routes = [ "xenon" ];
