@@ -71,5 +71,19 @@ in {
       in
         lib.mapAttrs gen-conf cfg.zones;
     };
+
+    services.fail2ban.jails."bind" = {
+      enabled = true;
+      settings = {
+        filter = "bind";
+        action = "iptables-allports";
+      };
+    };
+
+    environment.etc."fail2ban/filter.d/bind.conf".text = ''
+      [Definition]
+      failregex = ^.*client @0x[0-9a-f]+ <HOST>#[0-9]+ .+ denied.+$
+      journalmatch = _SYSTEMD_UNIT=bind.service
+    '';
   };
 }
