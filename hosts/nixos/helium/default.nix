@@ -126,7 +126,7 @@
       port-management = 8095;
       port-free.start = 9004;
       port-free.end = 9005;
-      providers = [ "jellyfin" "snapcast" ];
+      providers = [ "deezer" "jellyfin" "snapcast" ];
     };
     snapserver = {
       enable = true; # seb TODO enable to continue development

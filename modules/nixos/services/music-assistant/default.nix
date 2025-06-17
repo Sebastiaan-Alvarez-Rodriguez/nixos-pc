@@ -6,6 +6,7 @@
 # https://github.com/OptimoSupreme/nixos-configs/blob/main/server/shairport-management-sync.nix
 # it seems there may be an issue with external snapcast player - https://github.com/music-assistant/support-management/issues/3740
 
+# note: `DEEZER` provider does not work because it needs you to have a non-free account.
 # note: error `(MainThread) [music_assistant.webserver] Error handling message: config/providers/get_entries: [Errno 2] No such file or directory: 'snapserver'`
 # maybe because of providers/snapcast__init__.py:129 (if there is no `snapserver` found in env)... although expected other output 'command not found'
 
@@ -95,69 +96,69 @@ in {
     services.home-assistant.extraComponents = [ "music_assistant" ];
   
     systemd.tmpfiles.rules = let
-      f = pkgs.writeText "config.json" (builtins.toJSON (lib.recursiveUpdate
-        {
-          server_id = "8f3e479bc9ac416a9d07b8a0ba4deb13";
-          providers = {
-            builtin--RKeSqDHn = {
-              values = {};
-              type = "music";
-              domain = "builtin";
-              instance_id = "builtin--RKeSqDHn";
-              enabled = true;
-              name = "Music Assistant";
-              last_error = null;
-            };
-            fanarttv--Sjgft6XD = {
-              values = {};
-              type = "metadata";
-              domain = "fanarttv";
-              instance_id = "fanarttv--Sjgft6XD";
-              enabled = true;
-              name = "fanart.tv";
-              last_error = null;
-            };
-            theaudiodb--DxpRa6ZL = {
-              values = {};
-              type = "metadata";
-              domain = "theaudiodb";
-              instance_id = "theaudiodb--DxpRa6ZL";
-              enabled = true;
-              name = "The Audio DB";
-              last_error = null;
-            };
-            musicbrainz--3AaBdBZd = {
-              values = {};
-              type = "metadata";
-              domain = "musicbrainz";
-              instance_id = "musicbrainz--3AaBdBZd";
-              enabled = true;
-              name = "MusicBrainz";
-              last_error = null;
-            };
-          }; # TODO: maybe I should not hardcode the id's, and builtin plugins... But it makes the system definitely more configurable / reproducible.
-          core = {
-            metadata = {
-              values.language = "en_US";
-              domain = "metadata";
-              last_error = null;
-            };
-            webserver = {
-              values = {
-                base_url = "https://ma.${config.networking.domain}";
-                bind_port-management = cfg.port-management;
-              };
-              domain = "webserver";
-              last_error = null;
-            };
-          };
-        }
-        cfg.extra-settings
-      ));
+      # f = pkgs.writeText "config.json" (builtins.toJSON (lib.recursiveUpdate
+      #   {
+      #     server_id = "8f3e479bc9ac416a9d07b8a0ba4deb13";
+      #     providers = {
+      #       builtin--RKeSqDHn = {
+      #         values = {};
+      #         type = "music";
+      #         domain = "builtin";
+      #         instance_id = "builtin--RKeSqDHn";
+      #         enabled = true;
+      #         name = "Music Assistant";
+      #         last_error = null;
+      #       };
+      #       fanarttv--Sjgft6XD = {
+      #         values = {};
+      #         type = "metadata";
+      #         domain = "fanarttv";
+      #         instance_id = "fanarttv--Sjgft6XD";
+      #         enabled = true;
+      #         name = "fanart.tv";
+      #         last_error = null;
+      #       };
+      #       theaudiodb--DxpRa6ZL = {
+      #         values = {};
+      #         type = "metadata";
+      #         domain = "theaudiodb";
+      #         instance_id = "theaudiodb--DxpRa6ZL";
+      #         enabled = true;
+      #         name = "The Audio DB";
+      #         last_error = null;
+      #       };
+      #       musicbrainz--3AaBdBZd = {
+      #         values = {};
+      #         type = "metadata";
+      #         domain = "musicbrainz";
+      #         instance_id = "musicbrainz--3AaBdBZd";
+      #         enabled = true;
+      #         name = "MusicBrainz";
+      #         last_error = null;
+      #       };
+      #     }; # TODO: maybe I should not hardcode the id's, and builtin plugins... But it makes the system definitely more configurable / reproducible.
+      #     core = {
+      #       metadata = {
+      #         values.language = "en_US";
+      #         domain = "metadata";
+      #         last_error = null;
+      #       };
+      #       webserver = {
+      #         values = {
+      #           base_url = "https://ma.${config.networking.domain}";
+      #           bind_port-management = cfg.port-management;
+      #         };
+      #         domain = "webserver";
+      #         last_error = null;
+      #       };
+      #     };
+      #   }
+      #   cfg.extra-settings
+      # ));
     in [
       "d ${cfg.config-path} 0755 music-assistant music-assistant -"
-      "L+ ${cfg.config-path}/settings.json - - - - ${f}"
-      "z ${cfg.config-path}/settings.json 0644 root root - -" # seb TODO: symlink is removed by MA, changing link perms does not matter.
+      # "L+ ${cfg.config-path}/settings.json - - - - ${f}"
+      # "z ${cfg.config-path}/settings.json 0644 root root - -" # seb TODO: symlink is removed by MA, changing link perms does not matter.
       # "L+ ${cfg.config-path}/settings.json.backup - - - - ${f}"
     ];
 
@@ -173,6 +174,9 @@ in {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString cfg.port-management}/";
           proxyWebsockets = true;
+        };
+        locations."/callback" = lib.mkIf (builtins.elem "deezer" cfg.providers) { # needed for authentication URLs
+          proxyPass = "http://127.0.0.1:8097";
         };
       };
     };
