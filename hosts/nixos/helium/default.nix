@@ -241,14 +241,14 @@
       enable = true;
       backup-routes = [ "xenon" ];
       mail = {
-        enabled = true;
+        enable = true;
         host = "mail.mijn.place";
         port = 587;
         authtype = "login";
         username = "vikunja";
-        password = let location = config.age.secrets."hosts/helium/services/vikunja/mail".path; in "file: ${location}";
-        fromemail = "vikunja@mijn.place";
-        forcessl = true;
+        password-file = config.age.secrets."hosts/helium/services/vikunja/mail".path;
+        from-email = "vikunja@mijn.place";
+        force-ssl = true;
       };
     };
     wireguard = {

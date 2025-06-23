@@ -11,10 +11,41 @@ in {
     mail = {
       enable = mkEnableOption "mailer configuration";
 
-      configFile = mkOption {
+      host = mkOption {
         type = types.str;
-        example = "/run/secrets/vikunja-mail-config.env";
-        description = "Configuration for the mailer connection, using environment variables.";
+        description = "Mail hostname";
+      };
+
+      port = mkOption {
+        type = types.port;
+        default = 993;
+        description = "port for mailserver";
+      };
+
+      authtype = mkOption {
+        type = types.str;
+        description = "authentication method";
+      };
+
+      username = mkOption {
+        type = types.str;
+        description = "mailserver user";
+      };
+
+      password-file = mkOption {
+        type = types.str;
+        description = "path to password-file containing mailserver password";
+      };
+
+      from-email = mkOption {
+        type = types.str;
+        description = "Email address given as 'from' email header when vikunja sends email";
+      };
+
+      force-ssl = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Whether to force use of SSL instead of STARTLS. Note; SSL is arguably more secure than STARTLS.";
       };
     };
 
@@ -49,10 +80,12 @@ in {
 
         mailer = {
           enabled = cfg.mail.enable;
+          password = "file: ${cfg.mail.password-file}";
+          fromemail = cfg.mail.from-email;
+          forcessl = cfg.mail.force-ssl;
+          inherit (cfg.mail) host port authtype username;
         };
       };
-
-      environmentFiles = lib.optional cfg.mail.enable cfg.mail.configFile;
     };
 
     # This is a weird setup
