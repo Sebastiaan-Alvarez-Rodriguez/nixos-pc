@@ -237,8 +237,22 @@
       credentialsFile = config.age.secrets."hosts/helium/services/transmission/secret".path;
     };
     vaultwarden.enable = true;
-    wireguard = {
+    vikunja = {
       enable = true;
+      backup-routes = [ "xenon" ];
+      mail = {
+        enabled = true;
+        host = "mail.mijn.place";
+        port = 587;
+        authtype = "login";
+        username = "vikunja";
+        password = let location = config.age.secrets."hosts/helium/services/vikunja/mail".path; in "file: ${location}";
+        fromemail = "vikunja@mijn.place";
+        forcessl = true;
+      };
+    };
+    wireguard = {
+      enable = false;
     };
   };
 

@@ -89,7 +89,9 @@
       certificateFile = "/var/lib/acme/mijn.place/fullchain.pem";
       keyFile = "/var/lib/acme/mijn.place/key.pem";
 
-      extraConfig = {
+      extraConfig = let
+        sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place.";
+      in {
         # A list of all login accounts. To create a password hash, use
         # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
         loginAccounts = {
@@ -106,10 +108,15 @@
             aliasesRegexp = [ "/^(?!sebastiaan)(?!mariska).+@mijn.place$/" ];
             hashedPasswordFile = "/data/mail/mailserver.pwd";
           };
-          "noreply@mijn.place" = {
-            hashedPasswordFile = "/home/rdn/.pwd/noreply-mailserver.pwd";
+          "vikunja@mijn.place" = {
             sendOnly = true;
-            sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place.";
+            inherit sendOnlyRejectMessage;
+            hashedPasswordFile = config.age.secrets."hosts/xenon/services/mail/vikunja".path;
+          };
+          "noreply@mijn.place" = {
+            sendOnly = true;
+            inherit sendOnlyRejectMessage;
+            hashedPasswordFile = "/home/rdn/.pwd/noreply-mailserver.pwd";
           };
         };
 

@@ -92,7 +92,7 @@ in {
   };
 
   config = (lib.mkMerge [
-    {
+    (lib.mkIf (cfg.bazarr.enable || cfg.lidarr.enable || cfg.radarr.enable || cfg.sonarr.enable) {
       assertions = [
         {
           assertion = cfg.bazarr.enable -> (cfg.radarr.enable || cfg.sonarr.enable);
@@ -105,7 +105,7 @@ in {
         (lib.optional cfg.lidarr.enable cfg.lidarr.backup-path) ++
         (lib.optional cfg.radarr.enable cfg.radarr.backup-path);
       };
-    }
+    })
 
     (mkConfig "bazarr") # NOTE: Bazarr does not log authentication failures...
     (mkConfig "lidarr")

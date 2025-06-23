@@ -45,6 +45,12 @@ in {
       description = "List of session names and commands to execute after-login";
     };
 
+    state-version = mkOption {
+      type = types.int;
+      description = "Stateversion of mailserver. See also: https://nixos-mailserver.readthedocs.io/en/latest/migrations.html";
+      default = 1;
+    };
+
     backup-routes = mkOption {
       type = with types; listOf str;
       description = "Restic backup routes to use for this data.";
@@ -72,6 +78,7 @@ in {
         certificateScheme = cfg.certificateScheme;
         certificateFile = cfg.certificateFile;
         keyFile = cfg.keyFile;
+        stateVersion = cfg.state-version;
       }
       cfg.extraConfig
     ]);
