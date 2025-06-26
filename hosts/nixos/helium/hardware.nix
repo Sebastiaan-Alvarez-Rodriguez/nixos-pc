@@ -6,18 +6,36 @@
 # 'root' for the partition mounted on `/`.
 # 'boot' for the partition mounted on `/boot`.
 # 'data' for the partition mounted on `/data`.
-{ config, lib, pkgs, modulesPath, ... }:
+#
+#
+# seb TODO:
+# Get a hold of that CPU fan.
+# Suggestions:
+# https://www.reddit.com/r/homelab/comments/10iuwro/slowing_down_fan_on_dell_optiplex_3080_linux/
+# NixOS examples:
+# https://github.com/ruhatch/nixos/tree/master
+#
+# Modules found:
+# i8kutils - modern: https://github.com/Wer-Wolf/i8kutils/tree/master
+# i8kutils - abandoned: https://github.com/vitorafsr/i8kutils/forks
+# dell-fan-control: https://github.com/proneon267/Dell-Fan-Control
+# 
+# Actually working: change /sys/class/hwmon/hwmon1/pwm1 to contain "0"
+# hwmon1 is named "dell_smm", as found in /sys/class/hwmon/hwmon1/name.
 
-{
+{ config, lib, pkgs, modulesPath, ... }: {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
+  boot.initrd.kernelModules = [ "coretemp" "dell-smm-hwmon" ];
+  boot.kernelModules = [
+    "kvm-intel" #hardware virtualisation
+    "dell-smm-hwmon" # dell smm fan control module
+  ];
   boot.kernelParams = [ "usbcore.autosuspend=-1" ]; # do not suspend USBs.
   boot.extraModprobeConfig = ''
-    options usbcore autosuspend=-1
-  ''; # do not suspend USBs.
+    options dell-smm-hwmon restricted=0 force=1
+  ''; # do not suspend USBs, and load i8k
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {

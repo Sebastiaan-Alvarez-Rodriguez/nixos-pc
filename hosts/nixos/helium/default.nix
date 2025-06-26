@@ -97,29 +97,19 @@
         "@DDNS-secret-api-key@" = config.age.secrets."common/ddns/secret-api-key".path;
       };
     };
-    home-assistant.enable = true;
-
     fail2ban.enable = true;
-    # # FLOSS music streaming server
-    # navidrome = {
-    #   enable = true;
-    #   musicFolder = "/data/media/music";
-    # };
+    fancontrol-i8k = {
+      enable = true;
+      quiet-start = true;
+    };
+    home-assistant.enable = true;
     jellyfin.enable = true;
-    # kitchenowl = {
-    #   enable = false;
-    #   backup-routes = [ "xenon" ];
-
-    #   data-dir = "/data/kitchenowl";
-    #   settings.open-registration = false; # no randoms
-    #   settings.use-natural-language = true;
-    # };
 
     avahi = {
       enable = true;
       host = "h";
-      # domain = "mijn.place";
     };
+
     music-assistant = {
       enable = true;
       backup-routes = [ "xenon" ];

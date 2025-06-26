@@ -15,6 +15,7 @@
     ./greetd
     ./grocy
     ./home-assistant
+    ./fancontrol-i8k
     ./immich
     ./jackett
     ./jellyfin
