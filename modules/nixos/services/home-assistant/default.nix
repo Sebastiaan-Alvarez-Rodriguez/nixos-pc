@@ -10,7 +10,7 @@ in {
     enable = mkEnableOption "home-assistant service";
     port = mkOption {
       type = types.port;
-      default = 9999;
+      default = 10000;
       description = "Internal port for home-assistant http server";
     };
   };

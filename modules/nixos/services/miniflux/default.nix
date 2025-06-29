@@ -15,7 +15,7 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 9876;
+      default = 10876;
       example = 8080;
       description = "Internal port for webui";
     };
@@ -41,10 +41,8 @@ in {
       };
     };
 
-    my.services.nginx.virtualHosts = {
-      reader = {
-        inherit (cfg) port;
-      };
+    my.services.nginx.virtualHosts.reader = {
+      inherit (cfg) port;
     };
   };
 }

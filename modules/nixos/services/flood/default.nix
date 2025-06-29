@@ -7,15 +7,13 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 9092;
-      example = 3000;
+      default = 10092;
       description = "Internal port for Flood UI";
     };
 
     stateDir = mkOption {
       type = types.str;
       default = "flood";
-      example = "floodUI";
       description = "Directory under `/var/lib` for storing Flood's files";
     };
   };

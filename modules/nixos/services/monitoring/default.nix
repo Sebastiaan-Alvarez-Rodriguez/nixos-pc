@@ -8,8 +8,7 @@ in {
     grafana = {
       port = mkOption {
         type = types.port;
-        default = 9500;
-        example = 3001;
+        default = 10500;
         description = "Internal port";
       };
 
@@ -35,8 +34,7 @@ in {
     prometheus = {
       port = mkOption {
         type = types.port;
-        default = 9501;
-        example = 3002;
+        default = 10501;
         description = "Internal port";
       };
 
@@ -103,7 +101,7 @@ in {
         node = {
           enable = true;
           enabledCollectors = [ "systemd" ];
-          port = 9100;
+          port = 10100;
           listenAddress = "127.0.0.1";
         };
       };

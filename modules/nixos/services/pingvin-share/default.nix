@@ -10,13 +10,13 @@ in {
 
     frontend-port = mkOption {
       type = types.port;
-      default = 9051;
+      default = 10051;
       description = "Internal port for frontend";
     };
 
     backend-port = mkOption {
       type = types.port;
-      default = 9052;
+      default = 10052;
       description = "Internal port for backend";
     };
 

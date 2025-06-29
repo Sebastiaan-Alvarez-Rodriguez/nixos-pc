@@ -39,7 +39,7 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 9056;
+      default = 10056;
       description = "Internal port for webui";
     };
 

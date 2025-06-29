@@ -31,13 +31,11 @@ in {
     port-free = {
       start = mkOption {
         type = types.port;
-        default = 9004;
-        description = "start of free port range. The free range can be used by music-assistant when needed.";
+        description = "start of free port range. The free range is used to deliver audio to client implementations as needed (e.g. streaming to a 'snapserver' when using snapcast integration).";
       };
       end = mkOption {
         type = types.port;
-        default = 9005;
-        description = "end of free port range. The free range can be used by music-assistant when needed.";
+        description = "end of free port range. The free range is used to deliver audio to client implementations as needed (e.g. streaming to a 'snapserver' when using snapcast integration).";
       };
 
       # current facts:
@@ -75,12 +73,11 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = "snapcast" ? cfg.providers -> config.my.services.snapserver.enable;
-        message = "To use snapcast integration, enable the snapserver on this host using `config.my.services.snapserver.enable = true;`";
-      }
-    ];
+    warnings = let
+      abs = a: (if a < 0 then -a else a);
+    in if abs(cfg.port-free.end - cfg.port-free.start) < 20 then [ "Having less than 20 ports for music-assistant may result in buggy behavior, as it does not cleanly reuse ports." ] else [];
+    assertions = [ { assertion = "snapcast" ? cfg.providers -> config.my.services.snapserver.enable; message = "To use snapcast integration, enable the snapserver on this host using `config.my.services.snapserver.enable = true;`"; } ];
+
     services.music-assistant = {
       enable = true;
       providers = cfg.providers ++ lib.optionals config.my.services.home-assistant.enable [ "hass" "hass_players" ] ++ lib.optional config.my.services.jellyfin.enable "jellyfin";
@@ -91,7 +88,11 @@ in {
 
     };
 
-    systemd.services.music-assistant.path = lib.optional (builtins.elem "snapcast" cfg.providers) config.services.snapserver.package;
+    systemd.services.music-assistant = {
+      path = lib.optional (builtins.elem "snapcast" cfg.providers) config.services.snapserver.package;
+      environment.SNAPSERVER_STREAM_PORT_START = toString cfg.port-free.start; 
+      environment.SNAPSERVER_STREAM_PORT_END = toString cfg.port-free.end; 
+    };
 
     services.home-assistant.extraComponents = [ "music_assistant" ];
   

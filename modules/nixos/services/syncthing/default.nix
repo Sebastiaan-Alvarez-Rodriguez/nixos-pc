@@ -25,7 +25,7 @@ in {
 
     port = mkOption {
       type = with types; port;
-      default = 9534;
+      default = 10534;
       description = "syncthing web-gui port";
     };
 

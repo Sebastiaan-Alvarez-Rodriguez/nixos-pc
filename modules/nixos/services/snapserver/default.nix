@@ -1,4 +1,4 @@
-# A FLOSS media server
+# A synchronisation audio stream server
 { config, lib, pkgs, ... }: let
   cfg = config.my.services.snapserver;
 in {

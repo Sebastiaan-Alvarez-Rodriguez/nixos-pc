@@ -8,7 +8,7 @@ in {
     enable = mkEnableOption "immich media server";
     port = mkOption {
       type = types.port;
-      default = 9055;
+      default = 10055;
       description = "Internal port for webui";
     };
     media-dir = mkOption {

@@ -6,7 +6,7 @@ in {
     enable = mkEnableOption "Jackett torrent meta-indexer";
     port = mkOption {
       type = types.port;
-      default = 9117;
+      default = 10117;
       description = "Internal port for webui";
     };
 
