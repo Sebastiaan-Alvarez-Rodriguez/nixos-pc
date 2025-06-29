@@ -29,6 +29,7 @@ in {
       package = (pkgs.home-assistant.override {
         extraPackages = py: with py; [
           getmac # because it just keeps on complaining otherwise
+          ical # so adding todo-lists does not crash
 
           psycopg2 # support for postgresql
           zlib-ng  # next-gen zlib support
@@ -48,6 +49,7 @@ in {
 
         # my own added components
         "plugwise"
+        "roborock"
         "solaredge"
       ];
       config = { # Found in /var/lib/hass
