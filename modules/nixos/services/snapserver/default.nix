@@ -159,20 +159,14 @@ in {
       port = cfg.json-rpc.http.port;
       local-only = true;
       extraConfig = {
-        locations."/".proxyWebsockets = true;
+        locations."/" = {
+          proxyWebsockets = true;
+          proxyPass = "http://127.0.0.1:${toString cfg.json-rpc.http.port}/";
+          extraConfig = ''
+            proxy_buffering off;
+          '';
+        };
       };
-      # extraConfig = {
-        # locations."/" = {
-        #   extraConfig = ''
-        #     proxy_buffering off;
-        #   '';
-        # };
-        # Too bad for the repetition...
-        # locations."/socket" = {
-        #   proxyPass = "http://127.0.0.1:${toString cfg.json-rpc.http.port}/";
-        #   proxyWebsockets = true;
-        # };
-      # };
     };
   };
 }
