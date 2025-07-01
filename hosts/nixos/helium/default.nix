@@ -46,6 +46,10 @@
 
   my.services = {
     secrets.prefixes = [ "common/ddns" ];
+    avahi = {
+      enable = true;
+      host = "h";
+    };
     backup = {
       enable = true;
       routes = let # common configuration below
@@ -104,12 +108,14 @@
     };
     home-assistant.enable = true;
     jellyfin.enable = true;
-
-    avahi = {
+    monitoring = {
       enable = true;
-      host = "h";
+      grafana = {
+        username = "admin";
+        password-file = config.age.secrets."hosts/helium/services/monitoring/password".path;
+        secret-key-file = config.age.secrets."hosts/helium/services/monitoring/secret-key".path;
+      };
     };
-
     music-assistant = {
       enable = true;
       backup-routes = [ "xenon" ];

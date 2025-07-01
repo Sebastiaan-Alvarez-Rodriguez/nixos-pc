@@ -31,6 +31,14 @@ in {
     publicKeys = [ base ];
     owner = "restic";
   };
+  "hosts/helium/services/monitoring/password.age" = {
+    publicKeys = [ base ];
+    owner = "grafana";
+  };
+  "hosts/helium/services/monitoring/secret-key.age" = {
+    publicKeys = [ base ];
+    owner = "grafana";
+  };
   "hosts/helium/services/rustdesk/private-key.age" = {
     publicKeys = [ base ];
     owner = "rustdesk";

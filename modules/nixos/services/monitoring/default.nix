@@ -1,6 +1,7 @@
 # Grafana dashboards for all the things!
 { config, lib, pkgs, ... }: let
   cfg = config.my.services.monitoring;
+  prefix = "monitoring";
 in {
   options.my.services.monitoring = with lib; {
     enable = mkEnableOption "monitoring";
@@ -18,15 +19,13 @@ in {
         description = "Admin username";
       };
 
-      passwordFile = mkOption {
+      password-file = mkOption {
         type = types.str;
-        example = "/var/lib/grafana/password.txt";
         description = "Admin password stored in a file";
       };
 
-      secretKeyFile = mkOption {
+      secret-key-file = mkOption {
         type = types.str;
-        example = "/var/lib/grafana/secret_key.txt";
         description = "Secret key stored in a file";
       };
     };
@@ -47,7 +46,6 @@ in {
       scrapeInterval = mkOption {
         type = types.str;
         default = "15s";
-        example = "1m";
         description = "Scrape interval";
       };
     };
@@ -59,16 +57,17 @@ in {
 
       settings = {
         server = {
-          domain = "monitoring.${config.networking.domain}";
-          root_url = "https://monitoring.${config.networking.domain}/";
+          domain = "${prefix}.${config.networking.domain}";
+          root_url = "https://${prefix}.${config.networking.domain}/";
           http_port = cfg.grafana.port;
-          http_addr = "127.0.0.1"; # Proxied through Nginx
+          http_addr = "127.0.0.1";
         };
 
         security = {
           admin_user = cfg.grafana.username;
-          admin_password = "$__file{${cfg.grafana.passwordFile}}";
-          secret_key = "$__file{${cfg.grafana.secretKeyFile}}";
+          admin_password = "$__file{${cfg.grafana.password-file}}";
+          secret_key = "$__file{${cfg.grafana.secret-key-file}}";
+          disable_gravatar = true;
         };
       };
 
@@ -126,10 +125,8 @@ in {
       ];
     };
 
-    my.services.nginx.virtualHosts = {
-      monitoring = {
-        inherit (cfg.grafana) port;
-      };
+    my.services.nginx.virtualHosts.${prefix} = {
+      inherit (cfg.grafana) port;
     };
   };
 }
