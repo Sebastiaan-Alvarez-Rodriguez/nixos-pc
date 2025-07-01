@@ -22,7 +22,10 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    services.prowlarr.enable = true;
+    services.prowlarr = {
+      enable = true;
+      settings.server.port = cfg.port;
+    };
 
     my.services.nginx.virtualHosts.prowlarr = {
       inherit (cfg) port;

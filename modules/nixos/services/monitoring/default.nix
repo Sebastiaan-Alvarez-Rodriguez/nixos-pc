@@ -38,6 +38,12 @@ in {
         description = "Internal port";
       };
 
+      exporter-port = mkOption {
+        type = types.port;
+        default = 10100;
+        description = "Prometheus exporter port";
+      };
+
       scrapeInterval = mkOption {
         type = types.str;
         default = "15s";
@@ -101,7 +107,7 @@ in {
         node = {
           enable = true;
           enabledCollectors = [ "systemd" ];
-          port = 10100;
+          port = cfg.prometheus.exporter-port;
           listenAddress = "127.0.0.1";
         };
       };
@@ -114,7 +120,7 @@ in {
         {
           job_name = config.networking.hostName;
           static_configs = [{
-            targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
+            targets = [ "127.0.0.1:${toString cfg.prometheus.exporter-port}" ];
           }];
         }
       ];

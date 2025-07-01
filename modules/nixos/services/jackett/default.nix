@@ -21,7 +21,10 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    services.jackett.enable = true;
+    services.jackett = {
+      enable = true;
+      port = cfg.port;
+    };
 
     # Jackett wants to eat *all* RAM if left to its own devices
     systemd.services.jackett = {
