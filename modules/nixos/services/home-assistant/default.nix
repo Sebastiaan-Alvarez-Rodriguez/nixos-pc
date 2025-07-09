@@ -16,12 +16,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = config.users.users ? hass;
-        message = "'hass' user not found.";
-      }
-    ];
+    assertions = [ { assertion = config.users.users ? hass; message = "'hass' user not found."; } ];
 
     services.home-assistant = {
       enable = true;
@@ -102,12 +97,15 @@ in {
     users.groups.hass = { }; # Set-up homeassistant group
 
     systemd.tmpfiles.rules = [
-      # custom components
+      # prepare custom component installation
+      "R ${ccpath} - - - - -" # remove custom components dir recursively
+      "D ${ccpath} 0770 hass hass - -" # create custom components dir again (now empty)
+
+      # add custom components
       # NOTE: always restart home-assistant service after adding a component
       "C ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic"
 
-      # fix directory permissions
-      "Z ${ccpath} 770 hass hass - -"
+      # "L+ ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic" # NOTE: symlinks are removed by HA for some reason. Does not work.
     ];
 
     my.services.postgresql = {
@@ -121,25 +119,15 @@ in {
 
       ensureDatabases = [ config.users.users.hass.name ];
 
-      ensureUsers = [
-        {
-          inherit (config.users.users.hass) name;
-          ensureDBOwnership = true;
-        }
-      ];
+      ensureUsers = [ { inherit (config.users.users.hass) name; ensureDBOwnership = true; } ];
     };
 
     my.services.nginx.virtualHosts.ha = {
       inherit (cfg) port;
       useACMEHost = config.networking.domain;
 
-      extraConfig = {
-        # extraConfig = ''
-        #   proxy_buffering off;
-        # '';
-        locations."/" = {
-          proxyWebsockets = true;
-        };
+      extraConfig.locations."/" = {
+        proxyWebsockets = true;
       };
     };
   };
