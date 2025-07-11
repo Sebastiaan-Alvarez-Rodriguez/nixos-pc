@@ -1,4 +1,14 @@
 # declarative HA
+# Browse integrations: https://www.home-assistant.io/integrations/
+# example yaml configuration layout:
+# example blueprints:
+#
+# intel
+# All forms of configuration accept jinja: https://jinja.palletsprojects.com/en/stable/templates/
+#   this includes functions
+# Foreach design: https://community.home-assistant.io/t/using-the-new-for-each/419829
+#   contains a simpler example second, using 'expand' (is not jinja)
+ 
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.home-assistant;
   configpath = "/var/lib/hass";
@@ -12,6 +22,14 @@ in {
       type = types.port;
       default = 10000;
       description = "Internal port for home-assistant http server";
+    };
+
+    blueprints = {
+      script = mkOption {
+        type = with types; listOf (path);
+        default = [];
+        description = literalExpression "List of script blueprints to install into ${config.services.home-assistant.configDir}/blueprints/script";
+      };
     };
   };
 
@@ -27,12 +45,12 @@ in {
           ical # so adding todo-lists does not crash
 
           psycopg2 # support for postgresql
+          pychromecast # because it just keeps on complaining otherwise
           zlib-ng  # next-gen zlib support
         ];
       }).overrideAttrs (oldAttrs: {
         doInstallCheck = false;
       });
-      config.recorder.db_url = "postgresql:///${config.users.users.hass.name}";
 
       extraComponents = [
         # All packaged components are here: https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/home-assistant/component-packages.nix
@@ -48,13 +66,24 @@ in {
         "solaredge"
       ];
       config = { # Found in /var/lib/hass
+        # for configuration.yaml and other config tips, see [here](https://github.com/frenck/home-assistant-config)
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
+        homeassistant.time_zone = "Europe/Amsterdam";
         http = {
           server_port = cfg.port;
           server_host = "127.0.0.1";
           trusted_proxies = [ "127.0.0.1" ];
           use_x_forwarded_for = true;
         };
+        recorder.db_url = "postgresql:///${config.users.users.hass.name}";
+
+        "automation" = "!include ${configpath}/automations.yaml";
+        "automation split" = "!include_dir_list ${configpath}/automations";
+        "scene" = "!include ${configpath}/scenes.yaml";
+        "scene split" = "!include_dir_list ${configpath}/scenes";
+        "script" = "!include ${configpath}/scripts.yaml";
+        "script split" = "!include_dir_named ${configpath}/scripts";
+        # "template" = "!include_dir_list ./template";
       };
 
       lovelaceConfig = {
@@ -92,11 +121,82 @@ in {
           }
         ];
       };
+
+      blueprints.script = let
+        # script blueprint, syntax inspired from: [here](https://github.com/SirGoodenough/HA_Blueprints/blob/master/Scripts/play_media_file_script.yaml) (minus the on-the-fly variable switching)
+        emergency-notify = pkgs.writeText "emergency-notify.yaml" ''
+          blueprint:
+            name: Emergency Mobile Alert
+            description: Sends a critical emergency alert to a selected phone, temporarily setting ringer mode to 'normal'
+            domain: script
+            input:
+              phone_target:
+                name: Mobile App Notify Target
+                description: E.g., notify.mobile_app_<PHONE-NAME-HERE>
+                selector:
+                  target:
+                    entity:
+                      domain: notify
+              title:
+                name: Alert Title
+                default: "🚨 Emergency!"
+                selector:
+                  text:
+              _message:
+                name: Alert Message
+                default: "Something bad happened"
+                selector:
+                  text:
+
+          sequence:
+            - service: "{{ phone_target.entity_id }}"
+              data:
+                message: command_ringer_mode
+                data:
+                  command: normal
+
+            - delay:
+              hours: 0
+              minutes: 0
+              seconds: 3
+              milliseconds: 0
+
+            - service: "{{ phone_target.entity_id }}"
+              data:
+                message: "{{ message }}"
+                title: "{{ title }}"
+                data:
+                  importance: high
+                  ttl: 0
+                  priority: high
+                  channel: "alarm_stream"
+                  vibrationPattern: [0, 500, 1000, 500, 1000, 500]
+                  persistent: true
+                  sticky: true
+
+            - delay:
+              hours: 0
+              minutes: 1
+              seconds: 0
+              milliseconds: 0
+
+            - service: "{{ phone_target.entity_id }}"
+              data:
+                message: command_ringer_mode
+                data:
+                  command: silent
+        '';
+      in [ emergency-notify ] ++ cfg.blueprints.script;
     };
   
     users.groups.hass = { }; # Set-up homeassistant group
 
     systemd.tmpfiles.rules = [
+      # create basic referenced files if they do not exist
+      "f ${configpath}/automations.yaml 0770 hass hass - []"
+      "f ${configpath}/scenes.yaml 0770 hass hass - []"
+      "f ${configpath}/scripts.yaml 0770 hass hass - {}"
+      
       # prepare custom component installation
       "R ${ccpath} - - - - -" # remove custom components dir recursively
       "D ${ccpath} 0770 hass hass - -" # create custom components dir again (now empty)
