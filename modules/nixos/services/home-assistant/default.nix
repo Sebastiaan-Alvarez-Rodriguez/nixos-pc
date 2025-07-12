@@ -8,7 +8,7 @@
 #   this includes functions
 # Foreach design: https://community.home-assistant.io/t/using-the-new-for-each/419829
 #   contains a simpler example second, using 'expand' (is not jinja)
- 
+
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.home-assistant;
   configpath = "/var/lib/hass";
@@ -29,6 +29,25 @@ in {
         type = with types; listOf (path);
         default = [];
         description = literalExpression "List of script blueprints to install into ${config.services.home-assistant.configDir}/blueprints/script";
+      };
+    };
+
+
+    code = {
+      automations = mkOption {
+        type = types.listOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
+        default = [];
+        description = "List of automations to install";
+      };
+      scenes = mkOption {
+        type = types.listOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
+        default = [];
+        description = "List of scenes to install";
+      };
+      scripts = mkOption {
+        type = types.listOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
+        default = [];
+        description = "List of scripts to install";
       };
     };
   };
@@ -122,91 +141,134 @@ in {
         ];
       };
 
-      blueprints.script = let
-        # script blueprint, syntax inspired from: [here](https://github.com/SirGoodenough/HA_Blueprints/blob/master/Scripts/play_media_file_script.yaml) (minus the on-the-fly variable switching)
-        emergency-notify = pkgs.writeText "emergency-notify.yaml" ''
-          blueprint:
-            name: Emergency Mobile Alert
-            description: Sends a critical emergency alert to a selected phone, temporarily setting ringer mode to 'normal'
-            domain: script
-            input:
-              phone_target:
-                name: Mobile App Notify Target
-                description: E.g., notify.mobile_app_<PHONE-NAME-HERE>
-                selector:
-                  target:
-                    entity:
-                      domain: notify
-              title:
-                name: Alert Title
-                default: "🚨 Emergency!"
-                selector:
-                  text:
-              _message:
-                name: Alert Message
-                default: "Something bad happened"
-                selector:
-                  text:
-
-          sequence:
-            - service: "{{ phone_target.entity_id }}"
-              data:
-                message: command_ringer_mode
-                data:
-                  command: normal
-
-            - delay:
-              hours: 0
-              minutes: 0
-              seconds: 3
-              milliseconds: 0
-
-            - service: "{{ phone_target.entity_id }}"
-              data:
-                message: "{{ message }}"
-                title: "{{ title }}"
-                data:
-                  importance: high
-                  ttl: 0
-                  priority: high
-                  channel: "alarm_stream"
-                  vibrationPattern: [0, 500, 1000, 500, 1000, 500]
-                  persistent: true
-                  sticky: true
-
-            - delay:
-              hours: 0
-              minutes: 1
-              seconds: 0
-              milliseconds: 0
-
-            - service: "{{ phone_target.entity_id }}"
-              data:
-                message: command_ringer_mode
-                data:
-                  command: silent
-        '';
-      in [ emergency-notify ] ++ cfg.blueprints.script;
+      blueprints.script = cfg.blueprints.script;
     };
   
     users.groups.hass = { }; # Set-up homeassistant group
 
     systemd.tmpfiles.rules = [
-      # create basic referenced files if they do not exist
-      "f ${configpath}/automations.yaml 0770 hass hass - []"
-      "f ${configpath}/scenes.yaml 0770 hass hass - []"
-      "f ${configpath}/scripts.yaml 0770 hass hass - {}"
+      # create basic yaml files if they do not exist - so the UI in HA works for storing UI-created automations/scenes/scripts
+      "f ${configpath}/automations.yaml 0644 hass hass - []"
+      "f ${configpath}/scenes.yaml 0644 hass hass - []"
+      "f ${configpath}/scripts.yaml 0644 hass hass - {}"
       
+      # create directories for yaml configuration (packages may link their automations/scenes/scripts here)
+      "R ${configpath}/automations - - - - -"
+      "D ${configpath}/automations 0770 hass hass - -"
+      "R ${configpath}/scenes- - - - -"
+      "D ${configpath}/scenes 0770 hass hass - -"
+      "R ${configpath}/scripts - - - - -"
+      "D ${configpath}/scripts 0770 hass hass - -"
+
       # prepare custom component installation
       "R ${ccpath} - - - - -" # remove custom components dir recursively
       "D ${ccpath} 0770 hass hass - -" # create custom components dir again (now empty)
 
       # add custom components
       # NOTE: always restart home-assistant service after adding a component
+      # NOTE: symlinks to components are removed by HA and do not work. Needs a physical copy (or a hardlink, I guess).
       "C ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic"
-
-      # "L+ ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic" # NOTE: symlinks are removed by HA for some reason. Does not work.
     ];
+
+    systemd.services.home-assistant.preStart = with lib; let
+      linkCommand = domain: sourcepath: let
+        filename = if isStorePath sourcepath then substring 33 (-1) (baseNameOf sourcepath) else baseNameOf sourcepath;
+        path = "${configpath}/${domain}";
+      in ''
+        ln -s ${escapeShellArg sourcepath} ${escapeShellArg "${path}/${filename}"}
+      '';
+    in ''
+      rm -f ${escapeShellArg configpath}/automations/*
+      rm -f ${escapeShellArg configpath}/scenes/*
+      rm -f ${escapeShellArg configpath}/scripts/*
+    '' + concatStrings ( flatten (mapAttrsToList (domain: builtins.map (linkCommand domain)) cfg.code) );
+
+
+
+
+
+
+
+
+
+
+    my.services.home-assistant.code.scripts = let
+      emergency_notify = pkgs.writeText "emergency_notify.yaml" ''
+        description: >+
+          Sends an emergency notification to the configured `phone_target` with given
+          `title` and `message`.
+
+
+          Make sure that:
+
+          1. the home-assistant app is installed on the phone
+
+          2. the home-assistant app has permission to change the 'mode' of the device
+          (from silent/vibration to sound mode)
+
+          3. the home-assistant app notification-channel named "alarm_stream" is allowed
+          to override DoNotDisturb mode
+
+          4.  the home-assistant app notification-channel named "alarm_stream" has a
+          sufficiently annoying ringtone to wake you up, if needed, within 30 seconds.
+
+          > Note: This script assumes you use an Android phone with Android 8+.
+
+        fields:
+          phone_target:
+            description: the phone to send alert to
+            example: notify.mobile_app_<SOMETHING>
+          message:
+            description: the message to display
+            example: testing
+          title:
+            description: the title to display
+            example: testing
+        sequence:
+          - action: notify.mobile_app_rdn_phone
+            data:
+              message: command_ringer_mode
+              data:
+                command: normal
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 3
+              milliseconds: 0
+          - action: " {{ phone_target }}"
+            data:
+              message: "{{ message }}"
+              title: "{{ title }}"
+              data:
+                importance: high
+                ttl: 0
+                priority: high
+                channel: alarm_stream
+                vibrationPattern:
+                  - 0
+                  - 500
+                  - 1000
+                  - 500
+                  - 1000
+                  - 500
+                persistent: true
+                sticky: true
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 30
+              milliseconds: 0
+          - action: " {{ phone_target }}"
+            data:
+              message: command_ringer_mode
+              data:
+                command: silent
+        alias: emergency_notify
+    '';      
+    in [ emergency_notify ];
+
+
+
 
     my.services.postgresql = {
       enable = true;
