@@ -193,6 +193,10 @@ in {
 
 
     my.services.home-assistant.code.scripts = let
+      # seb TODO set volume to max temporarily for alarm, using: https://companion.home-assistant.io/docs/notifications/notification-commands/#volume-level
+      # seb TODO check if alert is received quickly enough on both devices!
+      # seb TODO maybe repeat alarm until something is done about it?
+      # seb TODO maybe stop command if alarm becomes disabled (i.e. someone has turned it off --> handled it)
       emergency_notify = pkgs.writeText "emergency_notify.yaml" ''
         description: >+
           Sends an emergency notification to the configured `phone_target` with given
@@ -201,16 +205,18 @@ in {
 
           Make sure that:
 
-          1. the home-assistant app is installed on the phone
-
-          2. the home-assistant app has permission to change the 'mode' of the device
-          (from silent/vibration to sound mode)
-
-          3. the home-assistant app notification-channel named "alarm_stream" is allowed
-          to override DoNotDisturb mode
-
-          4.  the home-assistant app notification-channel named "alarm_stream" has a
-          sufficiently annoying ringtone to wake you up, if needed, within 30 seconds.
+          1. home-assistant app is installed on the phone.
+          2. home-assistant app has permision to run in background
+          3. home-assistant app has permission to change the 'mode' of the device (from silent/vibration to sound mode).
+          4. notification-channel named "alarm_stream" (of home-assistant app) is allowed to override DoNotDisturb mode. To set this up, just use (in web-HA) developer tools > action and send:
+          ```yaml
+            action: notify.mobile_app_rdn_phone
+            data:
+              message: command_ringer_mode
+              data:
+                command: normal
+          ```
+          5. notification-channel "alarm_stream" has a sufficiently annoying ringtone to wake you up, if needed, within 30 seconds.
 
           > Note: This script assumes you use an Android phone with Android 8+.
 
