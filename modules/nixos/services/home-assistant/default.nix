@@ -193,14 +193,10 @@ in {
 
 
     my.services.home-assistant.code.scripts = let
-      # seb TODO check if alert is received quickly enough on both devices!
-      # seb TODO maybe repeat alarm until something is done about it?
-      # seb TODO maybe stop command if alarm becomes disabled (i.e. someone has turned it off --> handled it)
       emergency_notify = pkgs.writeText "emergency_notify.yaml" ''
         description: >+
           Sends an emergency notification to the configured `phone_target` with given
           `title` and `message`.
-
 
           Make sure that:
 
@@ -208,9 +204,16 @@ in {
 
           2. home-assistant app has permision to run in background
 
-          3. home-assistant app has permission to change the 'mode' of the device (from silent/vibration to sound mode).
+          3. home-assistant app has permission to change the 'mode' of the device (from
+          silent/vibration to sound mode).
 
-          4. notification-channel named "alarm_stream" (of home-assistant app) is allowed to override DoNotDisturb mode. To set this up, just use (in web-HA) developer tools > action and send:
+          4. notification-channel "alarm_stream" has a sufficiently annoying ringtone to
+          wake you up, if needed, within 30 seconds.
+
+          5. notification-channel "alarm_stream" (of home-assistant app) is
+          allowed to override DoNotDisturb mode. To set this up, just use (in web-HA)
+          developer tools > action and send:
+
           ```yaml
             action: notify.mobile_app_rdn_phone
             data:
@@ -219,9 +222,10 @@ in {
                 command: normal
           ```
 
-          5. notification-channel "alarm_stream" has a sufficiently annoying ringtone to wake you up, if needed, within 30 seconds.
-
           > Note: This script assumes you use an Android phone with Android 8+.
+
+        # when callled multiple times in parallel, just handle the calls without 'already-running' warnings
+        mode: parallel
 
         fields:
           phone_target:
@@ -233,23 +237,28 @@ in {
           title:
             description: the title to display
             example: testing
+
         sequence:
+          # set phone to sound mode
           - action: "{{ phone_target }}"
             data:
               message: command_ringer_mode
               data:
                 command: normal
+          # set notification volume to 100%
           - action: "{{ phone_target }}"
             data:
               message: command_volume_level
               data:
-                media_stream: notification_stream
+                media_stream: alarm_stream
                 command: 100
+          # wait for a little bit to let above commands be sent and processed
           - delay:
               hours: 0
               minutes: 0
               seconds: 3
               milliseconds: 0
+          # send emergency notification
           - action: "{{ phone_target }}"
             data:
               message: "{{ message }}"
@@ -268,11 +277,13 @@ in {
                   - 500
                 persistent: true
                 sticky: true
+          # wait for 30s to ensure 30s of unbearable loud noise, before returning the phone to silent mode
           - delay:
               hours: 0
               minutes: 0
               seconds: 30
               milliseconds: 0
+          # set phone in silent mode
           - action: "{{ phone_target }}"
             data:
               message: command_ringer_mode
