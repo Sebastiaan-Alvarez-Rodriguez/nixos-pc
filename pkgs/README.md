@@ -26,4 +26,14 @@ Examples of step 3 could be found [here](/pkgs/main-scope/default.nix) (using ca
 
 ## How this works
 I wrote a function that recursively reads directories and constructs a single overlay which extends `pkgs` with the new scopes it read from the directories.
-The code for this function is in [/flake/overlays.nix](/flake/overlays.nix)
+The code for this function is in [/flake/overlays.nix](/flake/overlays.nix).
+An overlay for `pkgs` looks like:
+```nix
+pkgs = _final: prev: {
+  "something" = prev.recurseIntoAttrs (import "${self}/pkgs/something" { pkgs = prev; });
+};
+```
+
+### Default scope
+Uses [/flake/packages.nix](/flake/packages.nix).
+It directly imports the [/pkgs/main-scope](/pkgs/main-scope) as an extension of `packages`
