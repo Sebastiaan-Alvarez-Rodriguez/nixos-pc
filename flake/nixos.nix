@@ -5,7 +5,11 @@
     }
     {
       nixpkgs.overlays = (lib.attrValues self.overlays) ++ [ inputs.nur.overlays.default ];
-      nix.settings.trusted-users = [ "@wheel" ]; # Required for accepting remote builds
+      nix.settings = {
+        trusted-users = [ "@wheel" ]; # Required for accepting remote builds
+        # conf-allow-import-from-derivation = false; # error on IFD, for performance reasons. See: https://nix.dev/manual/nix/2.30/language/import-from-derivation
+        # seb TODO: uncomment when ready
+      };
     }
     { # override home-assistant
       disabledModules = [ "services/home-automation/home-assistant.nix" ]; # override with unstable (note: also needs package overlay)

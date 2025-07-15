@@ -106,7 +106,10 @@
       enable = true;
       quiet-start = true;
     };
-    home-assistant.enable = true;
+    home-assistant = {
+      enable = true;
+      code.scripts = [ "${pkgs.hass.script.emergency_notify}/default.yaml" ];
+    };
     jellyfin.enable = true;
     monitoring = {
       enable = true;

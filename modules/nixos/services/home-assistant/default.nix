@@ -14,7 +14,7 @@
   configpath = "/var/lib/hass";
   ccpath = "${configpath}/custom_components"; #custom-components-path
 
-  hass-visonic = pkgs.hass.visonic;
+  hass-visonic = pkgs.hass.custom-component.visonic;
 in {
   options.my.services.home-assistant = with lib; {
     enable = mkEnableOption "home-assistant service";
@@ -60,6 +60,7 @@ in {
 
       package = (pkgs.home-assistant.override {
         extraPackages = py: with py; [
+          colorlog # for testing scripts with commandline
           getmac # because it just keeps on complaining otherwise
           ical # so adding todo-lists does not crash
 

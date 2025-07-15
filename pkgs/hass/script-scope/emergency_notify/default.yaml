@@ -26,7 +26,7 @@ description: >+
 
   > Note: This script assumes you use an Android phone with Android 8+.
 
-# when callled multiple times in parallel, just handle the calls without 'already-running' warnings
+# when called multiple times in parallel, just handle the calls without 'already-running' warnings
 mode: parallel
 
 fields:
