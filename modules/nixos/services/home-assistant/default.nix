@@ -14,7 +14,7 @@
   configpath = "/var/lib/hass";
   ccpath = "${configpath}/custom_components"; #custom-components-path
 
-  hass-visonic = inputs.self.packages.${system}.home-assistant-visonic;
+  hass-visonic = pkgs.hass.visonic;
 in {
   options.my.services.home-assistant = with lib; {
     enable = mkEnableOption "home-assistant service";
@@ -192,116 +192,10 @@ in {
 
 
 
-    my.services.home-assistant.code.scripts = let
-      emergency_notify = pkgs.writeText "emergency_notify.yaml" ''
-        description: >+
-          Sends an emergency notification to the configured `phone_target` with given
-          `title` and `message`. Restores the phone's volume levels, ringer mode afterwards.
-
-          Make sure that:
-
-          1. home-assistant app is installed on the phone.
-
-          2. home-assistant app has permision to run in background
-
-          3. home-assistant app has permission to change the 'mode' of the device (from silent/vibration to sound mode).
-
-          4. home-assistant app > settings > companion app > manage sensors has the following enabled: `ringer_mode` and `volume level alarm`. Otherwise, the system will always restore the phone to silent mode with 50% alarm-volume instead of the encountered values.
-
-          5. notification-channel "alarm_stream" has a sufficiently annoying ringtone to wake you up, if needed, within 30 seconds.
-
-          6. notification-channel "alarm_stream" (of home-assistant app) is allowed to override DoNotDisturb mode. To set this up, just use (in web-HA) developer tools > action and send:
-
-          ```yaml
-            action: notify.mobile_app_rdn_phone
-            data:
-              message: command_ringer_mode
-              data:
-                command: normal
-          ```
-
-          > Note: This script assumes you use an Android phone with Android 8+.
-
-        # when callled multiple times in parallel, just handle the calls without 'already-running' warnings
-        mode: parallel
-
-        fields:
-          phone_target:
-            description: the phone to send alert to. The correct value can be found by going to home-assistant (web) > settings > devices & integrations (integration tab) > phones. Note that both ' ' and '-' are replaced by underscores. To know the right name for sure, goto developer tools > actions and search for `notify.mobile_app`. It provides all phone names as used in scripts.
-            example: examplename_phone.
-          message:
-            description: the message to display
-            example: testing
-          title:
-            description: the title to display
-            example: testing
-
-        sequence:
-          - variables:
-              ringer_sensor: "sensor.{{ phone_target }}_ringer_mode"
-              volume_sensor: "sensor.{{ phone_target }}_volume_level_alarm"
-              prev_ringer: "{{ states(ringer_sensor) or 'silent' }}"
-              prev_volume: "{{ states(volume_sensor) | float(0.5) }}"
-          # set phone to sound mode
-          - action: "notify.mobile_app_{{ phone_target }}"
-            data:
-              message: command_ringer_mode
-              data:
-                command: normal
-          # set notification volume to 100%
-          - action: "notify.mobile_app_{{ phone_target }}"
-            data:
-              message: command_volume_level
-              data:
-                media_stream: alarm_stream
-                command: 100
-          # wait for a little bit to let above commands be sent and processed
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 3
-              milliseconds: 0
-          # send emergency notification
-          - action: "notify.mobile_app_{{ phone_target }}"
-            data:
-              message: "{{ message }}"
-              title: "{{ title }}"
-              data:
-                importance: high
-                ttl: 0
-                priority: high
-                channel: alarm_stream
-                vibrationPattern:
-                  - 0
-                  - 500
-                  - 1000
-                  - 500
-                  - 1000
-                  - 500
-                persistent: true
-                sticky: true
-          # wait for 30s to ensure 30s of unbearable loud noise, before returning the phone to silent mode
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 30
-              milliseconds: 0
-          # set phone to original sound mode
-          - action: "notify.mobile_app_{{ phone_target }}"
-            data:
-              message: command_ringer_mode
-              data:
-                command: "{{ prev_ringer }}"
-          # set notification volume to original value
-          - action: "notify.mobile_app_{{ phone_target }}"
-            data:
-              message: command_volume_level
-              data:
-                media_stream: alarm_stream
-                command: "{{ prev_volume }}"
-        alias: emergency_notify
-    '';      
-    in [ emergency_notify ];
+    # my.services.home-assistant.code.scripts = let
+    #   emergency_notify = pkgs.writeText "emergency_notify.yaml" ''
+    # '';      
+    # in [ emergency_notify ];
 
 
 

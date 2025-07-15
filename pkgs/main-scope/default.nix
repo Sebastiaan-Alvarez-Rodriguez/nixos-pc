@@ -1,4 +1,4 @@
-{ pkgs }: {
+{ pkgs, ... }: {
   
   breeze-obsidian-cursor = pkgs.callPackage ./breeze-obsidian-cursor { };
 
@@ -7,8 +7,6 @@
   ddclient = pkgs.callPackage ./ddclient { };
 
   dragger = pkgs.callPackage ./dragger { };
-
-  home-assistant-visonic = pkgs.callPackage ./home-assistant-visonic { };
 
   i3-get-window-criteria = pkgs.callPackage ./i3-get-window-criteria { };
 
