@@ -1,9 +1,22 @@
+diff --git a/README.md b/README.md
+index ae73a512..6f835b7b 100644
+--- a/README.md
++++ b/README.md
+@@ -30,7 +30,7 @@ See here https://music-assistant.io/installation/
+ [repository-badge]: https://img.shields.io/badge/Add%20repository%20to%20my-Home%20Assistant-41BDF5?logo=home-assistant&style=for-the-badge
+ [repository-url]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fmusic-assistant%2Fhome-assistant-addon
+ 
+-Note that altough Music Assistant's main code is written in python, it has multiple dependencies on external/OS components such as ffmpeg and custom binaries and it is therefore not possible to run it as standalone pypi package. The only available installation method to run the Music Assistant server is by running the Docker container or the Home Assistant add-on.
++Note that although Music Assistant's main code is written in python, it has multiple dependencies on external/OS components such as ffmpeg and custom binaries and it is therefore not possible to run it as standalone pypi package. The only available installation method to run the Music Assistant server is by running the Docker container or the Home Assistant add-on.
+ 
+ ---
+ 
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..51e24888
+index 00000000..e06a359c
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,781 @@
+@@ -0,0 +1,813 @@
 +from __future__ import annotations
 +
 +from collections.abc import AsyncGenerator, Sequence
@@ -233,9 +246,20 @@ index 00000000..51e24888
 +    )
 +
 +class DeezerAPI:
++    class Settings:
++        defaults = {
++            'deezer_language': 'en',
++            'deezer_country': 'US'
++        }
++        def __init__(**kwargs):
++            '''populate settings using passed kwargs, default value otherwise'''
++            pick = lambda name: kwargs[name] if name in kwargs else defaults[name]
++            self.deezer_language: str = pick('deezer_language')
++            self.deezer_country: str = pick('deezer_country')
++
 +    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
 +
-+    def __init__(self, arl: Optional[str] = None, settings=None):
++    def __init__(self, arl: Optional[str] = None, settings: Optional[Settings] = None):
 +        self.arl = arl
 +        self.token: Optional[str] = None
 +        self.license_token: Optional[str] = None
@@ -244,7 +268,7 @@ index 00000000..51e24888
 +        self.favorites_playlist_id: Optional[str] = None
 +        self.sid: Optional[str] = None
 +        self._authorizing: Optional[asyncio.Future] = None
-+        self.settings = settings  # Should provide deezerLanguage and deezerCountry
++        self.settings: Settings = settings or Settings()
 +
 +    def get_headers(self) -> Dict[str, str]:
 +        lang = f'{self.settings.deezer_language}-{self.settings.deezer_country}'
@@ -425,11 +449,13 @@ index 00000000..51e24888
 +
 +
 +
-+class ReFreezerProvider(DeezerProvider):
++class ReFreezerProvider(MusicProvider):
 +    """ReFreezer provider support."""
 +
-+    async def handle_async_init(self) -> None:
-+        pass
++    api: DeezerAPI
++
++    async def handle_async_init(self, arl: Optional[str] = None, settings: Optional[DeezerAPI.Settings] = None) -> None:
++        self.api = DeezerAPI(arl=arl, settings=settings)
 +
 +    @property
 +    def supported_features(self) -> set[ProviderFeature]:
@@ -510,6 +536,7 @@ index 00000000..51e24888
 +        # It allows retrieving the library/favorite albums from your provider.
 +        # Warning: Async generator:
 +        # You should yield Album objects for each album in the library.
++
 +        yield  # type: ignore[misc]
 +
 +    async def get_library_tracks(self) -> AsyncGenerator[Track, None]:
@@ -544,6 +571,24 @@ index 00000000..51e24888
 +
 +    async def get_artist(self, prov_artist_id: str) -> Artist:  # type: ignore[empty-body]
 +        """Get full artist details by id."""
++        a = await api.artist(id=prov_artist_id)
++        return self._parse_artist(a)
++
++    async def _parse_artist(values: Dict) -> Artist:
++         return Artist( # seb TODO: implement parse
++            item_id=values['art_id'],
++            provider=self.lookup_key,
++            media_type=MediaType.ARTIST,
++            provider_mappings={
++                ProviderMapping(
++                    item_id=values['artist_id'],
++                    provider_domain=self.domain,
++                    provider_instance=self.instance_id,
++                    url=values['link'], # seb TODO: pass artist.link
++                )
++            }
++        )
++
 +        # Get full details of a single Artist.
 +        # Mandatory only if you reported LIBRARY_ARTISTS in the supported_features.
 +
