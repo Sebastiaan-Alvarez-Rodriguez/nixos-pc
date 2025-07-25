@@ -92,10 +92,6 @@ in {
 
     services.home-assistant.extraComponents = [ "music_assistant" ];
   
-    systemd.tmpfiles.rules = [
-      "d ${cfg.config-path} 0755 music-assistant music-assistant -"
-    ];
-
     # seb: TODO is this enough of a backup?
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.config-path ]; };
 

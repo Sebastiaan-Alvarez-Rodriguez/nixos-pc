@@ -116,7 +116,7 @@ in {
             path = "alarm-mono";
             icon = "mdi:shield-home-outline";
             cards = [
-              { type = "alarm-panel"; states = [ "arm_home" "arm_away" ]; entity = "alarm_control_panel.visonic_alarm_167313"; }
+              { type = "alarm-panel"; states = [ "arm_home" "arm_away" ]; entity = "alarm_control_panel.visonic_alarm"; }
             ];
           }
           {
@@ -162,13 +162,13 @@ in {
       "D ${configpath}/scripts 0770 hass hass - -"
 
       # prepare custom component installation
-      "R ${ccpath} - - - - -" # remove custom components dir recursively
+      # "R ${ccpath} - - - - -" # remove custom components dir recursively
       "D ${ccpath} 0770 hass hass - -" # create custom components dir again (now empty)
 
       # add custom components
       # NOTE: always restart home-assistant service after adding a component
       # NOTE: symlinks to components are removed by HA and do not work. Needs a physical copy (or a hardlink, I guess).
-      "C ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic"
+      # "C ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic"
     ];
 
     systemd.services.home-assistant.preStart = with lib; let
@@ -178,11 +178,19 @@ in {
       in ''
         ln -s ${escapeShellArg sourcepath} ${escapeShellArg "${path}/${filename}"}
       '';
-    in ''
-      rm -f ${escapeShellArg configpath}/automations/*
-      rm -f ${escapeShellArg configpath}/scenes/*
-      rm -f ${escapeShellArg configpath}/scripts/*
-    '' + concatStrings ( flatten (mapAttrsToList (domain: builtins.map (linkCommand domain)) cfg.code) );
+      cleanAutomationsScenesScripts = ''
+        rm -f ${escapeShellArg configpath}/automations/*
+        rm -f ${escapeShellArg configpath}/scenes/*
+        rm -f ${escapeShellArg configpath}/scripts/*
+      '' + concatStrings ( flatten (mapAttrsToList (domain: builtins.map (linkCommand domain)) cfg.code) );
+    # in cleanAutomationsScenesScripts;
+      createCustomComponents = ''
+        rm -rf ${ccpath}
+        mkdir ${ccpath}
+        cp -r ${hass-visonic}/custom_components/visonic ${ccpath}/visonic
+        chmod -R u+rwX,go+rX ${ccpath}/visonic
+      '';
+    in cleanAutomationsScenesScripts + createCustomComponents; 
 
 
 
