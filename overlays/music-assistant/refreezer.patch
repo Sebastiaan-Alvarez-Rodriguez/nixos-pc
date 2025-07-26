@@ -1,9 +1,9 @@
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..abe414a4
+index 00000000..6cf98eba
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,924 @@
+@@ -0,0 +1,927 @@
 +from __future__ import annotations
 +
 +from collections.abc import AsyncGenerator, Sequence
@@ -391,8 +391,10 @@ index 00000000..abe414a4
 +        data = await self.call_gw_api('deezer.pageArtist', params={'art_id': id, 'lang': self.settings.deezer_language})
 +        return data['results']
 +
-+# seb TODO:
-+# playlistTracksPage
++    async def playlist_track_page(self, id: str, start: int, nb: int = 50) -> List[Dict[str, Any]]:
++        # returns a list of json data that can be directly converted to trracks
++        data = await callGwApi('deezer.pagePlaylist', params: {'playlist_id': id, 'lang': self.settings.deezer_language, 'nb': nb, 'tags': true, 'start': start})
++        return data['results']['SONGS']['data']
 +
 +    async def playlist(self, id: str, nb: int = 100) -> Dict[str, Any]:
 +        data = await self.call_gw_api('deezer.pagePlaylist', params={'playlist_id': id, 'lang': self.settings.deezer_language, 'nb': nb, 'tags': True, 'start': 0})
@@ -614,88 +616,10 @@ index 00000000..abe414a4
 +        data = await self.api.artist(id=prov_artist_id)
 +        return self._parse_albums(data['results']['ALBUMS'])
 +
-+    async def _parse_albums(self, data: Dict) -> list[Album]:
-+        return [self._parse_album(elem) for elem in data['data']] if any(data['data']) else []
-+
-+    async def _parse_album(self, data: Dict) -> list[Album]:
-+        artists = [self._parse_artist(elem) for elem in data['ARTISTS']] if any(data['ARTISTS']) else []
-+        if not any(data['ARTISTS']) and 'ART_NAME' in data:
-+            artists.append(Artist(name=data['ART_NAME']))
-+
-+        type = 'single' if data['TYPE'] != None and str(data['TYPE']) == '0' else 'album'
-+
-+        album = Album(
-+            item_id=data['ALB_ID'], # seb TODO: tostring? Is now int
-+            provider=self.lookup_key,
-+            name=data['ALB_TITLE'],
-+            year=int((data['DIGITAL_RELEASE_DATE'] if data['DIGITAL_RELEASE_DATE'] else data['PHYSICAL_RELEASE_DATE']).split('-')[0]),
-+            # version= # seb TODO: spotify plugin provides this
-+            provider_mappings={
-+                ProviderMapping(
-+                    provider_domain=self.domain,
-+                    provider_instance=self.instance_id,
-+                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
-+                    url=None, # seb TODO: will this be ok? deezer does not provide a link
-+                )
-+            }
-+            artists=artists,
-+            album_type=AlbumType(type)
-+        )
-+        if 'ALB_PICTURE' in data and data['ALB_PICTURE'] != None:
-+            details = DeezerAPI.ImageDetails.from_private_json(data['ALB_PICTURE'])
-+            album.metadata.images = [
-+                MediaItemImage(
-+                    type=ImageType.THUMB,
-+                    path=details.thumb_url, # seb TODO: can also provide full url? Maybe both?
-+                    provider=self.lookup_key,
-+                    remotely_accessible=True
-+                )
-+            ]
-+        
-+
 +    async def get_artist_toptracks(self, prov_artist_id: str) -> list[Track]:  # type: ignore[empty-body]
 +        """Get a list of most popular tracks for the given artist."""
 +        data = await self.api.artist(id=prov_artist_id)
 +        return self._parse_tracks(data['results']['TOP'])
-+
-+    async def _parse_tracks(self, data: Dict) -> list[Track]:
-+        return [self._parse_track(elem, album=album)] for elem in data['data'] if any(data['data']) else []
-+
-+    async def _parse_track(self, data: Dict) -> Track:
-+        title = data['SNG_TITLE'] if not data['VERSION'] else f"{data['SNG_TITLE']} {data['VERSION']}"
-+        track = Track(
-+            item_id=data['SNG_ID'], # seb TODO: tostring? is now int
-+            provider=self.lookup_key,
-+            name=title,
-+            version=data['VERSION']
-+            duration=int(data['DURATION'])
-+            provider_mappings={
-+                ProviderMapping(
-+                    item_id=data['SNG_ID'],
-+                    provider_domain=self.domain,
-+                    provider_instance=self.instance_id,
-+                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
-+                    url=None, # seb TODO: is this ok?
-+                    available=True,
-+                )
-+            }
-+            disc_number=int(data['DISK_NUMBER'] if 'DISK_NUMBER' in data and data['DISK_NUMBER'] != None else 0),
-+            track_number=int(data['TRACK_NUMBER'] if 'TRACK_NUMBER' in data and data['TRACK_NUMBER'] != None else 0),
-+            artists=self._parse_artists(data['ARTISTS'] if 'ARTISTS' in data else [data])
-+            album=self._parse_album(data)
-+        )
-+        track.metadata.explicit = str(data['EXPLICIT_LYRICS']) == '1'
-+        if 'ALB_PICTURE' in data:
-+            details = DeezerAPI.ImageDetails.from_private_json(data['ALB_PICTURE'])
-+            track.metadata.images = [
-+                MediaItemImage(
-+                    type=ImageType.THUMB,
-+                    path=details.thumb_url, # seb TODO: can also provide full url? Maybe both?
-+                    provider=self.lookup_key,
-+                    remotely_accessible=True
-+                )
-+            ]
-+        return track
 +
 +
 +    async def get_album(self, prov_album_id: str) -> Album:  # type: ignore[empty-body]
@@ -715,8 +639,11 @@ index 00000000..abe414a4
 +
 +    async def get_playlist(self, prov_playlist_id: str) -> Playlist:  # type: ignore[empty-body]
 +        """Get full playlist details by id."""
-+        # Get full details of a single Playlist.
-+        # Mandatory only if you reported LIBRARY_PLAYLISTS in the supported
++        data = self.playlist(id=prov_playlist_id, nb=10)
++        data = self.full_playlist(id=prov_playlist_id, nb=10)
++        # seb TODO: what kind of playlist data is request?
++        # seb TODO: implement this
++
 +
 +    async def get_radio(self, prov_radio_id: str) -> Radio:  # type: ignore[empty-body]
 +        """Get full radio details by id."""
@@ -729,14 +656,12 @@ index 00000000..abe414a4
 +        return self._parse_tracks(data['results']['SONGS'])
 +
 +
-+    async def get_playlist_tracks(  # type: ignore[empty-body]
-+        self,
-+        prov_playlist_id: str,
-+        page: int = 0,
-+    ) -> list[Track]:
++    async def get_playlist_tracks(self, prov_playlist_id: str, page: int = 0, ) -> list[Track]:
 +        """Get all playlist tracks for given playlist id."""
-+        # Get all tracks for a given playlist.
-+        # Mandatory only if you reported LIBRARY_PLAYLISTS in the supported_features.
++        page_size = 50
++        offset = page * page_size
++        data = self.playlist_track_page(id=prov_playlist_id, start=offset, nb=page_size)
++        return self._parse_tracks(data)
 +
 +    async def library_add(self, item: MediaItemType) -> bool:
 +        """Add item to provider's library. Return true on success."""
@@ -928,6 +853,84 @@ index 00000000..abe414a4
 +        # base model should be sufficient for most (streaming) providers.
 +        # If you need to do some custom sync logic, you can override this method.
 +        # For example the filesystem provider in MA, overrides this method to scan the filesystem.
++
++
++    async def _parse_albums(self, data: Dict) -> list[Album]:
++        return [self._parse_album(elem) for elem in data['data']] if any(data['data']) else []
++
++    async def _parse_album(self, data: Dict) -> list[Album]:
++        artists = [self._parse_artist(elem) for elem in data['ARTISTS']] if any(data['ARTISTS']) else []
++        if not any(data['ARTISTS']) and 'ART_NAME' in data:
++            artists.append(Artist(name=data['ART_NAME']))
++
++        type = 'single' if data['TYPE'] != None and str(data['TYPE']) == '0' else 'album'
++
++        album = Album(
++            item_id=data['ALB_ID'], # seb TODO: tostring? Is now int
++            provider=self.lookup_key,
++            name=data['ALB_TITLE'],
++            year=int((data['DIGITAL_RELEASE_DATE'] if data['DIGITAL_RELEASE_DATE'] else data['PHYSICAL_RELEASE_DATE']).split('-')[0]),
++            # version= # seb TODO: spotify plugin provides this
++            provider_mappings={
++                ProviderMapping(
++                    provider_domain=self.domain,
++                    provider_instance=self.instance_id,
++                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
++                    url=None, # seb TODO: will this be ok? deezer does not provide a link
++                )
++            }
++            artists=artists,
++            album_type=AlbumType(type)
++        )
++        if 'ALB_PICTURE' in data and data['ALB_PICTURE'] != None:
++            details = DeezerAPI.ImageDetails.from_private_json(data['ALB_PICTURE'])
++            album.metadata.images = [
++                MediaItemImage(
++                    type=ImageType.THUMB,
++                    path=details.thumb_url, # seb TODO: can also provide full url? Maybe both?
++                    provider=self.lookup_key,
++                    remotely_accessible=True
++                )
++            ]
++        
++    async def _parse_tracks(self, data: Dict) -> list[Track]:
++        return [self._parse_track(elem, album=album)] for elem in data['data'] if any(data['data']) else []
++
++    async def _parse_track(self, data: Dict) -> Track:
++        title = data['SNG_TITLE'] if not data['VERSION'] else f"{data['SNG_TITLE']} {data['VERSION']}"
++        track = Track(
++            item_id=data['SNG_ID'], # seb TODO: tostring? is now int
++            provider=self.lookup_key,
++            name=title,
++            version=data['VERSION']
++            duration=int(data['DURATION'])
++            provider_mappings={
++                ProviderMapping(
++                    item_id=data['SNG_ID'],
++                    provider_domain=self.domain,
++                    provider_instance=self.instance_id,
++                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
++                    url=None, # seb TODO: is this ok?
++                    available=True,
++                )
++            }
++            disc_number=int(data['DISK_NUMBER'] if 'DISK_NUMBER' in data and data['DISK_NUMBER'] != None else 0),
++            track_number=int(data['TRACK_NUMBER'] if 'TRACK_NUMBER' in data and data['TRACK_NUMBER'] != None else 0),
++            artists=self._parse_artists(data['ARTISTS'] if 'ARTISTS' in data else [data])
++            album=self._parse_album(data)
++        )
++        track.metadata.explicit = str(data['EXPLICIT_LYRICS']) == '1'
++        if 'ALB_PICTURE' in data:
++            details = DeezerAPI.ImageDetails.from_private_json(data['ALB_PICTURE'])
++            track.metadata.images = [
++                MediaItemImage(
++                    type=ImageType.THUMB,
++                    path=details.thumb_url, # seb TODO: can also provide full url? Maybe both?
++                    provider=self.lookup_key,
++                    remotely_accessible=True
++                )
++            ]
++        return track
 diff --git a/music_assistant/providers/refreezer/manifest.json b/music_assistant/providers/refreezer/manifest.json
 new file mode 100644
 index 00000000..6d5ace3f
