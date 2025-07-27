@@ -5,6 +5,13 @@
 in {
   options.my.services.bind = with lib; {
     enable = mkEnableOption "DNS service";
+
+    cache-networks = mkOption {
+      type = nullOr (listOf str);
+      default = local-networks;
+      description = "Which sources may use this DNS for 'recursive' queries, i.e. queries not meant for this network.";
+    };
+
     package = mkOption {
       type = types.package;
       default = pkgs.bind;
@@ -55,6 +62,7 @@ in {
         gen-conf = k: { ... } @ args: {
           master = true;
           allowQuery = args.allow-query;
+          cacheNetworks = args.cache-networks;
           file = pkgs.writeText k ''
             @            IN      SOA     ns.${k}. ${args.mail}. (
                                                2    ; Serial
