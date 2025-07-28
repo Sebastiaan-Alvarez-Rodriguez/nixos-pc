@@ -250,6 +250,7 @@
         force-ssl = true;
       };
     };
+    webdav.enable = true;
     wireguard = {
       enable = false;
     };

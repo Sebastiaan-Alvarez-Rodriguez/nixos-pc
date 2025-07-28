@@ -51,6 +51,7 @@
     ./transmission
     ./vaultwarden
     ./vikunja
+    ./webdav
     ./wireguard
     ./woodpecker
   ];
