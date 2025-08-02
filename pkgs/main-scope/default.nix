@@ -23,4 +23,6 @@
   osc777 = pkgs.callPackage ./osc777 { };
 
   rbw-pass = pkgs.callPackage ./rbw-pass { };
+
+  stremio-service = pkgs.callPackage ./stremio-service { };
 }

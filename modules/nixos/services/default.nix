@@ -45,6 +45,7 @@
     ./ssh-server
     ./snapserver
     ./sqlite-backup
+    ./stremio-service
     ./syncthing
     ./tandoor-recipes
     ./tlp

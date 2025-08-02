@@ -1,4 +1,6 @@
-{ inputs, config, pkgs, system, ... }: {
+{ inputs, config, pkgs, system, ... }: let
+  stremio-service = inputs.self.packages.${system}.stremio-service;
+in {
   imports = [ ./hardware.nix ];
 
   my.system.boot = {

@@ -1,6 +1,5 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.services.webdav;
-
 in {
   options.my.services.webdav = with lib; {
     enable = mkEnableOption "webdav configuration";
@@ -36,7 +35,7 @@ in {
         directory = "${cfg.data-dir}/default"; # default directory when user does not have its own directory set.
         permissions = "";
         users = [
-          { username = "rdn"; password = "WhyNowTemp"; directory = "${cfg.data-dir}/rdn"; permissions = "CRUD"; }
+          { username = "rdn"; password = "WhyNowTemp"; directory = "${cfg.data-dir}/rdn"; permissions = "CRUD"; } # seb TODO: make this secure someday.
         ];
       };
     };

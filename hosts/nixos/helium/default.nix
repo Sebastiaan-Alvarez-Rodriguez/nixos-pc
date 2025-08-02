@@ -151,6 +151,7 @@
         # location = "127.0.0.1:9004";
       };
     };
+    stremio-service.enable = true;
 
     # pingvin-share = { # seb TODO: wait until a version `>1.13.0` on unstable.
     #   enable = true;
@@ -250,7 +251,11 @@
         force-ssl = true;
       };
     };
-    webdav.enable = true;
+    webdav = { # seb TODO: make secure before it becomes important in any way
+      enable = false;
+      data-dir = "/data/storage/webdav";
+      backup-routes = [ "xenon" ];
+    };
     wireguard = {
       enable = false;
     };

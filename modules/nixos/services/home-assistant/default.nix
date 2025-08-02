@@ -155,15 +155,15 @@ in {
       
       # create directories for yaml configuration (packages may link their automations/scenes/scripts here)
       "R ${configpath}/automations - - - - -"
-      "D ${configpath}/automations 0770 hass hass - -"
-      "R ${configpath}/scenes- - - - -"
-      "D ${configpath}/scenes 0770 hass hass - -"
+      "d ${configpath}/automations 0770 hass hass - -"
+      "R ${configpath}/scenes - - - - -"
+      "d ${configpath}/scenes 0770 hass hass - -"
       "R ${configpath}/scripts - - - - -"
-      "D ${configpath}/scripts 0770 hass hass - -"
+      "d ${configpath}/scripts 0770 hass hass - -"
 
       # prepare custom component installation
       # "R ${ccpath} - - - - -" # remove custom components dir recursively
-      "D ${ccpath} 0770 hass hass - -" # create custom components dir again (now empty)
+      "d ${ccpath} 0770 hass hass - -" # create custom components dir again (now empty)
 
       # add custom components
       # NOTE: always restart home-assistant service after adding a component

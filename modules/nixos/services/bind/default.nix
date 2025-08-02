@@ -7,7 +7,7 @@ in {
     enable = mkEnableOption "DNS service";
 
     cache-networks = mkOption {
-      type = nullOr (listOf str);
+      type = with types; nullOr (listOf str);
       default = local-networks;
       description = "Which sources may use this DNS for 'recursive' queries, i.e. queries not meant for this network.";
     };
@@ -53,7 +53,7 @@ in {
     services.bind = {
       enable = true;
 
-      cacheNetworks = local-networks; # allowed networks to use us as a resolver. Note: This is for recursive queries only. Block all requests in each zone using `allowQuery`
+      cacheNetworks = cfg.cache-networks; # allowed networks to use us as a resolver. Note: This is for recursive queries only. Block all requests in each zone using `allowQuery`
       forwarders = cfg.forwarders;
 
       forward = "only"; # do not try to resolve if no forwarders succeed
@@ -62,7 +62,6 @@ in {
         gen-conf = k: { ... } @ args: {
           master = true;
           allowQuery = args.allow-query;
-          cacheNetworks = args.cache-networks;
           file = pkgs.writeText k ''
             @            IN      SOA     ns.${k}. ${args.mail}. (
                                                2    ; Serial
