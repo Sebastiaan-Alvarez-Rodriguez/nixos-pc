@@ -8,7 +8,8 @@ in {
 
     package = mkOption {
       type = types.package;
-      default = inputs.self.packages.${system}.stremio-service;
+      # default = inputs.self.packages.${system}.stremio-service;
+      default = pkgs.stremio;
       description = "Package to use";
     };
 
@@ -16,6 +17,12 @@ in {
       type = types.port;
       default = 11470; # port has to be 11470, cannot be modified... "just use docker bro". https://github.com/Stremio/stremio-service/issues/43
       description = "Internal port for stremio-service";
+    };
+
+    web-ui-address = mkOption {
+      type = types.str;
+      default = "";
+      description = "address of custom web ui, if you run one. If not, just leave empty.";
     };
 
     settings = mkOption {
@@ -35,18 +42,34 @@ in {
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = let
+    final-state-dir = "/var/lib/${cfg.state-dir}";
+  in lib.mkIf cfg.enable {
+    users.users.stremio = {
+      description = "stremio service";
+      home = final-state-dir;
+      group = "stremio";
+      isSystemUser = true;
+    };
+    users.groups.stremio = { };
     systemd.services.stremio-service = {
       description = "stremio-service - for a fully-featured web experience with stremio";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
 
+      environment = {
+        LIBGL_ALWAYS_SOFTWARE = "1";
+        QT_QPA_PLATFORM = "offscreen";
+        QT_QUICK_BACKEND = "software";
+      }; # these env vars tell qt to not rely on software instead of hardware rendering. Prevents sigabrts/segfaults on headless machines like this.
       serviceConfig = {
         User = "stremio";
         Group = "stremio";
-        ExecStart = " ${lib.getExe cfg.package} -s";
+        # ExecStart = " ${lib.getExe cfg.package} -s";
+        ExecStart = "${lib.getExe cfg.package} --webui-url='${lib.escapeShellArg cfg.web-ui-address}' -platform offscreen"; # this forces Qt to not render.
         DynamicUser = false;
         StateDirectory = cfg.state-dir;
+        WorkingDirectory = final-state-dir;
         ReadWritePaths = "";
       };
     };
@@ -54,8 +77,8 @@ in {
     systemd.tmpfiles.rules = let
       settings-file = pkgs.writeText "server-settings.json" (builtins.toJSON ({
         serverVersion = "4.20.8"; # NOTE: should match server json file.
-        appPath = "${cfg.state-dir}/.stremio-server";
-        cacheRoot = "${cfg.state-dir}/.stremio-server";
+        appPath = "${final-state-dir}/.stremio-server";
+        cacheRoot = "${final-state-dir}/.stremio-server";
         cacheSize = 2*1024*1024*1024; # 2gb cache by default
         btMaxConnections = 55;
         btHandshakeTimeout = 20000;
@@ -75,8 +98,9 @@ in {
         transcodeMaxWidth = 1920;
       } // cfg.settings)); # passed cfg.settings override the default values.
     in [
-      "d ${cfg.state-dir}/.stremio-server 0770 stremio stremio - -"
-      "L+ ${cfg.state-dir}/server-settings.json - - - - ${settings-file}"
+      "d ${final-state-dir}/ 0755 stremio stremio - -"
+      "d ${final-state-dir}/.stremio-server 0770 stremio stremio - -"
+      "L+ ${final-state-dir}/.stremio-server/server-settings.json - - - - ${settings-file}"
     ];
 
     my.services.nginx.virtualHosts.stremio = {
