@@ -1,5 +1,7 @@
 # Get full features when watch movies/series using the stremio web ui.
 # Useful for e.g. ipads, which do not have a stremio app providing all features.
+# seb TODO: still does not work: Perhaps: https://www.reddit.com/r/Stremio/comments/1dre9tv/how_to_self_host_a_stremio_site/
+# or perhaps / probably just exposing both https and http. No reverse proxy in front, so remove nginx.
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.stremio-service;
 in {
@@ -57,16 +59,16 @@ in {
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
 
-      environment = {
-        LIBGL_ALWAYS_SOFTWARE = "1";
-        QT_QPA_PLATFORM = "offscreen";
-        QT_QUICK_BACKEND = "software";
-      }; # these env vars tell qt to not rely on software instead of hardware rendering. Prevents sigabrts/segfaults on headless machines like this.
+      # environment = {
+      #   LIBGL_ALWAYS_SOFTWARE = "1";
+      #   QT_QPA_PLATFORM = "offscreen";
+      #   QT_QUICK_BACKEND = "software";
+      # }; # these env vars tell qt to not rely on software instead of hardware rendering. Prevents sigabrts/segfaults on headless machines like this.
       serviceConfig = {
         User = "stremio";
         Group = "stremio";
         # ExecStart = " ${lib.getExe cfg.package} -s";
-        ExecStart = "${lib.getExe cfg.package} --webui-url='${lib.escapeShellArg cfg.web-ui-address}' -platform offscreen"; # this forces Qt to not render.
+        ExecStart = "${cfg.package}/opt/stremio/node ${cfg.package}/opt/stremio/server.js --webui-url='${lib.escapeShellArg cfg.web-ui-address}' -platform offscreen"; # this forces Qt to not render.
         DynamicUser = false;
         StateDirectory = cfg.state-dir;
         WorkingDirectory = final-state-dir;
@@ -86,7 +88,7 @@ in {
         btDownloadSpeedSoftLimit = 2621440;
         btDownloadSpeedHardLimit = 3670016;
         btMinPeersForStable = 5;
-        remoteHttps = "";
+        remoteHttps = "stremio.h.mijn.place";
         localAddonEnabled = false;
         transcodeHorsepower = 0.75;
         transcodeMaxBitRate = 0;
@@ -105,6 +107,12 @@ in {
 
     my.services.nginx.virtualHosts.stremio = {
       inherit (cfg) port;
+      extraConfig = {
+        extraConfig = ''
+          proxy_buffering off;
+        '';
+        locations."/".proxyWebsockets = true;
+      };
     };
   };
 }
