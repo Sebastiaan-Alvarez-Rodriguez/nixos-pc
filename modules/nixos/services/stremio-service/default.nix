@@ -88,7 +88,7 @@ in {
         btDownloadSpeedSoftLimit = 2621440;
         btDownloadSpeedHardLimit = 3670016;
         btMinPeersForStable = 5;
-        remoteHttps = "stremio.h.mijn.place";
+        remoteHttps = "";
         localAddonEnabled = false;
         transcodeHorsepower = 0.75;
         transcodeMaxBitRate = 0;
