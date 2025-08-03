@@ -1,7 +1,7 @@
 # Get full features when watch movies/series using the stremio web ui.
 # Useful for e.g. ipads, which do not have a stremio app providing all features.
-# seb TODO: still does not work: Perhaps: https://www.reddit.com/r/Stremio/comments/1dre9tv/how_to_self_host_a_stremio_site/
-# or perhaps / probably just exposing both https and http. No reverse proxy in front, so remove nginx.
+
+# seb TODO: provide some form of security so random's cannot use this server
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.stremio-service;
 in {
@@ -17,7 +17,7 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 11470; # port has to be 11470, cannot be modified... "just use docker bro". https://github.com/Stremio/stremio-service/issues/43
+      default = 11470; # port has to be 11470 (for http) or 12470 (for https), cannot be modified... "just use docker bro". https://github.com/Stremio/stremio-service/issues/43
       description = "Internal port for stremio-service";
     };
 
@@ -59,15 +59,14 @@ in {
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
 
-      # environment = {
-      #   LIBGL_ALWAYS_SOFTWARE = "1";
-      #   QT_QPA_PLATFORM = "offscreen";
-      #   QT_QUICK_BACKEND = "software";
-      # }; # these env vars tell qt to not rely on software instead of hardware rendering. Prevents sigabrts/segfaults on headless machines like this.
+      environment = {
+        NO_CORS = "1";
+        CASTING_DISABLED="1"; # no need to search for cast-capable devices, as a server.
+      };
+      path = with pkgs; [ ffmpeg ps ];
       serviceConfig = {
         User = "stremio";
         Group = "stremio";
-        # ExecStart = " ${lib.getExe cfg.package} -s";
         ExecStart = "${cfg.package}/opt/stremio/node ${cfg.package}/opt/stremio/server.js --webui-url='${lib.escapeShellArg cfg.web-ui-address}' -platform offscreen"; # this forces Qt to not render.
         DynamicUser = false;
         StateDirectory = cfg.state-dir;
@@ -105,13 +104,17 @@ in {
       "L+ ${final-state-dir}/.stremio-server/server-settings.json - - - - ${settings-file}"
     ];
 
+    my.services.backup.global-excludes = [ final-state-dir ]; # no need to keep the video cache (max 2GB) and the above settings...
+
     my.services.nginx.virtualHosts.stremio = {
       inherit (cfg) port;
       extraConfig = {
         extraConfig = ''
           proxy_buffering off;
         '';
-        locations."/".proxyWebsockets = true;
+        locations."/" = {
+          proxyWebsockets = true;
+        };
       };
     };
   };

@@ -151,7 +151,7 @@
         # location = "127.0.0.1:9004";
       };
     };
-    stremio-service.enable = true;
+    stremio-service.enable = true; # seb TODO: provide some form of security so random's cannot use this server
 
     # pingvin-share = { # seb TODO: wait until a version `>1.13.0` on unstable.
     #   enable = true;
