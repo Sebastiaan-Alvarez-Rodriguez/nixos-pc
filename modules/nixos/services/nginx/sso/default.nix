@@ -1,11 +1,9 @@
 # I must override the module to allow having runtime secrets
-{ config, lib, pkgs, utils, ... }:
-let
+{ config, lib, pkgs, utils, ... }: let
   cfg = config.services.nginx.sso;
   pkg = lib.getBin cfg.package;
   confPath = "/var/lib/nginx-sso/config.json";
-in
-{
+in {
   disabledModules = [ "services/security/nginx-sso.nix" ];
 
 
@@ -15,10 +13,7 @@ in
     package = mkOption {
       type = types.package;
       default = pkgs.nginx-sso;
-      defaultText = "pkgs.nginx-sso";
-      description = ''
-        The nginx-sso package that should be used.
-      '';
+      description = "The nginx-sso package that should be used.";
     };
 
     configuration = mkOption {
@@ -43,9 +38,8 @@ in
         }
       '';
       description = ''
-        nginx-sso configuration
+        nginx-sso configuration as a Nix attribute set.
         (<link xlink:href="https://github.com/Luzifer/nginx-sso/wiki/Main-Configuration">documentation</link>)
-        as a Nix attribute set.
       '';
     };
   };

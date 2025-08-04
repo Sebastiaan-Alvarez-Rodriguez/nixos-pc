@@ -147,14 +147,12 @@ in {
       subdomain = mkOption {
         type = types.str;
         default = "login";
-        example = "auth";
         description = "Which subdomain to use for SSO.";
       };
 
       port = mkOption {
         type = types.port;
         default = 8082;
-        example = 8080;
         description = "Port to use for internal webui.";
       };
 
@@ -280,7 +278,7 @@ in {
             '';
           })
           args.extraConfig # VHost specific configuration
-          (lib.optionalAttrs args.sso.enable { # SSO configuration
+          (lib.optionalAttrs args.sso.enable { # use SSO for this domain
             extraConfig = (args.extraConfig.extraConfig or "") + ''
               error_page 401 = @error401;
             '';

@@ -108,6 +108,9 @@ in {
 
     my.services.nginx.virtualHosts.stremio = {
       inherit (cfg) port;
+
+      sso.enable = true; # stremio has no protection, otherwise anyone could use this server for torrentio.
+
       extraConfig = {
         extraConfig = ''
           proxy_buffering off;

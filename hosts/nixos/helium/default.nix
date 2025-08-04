@@ -179,7 +179,14 @@
       enable = true;
       local-subnet = "192.168.0.0/24";
       monitoring.enable = false;
-      sso.enable = false;
+      sso = {
+        enable = true;
+        subdomain = "auth";
+        users = {
+          rdn = {
+            # passwordHashFile = config.age.secrets."hosts/helium/services/nginx/"
+          };
+        };
       acme.default-mail = "a@b.com";
       acme.backup-routes = [ "xenon" ];
     };
