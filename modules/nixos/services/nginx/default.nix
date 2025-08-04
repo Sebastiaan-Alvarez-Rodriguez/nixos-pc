@@ -169,7 +169,8 @@ in {
               description = ''
                 Path to file containing the user's password hash.
 
-                Note: Create passwords using: `htpasswd -BnC 10 ""`
+                Note: Create passwords using: `htpasswd -BnC 10 "" | cut -d':' -f2`
+                Note: Just to be clear: Only the password hash should be provided, not htpassword's default `<user>:<hash>`.
               '';
             };
             totpSecretFile = mkOption {

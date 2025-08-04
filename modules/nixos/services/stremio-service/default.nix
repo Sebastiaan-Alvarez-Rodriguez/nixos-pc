@@ -1,9 +1,11 @@
 # Get full features when watch movies/series using the stremio web ui.
 # Useful for e.g. ipads, which do not have a stremio app providing all features.
 
-# seb TODO: provide some form of security so random's cannot use this server
+# basically does what is stated here: https://www.reddit.com/r/Stremio/comments/1dre9tv/comment/lauux7h/
+
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.stremio-service;
+  prefix = "stremio";
 in {
   options.my.services.stremio-service = with lib; {
     enable = mkEnableOption "stremio-service for getting a fully-featured web experience. Needed to e.g. download torrents";
@@ -24,7 +26,8 @@ in {
 
     web-ui-address = mkOption {
       type = types.str;
-      default = "";
+      # default = "https://app.strem.io/shell-v4.4/?streamingServer=http%3A%2F%2F${prefix}.${config.networking.domain}";
+      default = "https://app.strem.io/shell-v4.4/?streamingServer=http://${prefix}.${config.networking.domain}";
       description = "address of custom web ui, if you run one. If not, just leave empty.";
     };
 
@@ -68,7 +71,7 @@ in {
       serviceConfig = {
         User = "stremio";
         Group = "stremio";
-        ExecStart = "${cfg.package}/opt/stremio/node ${cfg.package}/opt/stremio/server.js --webui-url='${lib.escapeShellArg cfg.web-ui-address}' -platform offscreen"; # this forces Qt to not render.
+        ExecStart = "${cfg.package}/opt/stremio/node ${cfg.package}/opt/stremio/server.js --webui-url=${lib.escapeShellArg cfg.web-ui-address} -platform offscreen"; # this forces Qt to not render.
         DynamicUser = false;
         StateDirectory = cfg.state-dir;
         WorkingDirectory = final-state-dir;
@@ -88,7 +91,7 @@ in {
         btDownloadSpeedSoftLimit = 2621440;
         btDownloadSpeedHardLimit = 3670016;
         btMinPeersForStable = 5;
-        remoteHttps = "";
+        remoteHttps = "https://${prefix}.${config.networking.domain}"; # does not seem to do much...
         localAddonEnabled = false;
         transcodeHorsepower = 0.75;
         transcodeMaxBitRate = 0;
@@ -107,7 +110,7 @@ in {
 
     my.services.backup.global-excludes = [ final-state-dir ]; # no need to keep the video cache (max 2GB) and the above settings...
 
-    my.services.nginx.virtualHosts.stremio = {
+    my.services.nginx.virtualHosts.${prefix} = {
       inherit (cfg) port;
 
       sso.enable = true; # stremio has no protection, otherwise anyone could use this server for torrentio.
