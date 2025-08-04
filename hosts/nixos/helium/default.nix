@@ -178,15 +178,22 @@
     nginx = {
       enable = true;
       local-subnet = "192.168.0.0/24";
-      monitoring.enable = false;
+      monitoring.enable = false; # seb: TODO enable dashboard?
       sso = {
         enable = true;
         subdomain = "auth";
+        authKeyFile = config.age.secrets."hosts/helium/services/nginx/auth-key".path;
         users = {
           rdn = {
-            # passwordHashFile = config.age.secrets."hosts/helium/services/nginx/"
+            passwordHashFile = config.age.secrets."hosts/helium/services/nginx/rdn-pass".path;
+            totpSecretFile = config.age.secrets."hosts/helium/services/nginx/rdn-totp".path;
           };
         };
+        groups = {
+          root = [ "rdn" ];
+          users = [ "rdn" ]; # add other users here
+        };
+      };
       acme.default-mail = "a@b.com";
       acme.backup-routes = [ "xenon" ];
     };

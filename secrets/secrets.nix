@@ -39,6 +39,9 @@ in {
     publicKeys = [ base ];
     owner = "grafana";
   };
+  "hosts/helium/services/nginx/auth-key.age".publicKeys = [ base ];
+  "hosts/helium/services/nginx/rdn-totp.age".publicKeys = [ base ];
+  "hosts/helium/services/nginx/rdn-pass.age".publicKeys = [ base ];
   "hosts/helium/services/rustdesk/private-key.age" = {
     publicKeys = [ base ];
     owner = "rustdesk";

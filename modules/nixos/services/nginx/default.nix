@@ -141,7 +141,11 @@ in {
       authKeyFile = mkOption {
         type = types.str;
         example = "/var/lib/nginx-sso/auth-key.txt";
-        description = "Path to the auth key.";
+        description = ''
+          Path to the auth key.
+
+          Note: This has to be a relatively long string of random characters, 'for minting the cookies' or something.
+        '';
       };
 
       subdomain = mkOption {
@@ -162,12 +166,22 @@ in {
             passwordHashFile = mkOption {
               type = types.str;
               example = "/var/lib/nginx-sso/alice/password-hash.txt";
-              description = "Path to file containing the user's password hash.";
+              description = ''
+                Path to file containing the user's password hash.
+
+                Note: Create passwords using: `htpasswd -BnC 10 ""`
+              '';
             };
             totpSecretFile = mkOption {
               type = types.str;
               example = "/var/lib/nginx-sso/alice/totp-secret.txt";
-              description = "Path to file containing the user's TOTP secret.";
+              description = ''
+                Path to file containing the user's TOTP secret.
+
+                Note: Create secrets using: `printf '<secret>' | base32  | tr -d =`
+                Having a 32 char secret is normal.
+
+                Note: The TOTP uri is build like: `otpauth://totp/<SERVICE_NAME>:<username>?secret=<SECRET> You can paste the TOTP uri in authenticators, and they will understand. '';
             };
           };
         });
@@ -233,6 +247,16 @@ in {
         };
       in
         map mkAssertion nonUniques
+    ) ++ (
+      let
+        any-domains-with-sso = builtins.any (x: x.sso.enable) (builtins.attrValues cfg.virtualHosts);
+      in [{ assertion = (!cfg.sso.enable) -> (!any-domains-with-sso); message = "Domains '${builtins.toString (builtins.attrNames (lib.filterAttrs (_: v: v.sso.enable) cfg.virtualHosts))}' use sso, but `my.services.nginx.sso` is not enabled."; }]
+    );
+    warnings = []
+      ++ (
+      let
+        any-domains-with-sso = builtins.any (x: x.sso.enable) (builtins.attrValues cfg.virtualHosts);
+      in lib.optionals (cfg.sso.enable && (!any-domains-with-sso)) "`my.services.nginx.sso` was enabled, but no domain is configured to use sso! To do so, add `my.services.nginx.virtualHosts.<name>.sso.enable = true` to any domainname <name>."
     );
 
     services.nginx = {
@@ -338,7 +362,7 @@ in {
           generatedHosts
         ]);
 
-      sso = lib.mkIf cfg.sso.enable {
+      sso = lib.mkIf cfg.sso.enable { # config sets sso to enabled.
         enable = true;
 
         configuration = {

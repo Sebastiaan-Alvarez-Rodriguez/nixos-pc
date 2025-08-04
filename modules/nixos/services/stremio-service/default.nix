@@ -17,7 +17,8 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 11470; # port has to be 11470 (for http) or 12470 (for https), cannot be modified... "just use docker bro". https://github.com/Stremio/stremio-service/issues/43
+      default = 11470; # port has to be 11470 (for http), cannot be modified... "just use docker bro". https://github.com/Stremio/stremio-service/issues/43
+      # also note that stremio also launches 12470 (for https), this won't work without making nginx act like a man in the middle, translating between https sessions.
       description = "Internal port for stremio-service";
     };
 
