@@ -25,4 +25,5 @@
   rbw-pass = pkgs.callPackage ./rbw-pass { };
 
   stremio-service = pkgs.callPackage ./stremio-service { };
+  stremio-web = pkgs.callPackage ./stremio-web { };
 }

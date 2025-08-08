@@ -1,9 +1,9 @@
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..c85328ed
+index 00000000..467370cc
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,894 @@
+@@ -0,0 +1,851 @@
 +from __future__ import annotations
 +
 +from collections.abc import AsyncGenerator, Sequence
@@ -237,9 +237,9 @@ index 00000000..c85328ed
 +            'deezer_language': 'en',
 +            'deezer_country': 'US'
 +        }
-+        def __init__(**kwargs):
++        def __init__(self, **kwargs):
 +            '''populate settings using passed kwargs, default value otherwise'''
-+            pick = lambda name: kwargs[name] if name in kwargs else defaults[name]
++            pick = lambda name: kwargs[name] if name in kwargs else DeezerAPI.Settings.defaults[name]
 +            self.deezer_language: str = pick('deezer_language')
 +            self.deezer_country: str = pick('deezer_country')
 +
@@ -250,10 +250,10 @@ index 00000000..c85328ed
 +            self.type = type
 +            self.image_hash = image_hash
 +
-+        def from_private_string(image_hash: str, type: str = 'cover') -> ImageDetails:
++        def from_private_string(image_hash: str, type: str = 'cover'):
 +            return ImageDetails(full_url=custom_url(image_hash, type, 1000, 1000, 80), thumb_url=custom_url(image_hash, type, 140, 140, 80), type=type, image_hash=image_hash)
 +
-+        def from_private_json(data: Dict) -> ImageDetails:
++        def from_private_json(data: Dict):
 +            return ImageDetails.from_private_string(data['MD5'] if 'MD5' in data and data['MD5'] != None else data['md5'], data['TYPE'] if 'TYPE' in data and data['TYPE'] != None else data['type'])
 +
 +        def custom_url(image_hash: str, type: str, height: int, width: int, quality: int) -> str:
@@ -274,7 +274,7 @@ index 00000000..c85328ed
 +        self.favorites_playlist_id: Optional[str] = None
 +        self.sid: Optional[str] = None
 +        self._authorizing: Optional[asyncio.Future] = None
-+        self.settings: Settings = settings or Settings()
++        self.settings: Settings = settings or DeezerAPI.Settings()
 +
 +    def get_headers(self) -> Dict[str, str]:
 +        lang = f'{self.settings.deezer_language}-{self.settings.deezer_country}'
@@ -294,7 +294,7 @@ index 00000000..c85328ed
 +        url = 'https://www.deezer.com/ajax/gw-light.php'
 +        query = {
 +            'api_version': '1.0',
-+            'api_token': self.token,
++            'api_token': self.token or '', # # must provide a string, and null params should mean that a key is not set
 +            'input': '3',
 +            'method': method,
 +            'cid': str(random.randint(0, 1_000_000_000)),
@@ -303,7 +303,7 @@ index 00000000..c85328ed
 +            query['gateway_input'] = gateway_input
 +
 +        headers = self.get_headers()
-+        async with aiohttp.ClientSession() as session: # seb TODO: Could reuse hass-wide session?
++        async with ClientSession() as session: # seb TODO: Could reuse hass-wide session?
 +            async with session.post(url, headers=headers, params=query, data=json.dumps(params or {})) as resp:
 +                body = await resp.json()
 +
@@ -321,7 +321,7 @@ index 00000000..c85328ed
 +                return body
 +
 +    async def call_public_api(self, path: str) -> Dict[str, Any]:
-+        async with aiohttp.ClientSession() as session:
++        async with ClientSession() as session:
 +            async with session.get(f'https://api.deezer.com/{path}') as resp:
 +                return await resp.json()
 +
@@ -329,7 +329,7 @@ index 00000000..c85328ed
 +        url = 'https://auth.deezer.com/login/arl'
 +        params = {'jo': 'p', 'rto': 'c', 'i': 'c'}
 +        headers = self.get_headers()
-+        async with aiohttp.ClientSession() as session:
++        async with ClientSession() as session:
 +            async with session.post(url, headers=headers, params=params) as resp:
 +                data = await resp.json()
 +                return data.get('jwt', '')
@@ -340,7 +340,7 @@ index 00000000..c85328ed
 +        headers['Authorization'] = f'Bearer {jwt_token}'
 +        headers['Content-Type'] = 'application/json'
 +        url = 'https://pipe.deezer.com/api/'
-+        async with aiohttp.ClientSession() as session:
++        async with ClientSession() as session:
 +            async with session.post(url, headers=headers, data=json.dumps(params or {})) as resp:
 +                return await resp.json()
 +
@@ -374,9 +374,19 @@ index 00000000..c85328ed
 +# checkAvailability
 +
 +
-+    async def search(self, query: str) -> Dict[str, Any]:
-+        data = await self.call_gw_api('deezer.pageSearch', params={'nb': 128, 'query': query, 'start': 0}) # seb TODO: respect music assistant limit?
-+        return data.get('results', {})
++    async def search(self, query: str, start: int = 0, nb: int = 128) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
++        '''
++        search deezer on the given query. Searches through all categories (e.g. artists, tracknames etc) at once.
++        Returns 4 lists with json data: tracks, albums, artists, playlists (in this order).
++        '''
++        data = await self.call_gw_api('deezer.pageSearch', params={'nb': nb, 'query': query, 'start': start})
++        if not 'results' in data:
++            return [], [], [], []
++        tracks = data['results'].get('TRACK', {}).get('data', [])
++        albums = data['results'].get('ALBUM', {}).get('data', [])
++        artists= data['results'].get('ARTIST', {}).get('data', [])
++        playlists = data['results'].get('PLAYLIST', {}).get('data', [])
++        return tracks, albums, artists, playlists
 +
 +    async def track(self, id: str) -> Dict[str, Any]:
 +        data = await self.call_gw_api('song.getListData', params={'sng_ids': [id]})
@@ -390,60 +400,93 @@ index 00000000..c85328ed
 +        data = await self.call_gw_api('deezer.pageArtist', params={'art_id': id, 'lang': self.settings.deezer_language})
 +        return data['results']
 +
-+    async def playlist_track_page(self, id: str, start: int, nb: int=50) -> List[Dict[str, Any]]:
-+        # returns a list of json data that can be directly converted to trracks
-+        data = await callGwApi('deezer.pagePlaylist', params: {'playlist_id': id, 'lang': self.settings.deezer_language, 'nb': nb, 'tags': true, 'start': start})
++    async def playlist_track_page(self, id: str, start: int, nb: int = 50) -> List[Dict[str, Any]]:
++        '''get playlist songs, from `start` up to `start+nb`. Returns a list of json data that can be directly converted to tracks.'''
++        data = await callGwApi('deezer.pagePlaylist', params={'playlist_id': id, 'lang': self.settings.deezer_language, 'nb': nb, 'tags': true, 'start': start})
 +        return data['results']['SONGS']['data']
 +
-+    async def playlist(self, id: str, nb: int=100) -> Dict[str, Any]:
++    async def playlist(self, id: str, nb: int = 100) -> Dict[str, Any]:
++        '''get playlist by id, with up to `nb` tracks'''
 +        data = await self.call_gw_api('deezer.pagePlaylist', params={'playlist_id': id, 'lang': self.settings.deezer_language, 'nb': nb, 'tags': True, 'start': 0})
 +        return data['results']
 +
 +    async def full_playlist(self, id: str) -> Dict[str, Any]:
++        '''get playlist by id, with all tracks'''
 +        return await self.playlist(id, nb=100000)
 +
 +    async def add_favorite_track(self, id: str):
 +        await self.call_gw_api('favorite_song.add', params={'SNG_ID': id})
 +
-+# seb TODO:
-+# addFavoriteAlbum # need this
-+# addFavoriteArtist # need this
-+# removeArtist # need this
++    async def add_favorite_album(self, id: str):
++        '''mark an album as favorite'''
++        await self.call_gw_api('album.addFavorite', params={'ALBUM_ID': id})
++
++    async def add_favorite_artist(self, id: str):
++        '''mark an artist as favorite.'''
++        await self.call_gw_api('artist.addFavorite', params={'ARTIST_ID': id})
++
++    async def remove_artist(self, id: str):
++        '''remove an artist from favorites.'''
++        await self.call_gw_api('artist.removeFavorite', params={'ARTIST_ID': id})
 +
 +    async def dislike_track(self, id: str):
 +        await self.call_gw_api('favorite_dislike.add', params={'ID': id, 'TYPE': 'song'})
 +
 +    async def add_to_playlist(self, track_id: str, playlist_id: str, offset: int=-1):
++        ''' add a song to a playlist'''
 +        await self.call_gw_api('playlist.addSongs', params={'offset': offset, 'playlist_id': playlist_id, 'songs': [[track_id, 0]]})
 +
 +    async def remove_from_playlist(self, track_id: str, playlist_id: str):
++        ''' remove a song from a playlist'''
 +        await self.call_gw_api('playlist.deleteSongs', params={'playlist_id': playlist_id, 'songs': [[track_id, 0]]})
 +
 +    async def create_playlist(self, title: str, description: str='', status: int=1, track_ids: List[str]=[]) -> str:
++        '''Create a playlist with a list of songs'''
 +        songs = [[int(tid), idx] for idx, tid in enumerate(track_ids)]
 +        data = await self.call_gw_api('playlist.create', params={'title': title, 'description': description, 'songs': songs, 'status': status})
 +        return str(data['results'])
 +
-+    async def delete_playlist(self, id: str):
-+        await self.call_gw_api('playlist.delete', params={'playlist_id': id})
++    async def remove_playlist(self, id: str, owned_by_us: Optional[bool] = None):
++        '''
++        Delete a playlist (if user owns it) or remove it from favorites (if user does not own it).
++        Leave `owned_by_us` empty to let the API figure it out, at the cost of an extra API call.
++        '''
++        if owned_by_us == None:
++            playlist_raw = await self.playlist(id, nb=0)
++            owned_by_us = playlist_raw['results']['DATA']['PARENT_USER_ID'].strip() == self.user_id if playlist_raw['results']['DATA']['PARENT_USER_ID'] != None else False # no parent id --> not made by us
++
++        if owned_by_us:
++            await self.call_gw_api('playlist.delete', params={'playlist_id': id}) # full deletion
++        else:
++            await self.call_gw_api('playlist.deleteFavorite', params={'playlist_id': id}) # we don't own it, remove from library/favorites
 +
 +    async def update_playlist(self, id: str, title: str, description: str, status: int = 1):
 +        await self.call_gw_api('playlist.update', params={'description': description, 'title': title, 'playlist_id': int(id), 'status': status, 'songs': []})
 +
++    async def get_playlists(self, nb: int = 100):
++        data = await self.call_gw_api('deezer.pageProfile', params={'nb': nb, 'tab': 'playlists', 'user_id': self.user_id});
++        return data['results']['TAB']['playlists']['data']
 +
-+# seb TODO:
-+# getPlaylists
-+# getFavoriteTrackIDs # need this (named as get_favorite_track_ids)
++    async def get_favorite_track_ids(self):
++        data = await self.call_gw_api('user.getAllFeedbacks', params={'checksums': None})
++        if data['results'] == None or data['results']['FAVORITES'] == None or data['results']['FAVORITES']['SONGS'] == None:
++            return None # we get here when e.g. user has no favorites yet
++        return [x['SNG_ID'] for x in data['results']['FAVORITES']['SONGS']['data']]
 +
-+    async def get_albums(nb: int=50):
++    async def get_albums(self, nb: int=50):
 +        data = await self.call_gw_api('deezer.pageProfile', params={'nb': nb, 'tab': 'albums', 'user_id': self.user_id})
 +        return data['results']['TAB']['albums']['data']
 +
-+# removeAlbum # need this
-+# removeFavorite # need this (named as remove_favorite_song)
-+# getArtists # need this
++    async def remove_album(self, id: str) -> None:
++        '''remove an album from favorites.'''
++        await self.call_gw_api('album.removeFavorite', params={'ALBUM_ID': id})
 +
-+    async def get_artists(nb: int=40):
++    async def remove_favorite_song(self, id: str) -> None:
++        '''remove a track from favorites.'''
++        await self.call_gw_api('song.removeFavorite', params={'SNG_ID': id})
++
++    async def get_artists(self, nb: int=40):
++        '''returns favorite/library artists, up to `nb` items. Can be directly converted to artists.'''
 +        data = await self.call_gw_api('deezer.pageProfile', params={'nb': nb, 'tab': 'artists', 'user_id': self.user_id})
 +        return data['results']['TAB']['artists']['data']
 +
@@ -454,10 +497,17 @@ index 00000000..c85328ed
 +# smartTrackList
 +# flow
 +# homePage
-+# logListen
++
++    async def log_listen(self, id: str) -> None:
++        '''log that a track has been listened to'''
++        await self.call_gw_api('log.listen', params={'SNG_ID': id})
++
 +# getChannel
-+# addPlaylist # need this
-+# removePlaylist # need this
++
++    async def add_playlist(self, id: str) -> None:
++        '''Add a playlist to favorites from some parent playlist'''
++        await self.call_gw_api('playlist.addFavorite', params={'parent_playlist_id': id})
++
 +# discographyPage
 +# searchSuggestions
 +# smartRadio
@@ -480,68 +530,44 @@ index 00000000..c85328ed
 +        """Return the features supported by this Provider."""
 +        return SUPPORTED_FEATURES
 +
-+    async def search( self, search_query: str, media_types: list[MediaType], limit: int = 5, ) -> SearchResults:
++    async def search( self, search_query: str, media_types: list[MediaType], limit: int = 30) -> SearchResults:
 +        """Perform search on musicprovider.
 +
 +        :param search_query: Search query.
 +        :param media_types: A list of media_types to include.
 +        :param limit: Number of items to return in the search (per type).
 +        """
-+        data = await callGwApi('deezer.pageSearch', params: {'nb': 128, 'query': query, 'start': 0})
-+        # seb TODO: parse data into categories... Other side uses SearchResults
++        tracks, albums, artists, playlists = await self.api.search(search_query, nb=limit)
 +
-+        # OPTIONAL
-+        # Will only be called if you reported the SEARCH feature in the supported_features.
-+        # It allows searching your provider for media items.
-+        # See the model for SearchResults for more information on what to return, but
-+        # in general you should return a list of MediaItems for each media type.
++        results = SearchResults()
++        if MediaType.TRACK in media_types:
++            results.tracks += self._parse_tracks(tracks)
++        if MediaType.ALBUM in media_types:
++            results.albums += self._parse_albums(albums)
++        if MediaType.ARTIST in media_types:
++            results.artists += self._parse_artists(artists)
++        if MediaType.PLAYLIST in media_types:
++            results.playlists += self._parse_playlists(playlists)
++        return results
 +
 +    async def get_library_artists(self) -> AsyncGenerator[Artist, None]:
 +        """Retrieve library artists from the provider."""
-+        # OPTIONAL
-+        # Will only be called if you reported the LIBRARY_ARTISTS feature
-+        # in the supported_features and you did not override the default sync method.
-+        # It allows retrieving the library/favorite artists from your provider.
-+        # Warning: Async generator:
-+        # You should yield Artist objects for each artist in the library.
-+        return (self._parse_artist(x) for x in )
-+        yield Artist(
-+            # A simple example of an artist object,
-+            # you should replace this with actual data from your provider.
-+            # Explore the Artist model for all options and descriptions.
-+            item_id="123",
-+            provider=self.instance_id,
-+            name="Artist Name",
-+            provider_mappings={
-+                ProviderMapping(
-+                    # A provider mapping is used to provide details about this item on this provider
-+                    # Music Assistant differentiates between domain and instance id to account for
-+                    # multiple instances of the same provider.
-+                    # The instance_id is auto generated by MA.
-+                    item_id="123",
-+                    provider_domain=self.domain,
-+                    provider_instance=self.instance_id,
-+                    # set 'available' to false if the item is (temporary) unavailable
-+                    available=True,
-+                    audio_format=AudioFormat(
-+                        # provide details here about sample rate etc. if known
-+                        content_type=ContentType.FLAC,
-+                    ),
-+                )
-+            },
-+        )
++        # seb NOTE: only gets first 40 artists
++        return (self._parse_artist(x) for x in await self.api.get_artists(nb=40))
 +
 +    async def get_library_albums(self) -> AsyncGenerator[Album, None]:
 +        """Retrieve library albums from the provider."""
-+        return (self._parse_album(x) for x in await self.api.get_albums()) # must return generator
++        # seb NOTE: only gets first 50 albums
++        return (self._parse_album(x) for x in await self.api.get_albums(nb=50)) # must return generator
 +
 +    async def get_library_tracks(self) -> AsyncGenerator[Track, None]:
 +        """Retrieve library tracks from the provider."""
-+        return (self.get_track(id) for id in await self.api.get_favorite_track_ids()) # must return generator
++        return (await self.get_track(id) for id in await self.api.get_favorite_track_ids()) # must return generator
 +
 +    async def get_library_playlists(self) -> AsyncGenerator[Playlist, None]:
 +        """Retrieve library/subscribed playlists from the provider."""
-+        return (self._parse_playlist(x) for x in await self.api.get_playlists(...)) # must return generator
++        # seb NOTE: only gets first 100 playlists
++        return (self._parse_playlist(x) for x in await self.api.get_playlists(nb=100)) # must return generator
 +
 +    async def get_artist(self, prov_artist_id: str) -> Artist:
 +        """Get full artist details by id."""
@@ -568,6 +594,11 @@ index 00000000..c85328ed
 +        data = await self.api.track(id=prov_track_id)
 +        return self._parse_track(data['results']['data'][0])
 +
++    async def _get_track_details(self, prov_track_id: str) -> StreamDetails:
++        """Get track details for streaming"""
++        data = await self.api.track(id=prov_track_id)
++        return self._parse_track_details(data['results']['data'][0])
++
 +    async def get_playlist(self, prov_playlist_id: str) -> Playlist:
 +        """Get full playlist details by id."""
 +        data = await self.playlist(id=prov_playlist_id, nb=10) # seb TODO: does this mean it only loads the first 10 playlists and I can never get the rest?
@@ -587,17 +618,15 @@ index 00000000..c85328ed
 +
 +    async def library_add(self, item: MediaItemType) -> bool:
 +        """Add item to provider's library. Return true on success."""
-+        # Add an item to your provider's library.
-+        # This is only called if the provider supports the EDIT feature for the media type.
 +        try:
 +            if item.media_type == MediaType.ARTIST:
-+                await self.api.add_favorite_artist(...) # seb TODO: how to get id here?
++                await self.api.add_favorite_artist(id=item.item_id)
 +            elif item.media_type == MediaType.ALBUM:
-+                await self.api.add_favorite_album(...)
++                await self.api.add_favorite_album(id=item.item_id)
 +            elif item.media_type == MediaType.TRACK:
-+                await self.api.add_favorite_song(...)
++                await self.api.add_favorite_track(id=item.item_id)
 +            elif item.media_type == MediaType.PLAYLIST:
-+                await self.api.add_playlist(...)
++                await self.api.add_playlist(id=item.item_id)
 +            else:
 +                raise ValueError("Unknown item media type: %s", str(item.media_type))
 +        except Exception as e:
@@ -609,13 +638,13 @@ index 00000000..c85328ed
 +        """Remove item from provider's library. Return true on success."""
 +        try:
 +            if media_type == MediaType.ARTIST:
-+                await self.api.remove_artist(...)
++                await self.api.remove_artist(id=prov_item_id)
 +            elif media_type == MediaType.ALBUM:
-+                await self.api.remove_album(...)
++                await self.api.remove_album(id=prov_item_id)
 +            elif media_type == MediaType.TRACK:
 +                await self.api.remove_favorite_song(id=prov_item_id)
 +            elif media_type == MediaType.PLAYLIST:
-+                await self.api.remove_playlist(...)
++                await self.api.remove_playlist(id=prov_item_id)
 +            else:
 +                raise ValueError("Unknown media type: %s", str(media_type))
 +        except Exception as e:
@@ -649,121 +678,26 @@ index 00000000..c85328ed
 +        # podcasts or audiobooks, this may as well be an episode or chapter id.
 +        # You should return a StreamDetails object here with the info as accurate as possible
 +        # to allow Music Assistant to process the audio using ffmpeg.
-+        return StreamDetails(
-+            provider=self.instance_id,
-+            item_id=item_id,
-+            audio_format=AudioFormat(
-+                # provide details here about sample rate etc. if known
-+                # set content type to unknown to let ffmpeg guess the codec/container
-+                content_type=ContentType.UNKNOWN,
-+            ),
-+            media_type=MediaType.TRACK,
-+            # streamtype defines how the stream is provided
-+            # for most providers this will be HTTP but you can also use CUSTOM
-+            # to provide a custom stream generator in get_audio_stream.
-+            stream_type=StreamType.HTTP,
-+            # explore the StreamDetails model and StreamType enum for more options
-+            # but the above should be the mandatory fields to set.
-+            allow_seek=True,
-+            # set allow_seek to True if the stream may be seeked
-+            can_seek=True,
-+            # set can_seek to True if the stream supports seeking
-+        )
++        details = self.api.get_stream_details(id=item_id)
++        details.provider = self.lookup_key
++        details.stream_type = StreamType.CUSTOM
++        details.can_seek=True
++        details.allow_seek=True
++        return details
++
 +
 +    async def get_audio_stream(
-+        self, streamdetails: StreamDetails, seek_position: int = 0
++        self, streamdetails: StreamDetails, seek_position: int=0
 +    ) -> AsyncGenerator[bytes, None]:
-+        """
-+        Return the (custom) audio stream for the provider item.
-+
-+        Will only be called when the stream_type is set to CUSTOM.
-+        """
-+        # this is an async generator that should yield raw audio bytes
-+        # for the given streamdetails. You can use this to provide a custom
-+        # stream generator for the audio stream. This is only called when the
-+        # stream_type is set to CUSTOM in the get_stream_details method.
++        """ Return the (custom) audio stream for the provider item. """
++        # this is an async generator that should yield raw audio bytes for the given streamdetails. You can use this to provide a custom
++        # stream generator for the audio stream. This is only called when the stream_type is set to CUSTOM in the get_stream_details method.
 +        yield  # type: ignore[misc]
 +
-+    async def on_streamed(
-+        self,
-+        streamdetails: StreamDetails,
-+    ) -> None:
-+        """
-+        Handle callback when given streamdetails completed streaming.
-+
-+        To get the number of seconds streamed, see streamdetails.seconds_streamed.
-+        To get the number of seconds seeked/skipped, see streamdetails.seek_position.
-+        Note that seconds_streamed is the total streamed seconds, so without seeked time.
-+
-+        NOTE: Due to internal and player buffering,
-+        this may be called in advance of the actual completion.
-+        """
-+        # This is an OPTIONAL callback that is called when an item has been streamed.
-+        # You can use this e.g. for playback reporting or statistics.
-+
-+    async def on_played(
-+        self,
-+        media_type: MediaType,
-+        prov_item_id: str,
-+        fully_played: bool,
-+        position: int,
-+        media_item: MediaItemType,
-+        is_playing: bool = False,
-+    ) -> None:
-+        """
-+        Handle callback when a (playable) media item has been played.
-+
-+        This is called by the Queue controller when;
-+            - a track has been fully played
-+            - a track has been stopped (or skipped) after being played
-+            - every 30s when a track is playing
-+
-+        Fully played is True when the track has been played to the end.
-+
-+        Position is the last known position of the track in seconds, to sync resume state.
-+        When fully_played is set to false and position is 0,
-+        the user marked the item as unplayed in the UI.
-+
-+        is_playing is True when the track is currently playing.
-+
-+        media_item is the full media item details of the played/playing track.
-+        """
-+        # This is an OPTIONAL callback that is called when an item has been streamed.
-+        # You can use this e.g. for playback reporting or statistics.
-+
-+    async def browse(self, path: str) -> Sequence[MediaItemTypeOrItemMapping]:
-+        """Browse this provider's items.
-+
-+        :param path: The path to browse, (e.g. provider_id://artists).
-+        """
-+        # Browse your provider's recommendations/media items.
-+        # This is only called if you reported the BROWSE feature in the supported_features.
-+        # You should return a list of MediaItems or ItemMappings for the given path.
-+        # Note that you can return nested levels with BrowseFolder items.
-+
-+        # The MusicProvider base model has a default implementation of this method
-+        # that will call the get_library_* methods if you did not override it.
-+        return []
-+
-+    async def recommendations(self) -> list[RecommendationFolder]:
-+        """
-+        Get this provider's recommendations.
-+
-+        Returns an actual (and often personalised) list of recommendations
-+        from this provider for the user/account.
-+        """
-+        # Get this provider's recommendations.
-+        # This is only called if you reported the RECOMMENDATIONS feature in the supported_features.
-+        return []
-+
-+    async def sync_library(self, media_type: MediaType) -> None:
-+        """Run library sync for this provider."""
-+        # Run a full sync of the library for the given media type.
-+        # This is called by the music controller to sync items from your provider to the library.
-+        # As a generic rule of thumb the default implementation within the MusicProvider
-+        # base model should be sufficient for most (streaming) providers.
-+        # If you need to do some custom sync logic, you can override this method.
-+        # For example the filesystem provider in MA, overrides this method to scan the filesystem.
++    async def on_played( self, media_type: MediaType, prov_item_id: str, fully_played: bool, position: int, media_item: MediaItemType, is_playing: bool=False) -> None:
++        """Handle callback when a track is playing (called every 30s), has been fully played, or has been stopped/skipped."""
++        if fully_played: # seb NOTE: refreezer officially logs when >75% of a track has been played.
++            self.api.log_listen(id=prov_item_id)
 +
 +
 +    def _parse_albums(self, data: Dict) -> list[Album]:
@@ -851,7 +785,8 @@ index 00000000..c85328ed
 +                    url=None, # seb TODO: is this ok?
 +                    available=True,
 +                )
-+            }
++            },
++            cache_checksum=data['MD5_ORIGIN'],
 +            disc_number=int(data['DISK_NUMBER'] if 'DISK_NUMBER' in data and data['DISK_NUMBER'] != None else 0),
 +            track_number=int(data['TRACK_NUMBER'] if 'TRACK_NUMBER' in data and data['TRACK_NUMBER'] != None else 0),
 +            artists=self._parse_artists(data['ARTISTS'] if 'ARTISTS' in data else [data])
@@ -871,6 +806,7 @@ index 00000000..c85328ed
 +        return track
 +
 +    def _parse_playlist(self, data: Dict[str, Any], songs: Dict[str, Any]) -> Playlist:
++        is_editable = data['PARENT_USER_ID'] == self.api.user_id if data['PARENT_USER_ID'] != None else False # if id == None --> not made by us
 +        playlist = Playlist(
 +            item_id = data['PLAYLIST_ID'],
 +            provider=self.instance_id if is_editable else self.lookup_key,
@@ -898,6 +834,27 @@ index 00000000..c85328ed
 +        # playlist.cache_checksum = str(playlist_obj["snapshot_id"])
 +        # seb NOTE: no checksums provided by Deezer
 +        return playlist
++
++def _parse_stream_details(self, data: Dict) -> StreamDetails:
++        content_type = ContentType.UNKNOWN # let FFMPEG guess the contenttype
++        bit_rate = None
++        for cat in ['AAC_64', 'MP3_64', 'MP3_128', 'MP3_256', 'MP3_320', 'FLAC']:
++            if data[f'FILESIZE_{cat}'] != "0":
++                c = cat.split('_')
++                content_type = ContentType.try_parse(c[0])
++                bit_rate = c[1] if len(c) >= 2 else None
++
++        return StreamDetails(
++            item_id=item_id,
++            provider=self.lookup_key,
++            audio_format=AudioFormat(content_type=content_type, bitrate=bitrate), # seb TODO: have to set bit_depth (default 16) and sample_rate (default 44100) too?
++            stream_type=StreamType.CUSTOM, # seb NOTE: used to be HTTP
++            duration=int(data['DURATION']),
++            data=None, # seb NOTE: cann pass in data here, passed on to the get_audio_stream funciton.
++            size=data['FILESIZE']
++            can_seek=True,
++            allow_seek=True,
++        )
 diff --git a/music_assistant/providers/refreezer/manifest.json b/music_assistant/providers/refreezer/manifest.json
 new file mode 100644
 index 00000000..6d5ace3f

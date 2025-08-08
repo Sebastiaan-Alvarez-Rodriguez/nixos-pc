@@ -2,10 +2,11 @@
 # Useful for e.g. ipads, which do not have a stremio app providing all features.
 
 # basically does what is stated here: https://www.reddit.com/r/Stremio/comments/1dre9tv/comment/lauux7h/
-
+# also interesting for web hosting: https://lemmy.dbzer0.com/post/962755
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.stremio-service;
   prefix = "stremio";
+  stremio-web = inputs.self.packages.${system}.stremio-web;
 in {
   options.my.services.stremio-service = with lib; {
     enable = mkEnableOption "stremio-service for getting a fully-featured web experience. Needed to e.g. download torrents";
@@ -110,6 +111,18 @@ in {
 
     my.services.backup.global-excludes = [ final-state-dir ]; # no need to keep the video cache (max 2GB) and the above settings...
 
+
+    my.services.nginx.virtualHosts."v.${prefix}" = {
+      root = stremio-web;
+      extraConfig = {
+        extraConfig = ''
+          proxy_buffering off;
+        '';
+        locations."/" = {
+          proxyWebsockets = true;
+        };
+      };
+    };
     my.services.nginx.virtualHosts.${prefix} = {
       inherit (cfg) port;
 
