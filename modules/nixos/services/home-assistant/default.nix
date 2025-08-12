@@ -88,6 +88,12 @@ in {
       config = { # Found in /var/lib/hass
         # for configuration.yaml and other config tips, see [here](https://github.com/frenck/home-assistant-config)
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
+        logger = {
+          default = "error";
+          logs = {
+            "custom_components.visonic" = "debug";
+          };
+        };
         homeassistant.time_zone = "Europe/Amsterdam";
         http = {
           server_port = cfg.port;

@@ -6,7 +6,6 @@
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.stremio-service;
   prefix = "stremio";
-  stremio-web = inputs.self.packages.${system}.stremio-web;
 in {
   options.my.services.stremio-service = with lib; {
     enable = mkEnableOption "stremio-service for getting a fully-featured web experience. Needed to e.g. download torrents";
@@ -112,17 +111,19 @@ in {
     my.services.backup.global-excludes = [ final-state-dir ]; # no need to keep the video cache (max 2GB) and the above settings...
 
 
-    my.services.nginx.virtualHosts."v.${prefix}" = {
-      root = stremio-web;
-      extraConfig = {
-        extraConfig = ''
-          proxy_buffering off;
-        '';
-        locations."/" = {
-          proxyWebsockets = true;
-        };
-      };
-    };
+    # my.services.nginx.virtualHosts."v.${prefix}" = let
+    #   stremio-web = inputs.self.packages.${system}.stremio-web;
+    # in {
+    #   root = stremio-web;
+    #   extraConfig = {
+    #     extraConfig = ''
+    #       proxy_buffering off;
+    #     '';
+    #     locations."/" = {
+    #       proxyWebsockets = true;
+    #     };
+    #   };
+    # };
     my.services.nginx.virtualHosts.${prefix} = {
       inherit (cfg) port;
 
