@@ -115,6 +115,7 @@ in {
       stremio-web = inputs.self.packages.${system}.stremio-web;
     in {
       root = stremio-web;
+      sso.enable = true; # stremio has no protection, otherwise anyone could use this server for torrentio.
       extraConfig = {
         extraConfig = ''
           proxy_buffering off;

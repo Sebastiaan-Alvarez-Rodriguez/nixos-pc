@@ -89,43 +89,13 @@ This tells `npm` to git clone those repo's at build time.
 NixOS uses no-internet sandbox buildgrounds for reproducibility, so `git clone` won't work.
 
 Solution:
-1. Replace all instances of `git+ssh` sources by their `tar.gz` equivalent by running:
-<!-- ``` -->
-<!-- perl -pi -e ' -->                                                                                                                                                     
-<!-- s{ -->
-  <!-- git\+ssh:\/\/git\@github\.com\/     # protocol + host -->
-  <!-- ([^/]+)\/                           # capture owner -->
-  <!-- (.+)                                # capture repo (stop at .git) -->
-  <!-- \.git\#                             # literal .git# -->
-  <!-- ([a-f0-9]{7,40})                    # capture commit hash -->
-<!-- }{https://github.com/$1/$2/archive/$3.tar.gz}gx -->
-<!-- ' package-lock.json -->
-<!-- ``` -->
-```
-perl -pi -e '
-s{
-  git\+ssh:\/\/git\@github\.com\/     # protocol + host
-  ([^/]+)\/                           # capture owner
-  (.+)                                # capture repo
-  \.git\#                             # literal .git#
-  ([a-f0-9]{7,40})                    # capture commit hash
-}{https://codeload.github.com/$1/$2/tar.gz/$3}gx
-' package-lock.json
-```
-2. Vendor the patched `package-lock.json`.
+1. in `package-lock.json`, make sure every `git+ssh://` has a revision so it looks like: `git+ssh://git@github.com/<user>/<repo>.git#<hash>`
+2. in `package-lock.json`, make sure every `github:<user>/<repo>` has a revision so it looks like: `github:<user>/<repo>#<hash>`
+3. like 2, but now check `package.json`
 
-If npm still tries to use git:
-3. Check if you have any instances of `github:<user>/<repo>` (without a trailing `#<hash>`) in the `package-lock.json`
-4. If so, add the hash of the dependency There are 2 cases here:
-  1. The `package-lock.json` in fact does provide the hash in a `resolved` somewhere. Then, use that hash
-  2. Otherwise, fetch the hash just from github (use main/master branch hash, or use:
-  ```bash
-  git --no-replace-objects ls-remote ssh://git@github.com/<user>/<repo>
-  ```
-5. Now check the `package.json` too. It should have the hash missing for the same dependencies. Add the dependency in your `postPatch` phase, e.g.:
-```nix
-    substituteInPlace ./package.json --replace-fail "github:<user>/<repo>" "github:<user>/<repo>#${hash-here}"
-```
+Note this may also occur at buildtime (instead of in the patchPhase).
+When that happens, the nodejs code itself tries to spawn a subprocess to do something with git.
+Usually looks like `ExecSync('/bin/sh git <something>')`. Search the codebase for these commands and replace them by something else.
 
 #### Other errors
 Time to get debugging.

@@ -3,6 +3,7 @@
 # this guy got working stuff it seems: https://github.com/NixOS/nixpkgs/blob/5a3cff76fa41a099c2c9cdf1053ed4dc61da971e/pkgs/by-name/vs/vscode-langservers-extracted/package.nix#L11
 
 { lib, buildNpmPackage, fetchFromGitHub, fetchNpmDeps }: let
+  rev-stremio-web = "sha256-UQX54ngv5LYtumD3CMCHfvCVoslwvHP7Q+RLWw/qaGs=";
   rev-nodejs-langs = "584beab4032469f6b76be1d119a0ab25f31f4ab6";
   rev-spatial-navigation = "64871b1422466f5f45d24ebc8bbd315b2ebab6a6";
   rev-stremio-translations = "8212fa77c4febd22ddb611590e9fb574dc845416";
@@ -45,6 +46,7 @@ in buildNpmPackage rec {
   # Always started by adding 'resolved' and 'integrity' everywhere
   # 1. just build it
   #   - does not work: stremio-web depends on git+ssh dependencies, which npm tries to fetch during build time (and fails, no internet during sandbox pure builds).
+  #   - strange, should work. It does work for: https://raw.githubusercontent.com/jitsi/jitsi-meet/stable/jitsi-meet_9111/package-lock.json
   # 2. change git+ssh to github download tarball url
   #   - does not work (but it should?)
   # 3. use 'srcs' to get files offline + patch buildfiles
@@ -55,85 +57,52 @@ in buildNpmPackage rec {
   # 5. like 4, but patch the main package later so consistency passes
   #   - does not work: it seems I need to do the changes in postPatch for both, so no tricks possible.
 
-  srcs = [
-    (fetchFromGitHub {
+
+  # srcRoot = pname;
+  # sourceRoot = pname;
+  src = fetchFromGitHub {
       owner = "Stremio";
       repo = pname;
       rev = "v${version}";
-      hash = "sha256-UQX54ngv5LYtumD3CMCHfvCVoslwvHP7Q+RLWw/qaGs=";
+      hash = rev-stremio-web;
       name = pname;
-    })
-    nodejs-langs
-    spatial-navigation
-    stremio-translations
-    vtt-js
-  ];
-
-  srcRoot = pname;
-  sourceRoot = pname;
+    };
 
   forceGitDeps = false;
   forceEmptyCache = false;
   makeCacheWritable = true;
   npmDeps = fetchNpmDeps {
-    inherit forceGitDeps forceEmptyCache srcs sourceRoot postPatch;
+    inherit forceGitDeps forceEmptyCache src postPatch;
     name = "${pname}-npm-deps";
     hash = npmDepsHash;
-
   };
-  npmDepsHash = "sha256-I9fqv1ZN7ei5lkt4Mb7XY2biRLjehOJYnhwtHVpprGY="; #lib.fakeHash
+  npmDepsHash = "sha256-eprjbiQ4TC6jDB8UxHZ9J3sRArLI8hH/6cB7KWlG7Aw=";
   # npmDepsHash = lib.fakeHash;
-  npmBuildScript = "production";
+  npmBuildScript = "build";
 
   # npmFlags = [ "--prefer-offline" ]; # accept whatever is found in cache
 
-  # we change the package.json and package-lock.json to redirect github dependencies (which are not cached correctly) to our local dependencies.
-  # Uses: https://docs.npmjs.com/cli/v9/configuring-npm/package-json#local-paths
-  # Uses: https://nixos.org/manual/nixpkgs/stable/#fun-substitute
-  # postPatch = ''
-  #   cp ${./package-lock.json} package-lock.json
-  #   cp -r ../nodejs-langs .
-  #   cp -r ../spatial-navigation .
-  #   cp -r ../stremio-translations .
-  #   cp -r ../vtt-js .
-  #   substituteInPlace package-lock.json \
-  #     --replace-fail 'github:Stremio/nodejs-langs' 'file:./nodejs-langs' \
-  #     --replace-fail 'github:Stremio/spatial-navigation#${rev-spatial-navigation}' 'file:./spatial-navigation' \
-  #     --replace-fail 'github:Stremio/stremio-translations#${rev-stremio-translations}' 'file:./stremio-translations' \
-  #     --replace-fail 'github:jaruba/vtt.js#${rev-vtt-js}' 'file:./vtt-js' \
-  #     --subst-var-by 'loc-nodejs-langs' 'file:./nodejs-langs' \
-  #     --subst-var-by 'loc-spatial-navigation' 'file:./spatial-navigation' \
-  #     --subst-var-by 'loc-stremio-translations' 'file:./stremio-translations' \
-  #     --subst-var-by 'loc-vtt-js' 'file:./vtt-js'
-  #   substituteInPlace package.json \
-  #     --replace-fail 'github:Stremio/nodejs-langs' 'file:./nodejs-langs' \
-  #     --replace-fail 'github:Stremio/spatial-navigation#${rev-spatial-navigation}' 'file:./spatial-navigation' \
-  #     --replace-fail 'github:Stremio/stremio-translations#${rev-stremio-translations}' 'file:./stremio-translations'
-  # '';
+  # package-lock creation: run `npm-lockfile-fix <path/to/package-lock.json>`
+  # Below substitute commands:
+  # 1. add correct hash to nodejs-langs (otherwise it cannot be cached)
+  # 2. fix the mistake by `npm-lockfile-fix` (it changes git+ssh://... to a npmjs.org link, even though we really need the git+ssh:// one and they are not the same)
+  # 3. add correct hash to nodejs-langs (otherwise it cannot be cached)
+  # 4. remove need for git and/or internet access to get commit hash.
   postPatch = ''
     cp ${./package-lock.json} package-lock.json
+    substituteInPlace package-lock.json \
+      --replace-fail 'github:Stremio/nodejs-langs' 'github:Stremio/nodejs-langs#${rev-nodejs-langs}' \
+      --replace-fail 'https://registry.npmjs.org/langs/-/langs-2.0.0.tgz' 'git+ssh://git@github.com/Stremio/nodejs-langs.git#${rev-nodejs-langs}'
+    substituteInPlace package.json \
+      --replace-fail 'github:Stremio/nodejs-langs' 'github:Stremio/nodejs-langs#${rev-nodejs-langs}'
+    substituteInPlace webpack.config.js \
+      --replace-fail "COMMIT_HASH = execSync('git rev-parse HEAD').toString().trim()" "COMMIT_HASH = '${rev-stremio-web}'"
   '';
 
-  preBuild = ''
-    cp ${./package-lock.json} package-lock.json
-    substituteInPlace package-lock.json \
-      --replace-fail 'github:Stremio/nodejs-langs' 'file:./nodejs-langs' \
-      --replace-fail 'github:Stremio/spatial-navigation#${rev-spatial-navigation}' 'file:./spatial-navigation' \
-      --replace-fail 'github:Stremio/stremio-translations#${rev-stremio-translations}' 'file:./stremio-translations' \
-      --replace-fail 'github:jaruba/vtt.js#${rev-vtt-js}' 'file:./vtt-js' \
-      --replace-fail 'https://registry.npmjs.org/langs/-/langs-2.0.0.tgz' 'file:./nodejs-langs' \
-      --replace-fail 'git+ssh://git@github.com/Stremio/spatial-navigation.git#${rev-spatial-navigation}' 'file:./spatial-navigation' \
-      --replace-fail 'git+ssh://git@github.com/Stremio/stremio-translations.git#${rev-stremio-translations}' 'file:./stremio-translations' \
-      --replace-fail 'git+ssh://git@github.com/jaruba/vtt.js.git#${rev-vtt-js}' 'file:./vtt-js' \
-    substituteInPlace package.json \
-      --replace-fail 'github:Stremio/nodejs-langs' 'file:./nodejs-langs' \
-      --replace-fail 'github:Stremio/spatial-navigation#${rev-spatial-navigation}' 'file:./spatial-navigation' \
-      --replace-fail 'github:Stremio/stremio-translations#${rev-stremio-translations}' 'file:./stremio-translations'
-  '';
   installPhase = ''
     runHook preInstall
     mkdir -p $out
-    cp -r dist $out/share/stremio-web
+    mv build/* $out/
     runHook postInstall
   '';
 
