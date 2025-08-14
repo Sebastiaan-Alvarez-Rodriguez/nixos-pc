@@ -35,19 +35,19 @@ in {
 
     code = {
       automations = mkOption {
-        type = types.listOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
-        default = [];
-        description = "List of automations to install";
+        type = types.attrsOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
+        default = {};
+        description = "Attrset mapping a unique id (used in HA as entity ID) to the file location";
       };
       scenes = mkOption {
-        type = types.listOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
-        default = [];
-        description = "List of scenes to install";
+        type = types.attrsOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
+        default = {};
+        description = "Attrset mapping a unique id (used in HA as entity ID) to the file location";
       };
       scripts = mkOption {
-        type = types.listOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
-        default = [];
-        description = "List of scripts to install";
+        type = types.attrsOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
+        default = {};
+        description = "Attrset mapping a unique id (used in HA as entity ID) to the file location";
       };
     };
   };
@@ -88,12 +88,12 @@ in {
       config = { # Found in /var/lib/hass
         # for configuration.yaml and other config tips, see [here](https://github.com/frenck/home-assistant-config)
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
-        logger = {
-          default = "error";
-          logs = {
-            "custom_components.visonic" = "debug";
-          };
-        };
+        # logger = {
+        #   default = "error";
+        #   logs = {
+        #     "custom_components.visonic" = "debug";
+        #   };
+        # };
         homeassistant.time_zone = "Europe/Amsterdam";
         http = {
           server_port = cfg.port;
@@ -178,18 +178,15 @@ in {
     ];
 
     systemd.services.home-assistant.preStart = with lib; let
-      linkCommand = domain: sourcepath: let
-        filename = if isStorePath sourcepath then substring 33 (-1) (baseNameOf sourcepath) else baseNameOf sourcepath;
-        path = "${configpath}/${domain}";
-      in ''
-        ln -s ${escapeShellArg sourcepath} ${escapeShellArg "${path}/${filename}"}
+      linkCommand = domain: id: sourcepath: let path = "${configpath}/${domain}"; in ''
+        ln -s ${escapeShellArg sourcepath} ${escapeShellArg "${path}/${id}.yaml"}
       '';
+      processEntries = domain: entries: mapAttrsToList (id: path: linkCommand domain id path) entries;
       cleanAutomationsScenesScripts = ''
         rm -f ${escapeShellArg configpath}/automations/*
         rm -f ${escapeShellArg configpath}/scenes/*
         rm -f ${escapeShellArg configpath}/scripts/*
-      '' + concatStrings ( flatten (mapAttrsToList (domain: builtins.map (linkCommand domain)) cfg.code) );
-    # in cleanAutomationsScenesScripts;
+      '' + concatStrings ( flatten ( mapAttrsToList processEntries cfg.code ));
       createCustomComponents = ''
         rm -rf ${ccpath}
         mkdir ${ccpath}
@@ -197,22 +194,6 @@ in {
         chmod -R u+rwX,go+rX ${ccpath}/visonic
       '';
     in cleanAutomationsScenesScripts + createCustomComponents; 
-
-
-
-
-
-
-
-
-
-
-    # my.services.home-assistant.code.scripts = let
-    #   emergency_notify = pkgs.writeText "emergency_notify.yaml" ''
-    # '';      
-    # in [ emergency_notify ];
-
-
 
 
     my.services.postgresql = {

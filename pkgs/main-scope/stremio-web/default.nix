@@ -58,15 +58,18 @@ in buildNpmPackage rec {
   #   - does not work: it seems I need to do the changes in postPatch for both, so no tricks possible.
 
 
-  # srcRoot = pname;
-  # sourceRoot = pname;
-  src = fetchFromGitHub {
+  srcs = [
+    (fetchFromGitHub {
       owner = "Stremio";
       repo = pname;
       rev = "v${version}";
       hash = rev-stremio-web;
       name = pname;
-    };
+    })
+    (fetchurl { url = "https://raw.githubusercontent.com/tsaridas/stremio-docker/refs/tags/v1.2.3/load_localStorage.js"; hash = lib.fakeHash; })
+  ];
+
+  sourceRoot = pname;
 
   forceGitDeps = false;
   forceEmptyCache = false;
@@ -83,11 +86,15 @@ in buildNpmPackage rec {
   # npmFlags = [ "--prefer-offline" ]; # accept whatever is found in cache
 
   # package-lock creation: run `npm-lockfile-fix <path/to/package-lock.json>`
-  # Below substitute commands:
-  # 1. add correct hash to nodejs-langs (otherwise it cannot be cached)
-  # 2. fix the mistake by `npm-lockfile-fix` (it changes git+ssh://... to a npmjs.org link, even though we really need the git+ssh:// one and they are not the same)
-  # 3. add correct hash to nodejs-langs (otherwise it cannot be cached)
-  # 4. remove need for git and/or internet access to get commit hash.
+  # then add it in this repo's /pkgs/main-scope/stremio-web/package-lock.json
+
+  # Quick explanation of below commands:
+  # 1. replace git-provided package-lock (with missing dependency 'resolved' and 'integrity') by our fixed version
+  # 2. add correct hash to nodejs-langs (otherwise it cannot be cached)
+  # 3. fix the mistake by `npm-lockfile-fix` (it changes git+ssh://... to a npmjs.org link, even though we really need the git+ssh:// one and they are not the same)
+  # 4. add correct hash to nodejs-langs (otherwise it cannot be cached)
+  # 5. remove need for git and/or internet access to get commit hash.
+  # 6. add a sourcefile: it reads SERVER_URL from the environment, and stores it in such a place that the web-application will load and use it automatically. 
   postPatch = ''
     cp ${./package-lock.json} package-lock.json
     substituteInPlace package-lock.json \
