@@ -111,19 +111,19 @@ in {
     my.services.backup.global-excludes = [ final-state-dir ]; # no need to keep the video cache (max 2GB) and the above settings...
 
 
-    # my.services.nginx.virtualHosts."v.${prefix}" = let
-    #   stremio-web = inputs.self.packages.${system}.stremio-web;
-    # in {
-    #   root = stremio-web;
-    #   extraConfig = {
-    #     extraConfig = ''
-    #       proxy_buffering off;
-    #     '';
-    #     locations."/" = {
-    #       proxyWebsockets = true;
-    #     };
-    #   };
-    # };
+    my.services.nginx.virtualHosts."v.${prefix}" = let
+      stremio-web = inputs.self.packages.${system}.stremio-web;
+    in {
+      root = stremio-web;
+      extraConfig = {
+        extraConfig = ''
+          proxy_buffering off;
+        '';
+        locations."/" = {
+          proxyWebsockets = true;
+        };
+      };
+    };
     my.services.nginx.virtualHosts.${prefix} = {
       inherit (cfg) port;
 
