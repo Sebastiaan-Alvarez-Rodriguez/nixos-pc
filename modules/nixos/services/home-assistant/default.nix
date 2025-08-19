@@ -88,12 +88,12 @@ in {
       config = { # Found in /var/lib/hass
         # for configuration.yaml and other config tips, see [here](https://github.com/frenck/home-assistant-config)
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
-        # logger = {
-        #   default = "error";
-        #   logs = {
-        #     "custom_components.visonic" = "debug";
-        #   };
-        # };
+        logger = {
+          default = "error";
+          logs = {
+            "custom_components.visonic" = "debug";
+          };
+        };
         homeassistant.time_zone = "Europe/Amsterdam";
         http = {
           server_port = cfg.port;
@@ -193,7 +193,7 @@ in {
         cp -r ${hass-visonic}/custom_components/visonic ${ccpath}/visonic
         chmod -R u+rwX,go+rX ${ccpath}/visonic
       '';
-    in cleanAutomationsScenesScripts + createCustomComponents; 
+    in cleanAutomationsScenesScripts;# TODO: re-add after debug: + createCustomComponents; 
 
 
     my.services.postgresql = {

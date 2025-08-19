@@ -39,7 +39,7 @@ in {
     };
     public-keyfile = mkOption {
       type = types.str;
-      description = "path to file containing public-key to join this rustdesk network. Only verified when `rustdesk.enforce-key` is set.";
+      description = "path to file containing public-key to join this rustdesk network. Only verified when `rustdesk.enforce-key` is set. Note: set this as 'key' when rustdesk asks for this info";
     };
   };
 
@@ -48,6 +48,8 @@ in {
       { assertion = config.users.users ? "rustdesk"; }
       { assertion = config.users.groups ? "rustdesk"; }
     ];
+
+    users.users.rustdesk.home = "/var/lib/rustdesk";
     services.rustdesk-server = {
       enable = true;
       openFirewall = false; # we manually do this below
@@ -80,8 +82,5 @@ in {
       "L+ /var/lib/rustdesk/id_ed25519 - - - - ${cfg.private-keyfile}"
       "L+ /var/lib/rustdesk/id_ed25519.pub - - - - ${cfg.public-keyfile}"
     ];
-
-    # private: ?
-    # public : -rw-r--r-- rustdesk rustdesk
   };
 }
