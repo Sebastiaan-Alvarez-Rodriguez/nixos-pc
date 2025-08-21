@@ -108,6 +108,14 @@
     };
     home-assistant = {
       enable = true;
+      custom_components.visonic = {
+        enable = true;
+        ui.generate = {
+          enable = true;
+          sensors.motion = {};
+          sensors.magnet = {"z11" = "voordeur"; "z12" = "pui voortuin"; "z13" = "slaapkamer tuin"; "z14" = "woonkamer tuin"; "z15" = "pui tuin"; "z16" = "meterkast"; };
+        }
+      }
       code.scripts = {
         "emergency_notify" = "${pkgs.hass.script.emergency_notify}/default.yaml";
       };

@@ -171,6 +171,9 @@ in {
       # NOTE: always restart home-assistant service after adding a component
       # NOTE: symlinks to components are removed by HA and do not work. Needs a physical copy (or a hardlink, I guess).
       # "C ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic"
+
+      # link to the storage dir, such that people find this hidden dir (contains lovelace config if set to 'storage' mode)
+      "L ${configpath}/storage - - - - ${configpath}/.storage"
     ];
 
     systemd.services.home-assistant.preStart = with lib; let
@@ -185,9 +188,8 @@ in {
       '' + concatStrings ( flatten ( mapAttrsToList processEntries cfg.code ));
       createCustomComponents = ''
         rm -rf ${ccpath}
-        mkdir ${ccpath}
-        cp -r ${hass-visonic}/custom_components/visonic ${ccpath}/visonic
-        chmod -R u+rwX,go+rX ${ccpath}/visonic
+        mkdir -p ${ccpath}
+        chmod -R u+rwX,go+rX ${ccpath}
       '';
     in cleanAutomationsScenesScripts; # seb TODO: re-add this after new visonic component is pushed: + createCustomComponents; 
 
