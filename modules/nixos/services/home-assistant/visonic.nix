@@ -6,6 +6,7 @@
   ccpath = "${configpath}/custom_components"; #custom-components-path
 
   hass-visonic = pkgs.hass.custom-component.visonic;
+  floor3d = pkgs.hass.custom-lovelace.floor3d;
 in {
   options.my.services.home-assistant.custom_components.visonic  = with lib; {
     enable = mkEnableOption "Visonic custom integration for home-assistant";
@@ -15,22 +16,18 @@ in {
         sensors = {
           motion = mkOption {
             type = attrsOf str;
+            type = with types; attrsOf str;
             default = {};
             example = {"z1" = "entryhall"; };
             description = "mapping of motion sensor zone numbers to names, e.g";
           };
           magnet = mkOption {
-            type = attrsOf str;
+            type = with types; attrsOf str;
             default = {};
             example = {"z4" = "door to yard"; };
             description = "mapping of magnet zone numbers to names, e.g";
           };
         };
-      };
-      lovelace = mkOption {
-        type = with types; nullOr lines;
-        default = null;
-        description = "Custom lovelace input";
       };
     };
     port = mkOption {
@@ -41,9 +38,8 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [ { assertion = cfg.ui.generate.enable && cfg.ui.lovelace != null; message = "Cannot both set ui generation and custom lovelace"; } ];
-
     services.home-assistant = {
+      customLovelaceModules = [ floor3d ];
       lovelaceConfig = {
         # Dashboards can be created using the edit UI, or using Lovelace. Using one disables the other way.
         # This option defines the config for lovelace.
@@ -72,8 +68,8 @@ in {
     };
   
     systemd.services.home-assistant.preStart = ''
-      mkdir -p ${ccpath}
       cp -r ${hass-visonic}/custom_components/visonic ${ccpath}/visonic
-    '';
+      chmod -R u+rwX,go+rX ${ccpath}/visonic
+    ''; # NOTE: must use chmod, since 'cp' also copies over the read-only file permissions from the store.
   };
 }

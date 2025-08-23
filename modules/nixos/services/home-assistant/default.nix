@@ -16,6 +16,10 @@
 
   hass-visonic = pkgs.hass.custom-component.visonic;
 in {
+  imports = [
+    ./visonic.nix
+  ];
+
   options.my.services.home-assistant = with lib; {
     enable = mkEnableOption "home-assistant service";
     port = mkOption {
@@ -25,18 +29,28 @@ in {
     };
 
     blueprints = {
-      script = mkOption {
+      automations = mkOption {
+        type = with types; listOf (path);
+        default = [];
+        description = literalExpression "List of autonmation blueprints to install into ${config.services.home-assistant.configDir}/blueprints/automation";
+      };
+      scripts = mkOption {
         type = with types; listOf (path);
         default = [];
         description = literalExpression "List of script blueprints to install into ${config.services.home-assistant.configDir}/blueprints/script";
       };
+      templates = mkOption {
+        type = with types; listOf (path);
+        default = [];
+        description = literalExpression "List of template blueprints to install into ${config.services.home-assistant.configDir}/blueprints/template";
+      };
     };
-
 
     code = {
       automations = mkOption {
         type = types.attrsOf (types.coercedTo types.path (x: "${x}") types.pathInStore);
         default = {};
+        example = { "coolscript_name" = pkgs.some_pkg; };
         description = "Attrset mapping a unique id (used in HA as entity ID) to the file location";
       };
       scenes = mkOption {
@@ -50,6 +64,12 @@ in {
         description = "Attrset mapping a unique id (used in HA as entity ID) to the file location";
       };
     };
+
+    # lovelace-extra = mkOption {
+    #   type = with types; listOf package;
+    #   default = [];
+    #   description = "List of custom lovelace modules to install";
+    # }
   };
 
   config = lib.mkIf cfg.enable {
@@ -88,7 +108,11 @@ in {
       config = { # Found in /var/lib/hass
         # for configuration.yaml and other config tips, see [here](https://github.com/frenck/home-assistant-config)
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
-        lovelace.mode = "storage"; # NOTE: Any UI-made changes will be discarded upon every service restart. This option should be set only to develop UI components.
+        lovelace = {
+          mode = "storage"; # NOTE: Any UI-made changes will be discarded upon every service restart. This option should be set only to develop UI components.
+          # resources = [];
+        };
+      # customLovelaceModules = cfg.lovelace-extra;
         homeassistant.time_zone = "Europe/Amsterdam";
         http = {
           server_port = cfg.port;
@@ -144,7 +168,11 @@ in {
         ];
       };
 
-      blueprints.script = cfg.blueprints.script;
+      blueprints = {
+        automation = cfg.blueprints.automations;
+        template = cfg.blueprints.templates;
+        script = cfg.blueprints.scripts;
+      };
     };
   
     users.groups.hass = { }; # Set-up homeassistant group
@@ -163,14 +191,15 @@ in {
       "R ${configpath}/scripts - - - - -"
       "d ${configpath}/scripts 0770 hass hass - -"
 
+      ""
+      "d ${configpath}/scripts 0770 hass hass - -"
       # prepare custom component installation
       # "R ${ccpath} - - - - -" # remove custom components dir recursively
       "d ${ccpath} 0770 hass hass - -" # create custom components dir again (now empty)
 
-      # add custom components
-      # NOTE: always restart home-assistant service after adding a component
-      # NOTE: symlinks to components are removed by HA and do not work. Needs a physical copy (or a hardlink, I guess).
-      # "C ${ccpath}/visonic - - - - ${hass-visonic}/custom_components/visonic"
+      # NOTE: Do not add custom components here:
+      # - symlinks to custom components are removed by HA. Needs a physical copy.
+      # - systemd tmpfiles do not always trigger a restart of home-assistant. <-- solved by adding custom components in prestart of HA.
 
       # link to the storage dir, such that people find this hidden dir (contains lovelace config if set to 'storage' mode)
       "L ${configpath}/storage - - - - ${configpath}/.storage"
@@ -187,12 +216,11 @@ in {
         rm -f ${escapeShellArg configpath}/scripts/*
       '' + concatStrings ( flatten ( mapAttrsToList processEntries cfg.code ));
       createCustomComponents = ''
+        chmod -R u+rwX,go+rX ${ccpath}
         rm -rf ${ccpath}
         mkdir -p ${ccpath}
-        chmod -R u+rwX,go+rX ${ccpath}
       '';
-    in cleanAutomationsScenesScripts; # seb TODO: re-add this after new visonic component is pushed: + createCustomComponents; 
-
+    in cleanAutomationsScenesScripts + createCustomComponents;
 
     my.services.postgresql = {
       enable = true;
