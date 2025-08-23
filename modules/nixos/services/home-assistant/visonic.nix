@@ -1,5 +1,4 @@
 # declarative HA module for visonic, a custom integration: https://github.com/davesmeghead/visonic
-
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.home-assistant.custom_components.visonic;
   configpath = "/var/lib/hass";
@@ -25,10 +24,10 @@ in {
           example = {"z4" = "door to yard"; };
           description = "mapping of magnet zone numbers to names, e.g";
         };
-        model = mkOption {
-          type = types.str;
-          description = "Model of house to render, of type 'glb'. Note that model instance ids match with sensor names to get them correlated";
-        };
+      };
+      model = mkOption {
+        type = types.path;
+        description = "Model of house to render, of type 'glb'. Note that model instance ids match with sensor names to get them correlated";
       };
     };
     port = mkOption {
@@ -40,7 +39,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     assertions = [
-      { assertion = cfg.ui.enable && lib.hasSuffix "glb" cfg.ui.model; message = "Model does not end with 'glb'"; }
+      { assertion = cfg.ui.enable && lib.hasSuffix "glb" cfg.ui.model; message = "Model does not end with 'glb': ${cfg.ui.model}"; }
     ];
     services.home-assistant = lib.mkIf cfg.ui.enable {
       customLovelaceModules = [ floor3d ];
@@ -75,8 +74,10 @@ in {
             cards = [
               {
                 type = "custom:floor3d-card";
-                name="testing";
-                objfile=cfg.ui.model;
+                name = "testing";
+                path = "/local";
+                # path = builtins.dirOf cfg.ui.model;
+                objfile = builtins.baseNameOf cfg.ui.model;
               }
             ];
           }
@@ -85,6 +86,7 @@ in {
     };
   
     systemd.services.home-assistant.preStart = ''
+      cp ${cfg.ui.model} ${configpath}/www/
       cp -r ${hass-visonic}/custom_components/visonic ${ccpath}/visonic
       chmod -R u+rwX,go+rX ${ccpath}/visonic
     ''; # NOTE: must use chmod, since 'cp' also copies over the read-only file permissions from the store.

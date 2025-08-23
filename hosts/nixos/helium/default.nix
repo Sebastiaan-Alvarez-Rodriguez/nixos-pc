@@ -116,7 +116,7 @@
           enable = true;
           sensors.motion = {};
           sensors.magnet = {"z11" = "voordeur"; "z12" = "pui voortuin"; "z13" = "slaapkamer tuin"; "z14" = "woonkamer tuin"; "z15" = "pui tuin"; "z16" = "meterkast"; };
-          model = model-pkg;
+          model = "${model-pkg}/model.glb";
         };
       };
       code.scripts = {
