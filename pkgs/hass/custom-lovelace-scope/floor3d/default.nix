@@ -16,7 +16,6 @@
   };
 
   dontUnpack = true;
-  # dontBuild = true;
 
   installPhase = ''
     mkdir -p $out

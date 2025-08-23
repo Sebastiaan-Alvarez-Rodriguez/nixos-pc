@@ -11,22 +11,23 @@ in {
   options.my.services.home-assistant.custom_components.visonic  = with lib; {
     enable = mkEnableOption "Visonic custom integration for home-assistant";
     ui = {
-      generate = {
-        enable = mkEnableOption "Generate lovelace UI";
-        sensors = {
-          motion = mkOption {
-            type = attrsOf str;
-            type = with types; attrsOf str;
-            default = {};
-            example = {"z1" = "entryhall"; };
-            description = "mapping of motion sensor zone numbers to names, e.g";
-          };
-          magnet = mkOption {
-            type = with types; attrsOf str;
-            default = {};
-            example = {"z4" = "door to yard"; };
-            description = "mapping of magnet zone numbers to names, e.g";
-          };
+      enable = mkEnableOption "Generate lovelace UI";
+      sensors = {
+        motion = mkOption {
+          type = with types; attrsOf str;
+          default = {};
+          example = {"z1" = "entryhall"; };
+          description = "mapping of motion sensor zone numbers to names, e.g";
+        };
+        magnet = mkOption {
+          type = with types; attrsOf str;
+          default = {};
+          example = {"z4" = "door to yard"; };
+          description = "mapping of magnet zone numbers to names, e.g";
+        };
+        model = mkOption {
+          type = types.str;
+          description = "Model of house to render, of type 'glb'. Note that model instance ids match with sensor names to get them correlated";
         };
       };
     };
@@ -38,7 +39,10 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    services.home-assistant = {
+    assertions = [
+      { assertion = cfg.ui.enable && lib.hasSuffix "glb" cfg.ui.model; message = "Model does not end with 'glb'"; }
+    ];
+    services.home-assistant = lib.mkIf cfg.ui.enable {
       customLovelaceModules = [ floor3d ];
       lovelaceConfig = {
         # Dashboards can be created using the edit UI, or using Lovelace. Using one disables the other way.
@@ -61,7 +65,20 @@ in {
             ];
             badges = let
               generateBadge = sensor: name: { type = "entity"; show_name = true; show_state = true; show_icon = true; entity = "binary_sensor.visonic_${sensor}"; inherit name; };
-            in lib.mapAttrsToList generateBadge cfg.ui.generate.sensors.magnet;
+            in lib.mapAttrsToList generateBadge cfg.ui.sensors.magnet;
+          }
+          {
+            type = "panel";
+            title = "testing";
+            path = "testing";
+            icon = "mdi:shield-home-outline";
+            cards = [
+              {
+                type = "custom:floor3d-card";
+                name="testing";
+                objfile=cfg.ui.model;
+              }
+            ];
           }
         ];
       };

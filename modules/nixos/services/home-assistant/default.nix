@@ -108,11 +108,6 @@ in {
       config = { # Found in /var/lib/hass
         # for configuration.yaml and other config tips, see [here](https://github.com/frenck/home-assistant-config)
         default_config = {}; # https://www.home-assistant.io/integrations/default_config/
-        lovelace = {
-          mode = "storage"; # NOTE: Any UI-made changes will be discarded upon every service restart. This option should be set only to develop UI components.
-          # resources = [];
-        };
-      # customLovelaceModules = cfg.lovelace-extra;
         homeassistant.time_zone = "Europe/Amsterdam";
         http = {
           server_port = cfg.port;
@@ -128,7 +123,11 @@ in {
         "scene split" = "!include_dir_list ${configpath}/scenes";
         "script" = "!include ${configpath}/scripts.yaml";
         "script split" = "!include_dir_named ${configpath}/scripts";
-        # "template" = "!include_dir_list ./template";
+
+        lovelace = {
+          # mode = "storage"; # NOTE: Any UI-made changes will be discarded upon every service restart. This option should be set only to develop UI components.
+          mode = "yaml";
+        };
       };
 
       lovelaceConfigWritable = true; # NOTE: Any UI-made changes will be discarded upon every service restart. This option should be set only to develop UI components.
@@ -136,15 +135,6 @@ in {
         # Dashboards can be created using the edit UI, or using Lovelace. Using one disables the other way.
         # This option defines the config for lovelace.
         views = [
-          {
-            type = "panel";
-            title = "alarm-mono";
-            path = "alarm-mono";
-            icon = "mdi:shield-home-outline";
-            cards = [
-              { type = "alarm-panel"; states = [ "arm_home" "arm_away" ]; entity = "alarm_control_panel.visonic_alarm"; }
-            ];
-          }
           {
             type = "panel";
             path = "anna";
