@@ -206,19 +206,16 @@ in {
         rm -f ${configpath}/scenes/*
         rm -f ${configpath}/scripts/*
       '' + concatStrings ( flatten ( mapAttrsToList processEntries cfg.code ));
+
       fixDirPermissions = path: ''
         mkdir -p ${path}
         chmod -R u+rwX,go+rX ${path}
       '';
       createCustomComponents = (fixDirPermissions ccpath) + ''
-        mkdir -p ${ccpath}
-        chmod -R u+rwX,go+rX ${ccpath}
         rm -rf ${ccpath}
         mkdir -p ${ccpath}
       '';
-      fixWebPathPermissions = ''
-        chmod -R u+rwX,go+rX ${configpath}/www
-      '';
+      fixWebPathPermissions = fixDirPermissions "${configpath}/www";
     in cleanAutomationsScenesScripts + createCustomComponents + fixWebPathPermissions;
 
     my.services.postgresql = {
