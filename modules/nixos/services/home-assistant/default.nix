@@ -173,6 +173,9 @@ in {
       "f ${configpath}/scenes.yaml 0644 hass hass - []"
       "f ${configpath}/scripts.yaml 0644 hass hass - {}"
       
+      # create web dir
+      "d ${configpath}/www 0770 hass hass - -"
+
       # create directories for yaml configuration (packages may link their automations/scenes/scripts here)
       "R ${configpath}/automations - - - - -"
       "d ${configpath}/automations 0770 hass hass - -"
@@ -181,8 +184,6 @@ in {
       "R ${configpath}/scripts - - - - -"
       "d ${configpath}/scripts 0770 hass hass - -"
 
-      ""
-      "d ${configpath}/scripts 0770 hass hass - -"
       # prepare custom component installation
       # "R ${ccpath} - - - - -" # remove custom components dir recursively
       "d ${ccpath} 0770 hass hass - -" # create custom components dir again (now empty)
@@ -201,16 +202,24 @@ in {
       '';
       processEntries = domain: entries: mapAttrsToList (id: path: linkCommand domain id path) entries;
       cleanAutomationsScenesScripts = ''
-        rm -f ${escapeShellArg configpath}/automations/*
-        rm -f ${escapeShellArg configpath}/scenes/*
-        rm -f ${escapeShellArg configpath}/scripts/*
+        rm -f ${configpath}/automations/*
+        rm -f ${configpath}/scenes/*
+        rm -f ${configpath}/scripts/*
       '' + concatStrings ( flatten ( mapAttrsToList processEntries cfg.code ));
-      createCustomComponents = ''
+      fixDirPermissions = path: ''
+        mkdir -p ${path}
+        chmod -R u+rwX,go+rX ${path}
+      '';
+      createCustomComponents = (fixDirPermissions ccpath) + ''
+        mkdir -p ${ccpath}
         chmod -R u+rwX,go+rX ${ccpath}
         rm -rf ${ccpath}
         mkdir -p ${ccpath}
       '';
-    in cleanAutomationsScenesScripts + createCustomComponents;
+      fixWebPathPermissions = ''
+        chmod -R u+rwX,go+rX ${configpath}/www
+      '';
+    in cleanAutomationsScenesScripts + createCustomComponents + fixWebPathPermissions;
 
     my.services.postgresql = {
       enable = true;

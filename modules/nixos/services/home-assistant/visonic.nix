@@ -73,11 +73,28 @@ in {
             icon = "mdi:shield-home-outline";
             cards = [
               {
+                # NOTE: Configuration options here: https://github.com/adizanni/floor3d-card
+                # NOTE: Learn more here: https://github.com/adizanni/floor3d-card/wiki
                 type = "custom:floor3d-card";
                 name = "testing";
                 path = "/local";
-                # path = builtins.dirOf cfg.ui.model;
                 objfile = builtins.baseNameOf cfg.ui.model;
+
+                backgroundColor = "white";
+                globalLightPower = "0.5";
+                sky = "yes";
+                shadow = "yes";
+                north = { x = 0; z = 1; };
+                # entities = let
+                #   mkEntity = zone: {
+                #     # NOTE: users cannot change the object IDs from the UI. They have to zip open the sh3d file and edit the IDs found in 'Home.xml'
+                #     # Also note: users report that the id's of objects may randomly change between saves, so must check model object ids after each save.
+                #     object_id = zone; # object name in model file
+                #     entity = zone; # object entity id for this renderer card
+                #     type3d = "light";
+                #     action = "more-info"; # seb TODO: or use "overlay"
+                #   };
+                # in (builtins.map mkEntity (builtins.attrNames cfg.ui.motion)) ++ (builtins.map mkEntity (builtins.attrNames cfg.ui.magnet))
               }
             ];
           }
