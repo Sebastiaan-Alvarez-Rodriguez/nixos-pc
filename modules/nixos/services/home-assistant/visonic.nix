@@ -84,17 +84,27 @@ in {
                 globalLightPower = "0.5";
                 sky = "yes";
                 shadow = "yes";
-                north = { x = 0; z = 1; };
-                # entities = let
-                #   mkEntity = zone: {
-                #     # NOTE: users cannot change the object IDs from the UI. They have to zip open the sh3d file and edit the IDs found in 'Home.xml'
-                #     # Also note: users report that the id's of objects may randomly change between saves, so must check model object ids after each save.
-                #     object_id = zone; # object name in model file
-                #     entity = zone; # object entity id for this renderer card
-                #     type3d = "light";
-                #     action = "more-info"; # seb TODO: or use "overlay"
-                #   };
-                # in (builtins.map mkEntity (builtins.attrNames cfg.ui.motion)) ++ (builtins.map mkEntity (builtins.attrNames cfg.ui.magnet))
+                north = { x = -1; z = 0; };
+                entities = let
+                  mkEntity = zone: {
+                    # NOTE: users cannot change the object IDs from the UI. They have to zip open the sh3d file and edit the IDs found in 'Home.xml'
+                    # Also note: users report that the id's of objects may randomly change between saves, so must check model object ids after each save.
+                    object_id = "${zone}_box_1"; # front-facing plane of box in model.
+                    # entity = "binary_sensor.visonic_${zone}"; # object entity id to relate to this object id (even when uncommenting all 'light' suboptions below)
+                    # seb TODO: find out why below error occurs when linking  entities correctly:
+                    # THREE.WebGLProgram: shader error:  1282 35715 false gl.getProgramInfoLog Statically used varyings do not fit within packing limits. (see GLSL ES Specification 1.0.17, p111) <empty string> <empty string>
+                    type3d = "light";
+                    action = "more-info"; # seb TODO: or use "overlay"
+                    light = {
+                      # lumens = 2000;
+                      # color = "red";
+                      # distance = 1500; # cm distance radius
+                      # shadow = true; # consider walls etc to block light
+                      # decay = 1;
+                      # vertical_alignment = "middle"; # options: "top/middle/bottom"
+                    };
+                  };
+                in (builtins.map mkEntity (builtins.attrNames cfg.ui.sensors.motion)) ++ (builtins.map mkEntity (builtins.attrNames cfg.ui.sensors.magnet));
               }
             ];
           }

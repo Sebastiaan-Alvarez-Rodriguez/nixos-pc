@@ -114,8 +114,8 @@
           model-pkg = inputs.self.packages.${system}.house-model;
         in {
           enable = true;
-          sensors.motion = {};
-          sensors.magnet = {"z11" = "voordeur"; "z12" = "pui voortuin"; "z13" = "slaapkamer tuin"; "z14" = "woonkamer tuin"; "z15" = "pui tuin"; "z16" = "meterkast"; };
+          sensors.motion = { "z01" = "woonkamer-bank"; "z02" = "woonkamer-keuken"; "z03" = "woonkamer-zithoek"; "z04" = "werkkamer beneden"; "z05" = "slaapkamer"; "z06" = "garage-binnendeur"; "z07" = "garage-raam"; "z20" = "logeer-klein"; "z21" = "logeer-groot"; "z22" = "werkkamer-boven"; "z23" = "hal-boven"; };
+          sensors.magnet = { "z11" = "voordeur"; "z12" = "pui voortuin"; "z13" = "slaapkamer tuin"; "z14" = "woonkamer tuin"; "z15" = "pui tuin"; "z16" = "meterkast"; };
           model = "${model-pkg}/model.glb";
         };
       };
