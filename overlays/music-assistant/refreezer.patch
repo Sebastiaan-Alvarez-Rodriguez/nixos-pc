@@ -1,6 +1,6 @@
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..b0be4ab4
+index 00000000..60c39acc
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
 @@ -0,0 +1,851 @@
@@ -739,13 +739,13 @@ index 00000000..b0be4ab4
 +            ]
 +
 +    def _parse_tracks(self, data: Dict) -> list[Track]:
-+        return [self._parse_track(elem, album=album)] for elem in data['data'] if any(data['data']) else []
++        return [self._parse_track(elem, album=album) for elem in data['data']] if any(data['data']) else []
 +
 +    def _parse_artist(data: Dict) -> Artist:
-+         artist = Artist(
++        artist = Artist(
 +            item_id=data['ART_ID'],
 +            provider=self.lookup_key,
-+            name=data['ART_NAME']
++            name=data['ART_NAME'],
 +            provider_mappings={
 +                ProviderMapping( # seb TODO: what is this stuff?
 +                    item_id=data['ART_ID'], # seb TODO: tostring? is now int
@@ -774,8 +774,8 @@ index 00000000..b0be4ab4
 +            item_id=data['SNG_ID'], # seb TODO: tostring? is now int
 +            provider=self.lookup_key,
 +            name=title,
-+            version=data['VERSION']
-+            duration=int(data['DURATION'])
++            version=data['VERSION'],
++            duration=int(data['DURATION']),
 +            provider_mappings={
 +                ProviderMapping(
 +                    item_id=data['SNG_ID'],
@@ -789,7 +789,7 @@ index 00000000..b0be4ab4
 +            cache_checksum=data['MD5_ORIGIN'],
 +            disc_number=int(data['DISK_NUMBER'] if 'DISK_NUMBER' in data and data['DISK_NUMBER'] != None else 0),
 +            track_number=int(data['TRACK_NUMBER'] if 'TRACK_NUMBER' in data and data['TRACK_NUMBER'] != None else 0),
-+            artists=self._parse_artists(data['ARTISTS'] if 'ARTISTS' in data else [data])
++            artists=self._parse_artists(data['ARTISTS'] if 'ARTISTS' in data else [data]),
 +            album=self._parse_album(data)
 +        )
 +        track.metadata.explicit = str(data['EXPLICIT_LYRICS']) == '1'
@@ -851,7 +851,7 @@ index 00000000..b0be4ab4
 +            stream_type=StreamType.CUSTOM, # seb NOTE: used to be HTTP
 +            duration=int(data['DURATION']),
 +            data=None, # seb NOTE: cann pass in data here, passed on to the get_audio_stream funciton.
-+            size=data['FILESIZE']
++            size=data['FILESIZE'],
 +            can_seek=True,
 +            allow_seek=True,
 +        )
