@@ -1,6 +1,6 @@
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..467370cc
+index 00000000..b0be4ab4
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
 @@ -0,0 +1,851 @@
@@ -723,9 +723,9 @@ index 00000000..467370cc
 +                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
 +                    url=None, # seb TODO: will this be ok? deezer does not provide a link
 +                )
-+            }
++            },
 +            artists=artists,
-+            album_type=AlbumType(type)
++            album_type=AlbumType(type),
 +        )
 +        if 'ALB_PICTURE' in data and data['ALB_PICTURE'] != None:
 +            details = DeezerAPI.ImageDetails.from_private_json(data['ALB_PICTURE'])
@@ -753,7 +753,7 @@ index 00000000..467370cc
 +                    provider_instance=self.instance_id,
 +                    url=None, # seb TODO: will this be ok? deezer does not provide a link
 +                )
-+            }
++            },
 +        )
 +        if 'ART_PICTURE' in data and data['ART_PICTURE'] != None:
 +            details = DeezerAPI.ImageDetails.from_private_json(data['ART_PICTURE'])
@@ -784,7 +784,7 @@ index 00000000..467370cc
 +                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
 +                    url=None, # seb TODO: is this ok?
 +                    available=True,
-+                )
++                ),
 +            },
 +            cache_checksum=data['MD5_ORIGIN'],
 +            disc_number=int(data['DISK_NUMBER'] if 'DISK_NUMBER' in data and data['DISK_NUMBER'] != None else 0),

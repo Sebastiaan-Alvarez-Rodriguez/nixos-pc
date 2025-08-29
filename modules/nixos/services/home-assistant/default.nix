@@ -102,7 +102,7 @@ in {
 
         # my own added components
         "plugwise"
-        "roborock"
+        # "roborock" NOTE: Roborock has some errors in test cases now
         "solaredge"
       ];
       config = { # Found in /var/lib/hass
