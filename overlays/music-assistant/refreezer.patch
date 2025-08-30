@@ -1,10 +1,12 @@
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..60c39acc
+index 00000000..2cadb3be
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,851 @@
+@@ -0,0 +1,890 @@
 +from __future__ import annotations
++
++import asyncio
 +
 +from collections.abc import AsyncGenerator, Sequence
 +from typing import TYPE_CHECKING
@@ -134,7 +136,6 @@ index 00000000..60c39acc
 +    # get initial cookies (sid) from empty getUser call
 +    response = await http_session.get('https://www.deezer.com/ajax/gw-light.php?method=deezer.getUserData&input=3&api_version=1.0&api_token=null')
 +    cookie_manager.update_cookie(response)
-+    print(f'initial cookies success: {cookie_manager.cookie_header}')
 +    http_session.cookie_jar.clear()
 +
 +    # Try to get AccessToken by login with email & password, which sets authentication cookies
@@ -180,9 +181,7 @@ index 00000000..60c39acc
 +    return None
 +
 +
-+async def setup(
-+    mass: MusicAssistant, manifest: ProviderManifest, config: ProviderConfig
-+) -> ProviderInstanceType:
++async def setup(mass: MusicAssistant, manifest: ProviderManifest, config: ProviderConfig) -> ProviderInstanceType:
 +    """Initialize provider(instance) with given configuration."""
 +    return ReFreezerProvider(mass, manifest, config)
 +
@@ -265,7 +264,7 @@ index 00000000..60c39acc
 +
 +    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
 +
-+    def __init__(self, arl: Optional[str] = None, settings: Optional[Settings] = None):
++    def __init__(self, arl: Optional[str] = None, settings: Optional[Settings] = None, logger: logging.Logger):
 +        self.arl = arl
 +        self.token: Optional[str] = None
 +        self.license_token: Optional[str] = None
@@ -275,6 +274,7 @@ index 00000000..60c39acc
 +        self.sid: Optional[str] = None
 +        self._authorizing: Optional[asyncio.Future] = None
 +        self.settings: Settings = settings or DeezerAPI.Settings()
++        self.logger: logging.Logger = logger
 +
 +    def get_headers(self) -> Dict[str, str]:
 +        lang = f'{self.settings.deezer_language}-{self.settings.deezer_country}'
@@ -523,7 +523,10 @@ index 00000000..60c39acc
 +    api: DeezerAPI
 +
 +    async def handle_async_init(self, arl: Optional[str] = None, settings: Optional[DeezerAPI.Settings] = None) -> None:
-+        self.api = DeezerAPI(arl=arl, settings=settings)
++        self.api = DeezerAPI(arl=arl, settings=settings, logger=self.logger)
++        if not await self.api.authorize():
++            self.logger.error('Could not authorize with deezer')
++
 +
 +    @property
 +    def supported_features(self) -> set[ProviderFeature]:
@@ -541,34 +544,63 @@ index 00000000..60c39acc
 +
 +        results = SearchResults()
 +        if MediaType.TRACK in media_types:
-+            results.tracks += self._parse_tracks(tracks)
++            results.tracks = self._parse_tracks(tracks)
++            # seb TODO: down here:
++            # Aug 30 19:41:22 helium mass[73093]:   File "/nix/store/dbcn999rhl0f4f3hnl95hkrbwig08hlp-music-assistant-2.5.8/lib/python3.13/site-packages/music_assistant/providers/refreezer/__init__.py", line 538, in search
++            # Aug 30 19:41:22 helium mass[73093]:     results.tracks += self._parse_tracks(tracks)
++            # Aug 30 19:41:22 helium mass[73093]:                       ~~~~~~~~~~~~~~~~~~^^^^^^^^
++            # Aug 30 19:41:22 helium mass[73093]:   File "/nix/store/dbcn999rhl0f4f3hnl95hkrbwig08hlp-music-assistant-2.5.8/lib/python3.13/site-packages/music_assistant/providers/refreezer/__init__.py", line 754, in _parse_tr>
++            # Aug 30 19:41:22 helium mass[73093]:     return [self._parse_track(elem, album=album) for elem in data['data']] if any(data['data']) else []
++            # Aug 30 19:41:22 helium mass[73093]:                                                                                   ~~~~^^^^^^^^
++            # Aug 30 19:41:22 helium mass[73093]: TypeError: list indices must be integers or slices, not str
++            # that was in the _parse_tracks function
 +        if MediaType.ALBUM in media_types:
-+            results.albums += self._parse_albums(albums)
++            results.albums = self._parse_albums(albums)
 +        if MediaType.ARTIST in media_types:
-+            results.artists += self._parse_artists(artists)
++            results.artists = self._parse_artists(artists)
 +        if MediaType.PLAYLIST in media_types:
-+            results.playlists += self._parse_playlists(playlists)
++            results.playlists = self._parse_playlists(playlists)
++        self.logger.error(f'For query {search_query} (limit={limit}), found raw tracks={len(tracks)}, albums={len(albums)}, artists={len(artists)}, playlists={len(playlists)}.')
++        self.logger.error(f'\n\n\ntotal results: {results}')
 +        return results
 +
 +    async def get_library_artists(self) -> AsyncGenerator[Artist, None]:
 +        """Retrieve library artists from the provider."""
 +        # seb NOTE: only gets first 40 artists
-+        return (self._parse_artist(x) for x in await self.api.get_artists(nb=40))
++        # return (self._parse_artist(x) for x in await self.api.get_artists(nb=40))
++        async for x in await self.api.get_artists(nb=40):
++            yield self._parse_artist(x)
 +
 +    async def get_library_albums(self) -> AsyncGenerator[Album, None]:
 +        """Retrieve library albums from the provider."""
 +        # seb NOTE: only gets first 50 albums
-+        return (self._parse_album(x) for x in await self.api.get_albums(nb=50)) # must return generator
++        # return (self._parse_album(x) for x in await self.api.get_albums(nb=50)) # must return generator
++        async for x in await self.api.get_albums(nb=40):
++            yield self._parse_album(x)
 +
 +    async def get_library_tracks(self) -> AsyncGenerator[Track, None]:
 +        """Retrieve library tracks from the provider."""
-+        return (await self.get_track(id) for id in await self.api.get_favorite_track_ids()) # must return generator
++        # return (await self.get_track(id) for id in await self.api.get_favorite_track_ids()) # must return generator
++        async for x in await self.api.get_favorite_track_ids(nb=40):
++            yield await self.get_track(x)
 +
 +    async def get_library_playlists(self) -> AsyncGenerator[Playlist, None]:
 +        """Retrieve library/subscribed playlists from the provider."""
 +        # seb NOTE: only gets first 100 playlists
-+        return (self._parse_playlist(x) for x in await self.api.get_playlists(nb=100)) # must return generator
-+
++        # seb NOTE: problem looks like:
++        # Aug 30 08:14:12 helium mass[15490]: TypeError: 'async for' requires an object with __aiter__ method, got coroutine
++        # Aug 30 08:14:12 helium mass[15490]: 2025-08-30 08:14:12.428 WARNING (MainThread) [music_assistant.music] Sync task for ReFreezer completed with errors
++        # Aug 30 08:14:12 helium mass[15490]: Traceback (most recent call last):
++        # Aug 30 08:14:12 helium mass[15490]:   File "/nix/store/2l09xhxpdys9ija9gy6f4ny997w5jjhl-music-assistant-2.5.8/lib/python3.13/site-packages/music_assistant/controllers/music.py", line 1235, in run_sync
++        # Aug 30 08:14:12 helium mass[15490]:     await provider.sync_library(media_type)
++        # Aug 30 08:14:12 helium mass[15490]:   File "/nix/store/2l09xhxpdys9ija9gy6f4ny997w5jjhl-music-assistant-2.5.8/lib/python3.13/site-packages/music_assistant/models/music_provider.py", line 632, in sync_library
++        # Aug 30 08:14:12 helium mass[15490]:     async for prov_item in self._get_library_gen(media_type):
++        # Aug 30 08:14:12 helium mass[15490]:                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
++        # Aug 30 08:14:12 helium mass[15490]: TypeError: 'async for' requires an object with __aiter__ method, got coroutine
++        # return (self._parse_playlist(x) for x in await self.api.get_playlists(nb=100)) # must return generator
++        async for x in await self.api.get_playlists(nb=100):
++            yield self._parse_playlist(x)
++    
 +    async def get_artist(self, prov_artist_id: str) -> Artist:
 +        """Get full artist details by id."""
 +        data = await self.api.artist(id=prov_artist_id)
@@ -602,7 +634,8 @@ index 00000000..60c39acc
 +    async def get_playlist(self, prov_playlist_id: str) -> Playlist:
 +        """Get full playlist details by id."""
 +        data = await self.playlist(id=prov_playlist_id, nb=10) # seb TODO: does this mean it only loads the first 10 playlists and I can never get the rest?
-+        return self._parse_playlist(data=data['results']['DATA'], songs=data['results']['SONGS'])
++        # seb TODO: before used this expression (but did not use songs in parse function itself): return self._parse_playlist(data=data['results']['DATA'], songs=data['results']['SONGS'])
++        return self._parse_playlist(data=data['results']['DATA'])
 +
 +    async def get_album_tracks( self, prov_album_id: str) -> list[Track]:
 +        """Get album tracks for given album id."""
@@ -701,7 +734,7 @@ index 00000000..60c39acc
 +
 +
 +    def _parse_albums(self, data: Dict) -> list[Album]:
-+        return [self._parse_album(elem) for elem in data['data']] if any(data['data']) else []
++        return [self._parse_album(elem) for elem in data]
 +
 +    def _parse_album(self, data: Dict) -> list[Album]:
 +        artists = [self._parse_artist(elem) for elem in data['ARTISTS']] if any(data['ARTISTS']) else []
@@ -738,8 +771,8 @@ index 00000000..60c39acc
 +                )
 +            ]
 +
-+    def _parse_tracks(self, data: Dict) -> list[Track]:
-+        return [self._parse_track(elem, album=album) for elem in data['data']] if any(data['data']) else []
++    def _parse_artists(self, data: Dict) -> list[Artist]:
++        return [self._parse_artist(elem) for elem in data]
 +
 +    def _parse_artist(data: Dict) -> Artist:
 +        artist = Artist(
@@ -767,6 +800,9 @@ index 00000000..60c39acc
 +            ]
 +        # seb TODO: no use for 'highlight' data provided by deezer API?
 +        return artist
++
++    def _parse_tracks(self, data: Dict) -> list[Track]:
++        return [self._parse_track(elem, album=album) for elem in data]
 +
 +    def _parse_track(self, data: Dict) -> Track:
 +        title = data['SNG_TITLE'] if not data['VERSION'] else f"{data['SNG_TITLE']} {data['VERSION']}"
@@ -805,7 +841,10 @@ index 00000000..60c39acc
 +            ]
 +        return track
 +
-+    def _parse_playlist(self, data: Dict[str, Any], songs: Dict[str, Any]) -> Playlist:
++    def _parse_playlists(self, data: Dict) -> list[Playlist]:
++        return [self._parse_playlist(elem) for elem in data]
++
++    def _parse_playlist(self, data: Dict[str, Any]) -> Playlist:
 +        is_editable = data['PARENT_USER_ID'] == self.api.user_id if data['PARENT_USER_ID'] != None else False # if id == None --> not made by us
 +        playlist = Playlist(
 +            item_id = data['PLAYLIST_ID'],
