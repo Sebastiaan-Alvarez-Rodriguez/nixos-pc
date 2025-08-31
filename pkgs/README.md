@@ -8,12 +8,13 @@ But sometimes, we need to develop our own packages, because `nixpkgs` does not p
 Ideally, you create a merge request to `nixpkgs` with your new package like described [here](https://nixos.wiki/wiki/Nixpkgs/Create_and_debug_packages), but those people are quite busy.
 If you want the package now, just use custom packages as explained below.
 
-
-## Adding a package
+## Usage
+### Adding a package
 To add a package named `A`:
 1. choose how the package must be referenced - Using `pkgs.A`? or using `pkgs.something.A`?
-2. If `pkgs.A` is desired, create a new directory in [`pkgs/main-scope`](/pkgs/main-scope).
-   Otherwise, create directories for each scope (each dir-name will be a new scope) and for the last scope, add the suffix `-scope` to the dir-name.
+2. If `pkgs.A` is desired, create a new directory in [`pkgs/main-scope`](/pkgs/main-scope) (does not seem to work right now).
+   Otherwise, create directories for each scope (each dir-name will be a new scope)
+   and **ONLY** for the last scope, add the suffix `-scope` to the dir-name.
 3. In the scope-directory you chose, place a `default.nix`.
    It must contain
   ```nix
@@ -24,10 +25,15 @@ To add a package named `A`:
 
 Examples of step 3 could be found [here](/pkgs/main-scope/default.nix) (using callPackage) or [here](/pkgs/hass/script-scope/default.nix).
 
+### Referencing a package
+Just reference like the path states, e.g. if package named `MYPKG` is stored in `/pkgs/hello/world-scope/MYPKG`,
+then reference it as `pkgs.hello.world.MYPKG`.
+
 ## How this works
 I wrote a function that recursively reads directories and constructs a single overlay which extends `pkgs` with the new scopes it read from the directories.
 The code for this function is in [/flake/overlays.nix](/flake/overlays.nix).
-An overlay for `pkgs` looks like:
+
+Before, it looked like this:
 ```nix
 pkgs = _final: prev: {
   "something" = prev.recurseIntoAttrs (import "${self}/pkgs/something" { pkgs = prev; });
@@ -37,6 +43,7 @@ pkgs = _final: prev: {
 ### Default scope
 Uses [/flake/packages.nix](/flake/packages.nix).
 It directly imports the [/pkgs/main-scope](/pkgs/main-scope) as an extension of `packages`
+> **NOTE** Does not seem to work right now
 
 
 ## Package creation tips

@@ -1,27 +1,9 @@
 { inputs, config, lib, pkgs, system, ...}: let
   username = "rdn";
 in {
-  imports = [ ../rdn/rdn-headless.nix ];
+  imports = [ ../rdn/rdn-headless.nix ../rdn/default.nix ];
 
-  home.packages = with pkgs; [
-    chromium
-    drawio
-    droidcam
-    galculator
-    gamemode
-    gparted
-    hotspot
-    # logiops
-    proton-caller
-    rustdesk-flutter
-    qbittorrent
-    stremio
-    tdesktop
-    teams-for-linux
-    teamspeak3
-    tor-browser-bundle-bin
-    vlc
-  ];
+  home.packages = with pkgs; [ stremio ];
 
   services.kanshi.settings = [
     {

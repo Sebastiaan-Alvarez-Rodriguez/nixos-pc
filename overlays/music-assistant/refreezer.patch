@@ -1,6 +1,16 @@
+diff --git a/.gitignore b/.gitignore
+index 673eb1d9..efef05e7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,3 +1,5 @@
++/.config
++/shell.nix
+ 
+ .DS_Store
+ *.db
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..2cadb3be
+index 00000000..09e64d06
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
 @@ -0,0 +1,890 @@
@@ -250,21 +260,21 @@ index 00000000..2cadb3be
 +            self.image_hash = image_hash
 +
 +        def from_private_string(image_hash: str, type: str = 'cover'):
-+            return ImageDetails(full_url=custom_url(image_hash, type, 1000, 1000, 80), thumb_url=custom_url(image_hash, type, 140, 140, 80), type=type, image_hash=image_hash)
++            return DeezerAPI.ImageDetails(full_url=DeezerAPI.ImageDetails.custom_url(image_hash, type, 1000, 1000, 80), thumb_url=DeezerAPI.ImageDetails.custom_url(image_hash, type, 140, 140, 80), type=type, image_hash=image_hash)
 +
 +        def from_private_json(data: Dict):
-+            return ImageDetails.from_private_string(data['MD5'] if 'MD5' in data and data['MD5'] != None else data['md5'], data['TYPE'] if 'TYPE' in data and data['TYPE'] != None else data['type'])
++            return DeezerAPI.ImageDetails.from_private_string(data['MD5'] if 'MD5' in data and data['MD5'] != None else data['md5'], data['TYPE'] if 'TYPE' in data and data['TYPE'] != None else data['type'])
 +
 +        def custom_url(image_hash: str, type: str, height: int, width: int, quality: int) -> str:
 +            return f'https://e-cdns-images.dzcdn.net/images/{type}/{image_hash}/{height}x{width}-000000-{quality}-0-0.jpg'
 +
-+        def custom_url(self, height: int, width: int, quality: int) -> str:
-+            return ImageDetail.custom_url(self.image_hash, self.type, height, width, quality)
++        def url(self, height: int, width: int, quality: int) -> str:
++            return DeezerAPI.ImageDetail.custom_url(self.image_hash, self.type, height, width, quality)
 +
 +
 +    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
 +
-+    def __init__(self, arl: Optional[str] = None, settings: Optional[Settings] = None, logger: logging.Logger):
++    def __init__(self, logger: logging.Logger, arl: Optional[str] = None, settings: Optional[Settings] = None):
 +        self.arl = arl
 +        self.token: Optional[str] = None
 +        self.license_token: Optional[str] = None
@@ -357,6 +367,7 @@ index 00000000..2cadb3be
 +            data = await self.call_gw_api("deezer.getUserData")
 +            user = data.get("results", {}).get("USER", {})
 +            if user.get("USER_ID") == 0:
++                self.logger.error(f"I don't even know how I got here: user raw data was: {data}")
 +                return False
 +
 +            self.token = data["results"].get("checkForm")
@@ -366,7 +377,7 @@ index 00000000..2cadb3be
 +            self.license_token = user.get("OPTIONS", {}).get("license_token")
 +            return True
 +        except Exception as e:
-+            log.exception("Login Error (D): %s", e) # seb TODO: music assistant logging
++            self.logger.error("Login Error (D): %s", e)
 +            return False
 +
 +# seb TODO:
@@ -522,8 +533,8 @@ index 00000000..2cadb3be
 +
 +    api: DeezerAPI
 +
-+    async def handle_async_init(self, arl: Optional[str] = None, settings: Optional[DeezerAPI.Settings] = None) -> None:
-+        self.api = DeezerAPI(arl=arl, settings=settings, logger=self.logger)
++    async def handle_async_init(self, settings: Optional[DeezerAPI.Settings] = None) -> None:
++        self.api = DeezerAPI(arl=self.config.get_value(CONF_REFREEZER_ARL), settings=settings, logger=self.logger)
 +        if not await self.api.authorize():
 +            self.logger.error('Could not authorize with deezer')
 +
@@ -560,8 +571,6 @@ index 00000000..2cadb3be
 +            results.artists = self._parse_artists(artists)
 +        if MediaType.PLAYLIST in media_types:
 +            results.playlists = self._parse_playlists(playlists)
-+        self.logger.error(f'For query {search_query} (limit={limit}), found raw tracks={len(tracks)}, albums={len(albums)}, artists={len(artists)}, playlists={len(playlists)}.')
-+        self.logger.error(f'\n\n\ntotal results: {results}')
 +        return results
 +
 +    async def get_library_artists(self) -> AsyncGenerator[Artist, None]:
@@ -747,21 +756,22 @@ index 00000000..2cadb3be
 +            item_id=data['ALB_ID'], # seb TODO: tostring? Is now int
 +            provider=self.lookup_key,
 +            name=data['ALB_TITLE'],
-+            year=int((data['DIGITAL_RELEASE_DATE'] if data['DIGITAL_RELEASE_DATE'] else data['PHYSICAL_RELEASE_DATE']).split('-')[0]),
++            year=int(data['DIGITAL_RELEASE_DATE'].split('-',1)[0]) if 'DIGITAL_RELEASE_DATE' in data else (int(data['PHYSICAL_RELEASE_DATE'].split('-',1)[0]) if 'PHYSICAL_RELEASE_DATE' in data else None),
 +            # version= # seb TODO: spotify plugin provides this
 +            provider_mappings={
 +                ProviderMapping(
++                    item_id=data['ALB_ID'],
 +                    provider_domain=self.domain,
 +                    provider_instance=self.instance_id,
++                    available=True,
 +                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
-+                    url=None, # seb TODO: will this be ok? deezer does not provide a link
 +                )
 +            },
 +            artists=artists,
 +            album_type=AlbumType(type),
 +        )
 +        if 'ALB_PICTURE' in data and data['ALB_PICTURE'] != None:
-+            details = DeezerAPI.ImageDetails.from_private_json(data['ALB_PICTURE'])
++            details = DeezerAPI.ImageDetails.from_private_string(data['ALB_PICTURE']) # seb TODO: used to be: 'from_private_json' (but that does not work from search-origin)
 +            album.metadata.images = [
 +                MediaItemImage(
 +                    type=ImageType.THUMB,
@@ -770,11 +780,12 @@ index 00000000..2cadb3be
 +                    remotely_accessible=True
 +                )
 +            ]
++        return album
 +
 +    def _parse_artists(self, data: Dict) -> list[Artist]:
 +        return [self._parse_artist(elem) for elem in data]
 +
-+    def _parse_artist(data: Dict) -> Artist:
++    def _parse_artist(self, data: Dict) -> Artist:
 +        artist = Artist(
 +            item_id=data['ART_ID'],
 +            provider=self.lookup_key,
@@ -784,12 +795,12 @@ index 00000000..2cadb3be
 +                    item_id=data['ART_ID'], # seb TODO: tostring? is now int
 +                    provider_domain=self.domain,
 +                    provider_instance=self.instance_id,
-+                    url=None, # seb TODO: will this be ok? deezer does not provide a link
++                    available=True,
 +                )
 +            },
 +        )
 +        if 'ART_PICTURE' in data and data['ART_PICTURE'] != None:
-+            details = DeezerAPI.ImageDetails.from_private_json(data['ART_PICTURE'])
++            details = DeezerAPI.ImageDetails.from_private_string(data['ART_PICTURE']) # seb TODO: used to be: 'from_private_json' (but that does not work from search-origin)
 +            artist.metadata.images = [
 +                MediaItemImage(
 +                    type=ImageType.THUMB,
@@ -802,27 +813,26 @@ index 00000000..2cadb3be
 +        return artist
 +
 +    def _parse_tracks(self, data: Dict) -> list[Track]:
-+        return [self._parse_track(elem, album=album) for elem in data]
++        return [self._parse_track(elem) for elem in data]
 +
 +    def _parse_track(self, data: Dict) -> Track:
-+        title = data['SNG_TITLE'] if not data['VERSION'] else f"{data['SNG_TITLE']} {data['VERSION']}"
++        version = data.get('VERSION')
++        title = data['SNG_TITLE'] if version is None else f"{data['SNG_TITLE']} {data['VERSION']}"
 +        track = Track(
 +            item_id=data['SNG_ID'], # seb TODO: tostring? is now int
 +            provider=self.lookup_key,
 +            name=title,
-+            version=data['VERSION'],
++            version=version,
 +            duration=int(data['DURATION']),
 +            provider_mappings={
 +                ProviderMapping(
 +                    item_id=data['SNG_ID'],
 +                    provider_domain=self.domain,
 +                    provider_instance=self.instance_id,
-+                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
-+                    url=None, # seb TODO: is this ok?
 +                    available=True,
++                    # audio_format=AudioFormat(content_type=ContentType.OGG, bit_rate=320),
 +                ),
 +            },
-+            cache_checksum=data['MD5_ORIGIN'],
 +            disc_number=int(data['DISK_NUMBER'] if 'DISK_NUMBER' in data and data['DISK_NUMBER'] != None else 0),
 +            track_number=int(data['TRACK_NUMBER'] if 'TRACK_NUMBER' in data and data['TRACK_NUMBER'] != None else 0),
 +            artists=self._parse_artists(data['ARTISTS'] if 'ARTISTS' in data else [data]),
@@ -830,7 +840,7 @@ index 00000000..2cadb3be
 +        )
 +        track.metadata.explicit = str(data['EXPLICIT_LYRICS']) == '1'
 +        if 'ALB_PICTURE' in data:
-+            details = DeezerAPI.ImageDetails.from_private_json(data['ALB_PICTURE'])
++            details = DeezerAPI.ImageDetails.from_private_string(data['ALB_PICTURE']) # seb TODO: used to be: 'from_private_json' (but that does not work from search-origin)
 +            track.metadata.images = [
 +                MediaItemImage(
 +                    type=ImageType.THUMB,
@@ -856,12 +866,12 @@ index 00000000..2cadb3be
 +                    item_id=data['PLAYLIST_ID'],
 +                    provider_domain=self.domain,
 +                    provider_instance=self.instance_id,
-+                    url=None, # seb TODO: is tis ok? I have no url
++                    available=True,
 +                )
 +            },
 +            is_editable=is_editable,
 +        )
-+        details = DeezerAPI.ImageDetails.from_private_json(data['PLAYLIST_PICTURE'])
++        details = DeezerAPI.ImageDetails.from_private_string(data['PLAYLIST_PICTURE']) # seb TODO: used to be: 'from_private_json' (but that does not work from search-origin)
 +        playlist.metadata.images = [
 +            MediaItemImage(
 +                type=ImageType.THUMB,

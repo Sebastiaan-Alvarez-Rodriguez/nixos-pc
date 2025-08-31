@@ -60,7 +60,7 @@ in {
     };
 
     # mpv.enable = true; # Minimal video player
-    spotify.enable = true;
+    # spotify.enable = true;
     ssh = {
       enable = true;
       mosh.enable = true;
