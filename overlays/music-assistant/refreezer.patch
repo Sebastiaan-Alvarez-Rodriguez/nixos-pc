@@ -10,10 +10,10 @@ index 673eb1d9..efef05e7 100644
  *.db
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..09e64d06
+index 00000000..fc4e1304
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,890 @@
+@@ -0,0 +1,900 @@
 +from __future__ import annotations
 +
 +import asyncio
@@ -86,8 +86,8 @@ index 00000000..09e64d06
 +    ProviderFeature.SEARCH,
 +    ProviderFeature.PLAYLIST_TRACKS_EDIT,
 +    ProviderFeature.PLAYLIST_CREATE,
-+    ProviderFeature.RECOMMENDATIONS,
-+    ProviderFeature.SIMILAR_TRACKS,
++    # ProviderFeature.RECOMMENDATIONS,
++    # ProviderFeature.SIMILAR_TRACKS,
 +}
 +
 +CONF_REFREEZER_MAIL = "refreezer_mail"
@@ -413,7 +413,7 @@ index 00000000..09e64d06
 +
 +    async def playlist_track_page(self, id: str, start: int, nb: int = 50) -> List[Dict[str, Any]]:
 +        '''get playlist songs, from `start` up to `start+nb`. Returns a list of json data that can be directly converted to tracks.'''
-+        data = await callGwApi('deezer.pagePlaylist', params={'playlist_id': id, 'lang': self.settings.deezer_language, 'nb': nb, 'tags': true, 'start': start})
++        data = await self.call_gw_api('deezer.pagePlaylist', params={'playlist_id': id, 'lang': self.settings.deezer_language, 'nb': nb, 'tags': True, 'start': start})
 +        return data['results']['SONGS']['data']
 +
 +    async def playlist(self, id: str, nb: int = 100) -> Dict[str, Any]:
@@ -544,7 +544,7 @@ index 00000000..09e64d06
 +        """Return the features supported by this Provider."""
 +        return SUPPORTED_FEATURES
 +
-+    async def search( self, search_query: str, media_types: list[MediaType], limit: int = 30) -> SearchResults:
++    async def search(self, search_query: str, media_types: list[MediaType], limit: int = 30) -> SearchResults:
 +        """Perform search on musicprovider.
 +
 +        :param search_query: Search query.
@@ -577,24 +577,33 @@ index 00000000..09e64d06
 +        """Retrieve library artists from the provider."""
 +        # seb NOTE: only gets first 40 artists
 +        # return (self._parse_artist(x) for x in await self.api.get_artists(nb=40))
-+        async for x in await self.api.get_artists(nb=40):
++        self.logger.error(f'Got a artist lib request')
++        data = await self.api.get_artists(nb=40)
++        for x in data:
 +            yield self._parse_artist(x)
 +
 +    async def get_library_albums(self) -> AsyncGenerator[Album, None]:
 +        """Retrieve library albums from the provider."""
 +        # seb NOTE: only gets first 50 albums
-+        # return (self._parse_album(x) for x in await self.api.get_albums(nb=50)) # must return generator
-+        async for x in await self.api.get_albums(nb=40):
++        self.logger.error(f'Got a album lib request')
++        data = await self.api.get_albums(nb=50)
++        # yield from map(self._parse_album, await self.api.get_albums(nb=50))
++        for x in data:
 +            yield self._parse_album(x)
++        # async for x in await self.api.get_albums(nb=40):
++        #     yield self._parse_album(x)
 +
 +    async def get_library_tracks(self) -> AsyncGenerator[Track, None]:
 +        """Retrieve library tracks from the provider."""
 +        # return (await self.get_track(id) for id in await self.api.get_favorite_track_ids()) # must return generator
-+        async for x in await self.api.get_favorite_track_ids(nb=40):
-+            yield await self.get_track(x)
++        self.logger.error(f'Got a track lib request - seb TODO: This is too slow (use nice async generator chain as in spotify)')
++        data = [await self.api.track(x) for x in await self.api.get_favorite_track_ids()]
++        for x in data:
++            yield self._parse_track(x)
 +
 +    async def get_library_playlists(self) -> AsyncGenerator[Playlist, None]:
 +        """Retrieve library/subscribed playlists from the provider."""
++        self.logger.error(f'Got a playlist lib request')
 +        # seb NOTE: only gets first 100 playlists
 +        # seb NOTE: problem looks like:
 +        # Aug 30 08:14:12 helium mass[15490]: TypeError: 'async for' requires an object with __aiter__ method, got coroutine
@@ -607,7 +616,7 @@ index 00000000..09e64d06
 +        # Aug 30 08:14:12 helium mass[15490]:                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
 +        # Aug 30 08:14:12 helium mass[15490]: TypeError: 'async for' requires an object with __aiter__ method, got coroutine
 +        # return (self._parse_playlist(x) for x in await self.api.get_playlists(nb=100)) # must return generator
-+        async for x in await self.api.get_playlists(nb=100):
++        for x in await self.api.get_playlists(nb=100):
 +            yield self._parse_playlist(x)
 +    
 +    async def get_artist(self, prov_artist_id: str) -> Artist:
@@ -628,12 +637,20 @@ index 00000000..09e64d06
 +    async def get_album(self, prov_album_id: str) -> Album:
 +        """Get full album details by id."""
 +        data = await self.api.album(id=prov_album_id)
-+        return self._parse_album(data['results']['DATA'])
++        # NOTE: we also have data['SONGS'] here, with all songs of the album. (data['SONGS']['data'] contains a list of songs, there also is a 'count')
++        # However, ma asks for this later in its `get_album_tracks` function.
++        # seb TODO: It is probably best to make a 'cache' object to maintain state of recently-requested album ids with their songs stored.
++        return self._parse_album(data['DATA'])
++
++    async def get_album_tracks( self, prov_album_id: str) -> list[Track]:
++        """Get album tracks for given album id."""
++        data = await self.api.album(id=prov_album_id)
++        return self._parse_tracks(data['SONGS']['data'])
 +
 +    async def get_track(self, prov_track_id: str) -> Track:
 +        """Get full track details by id."""
 +        data = await self.api.track(id=prov_track_id)
-+        return self._parse_track(data['results']['data'][0])
++        return self._parse_track(data)
 +
 +    async def _get_track_details(self, prov_track_id: str) -> StreamDetails:
 +        """Get track details for streaming"""
@@ -642,20 +659,15 @@ index 00000000..09e64d06
 +
 +    async def get_playlist(self, prov_playlist_id: str) -> Playlist:
 +        """Get full playlist details by id."""
-+        data = await self.playlist(id=prov_playlist_id, nb=10) # seb TODO: does this mean it only loads the first 10 playlists and I can never get the rest?
++        data = await self.api.playlist(id=prov_playlist_id, nb=10) # seb TODO: does this mean it only loads the first 10 playlists and I can never get the rest?
 +        # seb TODO: before used this expression (but did not use songs in parse function itself): return self._parse_playlist(data=data['results']['DATA'], songs=data['results']['SONGS'])
-+        return self._parse_playlist(data=data['results']['DATA'])
-+
-+    async def get_album_tracks( self, prov_album_id: str) -> list[Track]:
-+        """Get album tracks for given album id."""
-+        data = await self.api.album(id=prov_album_id)
-+        return self._parse_tracks(data['results']['SONGS'])
++        return self._parse_playlist(data=data['DATA'])
 +
 +    async def get_playlist_tracks(self, prov_playlist_id: str, page: int=0) -> list[Track]:
 +        """Get all playlist tracks for given playlist id."""
 +        page_size = 50
 +        offset = page * page_size
-+        data = await self.playlist_track_page(id=prov_playlist_id, start=offset, nb=page_size)
++        data = await self.api.playlist_track_page(id=prov_playlist_id, start=offset, nb=page_size)
 +        return self._parse_tracks(data)
 +
 +    async def library_add(self, item: MediaItemType) -> bool:
@@ -746,11 +758,9 @@ index 00000000..09e64d06
 +        return [self._parse_album(elem) for elem in data]
 +
 +    def _parse_album(self, data: Dict) -> list[Album]:
-+        artists = [self._parse_artist(elem) for elem in data['ARTISTS']] if any(data['ARTISTS']) else []
-+        if not any(data['ARTISTS']) and 'ART_NAME' in data:
++        artists = [self._parse_artist(elem) for elem in data['ARTISTS']] if 'ARTISTS' in data else []
++        if 'ARTISTS' not in data and 'ART_NAME' in data:
 +            artists.append(Artist(name=data['ART_NAME']))
-+
-+        type = 'single' if data['TYPE'] != None and str(data['TYPE']) == '0' else 'album'
 +
 +        album = Album(
 +            item_id=data['ALB_ID'], # seb TODO: tostring? Is now int
@@ -768,7 +778,7 @@ index 00000000..09e64d06
 +                )
 +            },
 +            artists=artists,
-+            album_type=AlbumType(type),
++            album_type = AlbumType.SINGLE if 'TYPE' in data and str(data['TYPE']) == '0' else AlbumType.ALBUM
 +        )
 +        if 'ALB_PICTURE' in data and data['ALB_PICTURE'] != None:
 +            details = DeezerAPI.ImageDetails.from_private_string(data['ALB_PICTURE']) # seb TODO: used to be: 'from_private_json' (but that does not work from search-origin)
@@ -817,7 +827,7 @@ index 00000000..09e64d06
 +
 +    def _parse_track(self, data: Dict) -> Track:
 +        version = data.get('VERSION')
-+        title = data['SNG_TITLE'] if version is None else f"{data['SNG_TITLE']} {data['VERSION']}"
++        title = data['SNG_TITLE'] if version is None else f"{data['SNG_TITLE']}"
 +        track = Track(
 +            item_id=data['SNG_ID'], # seb TODO: tostring? is now int
 +            provider=self.lookup_key,
@@ -860,7 +870,7 @@ index 00000000..09e64d06
 +            item_id = data['PLAYLIST_ID'],
 +            provider=self.instance_id if is_editable else self.lookup_key,
 +            name=data['TITLE'],
-+            owner=data['PARENT_USERNAME'] if data['PARENT_USERNAME'] == None else '',
++            owner=data.get('PARENT_USERNAME', ''),
 +            provider_mappings={
 +                ProviderMapping(
 +                    item_id=data['PLAYLIST_ID'],
