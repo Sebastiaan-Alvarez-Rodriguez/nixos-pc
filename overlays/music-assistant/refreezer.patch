@@ -10,10 +10,10 @@ index 673eb1d9..efef05e7 100644
  *.db
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..fc4e1304
+index 00000000..a380c638
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,900 @@
+@@ -0,0 +1,1030 @@
 +from __future__ import annotations
 +
 +import asyncio
@@ -26,7 +26,7 @@ index 00000000..fc4e1304
 +
 +from aiohttp import ClientSession, ClientTimeout, ClientResponse
 +
-+from music_assistant_models.config_entries import ConfigEntry, ConfigValueType, ProviderConfig
++from music_assistant_models.config_entries import ConfigEntry, ConfigValueType, ConfigValueOption, ProviderConfig
 +from music_assistant_models.enums import (
 +    AlbumType,
 +    ConfigEntryType,
@@ -37,6 +37,7 @@ index 00000000..fc4e1304
 +    ProviderFeature,
 +    StreamType,
 +)
++from music_assistant_models.errors import UnplayableMediaError
 +from music_assistant_models.media_items import (
 +    Album,
 +    Artist,
@@ -93,6 +94,7 @@ index 00000000..fc4e1304
 +CONF_REFREEZER_MAIL = "refreezer_mail"
 +CONF_REFREEZER_PASS = "refreezer_pass"
 +CONF_REFREEZER_ARL = "refreezer_arl"
++CONF_REFREEZER_QUALITY = "refreezer_quality"
 +
 +CONF_ACTION_AUTH = "arl_token"
 +
@@ -228,6 +230,20 @@ index 00000000..fc4e1304
 +            required=True,
 +            description="Deezer password",
 +            value=values.get(CONF_REFREEZER_PASS) if values else None,
++        ),
++        ConfigEntry(
++            key=CONF_REFREEZER_QUALITY,
++            type=ConfigEntryType.STRING,
++            options=[
++                ConfigValueOption('FLAC (premium-only)', 'FLAC'),
++                ConfigValueOption('MP3 320kbit (premium-only)', 'MP3_320'),
++                ConfigValueOption('MP3 128kbit', 'MP3_128'),
++            ],
++            label="Stream quality",
++            required=True,
++            description="Stream quality (FLAC only works for premium deezer accounts)",
++            value=values.get(CONF_REFREEZER_QUALITY) if values else None,
++            default_value = "MP3_128",
 +        ),
 +        ConfigEntry(
 +            key=CONF_REFREEZER_ARL,
@@ -526,6 +542,57 @@ index 00000000..fc4e1304
 +# playMix
 +# allShowEpisodes
 +
++    async def get_track_url(self, track_id: str, track_token: str, md5origin: str, media_version: str, quality: str, refresh_attempt: int=0) -> tuple[Optional[str], bool]:
++        '''returns a (url, encrypted) pair for streaming a track. url is a direct media link.'''
++        if self.license_token is None:
++            self.logger.error(f'License token is None, how can that be? I need it here')
++            return None, True
++
++        if quality not in ['FLAC', 'MP3_320', 'MP3_128']:
++            self.loger.error(f'Found unknown quality type "{quality}"')
++            return None, True
++        format = quality
++
++        payload = {
++            "license_token": self.license_token,
++            "media": [ { "type": "FULL", "formats": [{"cipher": "BF_CBC_STRIPE", "format": format}], } ],
++            "track_tokens": [track_token],
++        }
++
++        headers = self.get_headers()
++        headers["Content-Type"] = "application/json"
++
++        try:
++            async with ClientSession() as session:
++                async with session.post('https://media.deezer.com/v1/get_url', headers=headers, data=json.dumps(payload)) as resp:
++                    result = await resp.json()
++
++            if 'errors' in result:
++                raise ValueError(f'Encountered the following errors: {result['errors']}')
++
++            if 'data' in result:
++                for data in result['data']:
++                    if 'errors' in data:
++                        for error in data['errors']:
++                            if error.get('code') == 2001 and refresh_attempt < 1:
++                                # track token expired, so refresh track metadata and retry once
++                                track_data = await self.track(track_id)
++                                private_track = track_data['results']['data'][0]
++                                return await self.get_track_url(
++                                    private_track['SNG_ID'],
++                                    private_track['TRACK_TOKEN'],
++                                    private_track['MD5_ORIGIN'],
++                                    private_track['MEDIA_VERSION'],
++                                    quality,
++                                    refresh_attempt + 1,
++                                )
++                        self.logger.warning('Failed in getting streaming URL: %s', data.get('errors'))
++                    if 'media' in data and data['media']:
++                        url = data['media'][0]['sources'][0]['url']
++                        return url, True
++        except Exception as e:
++            self.logger.warning("Error getting streaming URL: %s", e)
++        return None, True
 +
 +
 +class ReFreezerProvider(MusicProvider):
@@ -652,11 +719,6 @@ index 00000000..fc4e1304
 +        data = await self.api.track(id=prov_track_id)
 +        return self._parse_track(data)
 +
-+    async def _get_track_details(self, prov_track_id: str) -> StreamDetails:
-+        """Get track details for streaming"""
-+        data = await self.api.track(id=prov_track_id)
-+        return self._parse_track_details(data['results']['data'][0])
-+
 +    async def get_playlist(self, prov_playlist_id: str) -> Playlist:
 +        """Get full playlist details by id."""
 +        data = await self.api.playlist(id=prov_playlist_id, nb=10) # seb TODO: does this mean it only loads the first 10 playlists and I can never get the rest?
@@ -732,7 +794,17 @@ index 00000000..fc4e1304
 +        # podcasts or audiobooks, this may as well be an episode or chapter id.
 +        # You should return a StreamDetails object here with the info as accurate as possible
 +        # to allow Music Assistant to process the audio using ffmpeg.
-+        details = self.api.get_stream_details(id=item_id)
++        data = await self.api.track(id=item_id)
++
++        urldata = data['FALLBACK'] if 'FALLBACK' in data else data # original refreezer uses fallback by default too (seems like newer versions are stored in 'fallback', and outdated versions stop to function after a while)
++        url, encrypted = await self.api.get_track_url(track_id=urldata['SNG_ID'], track_token=urldata['TRACK_TOKEN'], md5origin=urldata['MD5_ORIGIN'], media_version=urldata['MEDIA_VERSION'], quality=self.config.get_value(CONF_REFREEZER_QUALITY))
++        if url == None:
++            raise UnplayableMediaError(f'Could not fetch url for track')
++        self.logger.debug(f'Found this url (encrypted={encrypted}): {url}')
++
++        details = self._parse_track_details(data)
++        details.data['url'] = url
++        details.data['encrypted'] = encrypted
 +        details.provider = self.lookup_key
 +        details.stream_type = StreamType.CUSTOM
 +        details.can_seek=True
@@ -740,13 +812,65 @@ index 00000000..fc4e1304
 +        return details
 +
 +
-+    async def get_audio_stream(
-+        self, streamdetails: StreamDetails, seek_position: int=0
-+    ) -> AsyncGenerator[bytes, None]:
++    async def get_audio_stream(self, streamdetails: StreamDetails, seek_position: int=0) -> AsyncGenerator[bytes, None]:
 +        """ Return the (custom) audio stream for the provider item. """
 +        # this is an async generator that should yield raw audio bytes for the given streamdetails. You can use this to provide a custom
 +        # stream generator for the audio stream. This is only called when the stream_type is set to CUSTOM in the get_stream_details method.
-+        yield  # type: ignore[misc]
++        #
++        # seb NOTE: a very basic encryption is used for the stream, as the music of a sample url is well-audible despite noise.
++        # Found these options to decrypt:
++        # 1. deezer mass provider
++        #   + we use the same url to call, so should process encryption data similarly
++        #   - uses stupid app_vars, so have to take it out again
++        # 2. refreezer DeezerDecryptor.
++        #   + seems simple enough
++        #   + might match encryption pattern (weak)
++        #   - not used by refreezer except when using the 'streaming server' and other offline tracks functionalities
++        # 3. refreezer 'generateTrackUrl'
++        #   + related to 2
++        #   - only used for offline track functionality?
++        #   - only call in 'getTrackUrl', with comment: "Deprecated legacy url generation. Seems unavailable now."
++
++        # taken from 1.
++        blowfish_key = self.get_blowfish_key(streamdetails.data["track_id"])
++        chunk_index = 0
++        timeout = ClientTimeout(total=0, connect=30, sock_read=600)
++        headers = {}
++        # if seek_position and streamdetails.size:
++        #     chunk_count = ceil(streamdetails.size / 2048)
++        #     chunk_index = int(chunk_count / streamdetails.duration) * seek_position
++        #     skip_bytes = chunk_index * 2048
++        #     headers["Range"] = f"bytes={skip_bytes}-"
++
++        # NOTE: Seek with using the Range header is not working properly
++        # causing malformed audio so this is a temporary patch
++        # by just skipping chunks
++        if seek_position and streamdetails.size:
++            chunk_count = ceil(streamdetails.size / 2048)
++            skip_chunks = int(chunk_count / streamdetails.duration) * seek_position
++        else:
++            skip_chunks = 0
++
++        buffer = bytearray()
++        streamdetails.data["start_ts"] = utc_timestamp()
++        streamdetails.data["stream_id"] = uuid.uuid1()
++        self.mass.create_task(self.gw_client.log_listen(next_track=streamdetails.item_id))
++        async with self.mass.http_session.get(
++            streamdetails.data["url"], headers=headers, timeout=timeout
++        ) as resp:
++            async for chunk in resp.content.iter_chunked(2048):
++                buffer += chunk
++                if len(buffer) >= 2048:
++                    if chunk_index >= skip_chunks or chunk_index == 0:
++                        if chunk_index % 3 > 0:
++                            yield bytes(buffer[:2048])
++                        else:
++                            yield self.decrypt_chunk(bytes(buffer[:2048]), blowfish_key)
++
++                    chunk_index += 1
++                    del buffer[:2048]
++        yield bytes(buffer)
++
 +
 +    async def on_played( self, media_type: MediaType, prov_item_id: str, fully_played: bool, position: int, media_item: MediaItemType, is_playing: bool=False) -> None:
 +        """Handle callback when a track is playing (called every 30s), has been fully played, or has been stopped/skipped."""
@@ -894,22 +1018,28 @@ index 00000000..fc4e1304
 +        # seb NOTE: no checksums provided by Deezer
 +        return playlist
 +
-+def _parse_stream_details(self, data: Dict) -> StreamDetails:
++    def _parse_track_details(self, data: Dict) -> StreamDetails:
 +        content_type = ContentType.UNKNOWN # let FFMPEG guess the contenttype
-+        bit_rate = None
-+        for cat in ['AAC_64', 'MP3_64', 'MP3_128', 'MP3_256', 'MP3_320', 'FLAC']:
-+            if data[f'FILESIZE_{cat}'] != "0":
-+                c = cat.split('_')
-+                content_type = ContentType.try_parse(c[0])
-+                bit_rate = c[1] if len(c) >= 2 else None
++        bitrate = None
++        quality = self.config.get_value(CONF_REFREEZER_QUALITY)
++        if f'FILESIZE_{quality}' in data and data[f'FILESIZE_{quality}'] != '0':
++            c = quality.split('_')
++            content_type = ContentType.try_parse(c[0])
++            bitrate = int(c[1] if len(c) >= 2 else None)
++        else:
++            for cat in ['AAC_64', 'MP3_64', 'MP3_128', 'MP3_256', 'MP3_320', 'FLAC']:
++                if data[f'FILESIZE_{cat}'] != "0":
++                    c = cat.split('_')
++                    content_type = ContentType.try_parse(c[0])
++                    bitrate = int(c[1] if len(c) >= 2 else None)
 +
 +        return StreamDetails(
-+            item_id=item_id,
++            item_id=data['SNG_TITLE'],
 +            provider=self.lookup_key,
-+            audio_format=AudioFormat(content_type=content_type, bitrate=bitrate), # seb TODO: have to set bit_depth (default 16) and sample_rate (default 44100) too?
++            audio_format=AudioFormat(content_type=content_type, bit_rate=bitrate), # seb TODO: have to set bit_depth (default 16) and sample_rate (default 44100) too?
 +            stream_type=StreamType.CUSTOM, # seb NOTE: used to be HTTP
 +            duration=int(data['DURATION']),
-+            data=None, # seb NOTE: cann pass in data here, passed on to the get_audio_stream funciton.
++            data={}, # seb NOTE: cann pass in data here, passed on to the get_audio_stream funciton.
 +            size=data['FILESIZE'],
 +            can_seek=True,
 +            allow_seek=True,
