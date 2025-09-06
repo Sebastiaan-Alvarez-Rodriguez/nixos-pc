@@ -10,10 +10,10 @@ index 673eb1d9..efef05e7 100644
  *.db
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..a380c638
+index 00000000..055e1e16
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,1030 @@
+@@ -0,0 +1,1050 @@
 +from __future__ import annotations
 +
 +import asyncio
@@ -23,6 +23,8 @@ index 00000000..a380c638
 +
 +from hashlib import md5
 +import urllib.parse
++import uuid
++from Crypto.Cipher import Blowfish
 +
 +from aiohttp import ClientSession, ClientTimeout, ClientResponse
 +
@@ -290,7 +292,9 @@ index 00000000..a380c638
 +
 +    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
 +
-+    def __init__(self, logger: logging.Logger, arl: Optional[str] = None, settings: Optional[Settings] = None):
++    def __init__(self, session: ClientSession, logger: logging.Logger, arl: Optional[str] = None, settings: Optional[Settings] = None):
++        self.session: ClientSession = session
++        self.logger: logging.Logger = logger
 +        self.arl = arl
 +        self.token: Optional[str] = None
 +        self.license_token: Optional[str] = None
@@ -300,7 +304,6 @@ index 00000000..a380c638
 +        self.sid: Optional[str] = None
 +        self._authorizing: Optional[asyncio.Future] = None
 +        self.settings: Settings = settings or DeezerAPI.Settings()
-+        self.logger: logging.Logger = logger
 +
 +    def get_headers(self) -> Dict[str, str]:
 +        lang = f'{self.settings.deezer_language}-{self.settings.deezer_country}'
@@ -320,7 +323,7 @@ index 00000000..a380c638
 +        url = 'https://www.deezer.com/ajax/gw-light.php'
 +        query = {
 +            'api_version': '1.0',
-+            'api_token': self.token or '', # # must provide a string, and null params should mean that a key is not set
++            'api_token': self.token or '', # must provide a string, and null params should mean that a key is not set
 +            'input': '3',
 +            'method': method,
 +            'cid': str(random.randint(0, 1_000_000_000)),
@@ -329,36 +332,33 @@ index 00000000..a380c638
 +            query['gateway_input'] = gateway_input
 +
 +        headers = self.get_headers()
-+        async with ClientSession() as session: # seb TODO: Could reuse hass-wide session?
-+            async with session.post(url, headers=headers, params=query, data=json.dumps(params or {})) as resp:
-+                body = await resp.json()
++        async with self.session.post(url, headers=headers, params=query, data=json.dumps(params or {})) as resp:
++            body = await resp.json()
 +
-+                # Grab SID cookie
-+                if method == 'deezer.getUserData':
-+                    set_cookie = resp.headers.get('Set-Cookie', '')
-+                    for cookie in set_cookie.split(';'):
-+                        if cookie.strip().startswith('sid='):
-+                            self.sid = cookie.strip().split('=', 1)[1]
++            # Grab SID cookie
++            if method == 'deezer.getUserData':
++                set_cookie = resp.headers.get('Set-Cookie', '')
++                for cookie in set_cookie.split(';'):
++                    if cookie.strip().startswith('sid='):
++                        self.sid = cookie.strip().split('=', 1)[1]
 +
-+                # In case of error 'Invalid CSRF token' retrieve new one and retry the same call
-+                # Except for 'deezer.getUserData' method, which would cause infinite loop
-+                if ( 'error' in body and 'VALID_TOKEN_REQUIRED' in body['error'] and method != 'deezer.getUserData' and await self.raw_authorize() ):
-+                    return await self.call_gw_api(method, params=params, gateway_input=gateway_input)
-+                return body
++            # In case of error 'Invalid CSRF token' retrieve new one and retry the same call
++            # Except for 'deezer.getUserData' method, which would cause infinite loop
++            if ( 'error' in body and 'VALID_TOKEN_REQUIRED' in body['error'] and method != 'deezer.getUserData' and await self.raw_authorize() ):
++                return await self.call_gw_api(method, params=params, gateway_input=gateway_input)
++            return body
 +
 +    async def call_public_api(self, path: str) -> Dict[str, Any]:
-+        async with ClientSession() as session:
-+            async with session.get(f'https://api.deezer.com/{path}') as resp:
-+                return await resp.json()
++        async with self.session.get(f'https://api.deezer.com/{path}') as resp:
++            return await resp.json()
 +
 +    async def get_json_web_token(self) -> str:
 +        url = 'https://auth.deezer.com/login/arl'
 +        params = {'jo': 'p', 'rto': 'c', 'i': 'c'}
 +        headers = self.get_headers()
-+        async with ClientSession() as session:
-+            async with session.post(url, headers=headers, params=params) as resp:
-+                data = await resp.json()
-+                return data.get('jwt', '')
++        async with self.session.post(url, headers=headers, params=params) as resp:
++            data = await resp.json()
++            return data.get('jwt', '')
 +
 +    async def call_pipe_api(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
 +        jwt_token = await self.get_json_web_token()
@@ -366,9 +366,8 @@ index 00000000..a380c638
 +        headers['Authorization'] = f'Bearer {jwt_token}'
 +        headers['Content-Type'] = 'application/json'
 +        url = 'https://pipe.deezer.com/api/'
-+        async with ClientSession() as session:
-+            async with session.post(url, headers=headers, data=json.dumps(params or {})) as resp:
-+                return await resp.json()
++        async with self.session.post(url, headers=headers, data=json.dumps(params or {})) as resp:
++            return await resp.json()
 +
 +    async def authorize(self) -> bool:
 +        if self._authorizing is None:
@@ -563,9 +562,8 @@ index 00000000..a380c638
 +        headers["Content-Type"] = "application/json"
 +
 +        try:
-+            async with ClientSession() as session:
-+                async with session.post('https://media.deezer.com/v1/get_url', headers=headers, data=json.dumps(payload)) as resp:
-+                    result = await resp.json()
++            async with self.session.post('https://media.deezer.com/v1/get_url', headers=headers, data=json.dumps(payload)) as resp:
++                result = await resp.json()
 +
 +            if 'errors' in result:
 +                raise ValueError(f'Encountered the following errors: {result['errors']}')
@@ -588,6 +586,8 @@ index 00000000..a380c638
 +                                )
 +                        self.logger.warning('Failed in getting streaming URL: %s', data.get('errors'))
 +                    if 'media' in data and data['media']:
++                        from pprint import pformat
++                        self.logger.info(f'got data url etc: {data["media"][0]}')
 +                        url = data['media'][0]['sources'][0]['url']
 +                        return url, True
 +        except Exception as e:
@@ -601,7 +601,7 @@ index 00000000..a380c638
 +    api: DeezerAPI
 +
 +    async def handle_async_init(self, settings: Optional[DeezerAPI.Settings] = None) -> None:
-+        self.api = DeezerAPI(arl=self.config.get_value(CONF_REFREEZER_ARL), settings=settings, logger=self.logger)
++        self.api = DeezerAPI(session=self.mass.http_session, logger=self.logger, arl=self.config.get_value(CONF_REFREEZER_ARL), settings=settings)
 +        if not await self.api.authorize():
 +            self.logger.error('Could not authorize with deezer')
 +
@@ -812,29 +812,45 @@ index 00000000..a380c638
 +        return details
 +
 +
++    def _md5(self, data, data_type="ascii"):
++        md5sum = md5()
++        md5sum.update(data.encode(data_type))
++        return md5sum.hexdigest()
++    def get_blowfish_key(self, track_id):
++        """Get blowfish key to decrypt a chunk of a track."""
++        # secret = 'jo6aey6haid2Teih' # refreezer official key
++        secret = 'g4el58wc0zvf9na1' # deezer mass-implementation key (found in app_var(5))
++        self.logger.info(f'got secret: {secret}')
++        id_md5 = self._md5(track_id)
++        return "".join(chr(ord(id_md5[i]) ^ ord(id_md5[i + 16]) ^ ord(secret[i])) for i in range(16))
++    def decrypt_chunk(self, chunk, blowfish_key):
++        """Decrypt a given chunk using the blow fish key."""
++        cipher = Blowfish.new(
++            blowfish_key.encode("ascii"),
++            Blowfish.MODE_CBC,
++            b"\x00\x01\x02\x03\x04\x05\x06\x07",
++        )
++        return cipher.decrypt(chunk)
++
++    # seb NOTE: a very basic encryption is used for the stream, as the music of a sample url is well-audible despite noise.
++    # Found these options to decrypt:
++    # 1. deezer mass provider
++    #   + we use the same url to call, so should process encryption data similarly
++    #   - uses stupid app_vars, so have to take it out again
++    # 2. refreezer DeezerDecryptor.
++    #   + seems simple enough
++    #   + might match encryption pattern (weak)
++    #   - not used by refreezer except when using the 'streaming server' and other offline tracks functionalities
++    # 3. refreezer 'generateTrackUrl'
++    #   + related to 2
++    #   - only used for offline track functionality?
++    #   - only call in 'getTrackUrl', with comment: "Deprecated legacy url generation. Seems unavailable now."
 +    async def get_audio_stream(self, streamdetails: StreamDetails, seek_position: int=0) -> AsyncGenerator[bytes, None]:
 +        """ Return the (custom) audio stream for the provider item. """
-+        # this is an async generator that should yield raw audio bytes for the given streamdetails. You can use this to provide a custom
-+        # stream generator for the audio stream. This is only called when the stream_type is set to CUSTOM in the get_stream_details method.
-+        #
-+        # seb NOTE: a very basic encryption is used for the stream, as the music of a sample url is well-audible despite noise.
-+        # Found these options to decrypt:
-+        # 1. deezer mass provider
-+        #   + we use the same url to call, so should process encryption data similarly
-+        #   - uses stupid app_vars, so have to take it out again
-+        # 2. refreezer DeezerDecryptor.
-+        #   + seems simple enough
-+        #   + might match encryption pattern (weak)
-+        #   - not used by refreezer except when using the 'streaming server' and other offline tracks functionalities
-+        # 3. refreezer 'generateTrackUrl'
-+        #   + related to 2
-+        #   - only used for offline track functionality?
-+        #   - only call in 'getTrackUrl', with comment: "Deprecated legacy url generation. Seems unavailable now."
-+
-+        # taken from 1.
-+        blowfish_key = self.get_blowfish_key(streamdetails.data["track_id"])
++        blowfish_key = self.get_blowfish_key(streamdetails.data['track_id'])
 +        chunk_index = 0
 +        timeout = ClientTimeout(total=0, connect=30, sock_read=600)
++        # headers = self.api.get_headers()
 +        headers = {}
 +        # if seek_position and streamdetails.size:
 +        #     chunk_count = ceil(streamdetails.size / 2048)
@@ -852,12 +868,12 @@ index 00000000..a380c638
 +            skip_chunks = 0
 +
 +        buffer = bytearray()
-+        streamdetails.data["start_ts"] = utc_timestamp()
-+        streamdetails.data["stream_id"] = uuid.uuid1()
-+        self.mass.create_task(self.gw_client.log_listen(next_track=streamdetails.item_id))
-+        async with self.mass.http_session.get(
-+            streamdetails.data["url"], headers=headers, timeout=timeout
-+        ) as resp:
++        streamdetails.data['start_ts'] = utc_timestamp()
++        streamdetails.data['stream_id'] = uuid.uuid1()
++        # self.mass.create_task(self.gw_client.log_listen(next_track=streamdetails.item_id))
++        async with self.api.session.get(streamdetails.data['url'], headers=headers, timeout=timeout) as resp:
++            self.logger.info(f'Got stream status {resp.status}, reason="{resp.reason}"')
++            self.logger.info(f'Resulting stream is of type "{resp.content_type}". Found headers: "{resp.headers}"')
 +            async for chunk in resp.content.iter_chunked(2048):
 +                buffer += chunk
 +                if len(buffer) >= 2048:
@@ -884,7 +900,7 @@ index 00000000..a380c638
 +    def _parse_album(self, data: Dict) -> list[Album]:
 +        artists = [self._parse_artist(elem) for elem in data['ARTISTS']] if 'ARTISTS' in data else []
 +        if 'ARTISTS' not in data and 'ART_NAME' in data:
-+            artists.append(Artist(name=data['ART_NAME']))
++            artists.append(self._parse_artist(data))
 +
 +        album = Album(
 +            item_id=data['ALB_ID'], # seb TODO: tostring? Is now int
@@ -972,7 +988,7 @@ index 00000000..a380c638
 +            artists=self._parse_artists(data['ARTISTS'] if 'ARTISTS' in data else [data]),
 +            album=self._parse_album(data)
 +        )
-+        track.metadata.explicit = str(data['EXPLICIT_LYRICS']) == '1'
++        track.metadata.explicit = 'EXPLICIT_LYRICS' in data and data['EXPLICIT_LYRICS'] == 1
 +        if 'ALB_PICTURE' in data:
 +            details = DeezerAPI.ImageDetails.from_private_string(data['ALB_PICTURE']) # seb TODO: used to be: 'from_private_json' (but that does not work from search-origin)
 +            track.metadata.images = [
@@ -1022,25 +1038,29 @@ index 00000000..a380c638
 +        content_type = ContentType.UNKNOWN # let FFMPEG guess the contenttype
 +        bitrate = None
 +        quality = self.config.get_value(CONF_REFREEZER_QUALITY)
++        size = None
 +        if f'FILESIZE_{quality}' in data and data[f'FILESIZE_{quality}'] != '0':
++            size = data[f'FILESIZE_{quality}']
 +            c = quality.split('_')
 +            content_type = ContentType.try_parse(c[0])
 +            bitrate = int(c[1] if len(c) >= 2 else None)
 +        else:
 +            for cat in ['AAC_64', 'MP3_64', 'MP3_128', 'MP3_256', 'MP3_320', 'FLAC']:
 +                if data[f'FILESIZE_{cat}'] != "0":
++                    size = data[f'FILESIZE_{cat}']
 +                    c = cat.split('_')
 +                    content_type = ContentType.try_parse(c[0])
 +                    bitrate = int(c[1] if len(c) >= 2 else None)
 +
++        self.logger.debug(f'Using format details for item id {data["SNG_ID"]}: {content_type} @ {bitrate} kbits')
 +        return StreamDetails(
-+            item_id=data['SNG_TITLE'],
++            item_id=data['SNG_ID'],
 +            provider=self.lookup_key,
 +            audio_format=AudioFormat(content_type=content_type, bit_rate=bitrate), # seb TODO: have to set bit_depth (default 16) and sample_rate (default 44100) too?
 +            stream_type=StreamType.CUSTOM, # seb NOTE: used to be HTTP
 +            duration=int(data['DURATION']),
-+            data={}, # seb NOTE: cann pass in data here, passed on to the get_audio_stream funciton.
-+            size=data['FILESIZE'],
++            data={'track_id': data['SNG_ID']}, # seb NOTE: cann pass in data here, passed on to the get_audio_stream funciton.
++            size=int(size) if size else None,
 +            can_seek=True,
 +            allow_seek=True,
 +        )
