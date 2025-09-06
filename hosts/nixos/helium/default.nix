@@ -135,7 +135,7 @@
     music-assistant = {
       enable = true;
       backup-routes = [ "xenon" ];
-      port-management = 8095;
+      port = 8095;
       port-free.start = 9004;
       port-free.end = 9999;
       providers = [ "deezer" "jellyfin" "snapcast" ];

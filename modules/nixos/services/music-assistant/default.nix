@@ -17,11 +17,11 @@ in {
   options.my.services.music-assistant = with lib; {
     enable = mkEnableOption "music-assistant service";
 
-    port-management = mkOption {
+    port = mkOption {
       type = types.port;
       default = 8095;
-      description = "Management port for music-assistant web interface (note: only listens to connections from 192.168.0.0/24 so a global-facing port-management can be used)";
-    }; # seb TODO: make port-management nixos-configurable if possible, or remove this option. For now, it only works if 8095 is used.
+      description = "UI port for music-assistant web interface (note: only listens to connections from 192.168.0.0/24 so a global-facing port can be used)";
+    }; # seb TODO: make port nixos-configurable if possible, or remove this option. For now, it only works if 8095 is used.
 
     port-free = {
       start = mkOption {
@@ -33,15 +33,10 @@ in {
         description = "end of free port range. The free range is used to deliver audio to client implementations as needed (e.g. streaming to a 'snapserver' when using snapcast integration).";
       };
 
-      # current facts:
+      # current (2025) facts:
       # must use < 0.30 snapserver
       # The docs about it: https://github.com/badaix/snapcast/blob/develop/doc/json_rpc_api/control.md#streamaddstream
       # (check different release versions)
-      #
-      # current research:
-      # 1. What happens when I use multiple speakers? Can I indeed sync with snapcast?
-      # 2. Do I have to use port 9004 only, because this is what the default stream of snapcast has configured?
-      # 
     };
 
     config-path = mkOption {
@@ -96,18 +91,18 @@ in {
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.config-path ]; };
 
     my.services.nginx.virtualHosts.ma = {
-      port = cfg.port-management;
+      port = cfg.port;
       useACMEHost = config.networking.domain;
       local-only = true;
 
       extraConfig = {
         locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString cfg.port-management}/";
+          proxyPass = "http://127.0.0.1:${toString cfg.port}/";
           proxyWebsockets = true;
         };
-        locations."/callback" = lib.mkIf (builtins.elem "deezer" cfg.providers) { # needed for authentication URLs
-          proxyPass = "http://127.0.0.1:8097";
-        };
+        # locations."/callback" = lib.mkIf (builtins.elem "deezer" cfg.providers) { # needed for authentication URLs
+        #   proxyPass = "http://127.0.0.1:8097";
+        # };
       };
     };
   };

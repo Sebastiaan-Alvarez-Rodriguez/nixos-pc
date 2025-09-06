@@ -10,10 +10,10 @@ index 673eb1d9..efef05e7 100644
  *.db
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..055e1e16
+index 00000000..ec5f0fdf
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,1050 @@
+@@ -0,0 +1,1044 @@
 +from __future__ import annotations
 +
 +import asyncio
@@ -587,7 +587,6 @@ index 00000000..055e1e16
 +                        self.logger.warning('Failed in getting streaming URL: %s', data.get('errors'))
 +                    if 'media' in data and data['media']:
 +                        from pprint import pformat
-+                        self.logger.info(f'got data url etc: {data["media"][0]}')
 +                        url = data['media'][0]['sources'][0]['url']
 +                        return url, True
 +        except Exception as e:
@@ -800,7 +799,6 @@ index 00000000..055e1e16
 +        url, encrypted = await self.api.get_track_url(track_id=urldata['SNG_ID'], track_token=urldata['TRACK_TOKEN'], md5origin=urldata['MD5_ORIGIN'], media_version=urldata['MEDIA_VERSION'], quality=self.config.get_value(CONF_REFREEZER_QUALITY))
 +        if url == None:
 +            raise UnplayableMediaError(f'Could not fetch url for track')
-+        self.logger.debug(f'Found this url (encrypted={encrypted}): {url}')
 +
 +        details = self._parse_track_details(data)
 +        details.data['url'] = url
@@ -820,7 +818,6 @@ index 00000000..055e1e16
 +        """Get blowfish key to decrypt a chunk of a track."""
 +        # secret = 'jo6aey6haid2Teih' # refreezer official key
 +        secret = 'g4el58wc0zvf9na1' # deezer mass-implementation key (found in app_var(5))
-+        self.logger.info(f'got secret: {secret}')
 +        id_md5 = self._md5(track_id)
 +        return "".join(chr(ord(id_md5[i]) ^ ord(id_md5[i + 16]) ^ ord(secret[i])) for i in range(16))
 +    def decrypt_chunk(self, chunk, blowfish_key):
@@ -872,8 +869,6 @@ index 00000000..055e1e16
 +        streamdetails.data['stream_id'] = uuid.uuid1()
 +        # self.mass.create_task(self.gw_client.log_listen(next_track=streamdetails.item_id))
 +        async with self.api.session.get(streamdetails.data['url'], headers=headers, timeout=timeout) as resp:
-+            self.logger.info(f'Got stream status {resp.status}, reason="{resp.reason}"')
-+            self.logger.info(f'Resulting stream is of type "{resp.content_type}". Found headers: "{resp.headers}"')
 +            async for chunk in resp.content.iter_chunked(2048):
 +                buffer += chunk
 +                if len(buffer) >= 2048:
@@ -891,7 +886,7 @@ index 00000000..055e1e16
 +    async def on_played( self, media_type: MediaType, prov_item_id: str, fully_played: bool, position: int, media_item: MediaItemType, is_playing: bool=False) -> None:
 +        """Handle callback when a track is playing (called every 30s), has been fully played, or has been stopped/skipped."""
 +        if fully_played: # seb NOTE: refreezer officially logs when >75% of a track has been played.
-+            self.api.log_listen(id=prov_item_id)
++            await self.api.log_listen(id=prov_item_id)
 +
 +
 +    def _parse_albums(self, data: Dict) -> list[Album]:
@@ -1052,7 +1047,6 @@ index 00000000..055e1e16
 +                    content_type = ContentType.try_parse(c[0])
 +                    bitrate = int(c[1] if len(c) >= 2 else None)
 +
-+        self.logger.debug(f'Using format details for item id {data["SNG_ID"]}: {content_type} @ {bitrate} kbits')
 +        return StreamDetails(
 +            item_id=data['SNG_ID'],
 +            provider=self.lookup_key,

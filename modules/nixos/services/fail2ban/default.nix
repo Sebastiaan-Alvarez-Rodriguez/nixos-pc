@@ -11,7 +11,7 @@ in {
     services.fail2ban = {
       enable = true;
 
-      ignoreIP = [ "127.0.0.0/8" ] ++ lib.optionals wg-cfg.enable [ "${wg-cfg.net.v4.subnet}.0/${toString wg-cfg.net.v4.mask}" "${wg-cfg.net.v6.subnet}::/${toString wg-cfg.net.v6.mask}" ]; # loopback addresses ++ Wireguard IPs
+      ignoreIP = [ "127.0.0.0/24" "192.168.0.0/16" "172.16.0.0/12" "10.0.0.0/8" config.networking.domain ] ++ lib.optionals wg-cfg.enable [ "${wg-cfg.net.v4.subnet}.0/${toString wg-cfg.net.v4.mask}" "${wg-cfg.net.v6.subnet}::/${toString wg-cfg.net.v6.mask}" ]; # loopback addresses ++ Wireguard IPs
 
       maxretry = 5;
 

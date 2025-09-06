@@ -54,8 +54,8 @@ in {
       enable = true;
 
       cacheNetworks = cfg.cache-networks; # allowed networks to use us as a resolver. Note: This is for recursive queries only. Block all requests in each zone using `allowQuery`
-      forwarders = cfg.forwarders;
 
+      forwarders = cfg.forwarders;
       forward = "only"; # do not try to resolve if no forwarders succeed
       
       zones = let
