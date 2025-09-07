@@ -90,7 +90,7 @@
       usev6="no";
       protocol = "porkbun";
       server = "api.porkbun.com";
-      domains = [ config.networking.domain "*.${config.networking.domain}"];
+      domains = [ config.networking.domain "*.${config.networking.domain}" "fail2ban.mijn.place" ];
       root-domain = "mijn.place";
       extraConfig = ''
         apikey=@DDNS-api-key@
@@ -101,7 +101,10 @@
         "@DDNS-secret-api-key@" = config.age.secrets."common/ddns/secret-api-key".path;
       };
     };
-    fail2ban.enable = true;
+    fail2ban = {
+      enable = true;
+      ignore-ips = [ "127.0.0.0/24" "192.168.0.0/16" "172.16.0.0/12" "10.0.0.0/8" "fail2ban.mijn.place"];
+    };
     fancontrol-i8k = {
       enable = true;
       quiet-start = true;

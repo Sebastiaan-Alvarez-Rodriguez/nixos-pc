@@ -1,4 +1,7 @@
 # declarative DNS client
+# note: mobile phones may have a OS setting 'private DNS', set to auto/on, will always try to circumvent this service.
+# force usage through network rules,
+# or disable 'private DNS' on target phones
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.bind;
   local-networks = [ "127.0.0.0/24" "192.168.0.0/16" "::1/128" ];

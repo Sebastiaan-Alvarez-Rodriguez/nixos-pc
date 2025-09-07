@@ -5,13 +5,20 @@
 in {
   options.my.services.fail2ban = with lib; {
     enable = mkEnableOption "fail2ban daemon";
+
+    ignore-ips = mkOption {
+      type = with types; listOf(str);
+      description = "IP addresses, IP subnets, or domain names (will be resolved to IP addresses) to ignore";
+      example = [ "1.2.3.4" "192.168.0.0/16" "some-domain.com" ];
+      default = [ "127.0.0.0/24" "192.168.0.0/16" "172.16.0.0/12" "10.0.0.0/8" config.networking.domain ];
+    };
   };
 
   config = lib.mkIf cfg.enable {
     services.fail2ban = {
       enable = true;
 
-      ignoreIP = [ "127.0.0.0/24" "192.168.0.0/16" "172.16.0.0/12" "10.0.0.0/8" config.networking.domain ] ++ lib.optionals wg-cfg.enable [ "${wg-cfg.net.v4.subnet}.0/${toString wg-cfg.net.v4.mask}" "${wg-cfg.net.v6.subnet}::/${toString wg-cfg.net.v6.mask}" ]; # loopback addresses ++ Wireguard IPs
+      ignoreIP = cfg.ignore-ips ++ lib.optionals wg-cfg.enable [ "${wg-cfg.net.v4.subnet}.0/${toString wg-cfg.net.v4.mask}" "${wg-cfg.net.v6.subnet}::/${toString wg-cfg.net.v6.mask}" ]; # loopback addresses ++ Wireguard IPs
 
       maxretry = 5;
 
