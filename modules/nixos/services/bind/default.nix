@@ -4,11 +4,12 @@
 # or disable 'private DNS' on target phones
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.bind;
-  local-networks = [ "127.0.0.0/24" "192.168.0.0/16" "::1/128" ];
+  local-networks = [ "localhost" "192.168.0.0/16" "::1/128" ];
 in {
   options.my.services.bind = with lib; {
     enable = mkEnableOption "DNS service";
 
+    allow-ipv6 = mkEnableOption "enable ipv6 bind interfacing. ONLY use this if you really have ipv6 support from your ISP.";
     cache-networks = mkOption {
       type = with types; nullOr (listOf str);
       default = local-networks;
@@ -59,8 +60,11 @@ in {
       cacheNetworks = cfg.cache-networks; # allowed networks to use us as a resolver. Note: This is for recursive queries only. Block all requests in each zone using `allowQuery`
 
       forwarders = cfg.forwarders;
-      forward = "only"; # do not try to resolve if no forwarders succeed
+      forward = "only"; # options: "first" or "only". only=only forward to forwarders. "first"=the same as only plus if the forwarders fail, do a full lookup using root servers.
       
+      listenOnIpv6 = if cfg.allow-ipv6 then [ "any" ] else [ "none" ];
+      ipv4Only = !cfg.allow-ipv6;
+  
       zones = let
         gen-conf = k: { ... } @ args: {
           master = true;
@@ -80,6 +84,12 @@ in {
         };
       in
         lib.mapAttrs gen-conf cfg.zones;
+
+      extraOptions = ''
+        dnssec-validation auto;
+        auth-nxdomain no; // conform to RFC1035
+        version "not available"; // Disable for security
+      '';
     };
 
     services.fail2ban.jails."bind" = {

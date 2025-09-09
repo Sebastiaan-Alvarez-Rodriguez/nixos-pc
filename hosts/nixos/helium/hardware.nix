@@ -46,6 +46,6 @@
     hostname = "helium";
     domain = "h.mijn.place";
     block-trackers = true;
-    nameservers = [ "1.1.1.1" "1.0.0.1" ];
+    nameservers = [ "1.1.1.1" "9.9.9.9" ]; # primary cloudflare, backup quad9
   };
 }
