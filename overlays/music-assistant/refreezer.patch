@@ -10,10 +10,10 @@ index 673eb1d9..efef05e7 100644
  *.db
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..ec5f0fdf
+index 00000000..c72c681a
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,1044 @@
+@@ -0,0 +1,1049 @@
 +from __future__ import annotations
 +
 +import asyncio
@@ -688,17 +688,18 @@ index 00000000..ec5f0fdf
 +    async def get_artist(self, prov_artist_id: str) -> Artist:
 +        """Get full artist details by id."""
 +        data = await self.api.artist(id=prov_artist_id)
-+        return self._parse_artist(data['results']['DATA'])
++        return self._parse_artist(data['DATA'])
 +
 +    async def get_artist_albums(self, prov_artist_id: str) -> list[Album]:
 +        """Get a list of all albums for the given artist."""
 +        data = await self.api.artist(id=prov_artist_id)
-+        return self._parse_albums(data['results']['ALBUMS'])
++        return self._parse_albums(data['ALBUMS']['data'])
 +
 +    async def get_artist_toptracks(self, prov_artist_id: str) -> list[Track]:
 +        """Get a list of most popular tracks for the given artist."""
 +        data = await self.api.artist(id=prov_artist_id)
-+        return self._parse_tracks(data['results']['TOP'])
++        top = data['TOP']['data'] if any(data['TOP']['data']) else data['SONGS']['data'][:8] # top tracks if provided, otherwise first up-to-8 reported.
++        return self._parse_tracks(top)
 +
 +    async def get_album(self, prov_album_id: str) -> Album:
 +        """Get full album details by id."""
@@ -795,11 +796,14 @@ index 00000000..ec5f0fdf
 +        # to allow Music Assistant to process the audio using ffmpeg.
 +        data = await self.api.track(id=item_id)
 +
++        from pprint import pformat
++        self.logger.warning(f'\n\n\nfound data:\n{pformat(data)}')
 +        urldata = data['FALLBACK'] if 'FALLBACK' in data else data # original refreezer uses fallback by default too (seems like newer versions are stored in 'fallback', and outdated versions stop to function after a while)
 +        url, encrypted = await self.api.get_track_url(track_id=urldata['SNG_ID'], track_token=urldata['TRACK_TOKEN'], md5origin=urldata['MD5_ORIGIN'], media_version=urldata['MEDIA_VERSION'], quality=self.config.get_value(CONF_REFREEZER_QUALITY))
 +        if url == None:
 +            raise UnplayableMediaError(f'Could not fetch url for track')
 +
++        self.logger.warning(f'found url:\n{url}')
 +        details = self._parse_track_details(data)
 +        details.data['url'] = url
 +        details.data['encrypted'] = encrypted
@@ -1057,6 +1061,7 @@ index 00000000..ec5f0fdf
 +            size=int(size) if size else None,
 +            can_seek=True,
 +            allow_seek=True,
++            extra_input_args = ['-err_detect', 'ignore_err'],
 +        )
 diff --git a/music_assistant/providers/refreezer/manifest.json b/music_assistant/providers/refreezer/manifest.json
 new file mode 100644
