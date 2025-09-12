@@ -1,6 +1,7 @@
 { ... }: {
   imports = [
     ./adblock
+    ./asusd
     ./avahi
     ./audiobookshelf
     ./backup

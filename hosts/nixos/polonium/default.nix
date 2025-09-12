@@ -114,7 +114,10 @@
   };
 
   my.services = { # seb: TODO uncomment after handling wireguard config.
-  #   wireguard.enable = true;
+    asusd = {
+      enable = true;
+      fancurves = [{temperature=30; fanspeed=0;} {temperature=75; fanspeed=0;} {temperature=80; fanspeed=20;} {temperature=85; fanspeed=80;}];
+    };
     greetd = {
       enable = true;
       greeting = "<=================>";
