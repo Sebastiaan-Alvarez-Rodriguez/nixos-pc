@@ -144,6 +144,13 @@ in {
 
   services = {
     dbus.enable = true;
+    udev.packages = with pkgs; [
+      # https://discourse.nixos.org/t/nixos-udev-configuration/27693
+      # https://discourse.nixos.org/t/via-vial-cant-find-my-keyboard/52525
+      qmk
+      qmk-udev-rules
+      vial
+    ];
   };
 
   environment.etc."greetd/environments".text = ''

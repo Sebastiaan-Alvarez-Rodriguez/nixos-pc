@@ -15,6 +15,7 @@
     qbittorrent
     rustdesk-flutter
     tdesktop
+    signal-desktop
     # teams-for-linux
     teamspeak3
     tor-browser-bundle-bin
