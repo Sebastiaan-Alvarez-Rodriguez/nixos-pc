@@ -8,12 +8,26 @@ index 673eb1d9..efef05e7 100644
  
  .DS_Store
  *.db
+diff --git a/music_assistant/helpers/ffmpeg.py b/music_assistant/helpers/ffmpeg.py
+index fa9c2b8a..53457556 100644
+--- a/music_assistant/helpers/ffmpeg.py
++++ b/music_assistant/helpers/ffmpeg.py
+@@ -89,7 +89,8 @@ class FFMpeg(AsyncProcess):
+             else:
+                 clean_args.append(arg)
+         args_str = " ".join(clean_args)
+-        self.logger.log(VERBOSE_LOG_LEVEL, "started with args: %s", args_str)
++        # self.logger.log(VERBOSE_LOG_LEVEL, "started with args: %s", args_str)
++        self.logger.info("started with args: %s", args_str)
+         self._logger_task = asyncio.create_task(self._log_reader_task())
+         if isinstance(self.audio_input, AsyncGenerator):
+             self._stdin_task = asyncio.create_task(self._feed_stdin())
 diff --git a/music_assistant/providers/refreezer/__init__.py b/music_assistant/providers/refreezer/__init__.py
 new file mode 100644
-index 00000000..c72c681a
+index 00000000..10565c9f
 --- /dev/null
 +++ b/music_assistant/providers/refreezer/__init__.py
-@@ -0,0 +1,1049 @@
+@@ -0,0 +1,1051 @@
 +from __future__ import annotations
 +
 +import asyncio
@@ -319,7 +333,7 @@ index 00000000..c72c681a
 +            'Cookie': cookie,
 +        }
 +
-+    async def call_gw_api(self, method: str, params: Optional[Dict] = None, gateway_input: Optional[str] = None) -> Dict[str, Any]:
++    async def call_gw_api(self, method: str, params: Optional[Dict] = None, gateway_input: Optional[str] = None, retries: int = 2, timeout_sec: int = 6) -> Dict[str, Any]:
 +        url = 'https://www.deezer.com/ajax/gw-light.php'
 +        query = {
 +            'api_version': '1.0',
@@ -332,21 +346,26 @@ index 00000000..c72c681a
 +            query['gateway_input'] = gateway_input
 +
 +        headers = self.get_headers()
-+        async with self.session.post(url, headers=headers, params=query, data=json.dumps(params or {})) as resp:
-+            body = await resp.json()
++        try:
++            async with self.session.post(url, headers=headers, params=query, timeout=timeout_sec, data=json.dumps(params or {})) as resp:
++                body = await resp.json()
 +
-+            # Grab SID cookie
-+            if method == 'deezer.getUserData':
-+                set_cookie = resp.headers.get('Set-Cookie', '')
-+                for cookie in set_cookie.split(';'):
-+                    if cookie.strip().startswith('sid='):
-+                        self.sid = cookie.strip().split('=', 1)[1]
++                # Grab SID cookie
++                if method == 'deezer.getUserData':
++                    set_cookie = resp.headers.get('Set-Cookie', '')
++                    for cookie in set_cookie.split(';'):
++                        if cookie.strip().startswith('sid='):
++                            self.sid = cookie.strip().split('=', 1)[1]
 +
-+            # In case of error 'Invalid CSRF token' retrieve new one and retry the same call
-+            # Except for 'deezer.getUserData' method, which would cause infinite loop
-+            if ( 'error' in body and 'VALID_TOKEN_REQUIRED' in body['error'] and method != 'deezer.getUserData' and await self.raw_authorize() ):
-+                return await self.call_gw_api(method, params=params, gateway_input=gateway_input)
-+            return body
++                # In case of error 'Invalid CSRF token' retrieve new one and retry the same call
++                # Except for 'deezer.getUserData' method, which would cause infinite loop
++                if ( 'error' in body and 'VALID_TOKEN_REQUIRED' in body['error'] and method != 'deezer.getUserData' and await self.raw_authorize() ):
++                    return await self.call_gw_api(method, params=params, gateway_input=gateway_input, retries=retries, timeout_sec=timeout_sec)
++                return body
++        except asyncio.TimeoutError as e:
++          if retries <= 0:
++              raise e
++          return await self.call_gw_api(method, params=params, gateway_input=gateway_input, retries=retries-1, timeout_sec=timeout_sec+3)
 +
 +    async def call_public_api(self, path: str) -> Dict[str, Any]:
 +        async with self.session.get(f'https://api.deezer.com/{path}') as resp:
@@ -586,7 +605,6 @@ index 00000000..c72c681a
 +                                )
 +                        self.logger.warning('Failed in getting streaming URL: %s', data.get('errors'))
 +                    if 'media' in data and data['media']:
-+                        from pprint import pformat
 +                        url = data['media'][0]['sources'][0]['url']
 +                        return url, True
 +        except Exception as e:
@@ -796,8 +814,6 @@ index 00000000..c72c681a
 +        # to allow Music Assistant to process the audio using ffmpeg.
 +        data = await self.api.track(id=item_id)
 +
-+        from pprint import pformat
-+        self.logger.warning(f'\n\n\nfound data:\n{pformat(data)}')
 +        urldata = data['FALLBACK'] if 'FALLBACK' in data else data # original refreezer uses fallback by default too (seems like newer versions are stored in 'fallback', and outdated versions stop to function after a while)
 +        url, encrypted = await self.api.get_track_url(track_id=urldata['SNG_ID'], track_token=urldata['TRACK_TOKEN'], md5origin=urldata['MD5_ORIGIN'], media_version=urldata['MEDIA_VERSION'], quality=self.config.get_value(CONF_REFREEZER_QUALITY))
 +        if url == None:
@@ -1034,7 +1050,7 @@ index 00000000..c72c681a
 +        return playlist
 +
 +    def _parse_track_details(self, data: Dict) -> StreamDetails:
-+        content_type = ContentType.UNKNOWN # let FFMPEG guess the contenttype
++        content_type = ContentType.MP3 # let FFMPEG guess the contenttype
 +        bitrate = None
 +        quality = self.config.get_value(CONF_REFREEZER_QUALITY)
 +        size = None
