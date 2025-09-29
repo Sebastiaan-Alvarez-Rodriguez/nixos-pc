@@ -53,7 +53,7 @@ in {
     providers = mkOption {
       type = with types; listOf str;
       default = [];
-      description = "Extra music assistant addons to load";
+      description = "Extra music assistant providers to load (see https://github.com/NixOS/nixpkgs/blob/nixos-25.05/pkgs/by-name/mu/music-assistant/providers.nix)";
     };
 
     extra-settings = mkOption {
