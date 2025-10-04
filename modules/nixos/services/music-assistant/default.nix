@@ -80,7 +80,9 @@ in {
     };
 
     systemd.services.music-assistant = {
-      path = lib.optional (builtins.elem "snapcast" cfg.providers) config.services.snapserver.package;
+      path = let
+        base = [ pkgs.lsof ] ++ lib.optionals (builtins.elem "spotify" cfg.providers) [ pkgs.librespot ];
+      in base ++ lib.optional (builtins.elem "snapcast" cfg.providers) config.services.snapserver.package;
       environment.SNAPSERVER_STREAM_PORT_START = toString cfg.port-free.start; 
       environment.SNAPSERVER_STREAM_PORT_END = toString cfg.port-free.end; 
     };
@@ -93,16 +95,28 @@ in {
     my.services.nginx.virtualHosts.ma = {
       port = cfg.port;
       useACMEHost = config.networking.domain;
-      local-only = true;
+      # local-only = true;
 
       extraConfig = {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString cfg.port}/";
           proxyWebsockets = true;
+          # local-only = true;
+          extraConfig = ''
+            allow 192.168.0.16/24;
+            deny all;
+          '';
         };
-        # locations."/callback" = lib.mkIf (builtins.elem "deezer" cfg.providers) { # needed for authentication URLs
-        #   proxyPass = "http://127.0.0.1:8097";
-        # };
+        # seb TODO spotify callback idea:
+        # 1. I can only add complete urls as callback.
+        # 2. music assistant wants to use <url>/callback/<session-id of auth_helper> (which changes every time)
+        # 3. Because of 1, I need some intermediary to basically accept <session-id> as a get-param and forward to the right url.
+        # 4. music-assistant.io/callback appears to do that, but: it changes my full url to an ip.
+        # 5. it must stay a full url.
+        # 6. TODO try: maybe change the state param?
+        locations."/callback" = lib.mkIf ((builtins.elem "deezer" cfg.providers) || (builtins.elem "spotify" cfg.providers)) { # needed for authentication URLs
+          proxyPass = "http://127.0.0.1:8097";
+        };
       };
     };
   };
