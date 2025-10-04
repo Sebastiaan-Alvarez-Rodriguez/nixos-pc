@@ -113,10 +113,15 @@
     adb.enable = true; # To use, users must be added to the "adbusers" group
   };
 
-  my.services = { # seb: TODO uncomment after handling wireguard config.
+  my.services = {
     asusd = {
       enable = true;
-      fancurves = [{temperature=30; fanspeed=0;} {temperature=75; fanspeed=0;} {temperature=80; fanspeed=20;} {temperature=85; fanspeed=80;}];
+      fancurves = {
+        balanced = {
+          cpu = { pwm = [ 28 40 48 58 71 102 119 135 ]; temp = [ 20 48 51 54 57 61 65 98 ]; };
+          gpu = { pwm = [ 35 53 63 71 86 112 130 155]; temp = [ 20 48 51 54 57 61 65 98 ]; };
+        };
+      };
     };
     greetd = {
       enable = true;

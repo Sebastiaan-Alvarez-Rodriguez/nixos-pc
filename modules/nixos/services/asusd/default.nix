@@ -18,7 +18,7 @@ in {
       };
 
       disable_nvidia_powerd_on_battery = mkOption {
-        type = types.boolean;
+        type = types.bool;
         default = true;
         description = "disables dGPU when on battery";
       };
@@ -36,7 +36,7 @@ in {
       };
 
       platform_profile_linked_epp = mkOption {
-        type = types.boolean;
+        type = types.bool;
         default = true;
         description = "Set true if energy_performance_preference should be set if the platform profile is changed";
       };
@@ -48,7 +48,7 @@ in {
       };
 
       change_platform_profile_on_battery = mkOption {
-        type = types.boolean;
+        type = types.bool;
         default = true;
         description = "Should the throttle policy be set on bat/ac change?";
       };
@@ -60,7 +60,7 @@ in {
       };
 
       change_platform_profile_on_ac = mkOption {
-        type = types.boolean;
+        type = types.bool;
         default = true;
         description = "Should the throttle policy be set on bat/ac change?";
       };
@@ -95,43 +95,107 @@ in {
       # pub screenpad_gamma: Option<f32>,
       # #[serde(skip_serializing_if = "Option::is_none", default)]
       # pub screenpad_sync_primary: Option<bool>,
-      # /// Temporary state for AC/Batt
-
     };
 
-    fancurves = mkOption {
-      type = with types; nullOr (listOf (submodule {
-        options = {
-          temperature = mkOption {
-            type = int;
-            description = "temperature setpoint in degrees C.";
-          };
-          fanspeed = mkOption {
-            type = int;
-            description = "fancurve setpoint in percents.";
-          };
+    fancurves = let
+      fan-options = with types; nullOr (submodule { options = {
+        pwm = mkOption {
+          type = listOf (int);
+          description = "PWM values for when specified temperature is reached (this is specified in 'temp')";
         };
-      }));
-      default = null;
+        temp = mkOption {
+          type = listOf (int);
+          description = "Temp values (PWM values at same index are applied)";
+        };
+        enabled = mkEnableOption "I don't know what this is for";
+      };});
+      profile-options = with types; nullOr (submodule { options = {
+        cpu = mkOption { type = fan-options; description = "CPU config"; };
+        gpu = mkOption { type = fan-options; description = "GPU config"; };
+      };});
+      profiles-options = with types; (submodule { options = {
+        balanced = mkOption {
+          type = profile-options;
+          default = null;
+          description = "balanced config";
+        };
+        performance = mkOption {
+          type = profile-options;
+          default = null;
+          description = "performance config";
+        };
+        quiet = mkOption {
+          type = profile-options;
+          default = null;
+          description = "quiet config";
+        };
+        custom = mkOption {
+          type = profile-options;
+          default = null;
+          description = "custom config";
+        };
+      };});
+    in mkOption {
+      type = profiles-options;
+      example = {balanced = { cpu = {pwm = [30 80 178]; temp = [20 70 85];};};};
       description = "Fancurve configuration";
     };
   };
 
   config = let
-    optvalstr = var: val: lib.optionalString (val != null) "\"${var}\": ${val}";
+    # function to produce a single config line
+    optvalstr = var: val: lib.optionalString (val != null) "${var}: ${toString val},";
   in lib.mkIf cfg.enable {
+    assertions = let
+      cmp-pwm-tmp = attrs: attrs.pwm != null -> attrs.temp != null -> (builtins.length attrs.pwm) == (builtins.length attrs.temp);
+      unequal-pwm-tmp = builtins.attrNames (lib.filterAttrs (k: v: ((v != null) && !((cmp-pwm-tmp v.cpu) && (cmp-pwm-tmp v.gpu)))) cfg.fancurves);
+    in [
+      { assertion = (builtins.length unequal-pwm-tmp) == 0; message = "Found fancurves with non-equal amount of temp-setpoints and fan pwm values: ${unequal-pwm-tmp}"; }
+    ];
     services.asusd = {
       inherit (cfg) enable package;
-      asusdConfig.text = builtins.concatStringsSep ",\n" [
-        (optvalstr "bat_charge_limit" cfg.asusd-config.battery-charge-limit)
-      ];
+      asusdConfig.text = ''
+        (
+          ${builtins.concatStringsSep "\n" (lib.mapAttrsToList optvalstr cfg.asusd-config)}
+        )
+      '';
+    # builtins.concatStringsSep "\n" [
+    #     (optvalstr "charge_control_end_threshold" cfg.asusd-config.charge_control_end_threshold)
+    #     (optvalstr "disable_nvidia_powerd_on_battery" cfg.asusd-config.disable_nvidia_powerd_on_battery)
+    #     (optvalstr "ac_command" cfg.asusd-config.ac_command)
+    #     (optvalstr "aaa" cfg.asusd-config.aaa)
+    #     (optvalstr "aaa" cfg.asusd-config.aaa)
+    #     (optvalstr "aaa" cfg.asusd-config.aaa)
+    #     (optvalstr "aaa" cfg.asusd-config.aaa)
+    #     (optvalstr "aaa" cfg.asusd-config.aaa)
+    #     (optvalstr "bat_charge_limit" cfg.asusd-config.battery-charge-limit)
+    #   ];
 
       enableUserService = false;
 
       fanCurvesConfig.text = let
-        mkcurvepointstr = point: "${builtins.toString point.temperature}:${builtins.toString point.fanspeed}";
-        mkcurvestr = points: builtins.concatStringsSep "," (builtins.map mkcurvepointstr (lib.sort (a: b: a.temperature < b.temperature) points));
-      in lib.optionalString (cfg.fancurves != null) (mkcurvestr cfg.fancurves);
+        mkcurvestr = points: ''(${builtins.concatStringsSep "," (builtins.map builtins.toString points)})'';
+        mkfansettings = target: opts: ''
+          fan: ${target},
+          pwm: ${mkcurvestr opts.pwm},
+          temp: ${mkcurvestr opts.temp},
+          enabled: ${builtins.toString opts.enabled},
+        '';
+        mkprofilesettings = opts: (lib.optionals opts != null) [ (mkfansettings "cpu" opts.cpu) (mkfansettings "gpu" opts.gpu) ];
+        mkprofile = name: profile-opts: ''
+          ${name}: [
+            ${lib.optionalString (profile-opts != null) "("}
+            ${builtins.concatStringsSep "),\n(" (mkprofilesettings profile-opts)}
+            ${lib.optionalString (profile-opts != null) "),"}
+          ],
+        '';
+      in ''
+        (
+          profiles: (
+            ${builtins.concatStringsSep "\n" (lib.mapAttrsToList mkprofile cfg.fancurves)}
+          )
+        )
+      '';
     };
   };
 }
