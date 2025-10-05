@@ -102,6 +102,19 @@
           enable = true;
           systemdTarget = "river-session.target";
           extra-modules-right = [ "power-profiles-daemon" ];
+          extra-settings = {
+            power-profiles-daemon = {
+              format = "{icon} ({profile})";
+              tooltip-format = "power profile: {profile}\ndriver: {driver}";
+              tooltip = true;
+              format-icons = {
+                "default" = "";
+                "performance" = "";
+                "balanced = "";
+                "power-saver = ":;
+              }
+            }
+          };
         };
       };      
     };

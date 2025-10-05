@@ -199,7 +199,8 @@ in {
         mkprofilesettings = opts: ''
           (
             ${mkfansettings "cpu" opts.cpu}
-          ), (
+          ),
+          (
             ${mkfansettings "gpu" opts.gpu}
           ),
         '';
