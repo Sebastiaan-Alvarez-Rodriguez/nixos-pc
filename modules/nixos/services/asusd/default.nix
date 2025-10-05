@@ -98,7 +98,7 @@ in {
     };
 
     fancurves = let
-      fan-options = with types; nullOr (submodule { options = {
+      fan-options = with types; (submodule { options = {
         pwm = mkOption {
           type = listOf (int);
           description = "PWM values for when specified temperature is reached (this is specified in 'temp')";
@@ -157,19 +157,22 @@ in {
     };
   };
 
-  config = let
-    # function to produce a single config line
-    optvalstr = var: val: lib.optionalString (val != null) "${var}: ${toString val},";
-  in lib.mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     assertions = let
-      cmp-pwm-tmp = attrs: attrs.pwm != null -> attrs.temp != null -> (builtins.length attrs.pwm) == (builtins.length attrs.temp);
+      cmp-pwm-tmp = attrs: (builtins.length attrs.pwm) == (builtins.length attrs.temp);
+      cmp-min-setpoints = attrs: (builtins.length attrs.temp) >= 8; # must have 8 setpoints at least... Undocumented.
       unequal-pwm-tmp = builtins.attrNames (lib.filterAttrs (k: v: ((v != null) && !((cmp-pwm-tmp v.cpu) && (cmp-pwm-tmp v.gpu)))) cfg.fancurves);
+      too-few-setpoints = builtins.attrNames (lib.filterAttrs (k: v: ((v != null) && !((cmp-min-setpoints v.cpu) && (cmp-min-setpoints v.gpu)))) cfg.fancurves);
     in [
-      { assertion = (builtins.length unequal-pwm-tmp) == 0; message = "Found fancurves with non-equal amount of temp-setpoints and fan pwm values: ${unequal-pwm-tmp}"; }
+      { assertion = (builtins.length unequal-pwm-tmp) == 0; message = "Found fancurves with non-equal amount of temp-setpoints and fan pwm values: [${builtins.toString unequal-pwm-tmp}]"; }
+      { assertion = (builtins.length too-few-setpoints) == 0; message = "Found fancurves with less than 8 temp-setpoints (this is required for BOTH cpu AND gpu): [${builtins.toString too-few-setpoints}]"; }
     ];
     services.asusd = {
       inherit (cfg) enable package;
-      asusdConfig.text = ''
+      asusdConfig.text = let
+        # function to produce a single config line
+        optvalstr = var: val: lib.optionalString (val != null) "${var}: ${toString val},";
+      in ''
         (
           ${builtins.concatStringsSep "\n" (lib.mapAttrsToList optvalstr cfg.asusd-config)}
         )
@@ -189,28 +192,73 @@ in {
       enableUserService = false;
 
       fanCurvesConfig.text = let
-        mkcurvestr = points: ''(${builtins.concatStringsSep "," (builtins.map builtins.toString points)})'';
-        mkfansettings = target: opts: ''fan: ${target}, pwm: ${mkcurvestr opts.pwm}, temp: ${mkcurvestr opts.temp}, enabled: ${if opts.enabled then "true" else "false"},'';
-        mkprofilesettings = opts: ''
-          (
-            ${mkfansettings "CPU" opts.cpu}
-          ),
-          (
-            ${mkfansettings "GPU" opts.gpu}
-          ),
-        '';
-        mkprofile = name: profile-opts: ''
-          ${name}: [
-            ${lib.optionalString (profile-opts != null) (mkprofilesettings profile-opts)}
-          ],
-        '';
+        mkcurvestr = points: ''(${builtins.concatStringsSep ", " (builtins.map builtins.toString points)})'';
+        mkfansettings = target: opts: ''
+          fan: ${target},
+          pwm: ${mkcurvestr opts.pwm},
+          temp: ${mkcurvestr opts.temp},
+          enabled: ${if opts.enabled then "true" else "false"},'';
+        mkprofilesettings = opts: lib.concatLines [
+          "    ${mkfansettings "CPU" opts.cpu}"
+          "),"
+          "("
+          "    ${mkfansettings "GPU" opts.gpu}"
+        ];
+        mkprofile = name: profile-opts: if profile-opts == null then "[]" else lib.concatLines [
+          "    ${name}: ["
+          "        ("
+          "        ${mkprofilesettings profile-opts}"
+          "        ),"
+          "    ],"
+        ];
       in ''
         (
-          profiles: (
-            ${builtins.concatStringsSep "\n" (lib.mapAttrsToList mkprofile cfg.fancurves)}
-          ),
-        )
-      '';
+            profiles: (
+                balanced: [
+                    (
+                        fan: CPU,
+                        pwm: ${mkcurvestr cfg.fancurves.balanced.cpu.pwm},
+                        temp: ${mkcurvestr cfg.fancurves.balanced.cpu.temp},
+                        enabled: ${if cfg.fancurves.balanced.cpu.enabled then "true" else "false"},
+                    ),
+                    (
+                        fan: GPU,
+                        pwm: ${mkcurvestr cfg.fancurves.balanced.gpu.pwm},
+                        temp: ${mkcurvestr cfg.fancurves.balanced.gpu.temp},
+                        enabled: ${if cfg.fancurves.balanced.gpu.enabled then "true" else "false"},
+                    ),
+                ],
+                ${mkprofile "performance" cfg.fancurves.performance}
+                quiet: ${if cfg.fancurves.quiet == null then "[]," else ''[
+            (
+                fan: CPU,
+                pwm: ${mkcurvestr cfg.fancurves.quiet.cpu.pwm},
+                temp: ${mkcurvestr cfg.fancurves.quiet.cpu.temp},
+                enabled: ${if cfg.fancurves.quiet.cpu.enabled then "true" else "false"},
+            ),
+            (
+                fan: GPU,
+                pwm: ${mkcurvestr cfg.fancurves.quiet.gpu.pwm},
+                temp: ${mkcurvestr cfg.fancurves.quiet.gpu.temp},
+                enabled: ${if cfg.fancurves.quiet.gpu.enabled then "true" else "false"},
+            ),
+        ],''}
+                custom: [
+                    (
+                        fan: CPU,
+                        pwm: ${mkcurvestr cfg.fancurves.custom.cpu.pwm},
+                        temp: ${mkcurvestr cfg.fancurves.custom.cpu.temp},
+                        enabled: ${if cfg.fancurves.custom.cpu.enabled then "true" else "false"},
+                    ),
+                    (
+                        fan: GPU,
+                        pwm: ${mkcurvestr cfg.fancurves.custom.gpu.pwm},
+                        temp: ${mkcurvestr cfg.fancurves.custom.gpu.temp},
+                        enabled: ${if cfg.fancurves.custom.gpu.enabled then "true" else "false"},
+                    ),
+                ],
+            ),
+        )'';
     };
     systemd.services.asusd.preStart = let
       pick-contents = item: if item.source != null then item.source else item.text;
