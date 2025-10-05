@@ -181,12 +181,16 @@ in {
           temp: ${mkcurvestr opts.temp},
           enabled: ${builtins.toString opts.enabled},
         '';
-        mkprofilesettings = opts: (lib.optionals opts != null) [ (mkfansettings "cpu" opts.cpu) (mkfansettings "gpu" opts.gpu) ];
+        mkprofilesettings = opts: ''
+          (
+            ${mkfansettings "cpu" opts.cpu}
+          ), (
+            ${mkfansettings "gpu" opts.gpu}
+          ),
+        '';
         mkprofile = name: profile-opts: ''
           ${name}: [
-            ${lib.optionalString (profile-opts != null) "("}
-            ${builtins.concatStringsSep "),\n(" (mkprofilesettings profile-opts)}
-            ${lib.optionalString (profile-opts != null) "),"}
+            ${lib.optionalString (profile-opts != null) (mkprofilesettings profile-opts)}
           ],
         '';
       in ''
