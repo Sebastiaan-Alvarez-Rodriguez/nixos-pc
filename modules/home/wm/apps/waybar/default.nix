@@ -5,7 +5,31 @@ in {
     systemdTarget = mkOption {
       type = with types; str;
       default = "graphical-session.target";
-      description = "The systemd target that will automatically start the swaybg service.";
+      description = "The systemd target that will automatically start the waybar service.";
+    };
+
+
+
+    extra-modules-left = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "for possible modules, see: https://github.com/Alexays/Waybar/wiki/Module:-Backlight-Slider   (the sidebar there shows all modules)";
+    };
+    extra-modules-center = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "for possible modules, see: https://github.com/Alexays/Waybar/wiki/Module:-Backlight-Slider   (the sidebar there shows all modules)";
+    };
+    extra-modules-right = mkOption {
+      type = with types; listOf str;
+      default = [];
+      description = "for possible modules, see: https://github.com/Alexays/Waybar/wiki/Module:-Backlight-Slider   (the sidebar there shows all modules)";
+    };
+
+    extra-settings = mkOption {
+      type = types.attrs;
+      default = {};
+      description = "Extra settings to pass to waybar. Overrides default configuration";
     };
   };
   config = lib.mkIf cfg.enable {
@@ -27,9 +51,9 @@ in {
           position = "top";
           height = 25;
  
-          modules-left = [] ++ lib.optionals config.my.home.wm.river.enable [ "river/tags" ];
-          modules-center = [ "clock" ];
-          modules-right = [ "backlight/slider" "tray" "network" "battery" "cpu" "memory" "pulseaudio" "custom/exit" ];
+          modules-left = [] ++ lib.optionals config.my.home.wm.river.enable [ "river/tags" ] ++ cfg.extra-modules-left;
+          modules-center = [ "clock" ] ++ cfg.extra-modules-center;
+          modules-right = cfg.extra-modules-right ++ [ "backlight/slider" "tray" "network" "battery" "cpu" "memory" "pulseaudio" "custom/exit" ];
 
           network = {
             format-wifi = "{essid} ({signalStrength}%) ";
@@ -86,7 +110,7 @@ in {
             "tooltip-format" = "Power Menu";
           };
         };
-      };
+      } // cfg.extra-settings;
       style = ./waybar-style.css;
     };
   };

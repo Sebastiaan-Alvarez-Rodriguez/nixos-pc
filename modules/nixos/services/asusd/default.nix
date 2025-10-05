@@ -216,9 +216,23 @@ in {
         )
       '';
     };
-    # systemd.services.asusd.preStart = ''
-    #   rm -f /etc/asusd/fan_curves.ron
-    #  
-    # '';
+    systemd.services.asusd.preStart = let
+      pick-contents = item: if item.source != null then item.source else item.text;
+      mkoverride-etc = path: contents: lib.optionalString (contents != null) ''
+        rm -f /etc/${path}
+        ln -s ${pkgs.writeText (builtins.baseNameOf path) (pick-contents contents)} /etc/${path}
+      '';
+    in ''
+      ${
+      builtins.concatStringsSep "\n" [
+        (mkoverride-etc "asusd/anime.ron" config.services.asusd.animeConfig)
+        (mkoverride-etc "asusd/asusd.ron" config.services.asusd.asusdConfig)
+        (mkoverride-etc "asusd/profile.ron" config.services.asusd.profileConfig)
+        (mkoverride-etc "asusd/fan_curves.ron" config.services.asusd.fanCurvesConfig)
+        (mkoverride-etc "asusd/asusd_user_ledmodes.ron" config.services.asusd.userLedModesConfig)
+      ]
+      }
+      ${pkgs.coreutils}/bin/sleep 1
+    '';
   };
 }

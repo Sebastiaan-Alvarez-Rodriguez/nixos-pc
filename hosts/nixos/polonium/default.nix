@@ -101,6 +101,7 @@
         waybar = {
           enable = true;
           systemdTarget = "river-session.target";
+          extra-modules-right = [ "power-profiles-daemon" ];
         };
       };      
     };
