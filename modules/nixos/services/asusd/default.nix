@@ -137,6 +137,21 @@ in {
       };});
     in mkOption {
       type = profiles-options;
+      default = {
+        balanced = {
+          cpu = { pwm = [ 28 40 48 58 71 102 119 135 ]; temp = [ 20 48 51 54 57 61 65 98 ]; };
+          gpu = { pwm = [ 35 53 63 71 86 112 130 155]; temp = [ 20 48 51 54 57 61 65 98 ]; };
+        };
+        performance = {
+          cpu = { pwm = [ 45 58 71 89 102 114 135 158 ]; temp = [ 20 50 55 60 65 70 75 98 ]; };
+          gpu = { pwm = [ 63 71 86 102 112 124 155 178 ]; temp = [ 20 50 55 60 65 70 75 98 ]; };
+        };
+        quiet = {
+          cpu = { pwm = [ 17 28 35 40 48 58 71 89 ]; temp = [ 20 44 47 50 53 56 60 98 ]; };
+          gpu = { pwm = [ 28 35 45 53 63 71 86 102 ]; temp = [ 20 44 47 50 53 56 60 98 ]; };
+        };
+        custom = null;
+      };
       example = {balanced = { cpu = {pwm = [30 80 178]; temp = [20 70 85];};};};
       description = "Fancurve configuration";
     };
@@ -201,5 +216,9 @@ in {
         )
       '';
     };
+    # systemd.services.asusd.preStart = ''
+    #   rm -f /etc/asusd/fan_curves.ron
+    #  
+    # '';
   };
 }
