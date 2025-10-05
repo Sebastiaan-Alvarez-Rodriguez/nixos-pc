@@ -190,18 +190,13 @@ in {
 
       fanCurvesConfig.text = let
         mkcurvestr = points: ''(${builtins.concatStringsSep "," (builtins.map builtins.toString points)})'';
-        mkfansettings = target: opts: ''
-          fan: ${target},
-          pwm: ${mkcurvestr opts.pwm},
-          temp: ${mkcurvestr opts.temp},
-          enabled: ${builtins.toString opts.enabled},
-        '';
+        mkfansettings = target: opts: ''fan: ${target}, pwm: ${mkcurvestr opts.pwm}, temp: ${mkcurvestr opts.temp}, enabled: ${if opts.enabled then "true" else "false"},'';
         mkprofilesettings = opts: ''
           (
-            ${mkfansettings "cpu" opts.cpu}
+            ${mkfansettings "CPU" opts.cpu}
           ),
           (
-            ${mkfansettings "gpu" opts.gpu}
+            ${mkfansettings "GPU" opts.gpu}
           ),
         '';
         mkprofile = name: profile-opts: ''
@@ -213,7 +208,7 @@ in {
         (
           profiles: (
             ${builtins.concatStringsSep "\n" (lib.mapAttrsToList mkprofile cfg.fancurves)}
-          )
+          ),
         )
       '';
     };
@@ -224,17 +219,12 @@ in {
         cp ${pkgs.writeText (builtins.baseNameOf path) (pick-contents contents)} /etc/${path}
         chmod 664 /etc/${path}
       '';
-    in ''
-      ${
-      builtins.concatStringsSep "\n" [
-        (mkoverride-etc "asusd/anime.ron" config.services.asusd.animeConfig)
-        (mkoverride-etc "asusd/asusd.ron" config.services.asusd.asusdConfig)
-        (mkoverride-etc "asusd/profile.ron" config.services.asusd.profileConfig)
-        (mkoverride-etc "asusd/fan_curves.ron" config.services.asusd.fanCurvesConfig)
-        (mkoverride-etc "asusd/asusd_user_ledmodes.ron" config.services.asusd.userLedModesConfig)
-      ]
-      }
-      ${pkgs.coreutils}/bin/sleep 1
-    '';
+    in builtins.concatStringsSep "\n" [
+      (mkoverride-etc "asusd/anime.ron" config.services.asusd.animeConfig)
+      (mkoverride-etc "asusd/asusd.ron" config.services.asusd.asusdConfig)
+      (mkoverride-etc "asusd/profile.ron" config.services.asusd.profileConfig)
+      (mkoverride-etc "asusd/fan_curves.ron" config.services.asusd.fanCurvesConfig)
+      (mkoverride-etc "asusd/asusd_user_ledmodes.ron" config.services.asusd.userLedModesConfig)
+    ];
   };
 }
