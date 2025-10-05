@@ -220,7 +220,8 @@ in {
       pick-contents = item: if item.source != null then item.source else item.text;
       mkoverride-etc = path: contents: lib.optionalString (contents != null) ''
         rm -f /etc/${path}
-        ln -s ${pkgs.writeText (builtins.baseNameOf path) (pick-contents contents)} /etc/${path}
+        cp ${pkgs.writeText (builtins.baseNameOf path) (pick-contents contents)} /etc/${path}
+        chmod 664 /etc/${path}
       '';
     in ''
       ${
