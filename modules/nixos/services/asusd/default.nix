@@ -1,4 +1,4 @@
-# Control fans on asus machines. Provides `asusctl`
+# Control fans and power management on asus machines. Provides `asusctl`
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.asusd;
 in {
@@ -12,9 +12,9 @@ in {
 
     asusd-config = {
       charge_control_end_threshold = mkOption {
-        type = with types; nullOr int;
-        default = null;
-        description = "battery charge limit in percents.";
+        type = with types; int;
+        default = 100;
+        description = "battery charge limit in percents (is overridden by others like TLP or chargectl).";
       };
 
       disable_nvidia_powerd_on_battery = mkOption {
@@ -24,14 +24,14 @@ in {
       };
 
       ac_command = mkOption {
-        type = with types; nullOr str;
-        default = null;
+        type = with types; str;
+        default = "";
         description = "An optional command/script to run when power is changed to AC";
       };
 
       bat_command = mkOption {
-        type = with types; nullOr str;
-        default = null;
+        type = with types; str;
+        default = "";
         description = "An optional command/script to run when power is changed to battery";
       };
 
@@ -42,8 +42,8 @@ in {
       };
 
       platform_profile_on_battery = mkOption {
-        type = types.enum [ "quiet" "balanced" "performance" ];
-        default = "quiet";
+        type = types.enum [ "Quiet" "Balanced" "Performance" ];
+        default = "Quiet";
         description = "Which platform profile to use on battery power";
       };
 
@@ -54,8 +54,8 @@ in {
       };
 
       platform_profile_on_ac = mkOption {
-        type = types.enum [ "quiet" "balanced" "performance" ];
-        default = "performance";
+        type = types.enum [ "Quiet" "Balanced" "Performance" ];
+        default = "Performance";
         description = "Which platform profile to use on AC power";
       };
 
@@ -107,7 +107,10 @@ in {
           type = listOf (int);
           description = "Temp values (PWM values at same index are applied)";
         };
-        enabled = mkEnableOption "I don't know what this is for";
+        enabled = mkOption {
+          default = true;
+          description = "Enable the curve setting. I don't know what this is for.";
+        };
       };});
       profile-options = with types; nullOr (submodule { options = {
         cpu = mkOption { type = fan-options; description = "CPU config"; };
@@ -171,23 +174,26 @@ in {
       inherit (cfg) enable package;
       asusdConfig.text = let
         # function to produce a single config line
-        optvalstr = var: val: lib.optionalString (val != null) "${var}: ${toString val},";
+        removenulls = attrs: lib.filterAttrs (k: v: v != null) attrs;
+        except = keys: attrs: builtins.removeAttrs attrs keys;
+        mkval = val: if builtins.isBool val then (lib.boolToString val) else (builtins.toString val);
+        mkentry = var: val: "${var}: ${(mkval val)},";
+        mkentries = attrs: (lib.mapAttrsToList mkentry (except ["ac_command" "bat_command"] (removenulls attrs)));
       in ''
         (
-          ${builtins.concatStringsSep "\n" (lib.mapAttrsToList optvalstr cfg.asusd-config)}
+          ${builtins.concatStringsSep "\n  " (mkentries cfg.asusd-config)}
+          ac_command: "${cfg.asusd-config.ac_command}",
+          bat_command: "${cfg.asusd-config.bat_command}",
+          ac_profile_tunings: {},
+          dc_profile_tunings: {
+            Quiet: (
+              enabled: false,
+              group: {},
+            ),
+          },
+          armoury_settings: {},
         )
       '';
-    # builtins.concatStringsSep "\n" [
-    #     (optvalstr "charge_control_end_threshold" cfg.asusd-config.charge_control_end_threshold)
-    #     (optvalstr "disable_nvidia_powerd_on_battery" cfg.asusd-config.disable_nvidia_powerd_on_battery)
-    #     (optvalstr "ac_command" cfg.asusd-config.ac_command)
-    #     (optvalstr "aaa" cfg.asusd-config.aaa)
-    #     (optvalstr "aaa" cfg.asusd-config.aaa)
-    #     (optvalstr "aaa" cfg.asusd-config.aaa)
-    #     (optvalstr "aaa" cfg.asusd-config.aaa)
-    #     (optvalstr "aaa" cfg.asusd-config.aaa)
-    #     (optvalstr "bat_charge_limit" cfg.asusd-config.battery-charge-limit)
-    #   ];
 
       enableUserService = false;
 
@@ -214,49 +220,10 @@ in {
       in ''
         (
             profiles: (
-                balanced: [
-                    (
-                        fan: CPU,
-                        pwm: ${mkcurvestr cfg.fancurves.balanced.cpu.pwm},
-                        temp: ${mkcurvestr cfg.fancurves.balanced.cpu.temp},
-                        enabled: ${if cfg.fancurves.balanced.cpu.enabled then "true" else "false"},
-                    ),
-                    (
-                        fan: GPU,
-                        pwm: ${mkcurvestr cfg.fancurves.balanced.gpu.pwm},
-                        temp: ${mkcurvestr cfg.fancurves.balanced.gpu.temp},
-                        enabled: ${if cfg.fancurves.balanced.gpu.enabled then "true" else "false"},
-                    ),
-                ],
+                ${mkprofile "balanced" cfg.fancurves.balanced}
                 ${mkprofile "performance" cfg.fancurves.performance}
-                quiet: ${if cfg.fancurves.quiet == null then "[]," else ''[
-            (
-                fan: CPU,
-                pwm: ${mkcurvestr cfg.fancurves.quiet.cpu.pwm},
-                temp: ${mkcurvestr cfg.fancurves.quiet.cpu.temp},
-                enabled: ${if cfg.fancurves.quiet.cpu.enabled then "true" else "false"},
-            ),
-            (
-                fan: GPU,
-                pwm: ${mkcurvestr cfg.fancurves.quiet.gpu.pwm},
-                temp: ${mkcurvestr cfg.fancurves.quiet.gpu.temp},
-                enabled: ${if cfg.fancurves.quiet.gpu.enabled then "true" else "false"},
-            ),
-        ],''}
-                custom: [
-                    (
-                        fan: CPU,
-                        pwm: ${mkcurvestr cfg.fancurves.custom.cpu.pwm},
-                        temp: ${mkcurvestr cfg.fancurves.custom.cpu.temp},
-                        enabled: ${if cfg.fancurves.custom.cpu.enabled then "true" else "false"},
-                    ),
-                    (
-                        fan: GPU,
-                        pwm: ${mkcurvestr cfg.fancurves.custom.gpu.pwm},
-                        temp: ${mkcurvestr cfg.fancurves.custom.gpu.temp},
-                        enabled: ${if cfg.fancurves.custom.gpu.enabled then "true" else "false"},
-                    ),
-                ],
+                ${mkprofile "quiet" cfg.fancurves.quiet}
+                ${mkprofile "custom" cfg.fancurves.custom}
             ),
         )'';
     };
