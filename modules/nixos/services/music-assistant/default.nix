@@ -81,10 +81,10 @@ in {
 
     systemd.services.music-assistant = {
       path = let
-        base = [ pkgs.lsof ] ++ lib.optionals (builtins.elem "spotify" cfg.providers) [ pkgs.librespot ];
+        base = [ pkgs.lsof ] ++ lib.optionals (builtins.elem "spotify" cfg.providers) [ inputs.nixpkgs-unstable.legacyPackages.${system}.librespot-ma ]; # seb TODO: just use 'pkgs' once nixos 25.11 rolls out.
       in base ++ lib.optional (builtins.elem "snapcast" cfg.providers) config.services.snapserver.package;
       environment.SNAPSERVER_STREAM_PORT_START = toString cfg.port-free.start; 
-      environment.SNAPSERVER_STREAM_PORT_END = toString cfg.port-free.end; 
+      environment.SNAPSERVER_STREAM_PORT_END = toString cfg.port-free.end;
     };
 
     services.home-assistant.extraComponents = [ "music_assistant" ];
@@ -102,15 +102,9 @@ in {
           proxyPass = "http://127.0.0.1:${toString cfg.port}/";
           proxyWebsockets = true;
         };
-        # seb TODO spotify callback idea:
-        # 1. I can only add complete urls as callback.
-        # 2. music assistant wants to use <url>/callback/<session-id of auth_helper> (which changes every time)
-        # 3. Because of 1, I need some intermediary to basically accept <session-id> as a get-param and forward to the right url.
-        # 4. music-assistant.io/callback appears to do that, but: it changes my full url to an ip.
-        # 5. it must stay a full url.
-        # 6. TODO try: maybe change the state param?
         locations."/callback" = lib.mkIf ((builtins.elem "deezer" cfg.providers) || (builtins.elem "spotify" cfg.providers)) { # needed for authentication URLs
-          proxyPass = "http://127.0.0.1:8097";
+          proxyPass = "http://127.0.0.1:${toString cfg.port}/callback";
+          proxyWebsockets = true;
         };
       };
     };
