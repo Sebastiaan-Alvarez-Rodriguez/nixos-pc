@@ -1,25 +1,18 @@
 diff --git a/music_assistant/providers/spotify/__init__.py b/music_assistant/providers/spotify/__init__.py
-index a677a54e..6819b29e 100644
+index a7e77e40..4f1e35d3 100644
 --- a/music_assistant/providers/spotify/__init__.py
 +++ b/music_assistant/providers/spotify/__init__.py
-@@ -64,6 +64,7 @@ CONF_CLIENT_ID = "client_id"
- CONF_ACTION_AUTH = "auth"
- CONF_REFRESH_TOKEN = "refresh_token"
- CONF_ACTION_CLEAR_AUTH = "clear_auth"
-+CONF_CALLBACK_URL = "callback_url"
- SCOPE = [
-     "playlist-read",
-     "playlist-read-private",
-@@ -148,7 +149,7 @@ async def get_config_entries(
+@@ -59,7 +59,8 @@ async def get_config_entries(
                  "code_challenge_method": "S256",
                  "code_challenge": code_challenge,
                  "redirect_uri": CALLBACK_REDIRECT_URL,
 -                "state": auth_helper.callback_url,
++                # "state": auth_helper.callback_url,
 +                "state": f"{values.get(CONF_CALLBACK_URL)}/callback/{auth_helper.session_id}",
              }
              query_string = urlencode(params)
              url = f"https://accounts.spotify.com/authorize?{query_string}"
-@@ -198,10 +199,18 @@ async def get_config_entries(
+@@ -109,10 +110,18 @@ async def get_config_entries(
              key=CONF_REFRESH_TOKEN,
              type=ConfigEntryType.SECURE_STRING,
              label=CONF_REFRESH_TOKEN,
@@ -30,10 +23,10 @@ index a677a54e..6819b29e 100644
 +        ConfigEntry(
 +            key=CONF_CALLBACK_URL,
 +            type=ConfigEntryType.STRING,
-+            label=CONF_REFRESH_TOKEN,
++            label="callback url",
 +            required=True,
-+            default_value=mass.webserver.base_url,
-+            value=values.get(CONF_CALLBACK_URL) if values else mass.webserver.base_url,
++            default_value=mass.webserver.base_url.replace(':8095', ':8097', 1),
++            value=values.get(CONF_CALLBACK_URL) if values else mass.webserver.base_url.replace(':8095', ':8097', 1),
 +            hidden=not auth_required,
 +        ),
          ConfigEntry(

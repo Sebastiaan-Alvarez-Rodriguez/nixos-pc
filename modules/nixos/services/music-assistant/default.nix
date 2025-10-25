@@ -95,17 +95,12 @@ in {
     my.services.nginx.virtualHosts.ma = {
       port = cfg.port;
       useACMEHost = config.networking.domain;
-      # local-only = true;
+      local-only = true;
 
       extraConfig = {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString cfg.port}/";
           proxyWebsockets = true;
-          # local-only = true;
-          extraConfig = ''
-            allow 192.168.0.16/24;
-            deny all;
-          '';
         };
         # seb TODO spotify callback idea:
         # 1. I can only add complete urls as callback.
