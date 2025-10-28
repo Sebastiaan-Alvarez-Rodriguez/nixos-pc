@@ -101,6 +101,7 @@ in {
         "radio_browser"
 
         # my own added components
+        "dsmr"
         "plugwise"
         # "roborock" NOTE: Roborock has some errors in test cases now
         "solaredge"
