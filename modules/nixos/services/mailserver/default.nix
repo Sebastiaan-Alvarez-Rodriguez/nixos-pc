@@ -78,7 +78,7 @@ in {
         certificateScheme = cfg.certificateScheme;
         certificateFile = cfg.certificateFile;
         keyFile = cfg.keyFile;
-        stateVersion = cfg.state-version;
+        # stateVersion = cfg.state-version; # TODO: uncomment when they fixed their master branch / they updated to 25.11
       }
       cfg.extraConfig
     ]);

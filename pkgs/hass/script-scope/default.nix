@@ -30,18 +30,23 @@
 
     dontUnpack = true;
 
-    buildInputs = with pkgs; [
-      home-assistant
-      python312Packages.colorlog
-    ];
-    buildPhase = if ignore-warnings then ''
+    buildPhase = let
+      # below 3 lines are a trick to ensure 'colorlog' package is available (needed for checking config)
+      ha = pkgs.home-assistant;
+      python-with-colorlog = ha.python.withPackages (ps: [ ps.colorlog ]);
+      hass-wrap = pkgs.writeShellScript "hass" ''
+        export PYTHONPATH=${python-with-colorlog}/${python-with-colorlog.sitePackages}:$PYTHONPATH
+        echo "$@"
+        exec ${ha}/bin/hass "$@"
+      '';
+    in if ignore-warnings then ''
       mkdir config
       echo "${domain} split: !include_dir_named ${src}" > config/configuration.yaml
-      hass --config ./config --script check_config
+      ${hass-wrap} --script check_config --config ./config
     '' else ''
       mkdir config
       echo "${domain} split: !include_dir_named ${src}" > config/configuration.yaml
-      hass --config ./config --script check_config 2>&1 | tee config/log.txt
+      ${hass-wrap} --script check_config --config ./config  2>&1 | tee config/log.txt
 
       # Fail build if warning is detected
       if grep -i except config/log.txt; then
