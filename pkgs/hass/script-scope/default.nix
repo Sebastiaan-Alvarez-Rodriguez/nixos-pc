@@ -4,7 +4,7 @@
     # This function also tests the validity of the script.
     # 1. The package src is located at `/pkgs/hass/script-scope/<name>/`
     # 2. The single-file to package is at `/pkgs/hass/script-scope/<name>/default.yaml`
-    #
+    # 3. The version file describing the version is at `pkgs/hass/script-scope/<name>/version`
     # seb NOTE: !!!!!!!!!!! only tested with scripts. With scenes, it seems 'include_dir_list' is used instead of 'include_dir_named' in the testing part.
     # This means that (in case the current code is wrong) scenes will throw a whole bunch of nonsensical errors OR it will seem to pass, but be incorrect when verifying with the HA UI.
 

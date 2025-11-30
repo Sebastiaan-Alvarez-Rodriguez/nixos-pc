@@ -148,7 +148,7 @@
       description = "rdn";
       extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
-      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
+      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/xenon.ed25519.pub) ];
     };
   };
 

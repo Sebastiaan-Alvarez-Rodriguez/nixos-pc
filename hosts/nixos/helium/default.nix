@@ -302,17 +302,17 @@
       description = "mrs";
       extraGroups = groupsIfExist [ "syncthing" "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
-      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/mrs.rsa.pub) ];
+      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/mrs/mrs.rsa.pub) ];
     };
     users.rdn = {
       isNormalUser = true;
       description = "rdn";
       extraGroups = groupsIfExist [ "syncthing" "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
-      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
+      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn/helium.ed25519.pub) ];
     };
   };
-  age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
+  # age.identityPaths = [ "/home/rdn/.ssh/helium.ed25519" "/home/mrs/.ssh/helium.ed25519" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";

@@ -193,12 +193,7 @@ nix eval '.#nixosModules.nixos-pc' | nixfmt # for pretty printing
 1. Improve security: https://discourse.nixos.org/t/automatically-ban-ports-scanner-ips-on-nixos/22110
    Also - check out crowdsec.
 2. Improve style: https://www.youtube.com/watch?v=ptmiPG_V4u8
-3. laptop fan control: https://wiki.archlinux.org/title/Fan_speed_control
 
 ## Resources
 1. Install flake using script: https://dzone.com/articles/nixos-native-flake-deployment-with-luks-and-lvm
 2. Overrides in multiple ways: https://bobvanderlinden.me/customizing-packages-in-nix/
-
-
-
-
