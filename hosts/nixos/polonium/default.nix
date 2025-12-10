@@ -216,7 +216,6 @@
       description = "rdn";
       extraGroups = groupsIfExist [ "syncthing" "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "video" "wheel" ];
       shell = pkgs.fish;
-      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
     };
   };
   # seb: TODO can make this auto-discovery by iterating users.users and iterating their ~/.ssh directories

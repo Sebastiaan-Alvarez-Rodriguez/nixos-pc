@@ -85,7 +85,7 @@
       description = "rdn";
       extraGroups = groupsIfExist [ "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
-      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/keys/users/rdn.rsa.pub) ];
+      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/users/rdn/blackberry.rsa.pub) ];
     };
   };
 
