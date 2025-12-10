@@ -43,7 +43,7 @@ in {
 
       # Nix Flakes compatibility
       # useGlobalPkgs = true; # seb NOTE: cannot have `nixpkgs.config` and/or `nixpkgs.overlays` while using `home-manager.useGlobalPkgs`
-      useUserPackages = true;
+      useUserPackages = false; # seb TODO: keep true or set false? https://discourse.nixos.org/t/home-manager-useuserpackages-useglobalpkgs-settings/34506/10
 
       # Forward inputs to home-manager configuration
       extraSpecialArgs = {

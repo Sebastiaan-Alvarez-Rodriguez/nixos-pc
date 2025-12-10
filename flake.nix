@@ -16,11 +16,11 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixpkgs.url = "nixpkgs/nixos-25.05";
+    nixpkgs.url = "nixpkgs/nixos-25.11";
     nixpkgs-24_05.url = "nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
 
@@ -34,7 +34,7 @@
     };
 
     simple-nixos-mailserver = {
-      url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-25.05";
+      url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

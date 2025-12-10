@@ -14,11 +14,11 @@
     # proton-caller
     qbittorrent
     rustdesk-flutter
-    tdesktop
+    telegram-desktop
     signal-desktop
     # teams-for-linux
-    teamspeak3
-    tor-browser-bundle-bin
+    teamspeak6-client
+    tor-browser
     vlc
   ];
   

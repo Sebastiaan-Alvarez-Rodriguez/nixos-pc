@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.home.wm.apps.rofi;
-  picked_pkg = if config.my.home.gm.wayland.enable then pkgs.rofi-wayland else pkgs.rofi;
+  picked_pkg = pkgs.rofi;
 in {
   config = lib.mkIf cfg.enable {
     programs.rofi = {

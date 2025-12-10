@@ -11,15 +11,17 @@ in {
       ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
   '';
 
-  programs.git.userName = "MariskaIJpelaar";
-  programs.git.userEmail = "m.m.j.ijpelaar@gmail.com";
+  programs.git.settings.user = {
+    name = "MariskaIJpelaar";
+    email = "m.m.j.ijpelaar@gmail.com";
+  };
 
   programs.ssh = {
     matchBlocks = let 
       setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
     in (setDefaults { identitiesOnly = true; } {
       "github.com" = {
-        user = config.programs.git.userName;
+        user = config.programs.git.settings.user.name;
         identityFile = "/home/${username}/.ssh/github.rsa";
       };
       "helium" = {

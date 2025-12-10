@@ -87,11 +87,11 @@
   };
   programs.home-manager.enable = true;
 
-  programs.git = { # set userName and userEmail in specializations
+  programs.git = { # set user.name and user.email in specializations
     enable = true;
     package = pkgs.gitFull;
     ignores = [ ".private" ".cache" "build" ".direnv" ".envrc" ];
-    extraConfig = {
+    settings = {
       core.autocrlf = false;
       pull.rebase = true;
       color.ui = true;
@@ -103,9 +103,10 @@
 
   programs.ssh = {
     enable = true;
-    forwardAgent = true;
-
-    controlMaster = "auto";
-    controlPersist = "10m";
+    matchBlocks."*" = {
+      controlPersist = "10m";
+      forwardAgent = true;
+      controlMaster = "auto";
+    };
   };
 }

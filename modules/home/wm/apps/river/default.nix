@@ -1,5 +1,6 @@
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.wm.river;
+  river = pkgs.river-classic;
 in {
   imports = [ ./river-session.nix ];
 
@@ -27,8 +28,8 @@ in {
     home.packages = with pkgs; [ river ];
 
     programs.river = let
-      riverctl = "${pkgs.river}/bin/riverctl";
-      rivertile = "${pkgs.river}/bin/rivertile";
+      riverctl = "${river}/bin/riverctl";
+      rivertile = "${river}/bin/rivertile";
       pamixer = "${pkgs.pamixer}/bin/pamixer";
       playerctl = "${pkgs.playerctl}/bin/playerctl";
       brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";

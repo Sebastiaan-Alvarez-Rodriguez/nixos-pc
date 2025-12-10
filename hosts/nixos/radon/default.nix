@@ -130,7 +130,7 @@ in {
           sleep 1
           export XDG_SESSION_TYPE=wayland
           export XDG_CURRENT_DESKTOP=river
-          ${pkgs.river}/bin/river
+          ${pkgs.river-classic}/bin/river
         '';
       };
     };

@@ -21,19 +21,17 @@ in {
       enable = true;
       settings = with lib; let 
         mkCommand = (_: cmd: {
-          command =  ''${pkgs.greetd.tuigreet}/bin/tuigreet --time --asterisks --user-menu --greeting "${cfg.greeting}" --cmd "${cmd}";'';
+          command =  ''${pkgs.tuigreet}/bin/tuigreet --time --asterisks --user-menu --greeting "${cfg.greeting}" --cmd "${cmd}";'';
         });
         sessions = mapAttrs (mkCommand) cfg.sessions;
       in {
         test_session = { # seb: TODO cannot have multiple greet commands which can be switched... Can make a bash script to switch usernames, and execute the actual graphical setup there.
-          command =  ''${pkgs.greetd.tuigreet}/bin/tuigreet --time --asterisks --user-menu --greeting "${cfg.greeting}" --cmd "${pkgs.fish}/bin/fish";'';
+          command =  ''${pkgs.tuigreet}/bin/tuigreet --time --asterisks --user-menu --greeting "${cfg.greeting}" --cmd "${pkgs.fish}/bin/fish";'';
           user = "greeter";
         };
       } // sessions;
     };
-    systemd.services.greetd.unitConfig = let
-      tty = "tty${toString config.services.greetd.vt}";
-    in lib.mkIf cfg.wait-for-graphical (lib.mkForce {
+    systemd.services.greetd.unitConfig = let tty = "tty1"; in lib.mkIf cfg.wait-for-graphical (lib.mkForce {
       # as taken from https://github.com/NixOS/nixpkgs/blob/d032c1a6dfad4eedec7e35e91986becc699d7d69/nixos/modules/services/display-managers/greetd.nix#L80
       # enhanced with optional targets to wait for if so configured (should not do this on headless systems).
       BindsTo = [ "graphical.target" ];
