@@ -103,4 +103,4 @@ sequence:
       data:
         media_stream: alarm_stream
         command: "{{ prev_volume }}"
-alias: emergency_notify
+alias: notify_emergency

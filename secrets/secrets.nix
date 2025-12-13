@@ -12,11 +12,11 @@ let
   in map (addContextFrom s) splits;
 
   read-key = f: removeSuffix "\n" (readFile f);
-  common-keys = builtins.map read-key [ users/rdn/deploy/common-deploy.ed25519.pub users/rdn/deploy/agenix.pub ]; 
+  common-keys = builtins.map read-key [ deploy/common-deploy.ed25519.pub deploy/backup-common-deploy.ed25519.pub users/rdn/deploy/agenix.pub ]; 
   host-specific-keys = {
-    blackberry = [ users/rdn/deploy/blackberry-deploy.ed25519.pub users/rdn/deploy/agenix.pub ];
-    helium = [ users/rdn/deploy/helium-deploy.ed25519.pub users/rdn/deploy/agenix.pub ];
-    xenon = [ users/rdn/deploy/xenon-deploy.ed25519.pub users/rdn/deploy/agenix.pub ];
+    blackberry = [ deploy/blackberry-deploy.ed25519.pub deploy/backup-blackberry-deploy.ed25519.pub deploy/agenix.pub ];
+    helium = [ deploy/helium-deploy.ed25519.pub deploy/backup-helium-deploy.ed25519.pub deploy/agenix.pub ];
+    xenon = [ deploy/xenon-deploy.ed25519.pub deploy/backup-xenon-deploy.ed25519.pub deploy/agenix.pub ];
   };
 
   get-hostname = k: (builtins.elemAt (splitString "/" k) 1);

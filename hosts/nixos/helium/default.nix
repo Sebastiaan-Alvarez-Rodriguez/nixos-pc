@@ -123,7 +123,8 @@
         };
       };
       code.scripts = {
-        "emergency_notify" = "${pkgs.hass.script.emergency_notify}/default.yaml";
+        "notify" = "${pkgs.hass.script.notify}/default.yaml";
+        "notify_emergency" = "${pkgs.hass.script.notify_emergency}/default.yaml";
       };
     };
     jellyfin.enable = true;

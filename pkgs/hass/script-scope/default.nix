@@ -69,5 +69,6 @@
     '';
   };
 in {
-  emergency_notify = quickPackage {name="emergency_notify"; domain="script";};
+  notify = quickPackage {name="notify"; domain="script";};
+  notify_emergency = quickPackage {name="notify_emergency"; domain="script";};
 }

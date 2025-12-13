@@ -1,0 +1,67 @@
+description: >+
+  Sends a notification to the configured `phone_target` with given
+  `title` and `message`, with the configured `priority` (either 'emergency' or 'default').
+
+  Make sure that:
+
+  1. home-assistant app is installed on the phone.
+
+  2. home-assistant app has permision to run in background
+
+  3. (for emergency) home-assistant app has permission to change the 'mode' of the device (from silent/vibration to sound mode).
+
+  4. (for emergency) home-assistant app > settings > companion app > manage sensors has the following enabled: `ringer_mode` and `volume level alarm`. Otherwise, the system will always restore the phone to silent mode with 50% alarm-volume instead of the encountered values.
+
+  5. (for emergency) notification-channel "alarm_stream" has a sufficiently annoying ringtone to wake you up, if needed, within 30 seconds.
+
+  6. (for emergency) notification-channel "alarm_stream" (of home-assistant app) is allowed to override DoNotDisturb mode. To set this up, just use (in web-HA) developer tools > action and send:
+
+  ```yaml
+    action: notify.mobile_app_rdn_phone
+    data:
+      message: command_ringer_mode
+      data:
+        command: normal
+  ```
+
+  > Note: This script assumes you use an Android phone with Android 8+.
+
+# when called multiple times in parallel, just handle the calls without 'already-running' warnings
+mode: parallel
+
+fields:
+  phone_target:
+    description: >-
+      the phone to send notification to. The correct value can be found by going to
+      home-assistant (web) > settings > devices & integrations (integration tab)
+      > phones. Note that both ' ' and '-' are replaced by underscores. To know
+      the right name for sure, goto developer tools > actions and search for
+      `notify.mobile_app`. It provides all phone names as used in scripts.
+    example: examplename_phone
+  message:
+    description: the message to display
+    example: some message
+  title:
+    description: the title to display
+    example: a title
+  priority:
+    description: either 'default' or 'emergency'
+    example: emergency
+
+sequence:
+  - if:
+      - condition: template
+        value_template: "{{ priority == 'emergency' }} "
+    then:
+      - action: script.notify_emergency
+        data:
+          phone_target: "{{ phone_target }}"
+          message: "{{ message }}"
+          title: "{{ title }}"
+    else:
+      - action: "notify.mobile_app_{{ phone_target }}"
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
+alias: notify
+description: ""
