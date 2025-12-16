@@ -111,20 +111,37 @@
     };
     home-assistant = {
       enable = true;
+      custom_components.floor3d-card = {
+        enable = true;
+        model = let model-pkg = inputs.self.packages.${system}.house-model; in "${model-pkg}/model.glb"; 
+      };
       custom_components.visonic = {
         enable = true;
-        ui = let
-          model-pkg = inputs.self.packages.${system}.house-model;
-        in {
+        ui = {
           enable = true;
           sensors.motion = { "z01" = "woonkamer-bank"; "z02" = "woonkamer-keuken"; "z03" = "woonkamer-zithoek"; "z04" = "werkkamer beneden"; "z05" = "slaapkamer"; "z06" = "garage-binnendeur"; "z07" = "garage-raam"; "z20" = "logeer-klein"; "z21" = "logeer-groot"; "z22" = "werkkamer-boven"; "z23" = "hal-boven"; };
           sensors.magnet = { "z11" = "voordeur"; "z12" = "pui voortuin"; "z13" = "slaapkamer tuin"; "z14" = "woonkamer tuin"; "z15" = "pui tuin"; "z16" = "meterkast"; };
-          model = "${model-pkg}/model.glb";
         };
       };
       code.scripts = {
         "notify" = "${pkgs.hass.script.notify}/default.yaml";
         "notify_emergency" = "${pkgs.hass.script.notify_emergency}/default.yaml";
+      };
+    };
+    zigbee2mqtt = {
+      enable = true;
+      dataDir = "/data/zigbee2mqtt";
+      settings = {
+        # see: https://www.zigbee2mqtt.io/guide/configuration/
+        # see also: https://dongle.sonoff.tech/guide/dongle-m/donglem-getting-started/
+        homeassistant.enabled = config.services.home-assistant.enable;
+        permit_join = true;
+        serial = {
+          port = "/dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Max_MG24_188322831df1ef11bf04c10a6d9880ab-if00-port0";
+          adapter = "ember";
+          rtscts = false;
+          baudrate = 115200;
+        };
       };
     };
     jellyfin.enable = true;

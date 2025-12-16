@@ -17,7 +17,9 @@
   hass-visonic = pkgs.hass.custom-component.visonic;
 in {
   imports = [
+    ./floor3d-card.nix
     ./visonic.nix
+    # ./zigbee.nix
   ];
 
   options.my.services.home-assistant = with lib; {
