@@ -2,12 +2,13 @@
   description = "NixOS configuration with flakes";
   inputs = {
     agenix = {
-      url = "github:ryantm/agenix/main";
-      inputs = {
-        home-manager.follows = "home-manager";
-        nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-      };
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    agenix-rekey = {
+      url = "github:oddlama/agenix-rekey";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     flake-parts = {

@@ -13,11 +13,11 @@
         pname = "swapkey";
         version = "0.0.1";
 
-        pyproject = true;
+        # pyproject = true;
         build-system = [ buildPythonPackages.setuptools ];
 
         meta.description = "Small project to quickly migrate secrets from 1 key to another key";
-        src = ./swapkey;
+        src = ./.;
 
         # propagatedBuildInputs = with buildPythonPackages; [ numpy pandas scipy matplotlib];
 

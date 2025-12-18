@@ -23,6 +23,14 @@
     };
   };
 
+  # age.identityPaths = [ "/home/rdn/.ssh/helium.ed25519" "/home/mrs/.ssh/helium.ed25519" ]; # list of paths to recipient keys to try to use to decrypt the secrets
+  age.rekey = {
+    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEGsYoh6qvSV9Bz4M6OVaZY8L8jVVQptkQaKc6zgh4T";
+    masterIdentities = [ "~/.ssh/deploy/helium-deploy.ed25519" "~/.ssh/deploy/backup/backup-helium-deploy.ed25519" ];
+    storageMode = "local";
+    localStorageDir = ../../../secrets/age/${config.my.hardware.networking.hostname};
+  };
+
   my.home = {
     bat.enable = true;
     editor.main = {
@@ -53,7 +61,7 @@
     backup = {
       enable = true;
       routes = let # common configuration below
-        password-file = config.age.secrets."hosts/helium/services/backup-client/repo-helium".path;
+        password-file = config.age.secrets."helium/backup-client/repo-helium".path;
         paths = [ "/data" "/home" "/etc/machine-id" "var/lib" "/var/lib/nixos"]; # /etc/machine-id should be unique to a given host, used by some software (e.g: ZFS). /var/lib/nixos contains the UID/GID map, and other useful state.
         exclude = [ "/data/media/movies" "/data/downloads" ]; # downloads / seeds / movies are not to be backed up.
         timer-config = { OnCalendar = "19:30"; Persistent = true; };
@@ -61,12 +69,12 @@
       in {
         # blackberry = { # seb TODO: point blackberry.mijn.place
         #   repository = "rest:https://restic.blackberry.mijn.place/helium/";
-        #   environment-file = config.age.secrets."hosts/helium/services/backup-client/blackberry-client-helium".path; # seb TODO: make a new secret
+        #   environment-file = config.age.secrets."helium/backup-client/blackberry-client-helium".path; # seb TODO: make a new secret
         #   inherit password-file paths exclude timer-config prune-opts;
         # };
         xenon = {
           repository = "rest:https://restic.mijn.place/helium/";
-          environment-file = config.age.secrets."hosts/helium/services/backup-client/xenon-client-helium".path;
+          environment-file = config.age.secrets."helium/backup-client/xenon-client-helium".path;
           inherit password-file paths exclude timer-config prune-opts;
         };
       };
@@ -75,7 +83,7 @@
       enable = true;
       append-only = true;
       data-dir = "/data/backup";
-      credentials-file = config.age.secrets."hosts/helium/services/backup-server/helium".path;
+      credentials-file = config.age.secrets."helium/backup-server/helium".path;
     };
     bind = {
       enable = true;
@@ -128,29 +136,29 @@
         "notify_emergency" = "${pkgs.hass.script.notify_emergency}/default.yaml";
       };
     };
-    zigbee2mqtt = {
-      enable = true;
-      dataDir = "/data/zigbee2mqtt";
-      settings = {
-        # see: https://www.zigbee2mqtt.io/guide/configuration/
-        # see also: https://dongle.sonoff.tech/guide/dongle-m/donglem-getting-started/
-        homeassistant.enabled = config.services.home-assistant.enable;
-        permit_join = true;
-        serial = {
-          port = "/dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Max_MG24_188322831df1ef11bf04c10a6d9880ab-if00-port0";
-          adapter = "ember";
-          rtscts = false;
-          baudrate = 115200;
-        };
-      };
-    };
+    # zigbee2mqtt = {
+    #   enable = true;
+    #   dataDir = "/data/zigbee2mqtt";
+    #   settings = {
+    #     # see: https://www.zigbee2mqtt.io/guide/configuration/
+    #     # see also: https://dongle.sonoff.tech/guide/dongle-m/donglem-getting-started/
+    #     homeassistant.enabled = config.services.home-assistant.enable;
+    #     permit_join = true;
+    #     serial = {
+    #       port = "/dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Max_MG24_188322831df1ef11bf04c10a6d9880ab-if00-port0";
+    #       adapter = "ember";
+    #       rtscts = false;
+    #       baudrate = 115200;
+    #     };
+    #   };
+    # };
     jellyfin.enable = true;
     monitoring = {
       enable = true;
       grafana = {
         username = "admin";
-        password-file = config.age.secrets."hosts/helium/services/monitoring/password".path;
-        secret-key-file = config.age.secrets."hosts/helium/services/monitoring/secret-key".path;
+        password-file = config.age.secrets."helium/monitoring/password".path;
+        secret-key-file = config.age.secrets."helium/monitoring/secret-key".path;
       };
     };
     music-assistant = {
@@ -198,8 +206,8 @@
     rustdesk = {
       enable = true;
       enforce-key = true;
-      private-keyfile = config.age.secrets."hosts/helium/services/rustdesk/private-key".path;
-      public-keyfile = config.age.secrets."hosts/helium/services/rustdesk/public-key".path;
+      private-keyfile = config.age.secrets."helium/rustdesk/private-key".path;
+      public-keyfile = config.age.secrets."helium/rustdesk/public-key".path;
     };
 
     nfs = {
@@ -216,11 +224,11 @@
       sso = {
         enable = true;
         subdomain = "auth";
-        authKeyFile = config.age.secrets."hosts/helium/services/nginx/auth-key".path;
+        authKeyFile = config.age.secrets."helium/nginx/auth-key".path;
         users = {
           rdn = {
-            passwordHashFile = config.age.secrets."hosts/helium/services/nginx/rdn-pass".path;
-            totpSecretFile = config.age.secrets."hosts/helium/services/nginx/rdn-totp".path;
+            passwordHashFile = config.age.secrets."helium/nginx/rdn-pass".path;
+            totpSecretFile = config.age.secrets."helium/nginx/rdn-totp".path;
           };
         };
         groups = {
@@ -277,12 +285,12 @@
 
     tandoor-recipes = {
       enable = true;
-      secretKeyFile = config.age.secrets."hosts/helium/services/tandoor-recipes/secret".path;
+      secretKeyFile = config.age.secrets."helium/tandoor-recipes/secret".path;
     };
     transmission = {
       enable = true;
       download-dir = "/data/downloads";
-      credentialsFile = config.age.secrets."hosts/helium/services/transmission/secret".path;
+      credentialsFile = config.age.secrets."helium/transmission/secret".path;
     };
     vaultwarden.enable = true;
     vikunja = {
@@ -294,7 +302,7 @@
         port = 587;
         authtype = "login";
         username = "vikunja";
-        password-file = config.age.secrets."hosts/helium/services/vikunja/mail".path;
+        password-file = config.age.secrets."helium/vikunja/mail".path;
         from-email = "vikunja@mijn.place";
         force-ssl = true;
       };
@@ -330,7 +338,6 @@
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/users/rdn/helium.ed25519.pub) ];
     };
   };
-  # age.identityPaths = [ "/home/rdn/.ssh/helium.ed25519" "/home/mrs/.ssh/helium.ed25519" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";

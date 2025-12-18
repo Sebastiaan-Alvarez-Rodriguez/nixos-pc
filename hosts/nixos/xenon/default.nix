@@ -26,6 +26,13 @@
     };
   };
 
+  age.rekey = {
+    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMYqumFR46e3dAw3oSK1EIi0J81xV6F07lW5+FwekuVH";
+    masterIdentities = [ "~/.ssh/deploy/xenon-deploy.ed25519" "~/.ssh/deploy/backup/backup-xenon-deploy.ed25519" ];
+    storageMode = "local";
+    localStorageDir = ../../../secrets/age/${config.my.hardware.networking.hostname};
+  };
+
   my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
     bat.enable = true;
     editor.main = {
@@ -51,7 +58,7 @@
     backup = {
       enable = true;
       routes = let # common configuration below
-        password-file = config.age.secrets."hosts/xenon/services/backup-client/repo-xenon".path;
+        password-file = config.age.secrets."xenon/backup-client/repo-xenon".path;
         paths = [ "/data" "/home" "/etc/machine-id" "/var/lib/nixos"]; # /etc/machine-id should be unique to a given host, used by some software (e.g: ZFS). /var/lib/nixos contains the UID/GID map, and other useful state.
         timer-config = { OnCalendar = "19:30"; Persistent = true; };
         prune-opts = []; # cannot prune, because --> servers are append-only, so no deleting/pruning.
@@ -59,12 +66,12 @@
         # seb TODO: setup blackberry backup route here
         # blackberry = {
         #   repository = "rest:https://restic.blackberry.mijn.place/helium/";
-        #   environment-file = config.age.secrets."hosts/xenon/services/backup-client/blackberry-client-xenon".path;
+        #   environment-file = config.age.secrets."xenon/backup-client/blackberry-client-xenon".path;
         #   inherit password-file paths timer-config prune-opts;
         # };
         helium = {
           repository = "rest:https://restic.h.mijn.place/xenon";
-          environment-file = config.age.secrets."hosts/xenon/services/backup-client/helium-client-xenon".path;
+          environment-file = config.age.secrets."xenon/backup-client/helium-client-xenon".path;
           inherit password-file paths timer-config prune-opts;
         };
       };
@@ -73,7 +80,7 @@
       enable = true;
       append-only = true;
       data-dir = "/data/backup";
-      credentials-file = config.age.secrets."hosts/xenon/services/backup-server/xenon".path;
+      credentials-file = config.age.secrets."xenon/backup-server/xenon".path;
     };
     # wireguard.enable = true; # seb: TODO uncomment after handling wireguard config.
     fail2ban.enable = true;
@@ -97,11 +104,11 @@
         loginAccounts = {
           "sebastiaan@mijn.place" = {
             aliasesRegexp = [ "/^sebastiaan-.*@mijn.place$/" ]; # allows to reply using any matched address. NOTE: use PCRE regex. Start and end with `/` character. Make a full match.
-            hashedPasswordFile = "/home/rdn/.pwd/sebastiaan-mailserver.pwd";
+            hashedPasswordFile = config.age.secrets."xenon/mail/sebastiaan".path;
           };
           "mariska@mijn.place" = {
             aliasesRegexp = [ "/^mariska-.*@mijn.place$/" ];
-            hashedPasswordFile = "/home/mrs/.pwd/mariska-mailserver.pwd";
+            hashedPasswordFile = config.age.secrets."xenon/mail/mariska".path;
           };
           "mail@mijn.place" = {
             catchAll = [ "mijn.place" ]; # a sink for all otherwise unmatched emails by (in order): existing mailboxes; (virtual) aliases;
@@ -111,12 +118,12 @@
           "vikunja@mijn.place" = {
             sendOnly = true;
             inherit sendOnlyRejectMessage;
-            hashedPasswordFile = config.age.secrets."hosts/xenon/services/mail/vikunja".path;
+            hashedPasswordFile = config.age.secrets."xenon/mail/vikunja".path;
           };
           "noreply@mijn.place" = {
             sendOnly = true;
             inherit sendOnlyRejectMessage;
-            hashedPasswordFile = "/home/rdn/.pwd/noreply-mailserver.pwd";
+            hashedPasswordFile = config.age.secrets."xenon/mail/noreply".path;
           };
         };
 

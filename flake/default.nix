@@ -2,10 +2,16 @@
   systems = import systems;
 
   imports = [
+    inputs.agenix-rekey.flakeModule
     ./home-manager.nix
     ./lib.nix
     ./nixos.nix
     ./overlays.nix
     ./packages.nix
+
   ];
+
+  perSystem = {config, pkgs, ...}: {
+    agenix-rekey.nixosConfigurations = inputs.self.nixosConfigurations;
+  };    
 }

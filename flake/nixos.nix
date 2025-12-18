@@ -15,6 +15,8 @@
       disabledModules = [ "services/home-automation/home-assistant.nix" ]; # override with unstable (note: also needs package overlay)
       imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/home-automation/home-assistant.nix" ]; # override default services.home-assistant
     }
+    inputs.agenix.nixosModules.default
+    inputs.agenix-rekey.nixosModules.default
     "${self}/modules/nixos" # Include generic settings
   ];
 

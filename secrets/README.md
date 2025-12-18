@@ -1,49 +1,52 @@
 # Using secrets
 Agenix provides age encryption in nixos.
-It uses `sshd` to find private keys, and decrypts `.age` files on demand without leaking them plaintext in the nix-store.
-
+It uses `sshd` to find private keys (named identities in age), and decrypts `.age` files on demand without leaking them plaintext in the nix-store.
+Users can specify pairs of secrets and their belonging identities in a special file named `secrets.nix`.
 A nice tutorial can be found [here](https://github.com/ryantm/agenix#tutorial).
 
+Agenix-rekey improves upon this concept by removing the need of a `secrets.nix` file.
+Instead, each host declares their belonging identities and the storage location of `.age` files for the host.
+E.g. using:
+```nix
+age.rekey = {
+  hostPubkey = "ssh-ed25519 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+AAAAAAA";
+  masterIdentities = [ "~/.ssh/deploy/identity.ed25519" "~/.ssh/deploy/backup/backup.rsa" ];
+  storageMode = "local";
+  localStorageDir = ../../../secrets/age/${config.my.hardware.networking.hostname};
+};
+```
+
+
 ## Creating a password/key
-See section 'Encrypting a password/key'.
+1. generate the key:
+```bash
+nix-shell -p age
+echo "my secret password" | age -e -i ~/.ssh/identity.ed25519 -i ~/.ssh/deploy/another.ed25519 > encrypted.age
+```
+> Note: **Make sure** that you provide all the identities for all the hosts that should read this key.
+> i.e. if a host 'h' has 3 master identities set, pass all 3 keys as `-i` arguments.
+2. specify the secret in `/secrets/default.nix`:
+```nix
+secrets = {
+  "path/to/file (calculated from /secrets/age/)/secret.age" = {};
+};
+```
 
 ## Decrypting a password/key
-Requires you to define secret files in your configurations like this:
-```nix
-  age.secrets.secret1.file = path/to/file.age;
+The easiest way:
+```bash
+  nix run github:oddlama/agenix-rekey -- edit
 ```
+Then select the key to decrypt. You can also change it here.
+> Note: this only works if the secret to decrypt has been specified in `/secrets/default.nix`
 
-Using nixOS, In your config:
-```nix
-{
-  users.users.example-user= {
-    isNormalUser = true;
-    passwordFile = config.age.secrets.secret1.path;
-  };
-}
-```
 
 ### Decrypting without configurations
-Explicitly using commandline:
+Otherwise, use:
 ```bash
-nix run github:ryantm/agenix -- -d path/to/file.age --identity path/to/private/key
+nix-shell -p age
+age -d -i ~/.ssh/agenix hosts/helium/services/rustdesk/private-key.age
 ```
 
-
-## Encrypting a password/key
-First ensure a file named `secrets.nix` exists in your current directory, containing:
-```nix
-let
-  key = "ssh-rsa ........"; # the public key to encrypt with. Note: NixOS provides builtins.readFile as well.
-in {
-  "path/to/newfile.age".publicKeys = [ key ];
-}
-```
-Using commandline (ensure `newfile.age` does not exist yet):
-```bash
-nix run github:ryantm/agenix -- -e path/to/newfile.age --identity path/to/private/key
-```
-
-
-## Future work
-- Use agenix without managing a secrets.nix using [agenix-rekey](https://github.com/oddlama/agenix-rekey).
+## Changing identity for many configurations at once
+Use `/secrets/swapkey/main.py` to change identities for many secrets in one go.
