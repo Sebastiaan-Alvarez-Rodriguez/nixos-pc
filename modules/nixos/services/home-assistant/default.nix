@@ -101,7 +101,8 @@ in {
         "radio_browser"
 
         # my own added components
-        "dsmr"
+        "dsmr" # for p1 power + gas measuring
+        "mqtt" # to connect to zigbee2mqtt
         "plugwise"
         # "roborock" NOTE: Roborock has some errors in test cases now
         "solaredge"

@@ -27,6 +27,7 @@
     ./meshcentral
     ./miniflux
     ./monitoring
+    ./mosquitto
     ./music-assistant
     ./navidrome
     ./nextcloud
@@ -56,5 +57,6 @@
     ./webdav
     ./wireguard
     ./woodpecker
+    ./zigbee2mqtt
   ];
 }

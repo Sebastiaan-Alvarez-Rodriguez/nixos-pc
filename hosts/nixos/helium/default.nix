@@ -136,23 +136,34 @@
         "notify_emergency" = "${pkgs.hass.script.notify_emergency}/default.yaml";
       };
     };
-    # zigbee2mqtt = {
-    #   enable = true;
-    #   dataDir = "/data/zigbee2mqtt";
-    #   settings = {
-    #     # see: https://www.zigbee2mqtt.io/guide/configuration/
-    #     # see also: https://dongle.sonoff.tech/guide/dongle-m/donglem-getting-started/
-    #     homeassistant.enabled = config.services.home-assistant.enable;
-    #     permit_join = true;
-    #     serial = {
-    #       port = "/dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Max_MG24_188322831df1ef11bf04c10a6d9880ab-if00-port0";
-    #       adapter = "ember";
-    #       rtscts = false;
-    #       baudrate = 115200;
-    #     };
-    #   };
-    # };
-    jellyfin.enable = true;
+    mosquitto = {
+      enable = true;
+      data-dir = "/data/mosquitto";
+
+      listeners = [
+        { port = 11000; address = "127.0.0.1";  settings = { allow_anonymous = true; }; } # last bit allows anonymous connections (i.e. no authentication), which is fine for this localhost-only service.
+      ];
+    };
+    zigbee2mqtt = {
+      enable = true;
+      data-dir = "/data/zigbee2mqtt";
+      settings = {
+        # see: https://www.zigbee2mqtt.io/guide/configuration/
+        # see also: https://dongle.sonoff.tech/guide/dongle-m/donglem-getting-started/
+        homeassistant.enabled = config.services.home-assistant.enable;
+        permit_join = true;
+        mqtt.server = "mqtt://127.0.0.1:11000";
+        serial = {
+          port = "/dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Max_MG24_188322831df1ef11bf04c10a6d9880ab-if00-port0";
+          adapter = "ember";
+          rtscts = false;
+          baudrate = 115200;
+        };
+        advanced.channel = 15;
+      };
+      backup-routes = [ "xenon" ];
+    };
+    jellyfin.enable = false;
     monitoring = {
       enable = false;
       grafana = {
@@ -239,9 +250,9 @@
       acme.backup-routes = [ "xenon" ];
     };
     pirate = {
-      bazarr.enable = true;
-      lidarr.enable = true;
-      radarr.enable = true;
+      bazarr.enable = false;
+      lidarr.enable = false;
+      radarr.enable = false;
       # sonarr.enable = true;
       backup-routes = [ "xenon" ];
     };
