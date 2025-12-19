@@ -32,9 +32,11 @@
   };
 
   age.rekey = {
+    masterIdentities = [ "~/.ssh/deploy/polonium-deploy.ed25519" ]; # must have masterIdentities set, even when no secrets are used.
     storageMode = "local";
     localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
   };
+
   my.home = {
     bat.enable = true; # like cat, but with syntax highlighting & more
     editor.main = {

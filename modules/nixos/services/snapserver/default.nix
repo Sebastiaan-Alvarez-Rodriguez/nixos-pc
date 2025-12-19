@@ -13,27 +13,27 @@ in {
 
     json-rpc = {
       tcp = { # json-rpc control interface - tcp
-        enable = mkEnableOption "snapserver JSON RPC over TCP";
+        enabled = mkEnableOption "snapserver JSON RPC over TCP";
         port = mkOption {
           type = types.port;
           default = 9002; # normally 1705
           description = "port for JSON RPC over TCP";
         };
         bind_to_address = mkOption {
-          default = "::";
+          default = "0.0.0.0";
           description = "Address to listen on.";
         };
       };
 
       http = { # json-rpc control interface - http
-        enable = mkEnableOption "snapserver JSON RPC over HTTP";
+        enabled = mkEnableOption "snapserver JSON RPC over HTTP";
         port = mkOption {
           type = types.port;
           default = 9003; # normally 1780
           description = "port for JSON RPC over HTTP";
         };
         bind_to_address = mkOption {
-          default = "::";
+          default = "0.0.0.0";
           description = "Address to listen on.";
         };
       };
@@ -66,10 +66,10 @@ in {
       package = pkgs.snapcast; # should use the override
       settings = {
         tcp = {
-          inherit (cfg.json-rpc.tcp) enable port bind_to_address;
+          inherit (cfg.json-rpc.tcp) enabled port bind_to_address;
         };
         http = {
-          inherit (cfg.json-rpc.http) enable port bind_to_address;
+          inherit (cfg.json-rpc.http) enabled port bind_to_address;
         };
 
         inherit (cfg) stream;
@@ -92,7 +92,7 @@ in {
       allowedUDPPorts = [ cfg.stream.port ];
     };
 
-    my.services.nginx.virtualHosts.snapserver = lib.mkIf cfg.json-rpc.http.enable {
+    my.services.nginx.virtualHosts.snapserver = lib.mkIf cfg.json-rpc.http.enabled {
       # seb TODO: this does not work yet...
       # https://github.com/badaix/snapweb/issues/54
       port = cfg.json-rpc.http.port;

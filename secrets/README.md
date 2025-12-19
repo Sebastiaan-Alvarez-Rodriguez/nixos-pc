@@ -4,7 +4,7 @@ It uses `sshd` to find private keys (named identities in age), and decrypts `.ag
 Users can specify pairs of secrets and their belonging identities in a special file named `secrets.nix`.
 A nice tutorial can be found [here](https://github.com/ryantm/agenix#tutorial).
 
-Agenix-rekey improves upon this concept by removing the need of a `secrets.nix` file.
+Agenix-rekey improves upon this concept by removing the need of a `secrets.nix` file and rekeying secrets to specific hosts.
 Instead, each host declares their belonging identities and the storage location of `.age` files for the host.
 E.g. using:
 ```nix
@@ -16,12 +16,13 @@ age.rekey = {
 };
 ```
 
+We store the baseline secrets in `/secrets/age`. The `/secrets/rekey` contains the generated rekeyed secrets for specific hosts.
 
 ## Creating a password/key
 1. generate the key:
 ```bash
 nix-shell -p age
-echo "my secret password" | age -e -i ~/.ssh/identity.ed25519 -i ~/.ssh/deploy/another.ed25519 > encrypted.age
+echo "my secret password" | age -e -i ~/.ssh/identity.ed25519 -i ~/.ssh/deploy/another.ed25519 >  project-root/secrets/age/encrypted.age
 ```
 > Note: **Make sure** that you provide all the identities for all the hosts that should read this key.
 > i.e. if a host 'h' has 3 master identities set, pass all 3 keys as `-i` arguments.
@@ -30,6 +31,10 @@ echo "my secret password" | age -e -i ~/.ssh/identity.ed25519 -i ~/.ssh/deploy/a
 secrets = {
   "path/to/file (calculated from /secrets/age/)/secret.age" = {};
 };
+```
+3. Rekey all age secrets (will create a new directory in `/secrets/rekey` for the new secret):
+```nix
+nix run github:oddlama/agenix-rekey -- rekey -a
 ```
 
 ## Decrypting a password/key

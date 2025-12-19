@@ -172,11 +172,11 @@
     snapserver = {
       enable = true;
       json-rpc.tcp = {
-        enable = false;
+        enabled = true; # control needed by music-assistant
         port = 9002;
       };
       json-rpc.http = {
-        enable = true;
+        enabled = true;
         port = 9003;
       };
 
@@ -187,8 +187,9 @@
           tcp_mode = "client";
           codec = "flac";
           sample-format = "48000:16:2";
-          build-source = port: "${proto}://127.0.0.1:${builtins.toString port}?name=default&mode=${tcp_mode}&codec=${codec}&sampleFormat=${sample-format}";
-        in builtins.map build-source (lib.range config.my.services.music-assistant.port-free.start config.my.services.music-assistant.port-free.end);
+          build-source = port: "${proto}://127.0.0.1:${builtins.toString port}?name=mass${builtins.toString port}&mode=${tcp_mode}&codec=${codec}&sampleFormat=${sample-format}";
+        # in builtins.map build-source (lib.range config.my.services.music-assistant.port-free.start config.my.services.music-assistant.port-free.end);
+        in build-source config.my.services.music-assistant.port-free.start;
       };
     };
     stremio-service.enable = false; # seb TODO: provide some form of security so randoms cannot use this server

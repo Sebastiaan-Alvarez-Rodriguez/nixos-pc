@@ -64,4 +64,3 @@ sequence:
           message: "{{ message }}"
           title: "{{ title }}"
 alias: notify
-description: ""

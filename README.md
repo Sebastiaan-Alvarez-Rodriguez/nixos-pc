@@ -143,21 +143,24 @@ sudo psql -l
 ```bash
 sudo systemctl stop vaultwarden kitchenowl-backend home-assistant
 ```
-3. Drop databases one by one:
+3. Drop databases one by one (except `template0` and `template1`):
 ```bash
 sudo dropdb <database-name>
+4. Recreate database `postgres`:
+```bash
+sudo psql -d template1
+CREATE DATABASE postgres;
 ```
-4. Deflate backup file:
+5. Deflate backup file:
 ```bash
 unzstd <filename>.sql.zstd
 ```
-5. Apply backup file:
+6. Apply backup file:
 ```bash
 psql -X -f <path/to/filename>.sql -d postgres
 ```
-6. Restart stopped services
-
-7. Check if it worked:
+7. Restart stopped services
+8. Check if it worked:
 ```bash
 psql -d <some-database> -c "SELECT * FROM <some-table>;"
 ```
