@@ -13,6 +13,7 @@ in {
     };
   };
   config = {
+    my.services.secrets.prefixes = [ "${config.my.hardware.networking.hostname}" ];
     age.secrets = let
       toName = lib.removeSuffix ".age";
       userExists = u: builtins.hasAttr u config.users.users; # Only set the user if it exists, to avoid warnings
@@ -56,7 +57,9 @@ in {
         "xenon/mail/vikunja.age" = {};
         "xenon/backup-server/xenon.age" = { owner = "restic"; };
       };
+      filterpred = prefixes: name: lib.my.hasprefix-any prefixes name;
+      filterSecretsForHosts = prefixes: attrs: lib.filterAttrs (n: v: (filterpred prefixes n)) attrs;
     in 
-      lib.mapAttrs' process secrets;
+      lib.mapAttrs' process (filterSecretsForHosts cfg.prefixes secrets);
   };
 }

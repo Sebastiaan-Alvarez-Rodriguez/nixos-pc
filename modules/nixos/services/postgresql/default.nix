@@ -128,7 +128,7 @@ in {
 
     package = mkOption {
       type = with types; package;
-      default = pkgs.postgresql_13;
+      default = pkgs.postgresql_18;
       description = "Postgresql package to use";
     };
 

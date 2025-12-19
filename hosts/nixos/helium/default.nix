@@ -1,4 +1,4 @@
-{ inputs, config, pkgs, system, ... }: {
+{ inputs, config, pkgs, lib, system, ... }: {
   imports = [ ./hardware.nix ];
 
   my.system.boot = {
@@ -26,9 +26,9 @@
   # age.identityPaths = [ "/home/rdn/.ssh/helium.ed25519" "/home/mrs/.ssh/helium.ed25519" ]; # list of paths to recipient keys to try to use to decrypt the secrets
   age.rekey = {
     hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEGsYoh6qvSV9Bz4M6OVaZY8L8jVVQptkQaKc6zgh4T";
-    masterIdentities = [ "~/.ssh/deploy/helium-deploy.ed25519" "~/.ssh/deploy/backup/backup-helium-deploy.ed25519" ];
+    masterIdentities = [ "~/.ssh/deploy/helium-deploy.ed25519" "~/.ssh/deploy/backup/backup-helium-deploy.ed25519" "~/.ssh/deploy/common-deploy.ed25519" "~/.ssh/deploy/backup/backup-common-deploy.ed25519" ];
     storageMode = "local";
-    localStorageDir = ../../../secrets/age/${config.my.hardware.networking.hostname};
+    localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
   };
 
   my.home = {
@@ -154,7 +154,7 @@
     # };
     jellyfin.enable = true;
     monitoring = {
-      enable = true;
+      enable = false;
       grafana = {
         username = "admin";
         password-file = config.age.secrets."helium/monitoring/password".path;
@@ -166,14 +166,13 @@
       backup-routes = [ "xenon" ];
       port = 8095;
       port-free.start = 9004;
-      port-free.end = 9999;
+      port-free.end = 9099;
       providers = [ "deezer" "jellyfin" "snapcast" "spotify" ];
     };
     snapserver = {
-      enable = true; # seb TODO enable to continue development
-      port = 9001; # for clients
+      enable = true;
       json-rpc.tcp = {
-        enable = true;
+        enable = false;
         port = 9002;
       };
       json-rpc.http = {
@@ -181,19 +180,18 @@
         port = 9003;
       };
 
-      streams.default = {
-        type = "tcp"; # this is what music-assistant sends (TODO: make this hard-configured)
-        codec = "flac";
-        sampleFormat = "48000:16:2";
-        query = { mode = "client"; };
-        location = "127.0.0.1:9004"; # seb TODO: found here: https://github.com/SantiagoSotoC/music-assistant-server/blob/c6b2cb04414e192ba22c9ad00fcbcbc412a55cb8/music_assistant/providers/snapcast/__init__.py#L228
-        # TODO is: make configurable in music-assistant: DEFAULT_SNAPSERVER_PORT
-        # note that in snapserver, this port should be the 'json-rpc tcp' port.
-        # query = { mode = "server"; };
-        # location = "127.0.0.1:9004";
+      stream = {
+        port = 9001;
+        source = let
+          proto = "tcp";
+          tcp_mode = "client";
+          codec = "flac";
+          sample-format = "48000:16:2";
+          build-source = port: "${proto}://127.0.0.1:${builtins.toString port}?name=default&mode=${tcp_mode}&codec=${codec}&sampleFormat=${sample-format}";
+        in builtins.map build-source (lib.range config.my.services.music-assistant.port-free.start config.my.services.music-assistant.port-free.end);
       };
     };
-    stremio-service.enable = true; # seb TODO: provide some form of security so random's cannot use this server
+    stremio-service.enable = false; # seb TODO: provide some form of security so randoms cannot use this server
 
     # pingvin-share = { # seb TODO: wait until a version `>1.13.0` on unstable.
     #   enable = true;
@@ -222,7 +220,7 @@
       local-subnet = "192.168.0.0/24";
       monitoring.enable = false; # seb: TODO enable dashboard?
       sso = {
-        enable = true;
+        enable = false;
         subdomain = "auth";
         authKeyFile = config.age.secrets."helium/nginx/auth-key".path;
         users = {
@@ -270,15 +268,16 @@
     ssh-server.enable = true;
 
     syncthing = let
-      identity = import ./../../../modules/nixos/services/syncthing/id.nix { age-secrets = config.age.secrets; };
+      identities = import ./../../../modules/nixos/services/syncthing/id.nix { age-secrets = config.age.secrets; };
     in {
       sync-dir = "/data/syncthing/data";
       cfg-dir = "/data/syncthing/config";
       data-dir = "/data/storage/syncthing";
+      devices = builtins.removeAttrs identities [ "helium" ];
       server = {
         enable = true;
-        private-keyfile = identity.helium.private-keyfile;
-        certfile = identity.helium.certfile;
+        private-keyfile = identities.helium.private-keyfile;
+        certfile = identities.helium.certfile;
         backup-routes = [ "xenon" ];
       };
     };
@@ -328,7 +327,7 @@
       description = "mrs";
       extraGroups = groupsIfExist [ "syncthing" "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
-      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/users/mrs/helium.ed25519.pub) ];
+      # openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/users/mrs/helium.ed25519.pub) ];
     };
     users.rdn = {
       isNormalUser = true;

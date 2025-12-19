@@ -63,7 +63,7 @@ in {
       user = "rdn";
       port = 8188;
       hostname = "h.mijn.place";
-      identityFile = "/home/${username}/.ssh/agenix";
+      identityFile = "/home/${username}/.ssh/helium.ed25519";
     };
     "orca" = {
       user = "rdn";
@@ -74,7 +74,7 @@ in {
       hostname = "164.68.108.153";
       user = "rdn";
       port = 8188;
-      identityFile = "/home/${username}/.ssh/agenix";
+      identityFile = "/home/${username}/.ssh/xenon.ed25519";
     };
 
     "*" = {

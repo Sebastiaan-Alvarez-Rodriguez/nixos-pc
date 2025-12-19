@@ -269,7 +269,6 @@ in {
       recommendedOptimisation = true;
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
-      recommendedZstdSettings = true;
 
       commonHttpConfig = "server_names_hash_bucket_size 64;";
   

@@ -68,7 +68,7 @@ boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 Ensure you have an entry in your `~/.ssh/config` for the target with passwordless authentication.
 Then, use:
 ```bash
-NIX_SSHOPTS="-t" nixos-rebuild switch --flake .#blackberry --target-host blackberry-local --use-remote-sudo
+nixos-rebuild switch --flake .#helium --target-host helium --sudo --ask-sudo-password
 ```
 
 > **Note**: You sometimes have to fill in the sudo password for the raspberry.

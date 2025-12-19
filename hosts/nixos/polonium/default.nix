@@ -31,6 +31,10 @@
     };
   };
 
+  age.rekey = {
+    storageMode = "local";
+    localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
+  };
   my.home = {
     bat.enable = true; # like cat, but with syntax highlighting & more
     editor.main = {

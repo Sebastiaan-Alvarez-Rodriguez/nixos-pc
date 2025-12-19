@@ -23,6 +23,12 @@
     };
   };
 
+  age.rekey = {
+    masterIdentities = [ "~/.ssh/deploy/blackberry-deploy.ed25519" "~/.ssh/deploy/backup/backup-blackberry-deploy.ed25519" "~/.ssh/deploy/common-deploy.ed25519" "~/.ssh/deploy/backup/backup-common-deploy.ed25519" ];
+    storageMode = "local";
+    localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
+  };
+
   my.home = {
     bat.enable = true;
     editor.main = {

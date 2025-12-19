@@ -5,117 +5,58 @@ in {
   options.my.services.snapserver = with lib; {
     enable = mkEnableOption "snapserver Media Server";
 
-    port = mkOption {
-      type = types.port;
-      default = 9001; # normally 5778
-      description = "Port for snapclients to listen on. WARNING: use a non-public facing port, as there is no authentication and no encryption.";
-    };
-
-    listen-address = mkOption {
-      type = types.str;
-      default = "0.0.0.0";
-      description = "Interface to listen for snapclients";
-    };
-
-    codec = mkOption {
-      type = with types; nullOr enum [ "pcm" "flac" "vorbis" "opus" ];
-      default = "flac";
-      description = "Default audio compression method from server to clients.";
-    };
+    # codec = mkOption {
+    #   type = with types; nullOr enum [ "pcm" "flac" "vorbis" "opus" ];
+    #   default = "flac";
+    #   description = "Default audio compression method from server to clients.";
+    # };
 
     json-rpc = {
-      tcp = {
+      tcp = { # json-rpc control interface - tcp
         enable = mkEnableOption "snapserver JSON RPC over TCP";
         port = mkOption {
           type = types.port;
-          default = 9002; # normally 5776
-          description = "Internal port for JSON RPC over TCP";
+          default = 9002; # normally 1705
+          description = "port for JSON RPC over TCP";
+        };
+        bind_to_address = mkOption {
+          default = "::";
+          description = "Address to listen on.";
         };
       };
 
-      http = {
+      http = { # json-rpc control interface - http
         enable = mkEnableOption "snapserver JSON RPC over HTTP";
         port = mkOption {
           type = types.port;
-          default = 9003; # normally 5777
-          description = "Internal port for JSON RPC over HTTP";
+          default = 9003; # normally 1780
+          description = "port for JSON RPC over HTTP";
+        };
+        bind_to_address = mkOption {
+          default = "::";
+          description = "Address to listen on.";
         };
       };
     };
 
-    streams = mkOption {
-      type = with types; attrsOf (submodule {
-        options = {
-          location = mkOption {
-            type = types.oneOf [ types.path types.str ];
-            description = ''
-              For type `pipe` or `file`, the path to the pipe or file.
-              For type `espot`, `airplay` or `process`, the path to the corresponding binary.
-              For type `tcp`, the `host:port` address to connect to or listen on.
-              For type `meta`, a list of stream names in the form `/one/two/...`. Don't forget the leading slash.
-              For type `alsa`, use an empty string.
-            '';
-          };
-          type = mkOption {
-            type = types.enum [ "pipe" "espot" "airplay" "file" "process" "tcp" "alsa" "spotify" "meta" ];
-            default = "pipe";
-            description = "The type of input stream.";
-          };
-          query = mkOption {
-            type = attrsOf str;
-            default = { };
-            description = "Key-value pairs that convey additional parameters about a stream.";
-            example = literalExpression ''
-              # for type == "pipe":
-              {
-                mode = "create";
-              };
-              # for type == "process":
-              {
-                params = "--param1 --param2";
-                logStderr = "true";
-              };
-              # for type == "tcp":
-              {
-                mode = "client";
-              }
-              # for type == "alsa":
-              {
-                device = "hw:0,0";
-              }
-            '';
-          };
-          sampleFormat = mkOption {
-            type = with types; nullOr str;
-            default = null;
-            description = ''
-              Default sample format.
-            '';
-            example = "48000:16:2";
-          };
+    stream = {
+      port = mkOption {
+        type = types.port;
+        default = 9001; # normally 1704
+        description = "port for snapclients to listen on. WARNING: use a non-public facing port, as there is no authentication and no encryption.";
+      };
 
-          codec = mkOption {
-            type = with types; nullOr str;
-            default = null;
-            description = ''
-              Default audio compression method.
-            '';
-            example = "flac";
-          };
-        };
-      });
-      default = { default = { }; };
-      description = "The definition for an input source.";
-      example = literalExpression ''
-        {
-          mpd = {
-            type = "pipe";
-            location = "/run/snapserver/mpd";
-            sampleFormat = "48000:16:2";
-            codec = "pcm";
-          };
-        };
-      '';
+      bind_to_address = mkOption {
+        type = types.str;
+        default = "0.0.0.0";
+        description = "Interface to listen on for snapclients";
+      };
+
+      source = mkOption {
+        type = with types; either str (listOf str);
+        example = "pipe:///tmp/snapfifo?name=default";
+        description = "One or multiple URIs to PCM input streams.";
+      };
     };
   };
 
@@ -123,18 +64,16 @@ in {
     services.snapserver = {
       enable = true;
       package = pkgs.snapcast; # should use the override
-      port = cfg.port;
-      listenAddress = cfg.listen-address;
+      settings = {
+        tcp = {
+          inherit (cfg.json-rpc.tcp) enable port bind_to_address;
+        };
+        http = {
+          inherit (cfg.json-rpc.http) enable port bind_to_address;
+        };
 
-      tcp = {
-        inherit (cfg.json-rpc.tcp) enable port;
+        inherit (cfg) stream;
       };
-      
-      http = {
-        inherit (cfg.json-rpc.http) enable port;
-      };
-
-      inherit (cfg) streams;
     };
     users.users.snapserver = {
       description = "snapserver Service";
@@ -149,8 +88,8 @@ in {
     };
 
     networking.firewall = {
-      allowedTCPPorts = [ cfg.port ];
-      allowedUDPPorts = [ cfg.port ];
+      allowedTCPPorts = [ cfg.stream.port ];
+      allowedUDPPorts = [ cfg.stream.port ];
     };
 
     my.services.nginx.virtualHosts.snapserver = lib.mkIf cfg.json-rpc.http.enable {

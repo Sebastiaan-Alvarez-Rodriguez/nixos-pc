@@ -17,9 +17,7 @@ in {
   };
 
   programs.ssh = {
-    matchBlocks = let 
-      setDefaults = defaults: hosts: builtins.mapAttrs (name: value: value // defaults) hosts;
-    in (setDefaults { identitiesOnly = true; } {
+    matchBlocks = {
       "github.com" = {
         user = config.programs.git.settings.user.name;
         identityFile = "/home/${username}/.ssh/github.rsa";
@@ -41,8 +39,11 @@ in {
         port = 8188;
         identityFile = "/home/${username}/.ssh/agenix";
       };
-    });
-    forwardAgent = true;
-    addKeysToAgent = "yes";
+      "*" = {
+        identitiesOnly = true;
+        forwardAgent = true;
+        addKeysToAgent = "yes";
+      };
+    };
   };
 }

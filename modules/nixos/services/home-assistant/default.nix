@@ -13,8 +13,6 @@
   cfg = config.my.services.home-assistant;
   configpath = "/var/lib/hass";
   ccpath = "${configpath}/custom_components"; #custom-components-path
-
-  hass-visonic = pkgs.hass.custom-component.visonic;
 in {
   imports = [
     ./floor3d-card.nix

@@ -60,7 +60,6 @@ if __name__ == '__main__':
                 print('\tno new keys specified. Continuing...')
             else:
                 print('\tgenerating new secret')
-                print(f'\tgenerating: {generate_cmd_encrypt(args.new_identity)}')
                 enc = (subprocess.run(generate_cmd_encrypt(args.new_identity), input=secret.encode(), stdout=subprocess.PIPE, check=True).stdout)
                 print(f'\twriting to {new_path}')
                 with open(new_path, 'wb') as f:

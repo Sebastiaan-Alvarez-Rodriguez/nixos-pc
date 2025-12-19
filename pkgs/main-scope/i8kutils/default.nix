@@ -23,7 +23,7 @@
 # i8kmon -v
 # ```
 
-{ stdenv, lib, fetchFromGitHub, pkgs, tcl, tcllib }: stdenv.mkDerivation rec {
+{ stdenv, lib, fetchFromGitHub, pkgs, tcl, tclPackages }: stdenv.mkDerivation rec {
   pname = "i8kutils";
   version = "1.58";
 
@@ -43,17 +43,17 @@
   '';
 
   nativeBuildInputs = with pkgs; [ meson ninja ];
-  buildInputs = with pkgs; [ pkg-config cmake systemd makeWrapper tcl tcllib];
+  buildInputs = with pkgs; [ pkg-config cmake systemd makeWrapper tcl tclPackages.tcllib];
 
   postInstall = ''
     wrapProgram "$out/bin/i8kmon" \
       --set PATH ${lib.makeBinPath [ tcl ]} \
       --set TCL8_6_TM_PATH "$out/lib" \
-      --set TCLLIBPATH "${tcl}/lib ${tcllib}/lib"
+      --set TCLLIBPATH "${tcl}/lib ${tclPackages.tcllib}/lib"
     wrapProgram "$out/bin/i8kctl" \
       --set PATH ${lib.makeBinPath [ tcl ]} \
       --set TCL8_6_TM_PATH "$out/lib" \
-      --set TCLLIBPATH "${tcl}/lib ${tcllib}/lib"
+      --set TCLLIBPATH "${tcl}/lib ${tclPackages.tcllib}/lib"
   '';
 
   meta = with lib; {

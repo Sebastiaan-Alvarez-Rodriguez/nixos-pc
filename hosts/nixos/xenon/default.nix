@@ -30,7 +30,7 @@
     hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMYqumFR46e3dAw3oSK1EIi0J81xV6F07lW5+FwekuVH";
     masterIdentities = [ "~/.ssh/deploy/xenon-deploy.ed25519" "~/.ssh/deploy/backup/backup-xenon-deploy.ed25519" ];
     storageMode = "local";
-    localStorageDir = ../../../secrets/age/${config.my.hardware.networking.hostname};
+    localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
   };
 
   my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled

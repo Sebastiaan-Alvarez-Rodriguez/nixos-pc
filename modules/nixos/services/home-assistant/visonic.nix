@@ -24,10 +24,6 @@ in {
           description = "mapping of magnet zone numbers to names, e.g";
         };
       };
-      model = mkOption {
-        type = types.path;
-        description = "Model of house to render, of type 'glb'. Note that model instance ids match with sensor names to get them correlated";
-      };
     };
     port = mkOption {
       type = types.port;
@@ -37,9 +33,6 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [
-      { assertion = cfg.ui.enable && lib.hasSuffix "glb" cfg.ui.model; message = "Model does not end with 'glb': ${cfg.ui.model}"; }
-    ];
     services.home-assistant = lib.mkIf cfg.ui.enable {
       lovelaceConfig = {
         # Dashboards can be created using the edit UI, or using Lovelace. Using one disables the other way.
@@ -69,7 +62,6 @@ in {
     };
   
     systemd.services.home-assistant.preStart = ''
-      cp ${cfg.ui.model} ${configpath}/www/
       cp -r ${hass-visonic}/custom_components/visonic ${ccpath}/visonic
       chmod -R u+rwX,go+rX ${ccpath}/visonic
     ''; # NOTE: must use chmod, since 'cp' also copies over the read-only file permissions from the store.

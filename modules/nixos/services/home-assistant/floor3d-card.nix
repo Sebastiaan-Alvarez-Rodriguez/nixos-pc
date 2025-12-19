@@ -17,7 +17,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     assertions = [
-      { assertion = cfg.ui.enable && lib.hasSuffix "glb" cfg.ui.model; message = "Model does not end with 'glb': ${cfg.ui.model}"; }
+      { assertion = lib.hasSuffix "glb" cfg.model; message = "Model does not end with 'glb': ${cfg.model}"; }
     ];
     services.home-assistant = {
       customLovelaceModules = [ floor3d ];
@@ -37,7 +37,7 @@ in {
                 type = "custom:floor3d-card";
                 name = "testing";
                 path = "/local";
-                objfile = builtins.baseNameOf cfg.ui.model;
+                objfile = builtins.baseNameOf cfg.model;
 
                 backgroundColor = "white";
                 globalLightPower = "0.5";
@@ -68,5 +68,8 @@ in {
         ];
       };
     };
+    systemd.services.home-assistant.preStart = ''
+      cp ${cfg.model} ${configpath}/www/
+    '';
   };
 }

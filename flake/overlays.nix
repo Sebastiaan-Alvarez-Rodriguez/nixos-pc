@@ -18,7 +18,7 @@
     # }
     pkgs = _final: prev: let
       mkName = dir: self.lib.removeSuffix "-scope" dir;
-      mkScope = dir: item-name: { name = (mkName item-name); value = (prev.recurseIntoAttrs (import "${dir}/${item-name}" { pkgs = prev; })); };
+      mkScope = dir: item-name: { name = (mkName item-name); value = (prev.lib.recurseIntoAttrs (import "${dir}/${item-name}" { pkgs = prev; })); };
       
       filterDirs = attrs: self.lib.filterAttrs (name: type: type == "directory") attrs;
       getDirs = leaf-func: dir: self.lib.mapAttrs' (name: _: if (self.lib.hasSuffix "-scope" name) then (leaf-func dir name) else {name = name; value = (getDirs leaf-func "${dir}/${name}");}) (filterDirs (builtins.readDir dir));
