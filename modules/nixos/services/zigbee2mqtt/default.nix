@@ -44,7 +44,7 @@ in {
           enabled = true;
           port = cfg.port;
           host = "127.0.0.1";
-          url = "${prefix}.${config.networking.domain}";
+          url = "https://${prefix}.${config.networking.domain}";
         };
       };
     };

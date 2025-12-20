@@ -140,8 +140,15 @@
       enable = true;
       data-dir = "/data/mosquitto";
 
-      listeners = [
-        { port = 11000; address = "127.0.0.1";  settings = { allow_anonymous = true; }; } # last bit allows anonymous connections (i.e. no authentication), which is fine for this localhost-only service.
+      listeners = let
+        allow-everything-settings = { # these settings are needed to allow all topics to be published and read by all connected entities.
+          acl = [ "pattern readwrite #" ];
+          omitPasswordAuth = true;
+          settings.allow_anonymous = true;
+        };
+        apply-allow = list: builtins.map (x: allow-everything-settings // x) list;
+       in apply-allow [
+        { port = 11000; address = "127.0.0.1"; } # last bit allows anonymous connections (i.e. no authentication), which is fine for this localhost-only service.
       ];
     };
     zigbee2mqtt = {
@@ -150,7 +157,7 @@
       settings = {
         # see: https://www.zigbee2mqtt.io/guide/configuration/
         # see also: https://dongle.sonoff.tech/guide/dongle-m/donglem-getting-started/
-        homeassistant.enabled = config.services.home-assistant.enable;
+        homeassistant.enabled = config.my.services.home-assistant.enable;
         permit_join = true;
         mqtt.server = "mqtt://127.0.0.1:11000";
         serial = {
