@@ -282,7 +282,6 @@
     syncthing = let
       identities = import ./../../../modules/nixos/services/syncthing/id.nix { age-secrets = config.age.secrets; };
     in {
-      sync-dir = "/data/syncthing/data";
       cfg-dir = "/data/syncthing/config";
       data-dir = "/data/storage/syncthing";
       devices = builtins.removeAttrs identities [ "helium" ];

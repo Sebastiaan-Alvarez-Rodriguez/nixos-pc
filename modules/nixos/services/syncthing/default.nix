@@ -6,12 +6,6 @@
   strong-path = "${cfg.data-dir}/${strong-name}";
 in {
   options.my.services.syncthing = with lib; {
-    sync-dir = mkOption {
-      type = types.str;
-      default = "/var/lib/syncthing/data";
-      description = "Storage location for synchronised directories";
-    };
-
     cfg-dir = mkOption {
       type = types.str;
       default = "/var/lib/syncthing/config";
@@ -69,7 +63,7 @@ in {
 
         relay.enable = false;
 
-        dataDir = cfg.sync-dir;
+        dataDir = cfg.data-dir;
         configDir = cfg.cfg-dir;
 
         guiAddress = "127.0.0.1:${toString cfg.port}";
@@ -114,7 +108,7 @@ in {
       };
 
       my.services.backup.routes = (lib.my.toAttrsUniform cfg.server.backup-routes { paths = [ cfg.cfg-dir strong-path ]; });
-      my.services.backup.global-excludes = [ cfg.data-dir cfg.sync-dir ];
+      my.services.backup.global-excludes = [ cfg.data-dir ];
     })
     (lib.mkIf cfg.client.enable {
       services.syncthing = {
