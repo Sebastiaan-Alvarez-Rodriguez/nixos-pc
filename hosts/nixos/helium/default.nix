@@ -345,7 +345,7 @@
       description = "mrs";
       extraGroups = groupsIfExist [ "syncthing" "docker" "networkmanager" "wheel" ];
       shell = pkgs.fish;
-      # openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/users/mrs/helium.ed25519.pub) ];
+      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/users/mrs/helium.ed25519.pub) ];
     };
     users.rdn = {
       isNormalUser = true;
