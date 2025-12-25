@@ -161,12 +161,14 @@
         permit_join = true;
         mqtt.server = "mqtt://127.0.0.1:11000";
         serial = {
-          port = "/dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Max_MG24_188322831df1ef11bf04c10a6d9880ab-if00-port0";
+          # port = "/dev/serial/by-id/usb-SONOFF_SONOFF_Dongle_Max_MG24_188322831df1ef11bf04c10a6d9880ab-if00-port0";
+          port = "tcp://192.168.0.18:6638";
           adapter = "ember";
           rtscts = false;
           baudrate = 115200;
         };
-        advanced.channel = 15;
+        advanced.channel = 15; # this mixes well with 2.4gHz wifi channel 1 to have no/little interference
+        # DO NOT USE channel 26. Everyone thinks that is a great channel. It is not - almost none of my devices support that channel.
       };
       backup-routes = [ "xenon" ];
     };
