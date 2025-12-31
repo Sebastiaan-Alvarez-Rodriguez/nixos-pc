@@ -1,4 +1,4 @@
-# as taken from: https://github.com/NixOS/nixpkgs/pull/418703/files on 2025-08-02
+# as taken from: https://github.com/NixOS/nixpkgs/pull/418703/files on 2025-12-29
 {
   lib,
   stdenv,
@@ -24,21 +24,21 @@ let
   # the version specified in Cargo.toml's package.metadata.server
   server = fetchurl rec {
     pname = "stremio-server";
-    version = "4.20.8";
+    version = "4.20.12";
     url = "https://dl.strem.io/server/v${version}/desktop/server.js";
-    hash = "sha256-cRMgD1d1yVj9FBvFAqgIqwDr+7U3maE8OrCsqExftHY=";
+    hash = "sha256-pSfz3SDG57Nesgd868+FnLqBQGAvJvEPjonDwaCOrBM=";
     # meta.license = lib.licenses.unfree;
   };
   os = if stdenv.hostPlatform.isDarwin then "macos" else stdenv.hostPlatform.parsed.kernel.name;
 in rustPlatform.buildRustPackage (finalAttrs: {
   pname = "stremio-service";
-  version = "0.1.13";
+  version = "0.1.14";
 
   src = fetchFromGitHub {
     owner = "Stremio";
     repo = "stremio-service";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-1L2sEZF/4YIh6Al1RlDVGqRRWIzvK8mdUjt1gytHo9M=";
+    hash = "sha256-4obaXigimKb32rNSxuVkWa4VDMnia34I8X4Hk+/ViM8=";
   };
 
   nativeBuildInputs = [
@@ -53,8 +53,7 @@ in rustPlatform.buildRustPackage (finalAttrs: {
     glib
   ];
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-zHLFnnshBxKqHplBNRxMEoLvZyICpdv5E1sSZV+yr/U=";
+  cargoHash = "sha256-tcYog6F9budMedzF/EtoNt6xyQDO+QOQyY2+4UpI0B4=";
   buildFeatures = [
     "offline-build"
     "bundled"

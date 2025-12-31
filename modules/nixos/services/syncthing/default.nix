@@ -74,11 +74,11 @@ in {
           folders = { # when 2 nodes have the same folder name, they just merge.
             "${base-name}" = { # basic files to be shared between the server and clients
               path = base-path;
-              devices = builtins.attrNames config.services.syncthing.settings.devices; # i.e. all configured devices above.
+              devices = builtins.attrNames cfg.devices; # i.e. all configured devices above.
             };
             "${strong-name}" = { # files to be shared between servers, clients, and to be backed up using the backup system as well.
               path = strong-path;
-              devices = builtins.attrNames config.services.syncthing.settings.devices; # i.e. all configured devices above.
+              devices = builtins.attrNames cfg.devices; # i.e. all configured devices above.
             };
           };
           devices = cfg.devices; # devices allowed to join the server

@@ -4,10 +4,17 @@
 # basically does what is stated here: https://www.reddit.com/r/Stremio/comments/1dre9tv/comment/lauux7h/
 # super interesting implementation (sadly in docker) for stremio: https://github.com/tsaridas/stremio-docker
 # also interesting for web hosting: https://lemmy.dbzer0.com/post/962755
+
+# it seems stremio is being migrated away from qt5, but it is quite volatile:
+# https://github.com/NixOS/nixpkgs/issues/437992
+# this is the nix answer now for linux desktops.
+# https://github.com/NixOS/nixpkgs/pull/468728/files
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.stremio-service;
   prefix-server = "stremio";
   prefix-local-webui = "v.stremio";
+  stremio-service = inputs.self.packages.${system}.stremio-service;
+  stremio-web = inputs.self.packages.${system}.stremio-web; 
 in {
   options.my.services.stremio-service = with lib; {
     enable = mkEnableOption "stremio-service for getting a fully-featured web experience. Needed to e.g. download torrents";
@@ -16,7 +23,7 @@ in {
     package = mkOption {
       type = types.package;
       # default = inputs.self.packages.${system}.stremio-service;
-      default = pkgs.stremio;
+      default = stremio-service;
       description = "Package to use";
     };
 
@@ -70,7 +77,7 @@ in {
       serviceConfig = {
         User = "stremio";
         Group = "stremio";
-        ExecStart = "${cfg.package}/opt/stremio/node ${cfg.package}/opt/stremio/server.js --webui-url=${lib.escapeShellArg webui-address} -platform offscreen"; # this forces Qt to not render.
+        ExecStart = "${cfg.package}/share/stremio-service/stremio-runtime ${cfg.package}/share/stremio-service/server.js --webui-url=${lib.escapeShellArg webui-address}";
         DynamicUser = false;
         StateDirectory = cfg.state-dir;
         WorkingDirectory = final-state-dir;
@@ -80,7 +87,7 @@ in {
 
     systemd.tmpfiles.rules = let
       settings-file = pkgs.writeText "server-settings.json" (builtins.toJSON ({
-        serverVersion = "4.20.8"; # NOTE: should match server json file.
+        serverVersion = "4.20.12"; # NOTE: should match server json file.
         appPath = "${final-state-dir}/.stremio-server";
         cacheRoot = "${final-state-dir}/.stremio-server";
         cacheSize = 2*1024*1024*1024; # 2gb cache by default
@@ -111,8 +118,8 @@ in {
 
 
     my.services.nginx.virtualHosts."${prefix-local-webui}" = lib.mkIf cfg.enable-local-webui {
-      root = let stremio-web = inputs.self.packages.${system}.stremio-web; in stremio-web;
-      sso.enable = true; # stremio has no protection, otherwise anyone could use this webserver.
+      root = stremio-web;
+      # sso.enable = true; # seb TODO enable: stremio has no protection, otherwise anyone could use this webserver.
       extraConfig = {
         extraConfig = ''
           proxy_buffering off;
@@ -125,7 +132,7 @@ in {
     my.services.nginx.virtualHosts.${prefix-server} = {
       inherit (cfg) port;
 
-      sso.enable = true; # stremio has no protection, otherwise anyone could use this server for torrentio.
+      # sso.enable = true; # seb TODO stremio has no protection, otherwise anyone could use this server for torrentio.
 
       extraConfig = {
         extraConfig = ''

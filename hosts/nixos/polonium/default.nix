@@ -169,16 +169,6 @@
         '';
       };
     };
-    syncthing = {
-      data-dir = "/data/syncthing";
-      client = let
-        identity = import ./../../../modules/nixos/services/syncthing/id.nix { age-secrets = config.age.secrets; };
-      in {
-        enable = true;
-        server-name = "helium";
-        server-id = identity.helium.id;
-      };
-    };
   };
 
   my.profiles = {

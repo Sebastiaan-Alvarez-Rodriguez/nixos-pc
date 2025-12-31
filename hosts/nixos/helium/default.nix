@@ -212,7 +212,7 @@
         in build-source config.my.services.music-assistant.port-free.start;
       };
     };
-    stremio-service.enable = false; # seb TODO: provide some form of security so randoms cannot use this server
+    # stremio-service.enable = true; # seb TODO: provide some form of security so randoms cannot use this server
 
     # pingvin-share = { # seb TODO: wait until a version `>1.13.0` on unstable.
     #   enable = true;
