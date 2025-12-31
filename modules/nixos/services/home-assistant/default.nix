@@ -102,6 +102,7 @@ in {
 
         # my own added components
         "dsmr" # for p1 power + gas measuring
+        "integration" # for zigbee plug S60ZBTPF, which does not report the correct energy accumulation stats for day/yesterday/month.
         "mqtt" # to connect to zigbee2mqtt
         "plugwise"
         # "roborock" NOTE: Roborock has some errors in test cases now
