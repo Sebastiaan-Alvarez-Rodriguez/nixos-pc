@@ -20,7 +20,18 @@ in {
     allow-interfaces = mkOption {
       type = with types; nullOr (listOf str);
       default = null;
-      description = "List of network interfaces that should be used by avahi to advertise. If `null`, all local interfaces except loopback and point-to-point will be used.";
+      description = "List of network interfaces that should be checked by avahi for services. If `null`, all local interfaces except loopback and point-to-point will be used.";
+    };
+    deny-interfaces = mkOption {
+      type = with types; nullOr (listOf str);
+      default = null;
+      description = "List of network interfaces that should not be checked by avahi. `allow-interfaces` takes precedence if set.";
+    };
+
+    extra-service-files = mkOption {
+      type = with types; attrsOf (either str path);
+      default = { };
+      description = "Specify custom service definitions which are placed in the avahi service directory. See the {manpage}`avahi.service(5)` manpage for detailed information.";
     };
   };
     
@@ -37,6 +48,8 @@ in {
         # hostName = config.my.hardware.networking.domain;
         # domainName = config.my.hardware.networking.domain;
         allowInterfaces = cfg.allow-interfaces;
+        denyInterfaces = cfg.deny-interfaces;
+        extraServiceFiles = cfg.extra-service-files;
         openFirewall = true; # NOTE: this opens 5353 udp. Ensure no WAN traffic can enter here.
       };
       dbus.enable = true; # for configuring new services through dbus

@@ -20,7 +20,7 @@ in {
           description = "port for JSON RPC over TCP";
         };
         bind_to_address = mkOption {
-          default = "0.0.0.0";
+          default = "127.0.0.1";
           description = "Address to listen on.";
         };
       };
@@ -33,7 +33,7 @@ in {
           description = "port for JSON RPC over HTTP";
         };
         bind_to_address = mkOption {
-          default = "0.0.0.0";
+          default = "127.0.0.1";
           description = "Address to listen on.";
         };
       };
@@ -93,8 +93,6 @@ in {
     };
 
     my.services.nginx.virtualHosts.snapserver = lib.mkIf cfg.json-rpc.http.enabled {
-      # seb TODO: this does not work yet...
-      # https://github.com/badaix/snapweb/issues/54
       port = cfg.json-rpc.http.port;
       local-only = true;
       extraConfig = {

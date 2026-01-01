@@ -110,6 +110,19 @@ in {
       enable = mkEnableOption "monitoring through grafana and prometheus";
     };
 
+    streamConfig = mkOption {
+      type = types.lines;
+      default = "";
+      example = ''
+        server {
+          listen 127.0.0.1:53 udp reuseport;
+          proxy_timeout 20s;
+          proxy_pass 192.168.0.1:53535;
+        }
+      '';
+      description = "Configuration lines to be set inside the stream block.";
+    };
+
     virtualHosts = mkOption {
       type = types.attrsOf virtualHostOption;
       default = { };
@@ -272,6 +285,8 @@ in {
 
       commonHttpConfig = "server_names_hash_bucket_size 64;";
   
+      streamConfig = cfg.streamConfig;
+
       virtualHosts = let
         domain = config.networking.domain;
         mkVHost = ({ subdomain, ... } @ args: lib.nameValuePair "${subdomain}.${domain}" (lib.my.recursiveMerge [

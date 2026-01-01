@@ -56,6 +56,7 @@
     secrets.prefixes = [ "common/ddns" ];
     avahi = {
       enable = true;
+      allow-interfaces = [ "enp2s0" ];
       host = "h";
     };
     backup = {
@@ -183,35 +184,33 @@
     };
     music-assistant = {
       enable = true;
+      config-path = "/data/music-assistant";
       backup-routes = [ "xenon" ];
-      port = 8095;
-      port-free.start = 9004;
-      port-free.end = 9099;
-      providers = [ "deezer" "jellyfin" "snapcast" "spotify" ];
+      providers = [ "snapcast" "spotify" ];
     };
-    snapserver = {
-      enable = true;
-      json-rpc.tcp = {
-        enabled = true; # control needed by music-assistant
-        port = 9002;
-      };
-      json-rpc.http = {
-        enabled = true;
-        port = 9003;
-      };
+    # snapserver = {
+    #   enable = true;
+    #   json-rpc.tcp = {
+    #     enabled = true; # control needed by music-assistant
+    #     port = 9002;
+    #   };
+    #   json-rpc.http = {
+    #     enabled = true;
+    #     port = 9003;
+    #   };
 
-      stream = {
-        port = 9001;
-        source = let
-          proto = "tcp";
-          tcp_mode = "client";
-          codec = "flac";
-          sample-format = "48000:16:2";
-          build-source = port: "${proto}://127.0.0.1:${builtins.toString port}?name=mass${builtins.toString port}&mode=${tcp_mode}&codec=${codec}&sampleFormat=${sample-format}";
-        # in builtins.map build-source (lib.range config.my.services.music-assistant.port-free.start config.my.services.music-assistant.port-free.end);
-        in build-source config.my.services.music-assistant.port-free.start;
-      };
-    };
+    #   stream = {
+    #     port = 9001;
+    #     source = let
+    #       proto = "tcp";
+    #       tcp_mode = "client";
+    #       codec = "flac";
+    #       sample-format = "48000:16:2";
+    #       build-source = port: "${proto}://127.0.0.1:${builtins.toString port}?name=mass${builtins.toString port}&mode=${tcp_mode}&codec=${codec}&sampleFormat=${sample-format}";
+    #     # in builtins.map build-source (lib.range config.my.services.music-assistant.port-free.start config.my.services.music-assistant.port-free.end);
+    #     in build-source config.my.services.music-assistant.port-free.start;
+    #   };
+    # };
     # stremio-service.enable = true; # seb TODO: provide some form of security so randoms cannot use this server
 
     # pingvin-share = { # seb TODO: wait until a version `>1.13.0` on unstable.
