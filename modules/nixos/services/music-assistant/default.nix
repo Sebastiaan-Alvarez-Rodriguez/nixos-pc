@@ -20,6 +20,8 @@
   # unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
   ip-host = "10.0.2.2";
   ip-local = "10.0.2.3";
+  # ip-host6 = "fe80::85c:8cff:fec6:8442";
+  # ip-local6 = "fe80::5473:16ff:fe61:936c";
 in {
   options.my.services.music-assistant = with lib; {
     enable = mkEnableOption "music-assistant service";
@@ -67,7 +69,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    containers.music-assistant = let
+    containers.mass = let
       hass-enabled = config.my.services.home-assistant.enable;
       jellyfin-enabled = config.my.services.jellyfin.enable;
     in {
@@ -77,6 +79,8 @@ in {
       privateNetwork = true;
       hostAddress = ip-host;
       localAddress = ip-local;
+      # hostAddress6 = ip-host6;
+      # localAddress6 = ip-local6;
       forwardPorts = [
         { # for web-ui of Music-assistant
           containerPort = 8095; # NOTE: must be 8095, since this is not configurable from nixos.
@@ -90,7 +94,7 @@ in {
         }
         { # for snapserver-to-snapclient communications (snapclient players register themselves here)
           containerPort = 1704; # NOTE: must be 1704, since this is not configurable from nixos.
-          hostPort = cfg.ports.snapclient-connections;
+          hostPort = 65500;
           protocol = "tcp";
         }
         # { # for mDNS, for service announcement of snapserver so that snapclient players know where to connect to snapserver.
@@ -111,8 +115,8 @@ in {
         };
 
         # seb TODO: this does not stop entities binding on tcp6!
-        networking.enableIPv6 = false;
-        boot.kernel.sysctl."net.ipv6.conf.eth0.disable_ipv6" = true;
+        # networking.enableIPv6 = false;
+        # boot.kernel.sysctl."net.ipv6.conf.eth0.disable_ipv6" = true;
 
         environment.systemPackages = [ pkgs.nettools ]; # for debugging
 
@@ -143,20 +147,94 @@ in {
         <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
         <service-group>
           <name replace-wildcards="yes">Snapcast on %h</name>
+
+          <!-- Main / legacy -->
           <service>
             <type>_snapcast._tcp</type>
             <port>${toString cfg.ports.snapclient-connections}</port>
           </service>
+
+          <!-- Stream (MOST IMPORTANT) -->
+          <service>
+            <type>_snapcast-stream._tcp</type>
+            <port>${toString cfg.ports.snapclient-connections}</port>
+          </service>
         </service-group>
       '';
-    };
+        #   <!-- Control TCP -->
+        #   <service>
+        #     <type>_snapcast-tcp._tcp</type>
+        #     <port>9002</port>
+        #   </service>
 
+        #   <!-- JSON-RPC -->
+        #   <service>
+        #     <type>_snapcast-jsonrpc._tcp</type>
+        #     <port>9002</port>
+        #   </service>
+
+        #   <!-- Web UI -->
+        #   <service>
+        #     <type>_snapcast-http._tcp</type>
+        #     <port>9003</port>
+        #   </service>
+        # </service-group>
+    };
+# = enp2s0 IPv4 Snapcast                                      _snapcast-http._tcp  local
+#    hostname = [h.local]
+#    address = [192.168.0.16]
+#    port = [9003]
+#    txt = []
+# = enp2s0 IPv6 Snapcast                                      _snapcast-tcp._tcp   local
+#    hostname = [h.local]
+#    address = [fe80::847d:7922:4551:9e0b]
+#    port = [9002]
+#    txt = []
+# = enp2s0 IPv4 Snapcast                                      _snapcast-tcp._tcp   local
+#    hostname = [h.local]
+#    address = [192.168.0.16]
+#    port = [9002]
+#    txt = []
+# = enp2s0 IPv6 Snapcast                                      _snapcast-jsonrpc._tcp local
+#    hostname = [h.local]
+#    address = [fe80::847d:7922:4551:9e0b]
+#    port = [9002]
+#    txt = []
+# = enp2s0 IPv4 Snapcast                                      _snapcast-jsonrpc._tcp local
+#    hostname = [h.local]
+#    address = [192.168.0.16]
+#    port = [9002]
+#    txt = []
+# = enp2s0 IPv6 Snapcast                                      _snapcast-stream._tcp local
+#    hostname = [h.local]
+#    address = [fe80::847d:7922:4551:9e0b]
+#    port = [9001]
+#    txt = []
+# = enp2s0 IPv4 Snapcast                                      _snapcast-stream._tcp local
+#    hostname = [h.local]
+#    address = [192.168.0.16]
+#    port = [9001]
+#    txt = []
+# = enp2s0 IPv6 Snapcast                                      _snapcast._tcp       local
+#    hostname = [h.local]
+#    address = [fe80::847d:7922:4551:9e0b]
+#    port = [9001]
+#    txt = []
+# = enp2s0 IPv4 Snapcast                                      _snapcast._tcp       local
+#    hostname = [h.local]
+#    address = [192.168.0.16]
+#    port = [9001]
+#    txt = []
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.config-path ]; };
 
     my.services.nginx.streamConfig = ''
       server {
         listen ${toString cfg.ports.snapclient-connections};
-        proxy_pass ${ip-host}:${toString cfg.ports.snapclient-connections};
+        proxy_pass [::ffff:${ip-host}]:65500;
+      }
+      server {
+        listen [::]:${toString cfg.ports.snapclient-connections};
+        proxy_pass [::ffff:${ip-host}]:65500;
       }
     '';
 

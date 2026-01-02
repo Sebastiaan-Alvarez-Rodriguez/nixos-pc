@@ -208,7 +208,7 @@
     #       sample-format = "48000:16:2";
     #       build-source = port: "${proto}://127.0.0.1:${builtins.toString port}?name=mass${builtins.toString port}&mode=${tcp_mode}&codec=${codec}&sampleFormat=${sample-format}";
     #     # in builtins.map build-source (lib.range config.my.services.music-assistant.port-free.start config.my.services.music-assistant.port-free.end);
-    #     in build-source config.my.services.music-assistant.port-free.start;
+    #     in build-source 4953;
     #   };
     # };
     # stremio-service.enable = true; # seb TODO: provide some form of security so randoms cannot use this server
