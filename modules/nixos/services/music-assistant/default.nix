@@ -102,17 +102,24 @@ in {
         services.music-assistant = {
           enable = true;
           providers = cfg.providers ++ lib.optionals hass-enabled [ "hass" "hass_players" ] ++ lib.optional jellyfin-enabled "jellyfin";
-          # extraOptions = [ "--config" cfg.config-path "--log-level" "DEBUG" ];
           extraOptions = [ "--log-level" "DEBUG" ];
           package = pkgs.music-assistant;
         };
 
-        environment.systemPackages = [ pkgs.nettools ]; # for debugging
+        environment.systemPackages = [ pkgs.nettools pkgs.dig ]; # for debugging
 
+        networking.useHostResolvConf = lib.mkForce false; # otherwise it would use the hosts resolvconf, which will not work
+        # (i.e. entries like 127.0.0.1 when having host-local dns will just error out on the container-local interface)
+
+        networking.nameservers = [ ip-host "1.1.1.1" "9.9.9.9" "8.8.8.8" ];
         networking.firewall.allowedTCPPorts = [ 8095 1704 1780 ];
         system.stateVersion = "25.11";
       };
     };
+    # below does NAT for container, i.e. container gets access to enp2s0=internet
+    networking.nat.enable = true;
+    networking.nat.internalInterfaces = [ "ve-mass" ];
+    networking.nat.externalInterface = "enp2s0";
 
     services.home-assistant.extraComponents = [ "music_assistant" ];
 
@@ -146,7 +153,7 @@ in {
         listen [::]:${toString cfg.ports.snapclient-connections};
         proxy_pass [::ffff:${ip-host}]:1704;
       }
-    '';
+    ''; # seb TODO: make local-only configurable
 
     my.services.nginx.virtualHosts.ma = {
       port = cfg.ports.webui-mass;
