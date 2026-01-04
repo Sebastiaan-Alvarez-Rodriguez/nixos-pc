@@ -71,8 +71,8 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [
-      { assertion = cfg.ports.snapclient-connections != 1704; message = "Port 1704 must be used by the container for DNAT iptable forwarding. You cannot use this port on this host since the DNAT would reroute the packets to the container directly (to ipv4 instead of ipv6, too)"; }
+    assertions = let dnat-ports = [ dnat-port-snap-conn dnat-port-webui-mass dnat-port-webui-snap ]; in [
+      { assertion = lib.all (cfg-port: !(builtins.elem cfg-port dnat-ports)) (lib.attrValues cfg.ports); message = "Configured ports must not overlap with dnat-reserved ports (${dnat-ports}) to prevent wrong routing and confusion. Found: ${cfg.ports}"; }
     ];
     containers.mass = let
       hass-enabled = config.my.services.home-assistant.enable;
