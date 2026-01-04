@@ -20,6 +20,10 @@
   # unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
   ip-host = "10.0.2.2";
   ip-local = "10.0.2.3";
+  # container forwardport rules make these ports unusable on the host (rerouting traffic even before filtering to the container). Best to not use them elsewhere, and to not expose them to the wan.
+  dnat-port-webui-mass = 65000;
+  dnat-port-webui-snap = 65001;
+  dnat-port-snap-conn = 65002;
 in {
   options.my.services.music-assistant = with lib; {
     enable = mkEnableOption "music-assistant service";
@@ -80,20 +84,21 @@ in {
       privateNetwork = true;
       hostAddress = ip-host;
       localAddress = ip-local;
+      # extraFlags = [ "-U" ]; # seb NOTE: cannot drop root permissions for container because "Failed to set up special execution directory in /var/lib: Operation not permitted. Failed at step STATE_DIRECTORY"
       forwardPorts = [
         { # for web-ui of Music-assistant
           containerPort = 8095; # NOTE: must be 8095, since this is not configurable from nixos.
-          hostPort = cfg.ports.webui-mass;
+          hostPort = dnat-port-webui-mass;
           protocol = "tcp";
         }
         { # for web-ui of Snapserver
           containerPort = 1780; # NOTE: must be 1780, since this is not configurable from nixos.
-          hostPort = cfg.ports.webui-snapserver;
+          hostPort = dnat-port-webui-snap;
           protocol = "tcp";
         }
         { # for snapserver-to-snapclient communications (snapclient players register themselves here)
           containerPort = 1704; # NOTE: must be 1704, since this is not configurable from nixos.
-          hostPort = 1704;
+          hostPort = dnat-port-snap-conn;
           protocol = "tcp";
         }
       ];
@@ -144,23 +149,35 @@ in {
     };
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.config-path ]; };
 
-    my.services.nginx.streamConfig = ''
-      server {
-        listen ${toString cfg.ports.snapclient-connections};
-        proxy_pass [::ffff:${ip-host}]:1704;
-      }
-      server {
-        listen [::]:${toString cfg.ports.snapclient-connections};
-        proxy_pass [::ffff:${ip-host}]:1704;
-      }
-    ''; # seb TODO: make local-only configurable
+    my.services.nginx.streams = {
+      "${toString cfg.ports.snapclient-connections}" = {
+        destination = "[::ffff:${ip-host}]:${toString dnat-port-snap-conn}";
+        type = "tcp";
+        local-only = true;
+      };
+      "[::]:${toString cfg.ports.snapclient-connections}" = {
+        destination = "[::ffff:${ip-host}]:${toString dnat-port-snap-conn}";
+        type = "tcp";
+        local-only = true;
+      };
+    };
+    # ''
+    #   server {
+    #     listen ${toString cfg.ports.snapclient-connections};
+    #     proxy_pass [::ffff:${ip-host}]:1704;
+    #   }
+    #   server {
+    #     listen [::]:${toString cfg.ports.snapclient-connections};
+    #     proxy_pass 
+    #   }
+    # ''; # seb TODO: make local-only configurable
 
     my.services.nginx.virtualHosts.ma = {
       port = cfg.ports.webui-mass;
       local-only = true;
 
       extraConfig.locations."/" = {
-        proxyPass = "http://${ip-host}:${toString cfg.ports.webui-mass}/";
+        proxyPass = "http://${ip-host}:${toString dnat-port-webui-mass}/";
         proxyWebsockets = true;
       };
     };
@@ -169,7 +186,7 @@ in {
       local-only = true;
       extraConfig.locations."/" = {
         proxyWebsockets = true;
-        proxyPass = "http://${ip-host}:${toString cfg.ports.webui-snapserver}/";
+        proxyPass = "http://${ip-host}:${toString dnat-port-webui-snap}/";
         extraConfig = ''
           proxy_buffering off;
         '';

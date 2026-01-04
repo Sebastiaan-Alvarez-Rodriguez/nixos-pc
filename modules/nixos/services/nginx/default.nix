@@ -4,6 +4,25 @@
 
   domain = config.networking.domain;
 
+  streamOption = with lib; types.submodule( { options = {
+      listen-address = mkOption { type = types.str; default = addr; example = "9999"; description = "the source to listen on for streams";};
+      type = mkOption { type = types.enum [ "tcp" "udp" ]; description = "The protocol to listen on."; };
+      destination = mkOption { type = with types; str; example = "127.0.0.1:8000"; description = "Which address to proxy to, for this stream."; };
+
+      reuseport = mkEnableOption "Set SO_REUSEPORT on the port listened on. NOTE: Listening with more than 1 active socket to a port will do load-balancing (with a very small chance to drop the packet when the number of listeners changes (YELP has some fix))";
+      local-only = mkEnableOption "Only allow inbound traffic from the local subnet, effectively blocking WAN access";
+
+      extraConfig = mkOption {
+        type = types.lines;
+        example = ''
+          proxy_timeout 20s;
+        '';
+        default = "";
+        description = "Any extra configuration that should be applied to this stream.";
+      };
+    };
+  });
+
   virtualHostOption = with lib; types.submodule ({ name, ... }: {
     options = {
       enableACME = mkEnableOption "Whether to ask Let’s Encrypt to sign a certificate for this vhost. Alternately, you can use an existing certificate through useACMEHost.";
@@ -24,7 +43,7 @@
         type = with types; nullOr port;
         default = null;
         example = 8080;
-        description = "Which port to proxy to, through 127.0.0.1, for this virtual host.";
+        description = "Which port to proxy to (on localhost 127.0.0.1), for this virtual host.";
       };
 
       redirect = mkOption {
@@ -110,17 +129,25 @@ in {
       enable = mkEnableOption "monitoring through grafana and prometheus";
     };
 
-    streamConfig = mkOption {
-      type = types.lines;
-      default = "";
-      example = ''
-        server {
-          listen 127.0.0.1:53 udp reuseport;
-          proxy_timeout 20s;
-          proxy_pass 192.168.0.1:53535;
+    streams = mkOption {
+      type = types.attrsOf streamOption;
+      default = {};
+      example = litteralExample ''
+        {
+          "9999" = {       # listen on 9999 for incoming traffic
+            destination = "127.0.0.1:8888"; # send to localhost port 8888;
+            protocol = "tcp";
+
+            reuseport = false;
+            local-only = true;
+          }
+          "[::]:9999" = {   # listen on 9999 on tcp6 interface
+            destination = "[::ffff:127.0.0.1]:8888"; # send to localhost port 8888, using ipv6;
+            protocol = "tcp";
+          }"
         }
       '';
-      description = "Configuration lines to be set inside the stream block.";
+      description = "Configuration to be set inside the nginx stream core-module.";
     };
 
     virtualHosts = mkOption {
@@ -285,7 +312,17 @@ in {
 
       commonHttpConfig = "server_names_hash_bucket_size 64;";
   
-      streamConfig = cfg.streamConfig;
+      streamConfig = let
+        mkSConfig = listen-address: args: ''
+          server {
+            listen ${listen-address} ${if args.type == "udp" then "udp" else ""} ${if args.reuseport then "reuseport" else ""};
+            proxy_pass ${args.destination};
+            ${if args.local-only then "allow ${cfg.local-subnet}; deny all;" else ""}
+            ${args.extraConfig}
+          }
+        '';
+        generatedStreams = lib.concatLines (lib.mapAttrsToList mkSConfig cfg.streams);
+      in generatedStreams;
 
       virtualHosts = let
         domain = config.networking.domain;
@@ -297,8 +334,7 @@ in {
             enableACME = args.enableACME;
           }
           (lib.optionalAttrs (args.port != null) { # Proxy to port
-            locations."/".proxyPass =
-              "http://127.0.0.1:${toString args.port}";
+            locations."/".proxyPass = "http://127.0.0.1:${toString args.port}";
           })
           (lib.optionalAttrs (args.root != null) { # Serve filesystem content
             inherit (args) root;

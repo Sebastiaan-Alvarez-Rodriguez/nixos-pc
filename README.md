@@ -78,6 +78,23 @@ nixos-rebuild switch --flake .#helium --target-host helium --sudo --ask-sudo-pas
 > **Note**: It might be possible to remove the need for filling the sudo password of the raspberry, if you setup passwordless authentication for `root` as well, and use `sudo` on the build-and-deploy command.
 
 
+## Declarative containers
+Several services, e.g. `music-assistant`, use declarative containers to host services, because the services are too unwieldy with e.g. their port selection,
+listen interfaces, or other restricitions in configuration leading to security problems.
+
+A quick cheatsheet for using such containers:
+```bash
+nixos-container list                                # list containers
+journalctl -xeu container@[name of container]       # check deployment status
+sudo nixos-container stop [name of container]       # stop container
+sudo nixos-container start [name of container]      # start container
+sudo nixos-container root-login [name of container] # login into the container (works only if it has not dropped root)
+nixos-container run [name of container] -- [cmd]    # run a command in the container
+nixos-container login                               # login into the container as a user (currently does not work: https://discourse.nixos.org/t/nixos-container-login-failed/65985)
+```
+
+Container configuration was inspired from [here](https://blog.beardhatcode.be/2020/12/Declarative-Nixos-Containers.html)
+
 
 ## Cleaning
 This removes packages without pointers to them:
