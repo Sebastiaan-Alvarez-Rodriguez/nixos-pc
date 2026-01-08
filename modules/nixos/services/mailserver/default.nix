@@ -48,7 +48,7 @@ in {
     state-version = mkOption {
       type = types.int;
       description = "Stateversion of mailserver. See also: https://nixos-mailserver.readthedocs.io/en/latest/migrations.html";
-      default = 1;
+      example = 1;
     };
 
     backup-routes = mkOption {
@@ -61,11 +61,15 @@ in {
     assertions = [
       {
         assertion = cfg.enable -> builtins.elem 993 config.networking.firewall.allowedTCPPorts;
-        message = "Open port `993` in your firewall to allow the mailserver to communicate with clients.";
+        message = "Open port `993` in your firewall to allow IMAP communication with clients.";
       }
       {
         assertion = cfg.webserver.enable -> builtins.elem 587 config.networking.firewall.allowedTCPPorts;
-        message = "Open port `587` in your firewall to allow the webserver to communicate.";
+        message = "Open port `587` in your firewall to allow mail submissions to the mailserver with STARTTLS.";
+      }
+      {
+        assertion = cfg.webserver.enable -> builtins.elem 465 config.networking.firewall.allowedTCPPorts;
+        message = "Open port `465` in your firewall to allow mail submissions to the mailserver with implicit TLS";
       }
     ];
     mailserver = (lib.mkMerge [
@@ -73,12 +77,14 @@ in {
         enable = true;
         fqdn = "${cfg.domain-prefix}.${config.networking.domain}";
         domains = cfg.domains;
+        enableSubmission = true; # enable port 587 for SMTP with STARTTLS
+        enableSubmissionSsl = true; # enable port 465 for SMTP with TLS in wrapper-mode
 
         # Requires certificate files to exist! Currently provided by acme service in global config.
         certificateScheme = cfg.certificateScheme;
         certificateFile = cfg.certificateFile;
         keyFile = cfg.keyFile;
-        # stateVersion = cfg.state-version; # TODO: uncomment when they fixed their master branch / they updated to 25.11
+        stateVersion = cfg.state-version;
       }
       cfg.extraConfig
     ]);
@@ -127,7 +133,7 @@ in {
         $config['smtp_server'] = "tls://${cfg.domain-prefix}.${config.networking.domain}";
         $config['smtp_user'] = "%u";
         $config['smtp_pass'] = "%p";
-        $config['smtp_port'] = 587;
+        $config['imap_host'] = "ssl://${cfg.domain-prefix}.${config.networking.domain}:993";
       '';
     };
 

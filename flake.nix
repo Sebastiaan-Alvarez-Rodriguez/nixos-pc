@@ -47,7 +47,7 @@
 
     systems.url = "github:nix-systems/default/main";
 
-    zen-browser.url = "github:0xc000022070/zen-browser-flake";
+    # zen-browser.url = "github:0xc000022070/zen-browser-flake";
   };
 
   outputs = inputs: import ./flake inputs;

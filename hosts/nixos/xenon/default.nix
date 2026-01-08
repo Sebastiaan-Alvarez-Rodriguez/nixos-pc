@@ -5,7 +5,8 @@
     allowedTCPPorts = [
       80    # HTTP
       443   # HTTPS
-      587   # mail
+      465   # mail (new, replacement for 587)
+      587   # mail (legacy, replaced by 465)
       993   # mail
     ];
   };
@@ -96,9 +97,8 @@
       certificateFile = "/var/lib/acme/mijn.place/fullchain.pem";
       keyFile = "/var/lib/acme/mijn.place/key.pem";
 
-      extraConfig = let
-        sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place.";
-      in {
+      state-version = 3;
+      extraConfig = let sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place."; in {
         # A list of all login accounts. To create a password hash, use
         # nix run nixpkgs.apacheHttpd -c htpasswd -nbB "" "super secret password" | cut -d: -f2
         loginAccounts = {

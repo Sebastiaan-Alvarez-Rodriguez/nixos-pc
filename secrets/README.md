@@ -40,7 +40,7 @@ nix run github:oddlama/agenix-rekey -- rekey -a
 ## Decrypting a password/key
 The easiest way:
 ```bash
-  nix run github:oddlama/agenix-rekey -- edit
+nix run github:oddlama/agenix-rekey -- edit
 ```
 Then select the key to decrypt. You can also change it here.
 > Note: this only works if the secret to decrypt has been specified in `/secrets/default.nix`
