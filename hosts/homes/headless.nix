@@ -7,6 +7,7 @@
     bintools-unwrapped
     btop
     editorconfig-core-c
+    fastfetch # system info display tool
     fd
     fzf
     gnupg

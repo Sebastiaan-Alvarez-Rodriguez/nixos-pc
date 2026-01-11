@@ -18,10 +18,15 @@
 
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "hydenix/nixpkgs";
     };
 
-    nixpkgs.url = "nixpkgs/nixos-25.11";
+    # hyprland and themes
+    hyprland.url = "github:hyprwm/Hyprland";
+    hydenix.url = "github:richen604/hydenix";
+
+    # nixpkgs.url = "nixpkgs/nixos-25.11";
+    nixpkgs.follows = "hydenix/nixpkgs";
     nixpkgs-24_05.url = "nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
 

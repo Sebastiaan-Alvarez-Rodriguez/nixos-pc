@@ -4,7 +4,8 @@
   cfg = config.my.system.home;
 in {
   imports = [
-    inputs.home-manager.nixosModules.home-manager # enable home-manager options
+    # inputs.home-manager.nixosModules.home-manager # enable home-manager options
+    inputs.hydenix.inputs.home-manager.nixosModules.home-manager # seb TODO do I really need this? Or uncomment above line to restore original
     (lib.mkAliasOptionModule aliasPath actualPath) # simplify setting home options for all users
   ];
 
@@ -33,6 +34,7 @@ in {
     mkUser = name: lib.nameValuePair name (simple-gen name);
     mkUsers = list: builtins.listToAttrs (builtins.map mkUser list);
   in {
+    environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
     home-manager = {
       users = mkUsers cfg.users; # For each user, provides the methodology.
       # Above works like https://github.com/nix-community/home-manager/blob/8d5e27b4807d25308dfe369d5a923d87e7dbfda3/templates/nixos/flake.nix#L20
@@ -42,8 +44,8 @@ in {
       # https://github.com/nix-community/home-manager/blob/8d5e27b4807d25308dfe369d5a923d87e7dbfda3/docs/manual/installation/nix-darwin.md?plain=1#L35
 
       # Nix Flakes compatibility
-      # useGlobalPkgs = true; # seb NOTE: cannot have `nixpkgs.config` and/or `nixpkgs.overlays` while using `home-manager.useGlobalPkgs`
-      useUserPackages = false; # seb TODO: keep true or set false? https://discourse.nixos.org/t/home-manager-useuserpackages-useglobalpkgs-settings/34506/10
+      useGlobalPkgs = true; # seb NOTE: cannot have `nixpkgs.config` and/or `nixpkgs.overlays` while using `home-manager.useGlobalPkgs`
+      useUserPackages = true; # seb TODO: keep true or set false? https://discourse.nixos.org/t/home-manager-useuserpackages-useglobalpkgs-settings/34506/10
 
       # Forward inputs to home-manager configuration
       extraSpecialArgs = {

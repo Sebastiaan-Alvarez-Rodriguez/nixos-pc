@@ -1,4 +1,4 @@
-{ ... }: {
+{ lib, ... }: {
   imports = [
     ./bat
     ./bitwarden
@@ -26,8 +26,5 @@
     ./zen-browser
   ];
 
-  home.stateVersion = "24.05";
-
-  # # Start services automatically # seb: NOTE commented below line.
-  # systemd.user.startServices = "sd-switch";
+  home.stateVersion = lib.mkForce "24.05";
 }

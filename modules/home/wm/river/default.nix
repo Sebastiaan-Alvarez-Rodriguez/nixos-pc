@@ -5,6 +5,7 @@ in {
   imports = [ ./river-session.nix ];
 
   options.my.home.wm.river = with lib; {
+    enable = mkEnableOption "Set river as window manager.";
     modkey = mkOption {
       type = with types; str;
       default = "Mod4"; # This is the 'windows' key on most keyboards.

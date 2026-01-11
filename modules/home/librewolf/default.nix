@@ -6,7 +6,8 @@ in {
     nightly = mkEnableOption "Get nightly build instead of beta.";
   };
 
-  config.programs.librewolf = lib.mkIf cfg.enable {
-    enable = true;
+  config = lib.mkIf cfg.enable {
+    programs.librewolf.enable = true; 
+    home.sessionVariables.BROWSER = "librewolf";
   };
 }

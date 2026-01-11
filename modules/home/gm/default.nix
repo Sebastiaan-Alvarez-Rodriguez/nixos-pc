@@ -19,6 +19,7 @@ in {
       # seb: NOTE we don't enable wayland here. The wayland window managers, i.e. wm.river, already activate wayland.
       home.sessionVariables = {
         MOZ_ENABLE_WAYLAND = 1;
+        NIXOS_OZONE_WL = 1; # hints Electron apps to use wayland
         QT_QPA_PLATFORMTHEME = "qt5ct";
         QT_QPA_PLATFORM = "wayland";
         QT_WAYLAND_DISABLE_WINDOWDECORATION = 1;

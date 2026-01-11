@@ -5,11 +5,9 @@ in {
     ./dunst
     ./flameshot
     ./grim
-    ./i3
     ./i3bar
     ./kanshi
     ./mako
-    ./river
     ./rofi
     ./screen-lock
     ./swaylock

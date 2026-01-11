@@ -316,10 +316,10 @@
       backup-routes = [ "xenon" ];
       mail = {
         enable = true;
-        host = "mail.mijn.place";
+        host = "mijn.place";
         port = 587;
         authtype = "login";
-        username = "vikunja";
+        username = "vikunja@mijn.place";
         password-file = config.age.secrets."helium/vikunja/mail".path;
         from-email = "vikunja@mijn.place";
         force-ssl = true;

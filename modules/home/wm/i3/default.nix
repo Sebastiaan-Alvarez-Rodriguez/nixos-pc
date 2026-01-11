@@ -1,5 +1,6 @@
 { config, lib, pkgs, ... }:
 let
+  cfg = cfg.my.home.wm.i3;
   terminal = if config.my.home.terminal.program != null then config.my.home.terminal.program else "i3-sensible-terminal";
 
   alt = "Mod1"; # `Alt` key
@@ -10,10 +11,7 @@ let
     "(l)ock, (e)xit, switch_(u)ser, (h)ibernate, (r)eboot, (Shift+s)hutdown";
 
   # Takes an attrset of bindings for movement keys, transforms it to Vim keys
-  toVimKeyBindings = let
-    toVimKeys = builtins.replaceStrings movementKeys vimMovementKeys;
-  in
-    lib.my.renameAttrs toVimKeys;
+  toVimKeyBindings = let toVimKeys = builtins.replaceStrings movementKeys vimMovementKeys; in lib.my.renameAttrs toVimKeys;
 
   # Takes an attrset of bindings for movement keys, add equivalent Vim keys
   addVimKeyBindings = bindings: bindings // (toVimKeyBindings bindings);
@@ -32,8 +30,7 @@ let
   # Lock management
   toggleXautolock = let
     systemctlUser = "${pkgs.systemd}/bin/systemctl --user";
-    notify = "${notify-send} -u low"
-      + " -h string:x-canonical-private-synchronous:xautolock-toggle";
+    notify = "${notify-send} -u low -h string:x-canonical-private-synchronous:xautolock-toggle";
   in
     pkgs.writeScript "toggle-xautolock" ''
       #!/bin/sh
@@ -48,6 +45,9 @@ let
       fi
     '';
 in {
+  options.my.home.wm.i3 = with lib; {
+    enable = mkEnableOption "Set i3 as window manager.";
+  };
   config = lib.mkIf config.my.home.wm.i3.enable {
     home.packages = with pkgs; [
       custompkgs.dragger # drag-and-drop from the CLI

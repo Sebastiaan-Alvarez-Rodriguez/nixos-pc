@@ -1,15 +1,9 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.home.wm;
 in {
-  imports = [ ./apps ];
+  imports = [ ./i3 ./hyprland ./river ./apps ];
 
-  options.my.home.wm = with lib; {
-    river.enable = mkEnableOption "Set river as window manager.";
-    i3.enable = mkEnableOption "Set i3 as window manager.";
-  };
-
-  config = {
-    assertions = [ { assertion = !(cfg.i3.enable && cfg.river.enable); message = "Enable exactly one of `my.home.wm.i3.enable` and my.home.wm.river.enable`"; } ];
+  config = lib.mkIf (cfg.i3.enable || cfg.hyprland.enable || cfg.river.enable) {
     fonts.fontconfig.enable = true;
     home.packages = with pkgs; [
       # all fonts

@@ -107,8 +107,8 @@ in {
       actionsEnabled = [ cfg.lock cfg.hibernate cfg.logout cfg.shutdown cfg.suspend cfg.reboot ];
       supportedLockers = [ "swaylock" ];
       enabledLockerTests = [ config.my.home.wm.apps.swaylock.enable ];
-      supportedLogouts = [ "river" ];
-      enabledLogoutsTests = [ (config.my.home.wm.river.enable) ];
+      supportedLogouts = [ "river" "hyprland" ];
+      enabledLogoutsTests = [ (config.my.home.wm.river.enable) (config.my.home.wm.hyprland.enable) ];
     in [
       { assertion = cfg.enable -> (builtins.any (i: i) actionsEnabled); message = "No enabled actions. Enable 'lock', 'hibernate', 'logout', 'shutdown', 'suspend', and/or 'reboot'."; }
       { assertion = cfg.lock -> (builtins.any (i: i) enabledLockerTests); message = "No enabled supported locker found. Please configure to use any of the following lock tools: ${builtins.toString supportedLockers}"; }
@@ -128,13 +128,19 @@ in {
       in [] 
         ++ lib.optional cfg.lock (mkLabel {name = "lock"; keybind = "x"; action =  if config.my.home.wm.apps.swaylock.enable then "${config.my.home.wm.apps.swaylock.package}/bin/swaylock" else ""; })
         ++ lib.optional cfg.hibernate (mkLabel { name = "hibernate"; keybind = "h"; })
-        ++ lib.optional cfg.logout (mkLabel { name = "logout"; keybind = "l"; action = if config.my.home.wm.river.enable then let
+        ++ lib.optional (cfg.logout && config.my.home.wm.river.enable) (mkLabel { name = "logout"; keybind = "l"; action = let
             script = pkgs.writeShellScript "logout" ''
               sleep 0.2;
               killall -9 river.*;
             '';
-          in "${script}"
-          else "";
+          in "${script}";
+        })
+        ++ lib.optional (cfg.logout && config.my.home.wm.hyprland.enable) (mkLabel { name = "logout"; keybind = "l"; action = let
+            script = pkgs.writeShellScript "logout" ''
+              sleep 0.2;
+              killall -9 Hyprland.*;
+            '';
+          in "${script}";
         })
         ++ lib.optional cfg.shutdown (mkLabel { name = "shutdown"; keybind = "s"; action = "systemctl poweroff"; })
         ++ lib.optional cfg.suspend (mkLabel { name = "suspend"; keybind = "u"; })

@@ -1,4 +1,4 @@
-{ inputs, config, pkgs, system, ... }: let
+{ inputs, config, lib, pkgs, system, ... }: let
   stremio-service = inputs.self.packages.${system}.stremio-service;
 in {
   imports = [ ./hardware.nix ];
@@ -73,48 +73,65 @@ in {
     };
     terminal.program = "foot";
     wm = {
-      river.enable = true;
+      hyprland.enable = true;
+      hyprland.hydenix.enable = true;
       apps = {
-        dunst.enable = false; # seb: TODO explore dunst (needs to disable mako)
-        grim.enable = true;
-        kanshi = {
-          enable = true;
-          systemdTarget = "river-session.target";
-        };
-        mako.enable = true;
-        rofi.enable = true;
-        swaylock = {
-          enable = true;
-          image = {
-            url = "https://w.wallhaven.cc/full/zy/wallhaven-zy3l5o.jpg";
-            sha256 = "d71fce2282c21b44c26aa9a89e64d00fb89db1298d42c0e8fb8a241ce7228371";
-            pixelate = 3;
-          };
-        };
-        wlogout = {
-          enable = true;
-          image = {
-            url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
-            sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
-          };
-          accent-color = "rgb (139, 0, 0)";
-        };
-        wpaperd = {
-          enable = true;
-          image = {
-            # url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
-            # sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
-            url = "https://www.academiacolecciones.com/pinturas/server/files/0601.jpg";
-            sha256 = "sha256:1zs11020qjrpskg3dds8l0rcy11i73c2a1vn7831fhys7vn2d5mp";
-          };
-          systemdTarget = "river-session.target";
-        };
-        waybar = {
-          enable = true;
-          systemdTarget = "river-session.target";
-        };
+        # grim.enable = true;
+        # kanshi = {
+        #   enable = true;
+        #   systemdTarget = "river-session.target";
+        # };
+        # mako.enable = true;
+        # rofi.enable = true; # seb NOTE: needed?
+        # swaylock = {
+        #   enable = true;
+        #   image = {
+        #     url = "https://w.wallhaven.cc/full/zy/wallhaven-zy3l5o.jpg";
+        #     sha256 = "d71fce2282c21b44c26aa9a89e64d00fb89db1298d42c0e8fb8a241ce7228371";
+        #     pixelate = 3;
+        #   };
+        # };
+        # wlogout = {
+        #   enable = true;
+        #   image = {
+        #     url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
+        #     sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
+        #   };
+        #   accent-color = "rgb (139, 0, 0)";
+        # };
+        # wpaperd = {
+        #   enable = true;
+        #   image = {
+        #     # url = "https://w.wallhaven.cc/full/p9/wallhaven-p9586j.png";
+        #     # sha256 = "07181c8d3e3a33b09acfb65adeb1d30b8efbf15a3c0300954893263708d0c855";
+        #     url = "https://www.academiacolecciones.com/pinturas/server/files/0601.jpg";
+        #     sha256 = "sha256:1zs11020qjrpskg3dds8l0rcy11i73c2a1vn7831fhys7vn2d5mp";
+        #   };
+        #   systemdTarget = "river-session.target";
+        # };
+        # waybar = {
+        #   enable = true;
+        #   systemdTarget = "river-session.target";
+        # };
       };
     };
+  };
+  # global hydenix configuration
+  hydenix = {
+    hostname = config.my.hardware.networking.hostname;
+    timezone = config.time.timeZone;
+    locale = config.il8n.defaultLocale;
+
+    # stuff hydenix tries to configure despite being a hyprland preconfig-theme
+    # see here: https://github.com/richen604/hydenix/tree/main/hydenix/modules/system
+    audio.enable = false;
+    boot.enable = false;
+    gaming.enable = false;
+    hardware.enable = false;
+    network.enable = false;
+    nix.enable = false;
+    sddm.enable = false; # might be nice to actually use
+    system.enable = false;
   };
 
   my.programs = {
@@ -131,12 +148,9 @@ in {
       greeting = "<=================>";
       wait-for-graphical = true;
       sessions = {
-        "default_session" = pkgs.writeShellScript "start-river" ''
-          # Seems to be needed to get river to properly start
+        "default_session" = pkgs.writeShellScript "start-wm" ''
           sleep 1
-          export XDG_SESSION_TYPE=wayland
-          export XDG_CURRENT_DESKTOP=river
-          ${pkgs.river-classic}/bin/river
+          ${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/start-hyprland
         '';
       };
     };
@@ -145,7 +159,7 @@ in {
   };
 
   my.profiles = {
-    gtk.enable = true;
+    # gtk.enable = true; seb TODO: hydenix config setup time?
   };
 
   services = {
@@ -159,9 +173,9 @@ in {
     ];
   };
 
-  environment.etc."greetd/environments".text = ''
-    river
-  ''; # allows users logging in to pick their window manager.
+  # environment.etc."greetd/environments".text = '' # todo Seb hydenix config setup time?
+  #   hyprland
+  # ''; # allows users logging in to pick their window manager.
 
   environment.systemPackages = with pkgs; [ home-manager ffmpeg ];
 
@@ -177,11 +191,9 @@ in {
       shell = pkgs.fish;
     };
   };
-  # seb: TODO can make this auto-discovery by iterating users.users and iterating their ~/.ssh directories
-  # age.identityPaths = [ "/home/rdn/.ssh/agenix" ]; # list of paths to recipient keys to try to use to decrypt the secrets
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  system.stateVersion = "24.05"; # Do not change
+  system.stateVersion = lib.mkForce "24.05"; # Do not change
 }

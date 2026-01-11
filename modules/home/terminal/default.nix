@@ -54,6 +54,7 @@ in {
       };
 
       systemd.user.services.foot.Install.WantedBy = lib.optionals config.my.home.wm.river.enable [ "river-session.target" ];
+      home.sessionVariables.TERMINAL = lib.mkIf (cfg.program != null) cfg.program;
       home.packages = with pkgs; [ xdg-utils  ]; # xdg-open required for foot url thingy
     })
   ]);
