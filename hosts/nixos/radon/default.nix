@@ -57,6 +57,7 @@
     system.enable = true;
   };
   hardware.bluetooth.enable = lib.mkForce false; # hydenix system enables bluetooth, don't like it.
+  programs.gnupg.agent.enable = lib.mkForce false; # seb NOTE: do not ask for passwords of keys with gpg agents
 
   my.programs = {
     steam.enable = true;
