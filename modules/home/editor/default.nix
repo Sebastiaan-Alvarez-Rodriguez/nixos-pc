@@ -1,48 +1,23 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.home.editor;
+  supported = [ "helix" "neovim" "vim" ];
 in {
   options.my.home.editor = with lib; {
-    editors = mkOption {
-      type = with types; listOf (package);
-      default = [];
-      description = "Editors for home session";
+    program = mkOption {
+      type = with types; nullOr (enum supported);
+      default = null;
+      description = "Which editor to use for home session";
     };
 
-    main = with types; mkOption {
-      type = nullOr (submodule {
-      
-        options.package = mkOption {
-          type = package;
-          example = "pkgs.helix";
-          description = "Default editor package";
-        };
-        options.path = mkOption {
-          type = str;
-          example = "\${pkgs.helix}/bin/hx";
-          description = "Default editor binary path";
-        };
-      });
-      default = null;
+    extras = with types; mkOption {
+      type = with types; listOf (enum supported);
+      default = [];
+      description = "extra editors to make available";
     };
   };
 
-  config = (lib.mkMerge [
-    {
-      assertions = [
-        {
-          assertion = lib.allUnique cfg.editors;
-          message = "Remove duplicates from home.editor.editors, found: \"${builtins.toString cfg.editors}\"";
-        }
-      ];
-    }
-
-    (lib.mkIf (cfg.main != null) {
-      home.sessionVariables.EDITOR = lib.mkIf (cfg.main.path != null) cfg.main.path;
-      home.packages = cfg.editors ++ lib.optional (!(cfg.main.package == null || (builtins.elem cfg.main.package cfg.editors))) cfg.main.package; # adds main.package if not present.
-    })
-
-    (lib.mkIf (builtins.elem pkgs.helix cfg.editors) {
-      home.packages = [ pkgs.python3Packages.python-lsp-server ]; # LSPs for helix
-    })
-  ]);
+  config = lib.mkIf (cfg.program != null) {
+    home.sessionVariables.EDITOR = cfg.program; #lib.getExe (pkgs.${cfg.program}); # this works as long as 'supported' only contains actual package names;
+    home.packages = [ pkgs.${cfg.program} ] ++ builtins.map (i: pkgs.${i}) cfg.extras;
+  };
 }

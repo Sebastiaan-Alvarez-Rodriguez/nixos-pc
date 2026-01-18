@@ -1,4 +1,4 @@
-# graphical managers, i.e. wayland, xserver
+# prepares system environment for graphical managers, i.e. wayland, xserver
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.gm;
 in {
@@ -15,7 +15,7 @@ in {
     })
     (lib.mkIf cfg.wayland.enable {
       # programs.xwayland.enable = true; 
-      home.packages = [ pkgs.wl-clipboard pkgs.wl-clip-persist ];
+      # home.packages = [ pkgs.wl-clipboard pkgs.wl-clip-persist ]; # seb NOTE: hydenix hunt
       # seb: NOTE we don't enable wayland here. The wayland window managers, i.e. wm.river, already activate wayland.
       home.sessionVariables = {
         MOZ_ENABLE_WAYLAND = 1;

@@ -6,7 +6,6 @@ in {
       enable = mkEnableOption "graphics configuration";
       enable-kernelmodule = mkEnableOption "Kernel driver module";
       enable-vaapi = mkEnableOption "Enable vaapi driver (needed for video hardware accelleration)";
-      amdvlk = mkEnableOption "Use AMDVLK instead of Mesa RADV driver";
     };
 
     intel = {
@@ -85,8 +84,12 @@ in {
       };
 
       hardware.graphics = with pkgs; {
-        extraPackages = [ rocmPackages.clr rocmPackages.clr.icd ] ++ lib.optional cfg.amd.amdvlk amdvlk ++ lib.optionals cfg.amd.enable-vaapi [libva-vdpau-driver libvdpau-va-gl]; # first part adds rocm-openCL
-        extraPackages32 = [ ] ++ lib.optional cfg.amd.amdvlk driversi686Linux.amdvlk ;
+        # if you also want 32-bit support (e.g for Steam)
+        enable32Bit = true;
+        package32 = pkgs.pkgsi686Linux.mesa;
+
+        extraPackages = [ rocmPackages.clr rocmPackages.clr.icd ] ++ lib.optionals cfg.amd.enable-vaapi [libva-vdpau-driver libvdpau-va-gl]; # first part adds rocm-openCL
+        extraPackages32 = [ ];
       };
     })
 

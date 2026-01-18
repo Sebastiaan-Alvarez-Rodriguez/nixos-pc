@@ -2,16 +2,14 @@
   defaultModules = [
     {
       system.configurationRevision = self.rev or "dirty"; # Let 'nixos-version --json' know about the Git revision
-    }
-    {
       nixpkgs.overlays = (lib.attrValues self.overlays) ++ [ inputs.nur.overlays.default ];
       nix.settings = {
         trusted-users = [ "@wheel" ]; # Required for accepting remote builds
 
         ## Required for hyprland so that it does not build all dependencies (e.g. ffmpeg) every time
-        substituters = [ "https://hyprland.cachix.org" ];
-        trusted-substituters = ["https://hyprland.cachix.org"];
-        trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ]; # Required for hyprland cachix
+        # substituters = [ "https://hyprland.cachix.org" ]; # seb TODO hyprland hunt
+        # trusted-substituters = ["https://hyprland.cachix.org"];
+        # trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ]; # Required for hyprland cachix
       };
     }
     { # override home-assistant
@@ -21,12 +19,12 @@
     inputs.agenix.nixosModules.default
     inputs.agenix-rekey.nixosModules.default
 
-    # hyprland theme module import
-    inputs.hydenix.nixosModules.default
-    inputs.nixos-hardware.nixosModules.common-gpu-amd # AMD GPUs
-    inputs.nixos-hardware.nixosModules.common-cpu-amd # AMD CPUs
-    inputs.nixos-hardware.nixosModules.common-hidpi
-    inputs.nixos-hardware.nixosModules.common-pc-ssd
+    # hyprland theme module import (handled in the hosts/nixos/hydenix/default.nix for now, must move to module)
+    # inputs.hydenix.nixosModules.default
+    # inputs.nixos-hardware.nixosModules.common-gpu-amd # AMD GPUs
+    # inputs.nixos-hardware.nixosModules.common-cpu-amd # AMD CPUs
+    # inputs.nixos-hardware.nixosModules.common-hidpi
+    # inputs.nixos-hardware.nixosModules.common-pc-ssd
   
     "${self}/modules/nixos" # Include generic settings
   ];
@@ -55,6 +53,7 @@ in rec {
     "polonium" = "x86_64-linux";
     "radon" = "x86_64-linux";
     "xenon" = "x86_64-linux";
+    "hydenix" = "x86_64-linux";
   } // lib.mapAttrs buildImageHost {
     "blackberry" = "aarch64-linux";
   };

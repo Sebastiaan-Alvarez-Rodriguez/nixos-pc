@@ -34,7 +34,10 @@ in {
             enableCryptodisk = lib.mkDefault true;
           };
           # systemd-boot
-          systemd-boot.enable = (cfg.kind == "systemd");
+          systemd-boot = lib.mkIf (cfg.kind == "systemd") {
+            enable = true;
+            consoleMode = "auto";
+          };
         };
       }
       cfg.extraConfig

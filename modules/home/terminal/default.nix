@@ -1,16 +1,22 @@
-# terminal programs, i.e. foot.
+# terminal programs, e.g. foot.
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.terminal;
 in {
   options.my.home.terminal = with lib; {
     program = mkOption {
-      type = with types; nullOr (enum [ "foot" ]);
+      type = with types; nullOr (enum [ "foot" "kitty" ]);
       default = null;
       description = "Which terminal to use for home session";
     };
   };
 
   config = lib.mkIf (cfg.program != null) (lib.mkMerge [
+    (lib.mkIf (cfg.program != null) {
+      home.sessionVariables.TERMINAL = cfg.program;
+    })
+    (lib.mkIf (cfg.program == "kitty") {
+      home.packages = [ pkgs.kitty ];
+    })
     (lib.mkIf (cfg.program == "foot") {
       programs.foot = {
         enable = true;
@@ -54,7 +60,6 @@ in {
       };
 
       systemd.user.services.foot.Install.WantedBy = lib.optionals config.my.home.wm.river.enable [ "river-session.target" ];
-      home.sessionVariables.TERMINAL = lib.mkIf (cfg.program != null) cfg.program;
       home.packages = with pkgs; [ xdg-utils  ]; # xdg-open required for foot url thingy
     })
   ]);

@@ -3,7 +3,6 @@
   imports = [
     ./hardware
     ./home
-    ./profiles
     ./programs
     ./services
     ./../../secrets

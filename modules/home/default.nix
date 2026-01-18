@@ -3,13 +3,12 @@
     ./bat
     ./bitwarden
     ./bluetooth
+    ./browser
     ./editor
-    ./firefox
     ./gdb
     ./gpg
     ./gm
     ./gtk
-    ./librewolf
     ./mail
     ./mpv
     ./nix
@@ -23,7 +22,6 @@
     ./wm
     ./xdg
     ./zathura
-    ./zen-browser
   ];
 
   home.stateVersion = lib.mkForce "24.05";

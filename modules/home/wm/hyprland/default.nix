@@ -38,36 +38,36 @@ in {
       package = cfg.package;
       portalPackage = cfg.portal-package;
       settings = {
-        "$mod" = cfg.modkey;
+        "$mainMod" = cfg.modkey;
         bind = let # see https://wiki.hypr.land/Configuring/Binds
-          workspace-binds = builtins.concatLists (builtins.genList (i: [ "$mod, code:1${toString i}, workspace, ${toString (i + 1)}" "$mod SHIFT, code:1${toString i}, movetoworkspacesilent, ${toString (i + 1)}" ]) 9);
+          workspace-binds = builtins.concatLists (builtins.genList (i: [ "$mainMod, code:1${toString i}, workspace, ${toString (i + 1)}" "$mainMod SHIFT, code:1${toString i}, movetoworkspacesilent, ${toString (i + 1)}" ]) 9);
         in workspace-binds
           ++ [ # window focus movement
-            "$mod, J, cyclenext, "
-            "$mod, K, cyclenext, prev"
-            "$mod SHIFT, J, swapnext, "
-            "$modkey SHIFT, K, swapnext, prev"
+            "$mainMod, J, cyclenext, "
+            "$mainMod, K, cyclenext, prev"
+            "$mainMod SHIFT, J, swapnext, "
+            "$mainModkey SHIFT, K, swapnext, prev"
           ] ++ [ # adjust split ratio
-            "$mod, H, splitratio, -0.05"
-            "$mod, L, splitratio, +0.05"
-            # "$mod+Shift H" = "send-layout-cmd hyprlandtile main-count +1";
-            # "$mod+Shift L" = "send-layout-cmd hyprlandtile main-count -1";
+            "$mainMod, H, splitratio, -0.05"
+            "$mainMod, L, splitratio, +0.05"
+            # "$mainMod+Shift H" = "send-layout-cmd hyprlandtile main-count +1";
+            # "$mainMod+Shift L" = "send-layout-cmd hyprlandtile main-count -1";
           ] ++ [ # toggle between fullscreen or not
-            "$mod, F, fullscreen, 0 toggle" # this one makes completely full screen
-            "$mod SHIFT, F, fullscreen, 1 toggle" # this keeps gaps and bars
+            "$mainMod, F, fullscreen, 0 toggle" # this one makes completely full screen
+            "$mainMod SHIFT, F, fullscreen, 1 toggle" # this keeps gaps and bars
           ] ++ [ # close windows
-            "$mod, Q, closewindow, activewindow"
-            "$mod SHIFT, Q, killactive, "
+            "$mainMod, Q, closewindow, activewindow"
+            "$mainMod SHIFT, Q, killactive, "
           ]
           ++ lib.optionals (config.my.home.terminal.program == "foot") [
-            "$mod, Return, exec, ${pkgs.foot}/bin/foot"
+            "$mainMod, Return, exec, ${pkgs.foot}/bin/foot"
           ]
           ++ lib.optionals config.my.home.librewolf.enable [
-            "$mod, B, exec, ${config.programs.librewolf.package}/bin/librewolf"
-            "$mod, P, exec, ${config.programs.librewolf.package}/bin/librewolf --private-window"
+            "$mainMod, B, exec, ${config.programs.librewolf.package}/bin/librewolf"
+            "$mainMod, P, exec, ${config.programs.librewolf.package}/bin/librewolf --private-window"
           ]
           ++ lib.optionals config.my.home.wm.apps.swaylock.enable  [
-            "$mod, X, exec, ${config.my.home.wm.apps.swaylock.package}/bin/swaylock"
+            "$mainMod, X, exec, ${config.my.home.wm.apps.swaylock.package}/bin/swaylock"
           ];
         
           # seb TODO: maybe use?
@@ -76,7 +76,7 @@ in {
           # ]
           # seb TODO: maybe use? (if there is no good wofi/rofi default)
           # (lib.mkIf config.my.home.wm.apps.rofi.enable {
-          #   "$mod D" = "spawn ${config.programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi";
+          #   "$mainMod D" = "spawn ${config.programs.rofi.package}/bin/rofi -combi-modi drun,ssh -show combi -modi combi";
           # })
         binde = let
           pamixer = "${pkgs.pamixer}/bin/pamixer";
@@ -100,14 +100,14 @@ in {
           ", XF86KbdBrightnessDown, exec, ${brightnessctl} -d asus::kbd_backlight s 5%-"
         ];
         # seb TODO: check if below binds need to come back
-        # "$mod Space" = "toggle-float";
+        # "$mainMod Space" = "toggle-float";
 
-        # "$mod D" = "spawn ${pkgs.rofi-wayland}/bin/rofi -combi-modi drun,ssh -show combi -modi combi";
+        # "$mainMod D" = "spawn ${pkgs.rofi-wayland}/bin/rofi -combi-modi drun,ssh -show combi -modi combi";
 
 
 
-        # "$mod 0" = "set-focused-tags ${toString allTags}";
-        # "$mod+Shift 0" = "set-view-tags ${toString allTags}";
+        # "$mainMod 0" = "set-focused-tags ${toString allTags}";
+        # "$mainMod+Shift 0" = "set-view-tags ${toString allTags}";
 
         repeat_rate = 50; # sets x clicks per sec when in repeat-mode (i.e. button is held down)
         repeat_delay = 300; # amount of ms before repeat-mode is active (i.e. delay when button is held down)

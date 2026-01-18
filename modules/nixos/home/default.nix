@@ -1,57 +1,35 @@
 { config, inputs, lib, pkgs, system, ... }: let
-  actualPath = [ "my" "system" "home" "generic" ];
-  aliasPath = [ "my" "home" ];
   cfg = config.my.system.home;
 in {
   imports = [
     # inputs.home-manager.nixosModules.home-manager # enable home-manager options
-    inputs.hydenix.inputs.home-manager.nixosModules.home-manager # seb TODO do I really need this? Or uncomment above line to restore original
-    (lib.mkAliasOptionModule aliasPath actualPath) # simplify setting home options for all users
+    # inputs.hydenix.inputs.home-manager.nixosModules.home-manager # seb TODO do I really need this? Or uncomment above line to restore original
   ];
 
   options.my.system.home = with lib; {
     users = mkOption {
-      type = with types; listOf (str);
-      default = builtins.attrNames (lib.filterAttrs (n: v: v.isNormalUser) config.users.users); # NOTE: all normal i.e. user-defined users.
-      description = "users";
-    };
-    generic = mkOption {
       type = with types; attrs;
       default = {};
-      description = "Generic config to be applied to all home-manager users.";
+      example = litteralExample ''
+        {
+          users."testname" = { ... }: {
+            my.home.some.module.option.enable = true;
+          };
+        }
+      '';
+      description = "user configurations";
     };
   };
 
-  config = let
-    generate-default-home-config = name: host: ({pkgs, ...}: {
-      imports = [
-        "${inputs.self}/modules/home" # generic home module so we have access to all my.home.... options.
-        "${inputs.self}/hosts/homes/${name}@${host}" # specific home module of a user, e.g. hosts/homes/user@host.
-      ];
-      my.home = cfg.generic; # sets options of my.home modules. Options defined here are defined in the host's configuration, applied to all users.
-    });
-    simple-gen = name: generate-default-home-config name config.my.hardware.networking.hostname;
-    mkUser = name: lib.nameValuePair name (simple-gen name);
-    mkUsers = list: builtins.listToAttrs (builtins.map mkUser list);
-  in {
-    environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
+  config = {
     home-manager = {
-      users = mkUsers cfg.users; # For each user, provides the methodology.
-      # Above works like https://github.com/nix-community/home-manager/blob/8d5e27b4807d25308dfe369d5a923d87e7dbfda3/templates/nixos/flake.nix#L20
-      # It declares home-manager config for a given 'user' from the 'system' configuration.
-      # Does that imply that I don't have to execute home-manager commands for the users specified here, and those user configs are processed alongside system configs?
-      # This probably means I don't have to execute home-manager commands for the users declared in the system config?
-      # https://github.com/nix-community/home-manager/blob/8d5e27b4807d25308dfe369d5a923d87e7dbfda3/docs/manual/installation/nix-darwin.md?plain=1#L35
-
-      # Nix Flakes compatibility
       useGlobalPkgs = true; # seb NOTE: cannot have `nixpkgs.config` and/or `nixpkgs.overlays` while using `home-manager.useGlobalPkgs`
-      useUserPackages = true; # seb TODO: keep true or set false? https://discourse.nixos.org/t/home-manager-useuserpackages-useglobalpkgs-settings/34506/10
-
-      # Forward inputs to home-manager configuration
-      extraSpecialArgs = {
-        inherit inputs system;
-        pkgs = inputs.nixpkgs.outputs.legacyPackages.${system} // pkgs; # NOTE this merge allows home pkgs to include home-packages, like 'tdesktop'.
-      };
+      useUserPackages = true; # To decide whether to keep true or set false: https://discourse.nixos.org/t/home-manager-useuserpackages-useglobalpkgs-settings/34506/10
+      extraSpecialArgs = { inherit inputs; };
+      backupFileExtension = "hm-bkp";
+      overwriteBackup = true;
+      
+      users = cfg.users;
     };
   };
 }

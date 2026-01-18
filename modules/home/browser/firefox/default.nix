@@ -6,13 +6,8 @@ in {
   options.my.home.firefox = with lib; {
     enable = mkEnableOption "firefox configuration";
 
-    tridactyl = { # seb: TODO how is this different from mkEnableOption?
-      enable = mkOption {
-        type = types.bool;
-        description = "tridactyl configuration";
-        example = false;
-        default = config.my.home.firefox.enable;
-      };
+    tridactyl = {
+      enable = mkEnableOption "Enable tridactyl configuration";
       term = mkOption {
         type = types.str;
         description = "terminal program";
@@ -74,30 +69,4 @@ in {
       };
     };
   };
-  # legacy:
-  # let
-  #   custom-firefox = pkgs.wrapFirefox pkgs.firefox-unwrapped {
-  #     extraPolicies = {
-  #       DisableFirefoxStudies = true;
-  #       DisablePocket = true;
-  #       DisableTelemetry = true;
-  #       DisableFirefoxAccounts = false;
-  #       FirefoxHome = {
-  #         Pocket = false;
-  #         Snippets = false;
-  #       };
-  #       UserMessaging = {
-  #         ExtensionRecommendation = false;
-  #         SkipOnboarding = false;
-  #       };
-  #     };
-  #   };
-  # in {
-  #   programs.firefox = {
-  #     enable = true;
-  #     package = custom-firefox;
-  #   };
-  # }
-
-  
 }

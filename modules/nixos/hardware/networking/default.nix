@@ -1,8 +1,9 @@
-{ config, lib, ... }: let
+{ config, pkgs, lib, ... }: let
   cfg = config.my.hardware.networking;
 in {
   options.my.hardware.networking = with lib; {
     enable = mkEnableOption "networking configuration";
+    ui.enable = mkEnableOption "ui applet for networkmanager";
 
     hostname = mkOption {
       type = with types; nullOr (str);
@@ -30,6 +31,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    environment.systemPackages = with pkgs; [ networkmanager nettools nmap ] ++ lib.optional cfg.ui.enable pkgs.networkmanagerapplet;
     networking = lib.mkMerge [
       {
         useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.

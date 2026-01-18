@@ -20,8 +20,8 @@ in {
       fish.enable = true;
     };
 
-    nixpkgs.config = {
-      inherit (cfg) allowAliases allowUnfree;
-    };
+    # nixpkgs.config = { # seb: TODO hydenix hunt
+    #   inherit (cfg) allowAliases allowUnfree;
+    # };
   };
 }

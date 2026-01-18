@@ -21,17 +21,28 @@
     micro
     moreutils
     mutagen
+    nettools
     nix-output-monitor
     nmap
     parted
     patchelf
-    python3
+    # python3 # seb NOTE: do not combine with hydenix (since hydenix installs some other python verion I guess). Error encountered:
+      # error: Cannot build '/nix/store/bifyag6y1jdm6rg08axb793iy84dc5xl-home-manager-path.drv'.
+      # Reason: builder failed with exit code 25.
+      # Output paths:
+      #   /nix/store/kay7ckn1nrx37ayl8jjaisrs4ylv84za-home-manager-path
+      # Last 5 log lines:
+      # > pkgs.buildEnv error: two given paths contain a conflicting subpath:
+      # >   `/nix/store/cdaifv92znxy5ai4sawricjl0p5b9sgf-python3-3.13.11/bin/pydoc' and
+      # >   `/nix/store/q8w0i55y24h97cv1zf57himcg9zniyli-python3-3.13.11-env/bin/pydoc'
+      # > hint: this may be caused by two different versions of the same package in buildEnv's `paths` parameter
+      # > hint: `pkgs.nix-diff` can be used to compare derivations
     p7zip
     unzip
     usbutils
     visidata # commandline tabular data explorer
     wget
-    xclip # required by helix for copy/pasting (use `primary-clipboard-yank`)
+    xclip # required by some editors for copy/pasting (use `primary-clipboard-yank`)
     zip
   ];
 
@@ -49,22 +60,6 @@
       ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
       fish_vi_key_bindings
     '';
-    shellAbbrs = {
-      gs = "git status";
-      gl = "git log --oneline --graph";
-      ga = "git add";
-      gd = "git diff";
-      gdc = "git diff --cached";
-      gf = "git fetch";
-      gfa = "git fetch --all";
-      gp = "git push";
-      gpf = "git push --force-with-lease";
-      gc = "git commit";
-      gcm = "git commit -m";
-      gca = "git commit --amend --no-edit";
-      gco = "git checkout";
-      grc = "git rebase --continue";
-    };
     plugins = [
       {
         name = "z";
@@ -86,7 +81,6 @@
       }
     ];
   };
-  programs.home-manager.enable = true;
 
   programs.git = { # set user.name and user.email in specializations
     enable = true;

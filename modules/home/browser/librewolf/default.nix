@@ -8,6 +8,5 @@ in {
 
   config = lib.mkIf cfg.enable {
     programs.librewolf.enable = true; 
-    home.sessionVariables.BROWSER = "librewolf";
   };
 }

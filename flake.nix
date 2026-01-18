@@ -18,17 +18,23 @@
 
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
-      inputs.nixpkgs.follows = "hydenix/nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # hyprland and themes
-    hyprland.url = "github:hyprwm/Hyprland";
-    hydenix.url = "github:richen604/hydenix";
+    # hyprland.url = "github:hyprwm/Hyprland";
+    hydenix = { # a hyprland theme (often assumes it is the main flake)
+      url = "github:richen604/hydenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
 
-    # nixpkgs.url = "nixpkgs/nixos-25.11";
-    nixpkgs.follows = "hydenix/nixpkgs";
+    nixpkgs.url = "nixpkgs/nixos-25.11";
+    # nixpkgs.follows = "hydenix/nixpkgs";
     nixpkgs-24_05.url = "nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
+
+    nixpkgs-hydenix.follows = "hydenix/nixpkgs";
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
