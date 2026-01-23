@@ -30,7 +30,6 @@
     };
 
     nixpkgs.url = "nixpkgs/nixos-25.11";
-    # nixpkgs.follows = "hydenix/nixpkgs";
     nixpkgs-24_05.url = "nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
 

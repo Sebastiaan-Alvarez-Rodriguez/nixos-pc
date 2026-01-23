@@ -33,6 +33,20 @@ in {
       type = with types; listOf str;
       description = "Restic backup routes to use for this data.";
     };
+
+    tuya-zigbee = {
+      # a module that installs custom firmware on devices, so that they support direct binding.
+      enable = mkEnableOption "tuya-zigbee extension, more info at https://github.com/romasku/tuya-zigbee-switch/";
+      ota-url = mkOption {
+        type = types.str;
+        default = "https://github.com/romasku/tuya-zigbee-switch/blob/15967f3b2a90381c5f7518bea07e50e6c3f18c29/zigbee2mqtt/ota";
+      };
+      ota-index = mkOption {
+        type = types.enum [ "end_device" "end_device-FORCE" "router" "router-FORCE" ];
+        default = "router";
+        description = "The ota index to use. For more information, see https://github.com/romasku/tuya-zigbee-switch/blob/main/docs/updating.md#choosing-an-index";
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -45,9 +59,14 @@ in {
           port = cfg.port;
           host = "127.0.0.1";
           url = "https://${prefix}.${config.networking.domain}";
+        } // lib.optionalAttrs cfg.tuya-zigbee.enable {
+          ota.zigbee_ota_override_index_location = "${cfg.tuya-zigbee.ota-url}/index_${cfg.tuya-zigbee.ota-index}.json";
         };
       };
     };
+
+    systemd.tmpfiles.rules = [ "d ${cfg.data-dir}/external_converters 0700 zigbee2mqtt zigbee2mqtt -" ];
+    
     # below is needed to fix zigbee2mqtt immediately starting up after network.target, and discovering that the antenna is still not reachable, and then instantly failing.
     systemd.services.zigbee2mqtt.serviceConfig.ExecStartPre = "${pkgs.coreutils}/bin/sleep 10";
     systemd.services.zigbee2mqtt.serviceConfig.RestartSec = 5;

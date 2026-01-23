@@ -34,6 +34,7 @@ in {
     environment.systemPackages = with pkgs; [ networkmanager nettools nmap ] ++ lib.optional cfg.ui.enable pkgs.networkmanagerapplet;
     networking = lib.mkMerge [
       {
+        wireless.enable = lib.mkForce cfg.wireless.enable;
         useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
         hostName = lib.mkIf (cfg.hostname != null) cfg.hostname;
         domain = lib.mkIf (cfg.domain != null) cfg.domain;
