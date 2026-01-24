@@ -1,6 +1,11 @@
 { config, pkgs, ... }: {
   imports = [ ./hardware.nix ];
 
+  age.rekey = {
+    masterIdentities = [ "~/.ssh/deploy/polonium-deploy.ed25519" ]; # must have masterIdentities set, even when no secrets are used.
+    storageMode = "local";
+    localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
+  };
   my.system.boot = {
     enable = true;
     tmp.clean = true;
@@ -16,7 +21,6 @@
   };
 
   my.system = { # contains common system packages and settings shared between hosts.
-    home.users = [ "rdn" ]; # NOTE: Define normal users here. These users' home profiles will be populated with the settings from 'my.home' configuration below.
     nix = {
       enable = true;
       inputs.link = true;
@@ -29,12 +33,6 @@
       allowUnfree = true;
       default-pkgs = with pkgs; [ curl micro vim wget ];
     };
-  };
-
-  age.rekey = {
-    masterIdentities = [ "~/.ssh/deploy/polonium-deploy.ed25519" ]; # must have masterIdentities set, even when no secrets are used.
-    storageMode = "local";
-    localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
   };
 
   my.home = {
