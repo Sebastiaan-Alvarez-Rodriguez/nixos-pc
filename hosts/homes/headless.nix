@@ -21,7 +21,7 @@
     micro
     moreutils
     mutagen
-    nettools
+    net-tools
     nix-output-monitor
     nmap
     parted

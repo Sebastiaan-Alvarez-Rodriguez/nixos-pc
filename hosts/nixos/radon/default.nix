@@ -1,7 +1,7 @@
 { config, inputs, lib, pkgs, ... }: {
   imports = [
-    inputs.hydenix.inputs.home-manager.nixosModules.home-manager # seb NOTE CHECK OK
-    inputs.hydenix.nixosModules.default # seb NOTE CHECK OK
+    inputs.hydenix.inputs.home-manager.nixosModules.home-manager
+    inputs.hydenix.nixosModules.default
     ./hardware.nix
   ];
   age.rekey = {

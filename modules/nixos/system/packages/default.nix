@@ -1,4 +1,4 @@
-# Common packages
+# system package configuration
 { config, lib, pkgs, ... }: let
   cfg = config.my.system.packages;
 in {
@@ -16,12 +16,8 @@ in {
   config = lib.mkIf cfg.enable {
     environment.systemPackages = cfg.default-pkgs;
 
-    programs = { # seb: TODO make configurable / set from relevant other configs.
-      fish.enable = true;
+    nixpkgs.config = {
+      inherit (cfg) allowAliases allowUnfree;
     };
-
-    # nixpkgs.config = { # seb: TODO hydenix hunt
-    #   inherit (cfg) allowAliases allowUnfree;
-    # };
   };
 }

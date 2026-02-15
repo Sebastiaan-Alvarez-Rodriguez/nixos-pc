@@ -1,5 +1,15 @@
 { inputs, config, pkgs, lib, system, ... }: {
-  imports = [ ./hardware.nix ];
+  imports = [
+    inputs.hydenix.inputs.home-manager.nixosModules.home-manager
+    ./hardware.nix
+  ];
+
+  age.rekey = {
+    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEGsYoh6qvSV9Bz4M6OVaZY8L8jVVQptkQaKc6zgh4T";
+    masterIdentities = [ "~/.ssh/deploy/helium-deploy.ed25519" "~/.ssh/deploy/backup/backup-helium-deploy.ed25519" "~/.ssh/deploy/common-deploy.ed25519" "~/.ssh/deploy/backup/backup-common-deploy.ed25519" ];
+    storageMode = "local";
+    localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
+  };
 
   my.system.boot = {
     enable = true;
@@ -8,47 +18,35 @@
   };
 
   my.system = { # contains common system packages and settings shared between hosts.
-    home.users = [ "mrs" "rdn" ];
-    nix = {
-      enable = true;
-      inputs.link = true;
-      inputs.addToRegistry = true;
-      inputs.addToNixPath = true;
-      inputs.overrideNixpkgs = true;
+    home.users."rdn" = { config, ... }: {
+      imports = [
+        "${inputs.self}/modules/home" # generic home module so we have access to all my.home.... options.
+        "${inputs.self}/hosts/homes/rdn@helium" # specific home module of a user, e.g. hosts/homes/user@host.
+      ];
+      my.home = {
+        bat.enable = true;
+        editor = {
+          program = "helix";
+          extras = [ "vim" ];
+        };
+        nix = {
+          enable = true;
+          inputs.link = true;
+          inputs.addToRegistry = true;
+          inputs.addToNixPath = true;
+          inputs.overrideNixpkgs = true;
+        };
+      };
+    };
+    home.users."mrs" = { config, ... }: {
+      imports = [
+        "${inputs.self}/modules/home" # generic home module so we have access to all my.home.... options.
+        "${inputs.self}/hosts/homes/mrs@helium" # specific home module of a user, e.g. hosts/homes/user@host.
+      ];
     };
     packages = {
       enable = true;
       allowUnfree = true;
-      default-pkgs = with pkgs; [ curl micro vim wget ];
-    };
-  };
-
-  # age.identityPaths = [ "/home/rdn/.ssh/helium.ed25519" "/home/mrs/.ssh/helium.ed25519" ]; # list of paths to recipient keys to try to use to decrypt the secrets
-  age.rekey = {
-    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEGsYoh6qvSV9Bz4M6OVaZY8L8jVVQptkQaKc6zgh4T";
-    masterIdentities = [ "~/.ssh/deploy/helium-deploy.ed25519" "~/.ssh/deploy/backup/backup-helium-deploy.ed25519" "~/.ssh/deploy/common-deploy.ed25519" "~/.ssh/deploy/backup/backup-common-deploy.ed25519" ];
-    storageMode = "local";
-    localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
-  };
-
-  my.home = {
-    bat.enable = true;
-    editor.main = {
-      package = pkgs.helix;
-      path = "${pkgs.helix}/bin/hx";
-    };
-    nix = {
-      enable = true;
-      inputs.link = true;
-      inputs.addToRegistry = true;
-      inputs.addToNixPath = true;
-      inputs.overrideNixpkgs = true;
-    };
-
-    packages = {
-      enable = true;
-      allowUnfree = true;
-      # additionalPackages = with pkgs; [ jellyfin-media-player ]; # Wraps the webui and mpv together
     };
   };
 
@@ -335,8 +333,6 @@
     };
   };
 
-  environment.systemPackages = [ pkgs.home-manager ];
-
   users = let
     groupExists = grp: builtins.hasAttr grp config.users.groups;
     groupsIfExist = builtins.filter groupExists;
@@ -356,6 +352,8 @@
       openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/users/rdn/helium.ed25519.pub) ];
     };
   };
+
+  programs.fish.enable = true;
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";

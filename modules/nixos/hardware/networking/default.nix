@@ -31,7 +31,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ networkmanager nettools nmap ] ++ lib.optional cfg.ui.enable pkgs.networkmanagerapplet;
+    environment.systemPackages = with pkgs; [ networkmanager net-tools nmap ] ++ lib.optional cfg.ui.enable pkgs.networkmanagerapplet;
     networking = lib.mkMerge [
       {
         wireless.enable = lib.mkForce cfg.wireless.enable;
