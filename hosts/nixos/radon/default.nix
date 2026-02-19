@@ -33,7 +33,7 @@
       inputs.overrideNixpkgs = true;
     };
     packages = {
-      enable = true;
+        # enable = true; # seb TODO note error: - Your system configures nixpkgs with an externally created instance. `nixpkgs.config` options should be passed when creating the instance instead.
       allowUnfree = true;
       default-pkgs = with pkgs; [ curl micro vim wget ];
     };

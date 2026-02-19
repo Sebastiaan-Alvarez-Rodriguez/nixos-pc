@@ -16,6 +16,10 @@ in {
     })
     (lib.mkIf (cfg.program == "kitty") {
       home.packages = [ pkgs.kitty ];
+      programs.ssh.extraConfig = ''
+        SetEnv TERM=xterm-256color
+      ''; # Remote servers cannot deal with TERM=xterm-kitty
+
     })
     (lib.mkIf (cfg.program == "foot") {
       programs.foot = {
@@ -53,11 +57,9 @@ in {
         };
       };
 
-      programs.ssh = { # Remote servers cannot deal with TERM=foot
-        extraConfig = ''
-          SetEnv TERM=xterm-256color
-        '';
-      };
+      programs.ssh.extraConfig = ''
+        SetEnv TERM=xterm-256color
+      ''; # Remote servers cannot deal with TERM=foot
 
       systemd.user.services.foot.Install.WantedBy = lib.optionals config.my.home.wm.river.enable [ "river-session.target" ];
       home.packages = with pkgs; [ xdg-utils  ]; # xdg-open required for foot url thingy
