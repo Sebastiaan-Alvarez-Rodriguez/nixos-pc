@@ -129,7 +129,15 @@ in {
 
         lovelace = {
           # mode = "storage"; # NOTE: Any UI-made changes will be discarded upon every service restart. This option should be set only to develop UI components.
-          mode = "yaml";
+          # mode = "yaml";
+          resource_mode = "yaml";
+          dashboards.lovelace = {
+            mode = "yaml";
+            filename = "ui-lovelace.yaml";
+            title = "Overview";
+            icon = "mdi:view-dashboard";
+            show_in_sidebar = true;
+          };
         };
       };
 

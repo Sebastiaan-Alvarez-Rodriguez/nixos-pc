@@ -184,7 +184,7 @@ psql -d <some-database> -c "SELECT * FROM <some-table>;"
 Pick a database and table which should contain info, and check the results.
 
 ### Home-assistant
-After a fresh start, home-assistant checks for configuration inside its backup directory. It automatically reapplies if a backup is found.
+After a fresh start, home-assistant checks for configuration inside its backup directory (`/var/lib/hass/backups`). It automatically reapplies if a backup is found.
 
 ### Photoprism
 TODO get experiences here. Probably should rescan the orignals folder, but nothing more.
