@@ -24,6 +24,7 @@ in {
 
       authtype = mkOption {
         type = types.str;
+        default = "plain";
         description = "authentication method";
       };
 
@@ -42,11 +43,7 @@ in {
         description = "Email address given as 'from' email header when vikunja sends email";
       };
 
-      force-ssl = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Whether to force use of SSL instead of STARTLS. Note; SSL is arguably more secure than STARTLS.";
-      };
+      force-ssl = mkEnableOption "Whether to force use of SSL instead of STARTLS.";
     };
 
     backup-routes = mkOption {
@@ -72,6 +69,7 @@ in {
       settings = {
         service = {
           enableregistration = false; # Only allow registration of users through the CLI
+          publicurl = "https://${subdomain}.${config.networking.domain}";
           timezone = config.time.timeZone;
           # UNIX socket for serving the API
           unixsocket = socketPath;
@@ -80,7 +78,7 @@ in {
 
         mailer = {
           enabled = cfg.mail.enable;
-          password = "file: ${cfg.mail.password-file}";
+          password.file = cfg.mail.password-file;
           fromemail = cfg.mail.from-email;
           forcessl = cfg.mail.force-ssl;
           inherit (cfg.mail) host port authtype username;

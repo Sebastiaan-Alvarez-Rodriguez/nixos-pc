@@ -310,17 +310,23 @@
     };
     vaultwarden.enable = true;
     vikunja = {
+      # Current login problems:
+      # postfix xenon: NOQUEUE: reject: RCPT from unknown[62.250.26.19]: 554 5.7.1 <unknown[62.250.26.19]>: Client host rejected: Access denied; from=<vikunja@mijn.place> to=<sebastiaan-vikunja@mijn.place> proto=ESMTP helo=<helium>
+      # fix lies in modifying
+      # https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/blob/master/mail-server/postfix.nix?ref_type=heads#L187
+      # I think it declines client host (i.e. 'helium') because 'helium' is not resolvable as a domain.
+      # In the submission protocols, there probably is missing something to allow it.
+      # Alternatively, I have to make vikunja use a domain name as helo specified by me!
       enable = true;
       backup-routes = [ "xenon" ];
       mail = {
         enable = true;
-        host = "mijn.place";
+        host = "mail.mijn.place";
         port = 587;
-        authtype = "login";
+        # authtype = "login";
         username = "vikunja@mijn.place";
         password-file = config.age.secrets."helium/vikunja/mail".path;
         from-email = "vikunja@mijn.place";
-        force-ssl = true;
       };
     };
     webdav = { # seb TODO: make secure before it becomes important in any way

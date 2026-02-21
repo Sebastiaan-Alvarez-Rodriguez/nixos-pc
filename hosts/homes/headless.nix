@@ -98,6 +98,7 @@
 
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     matchBlocks."*" = {
       controlPersist = "10m";
       forwardAgent = true;

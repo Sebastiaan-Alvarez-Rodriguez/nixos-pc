@@ -5,6 +5,7 @@
     ./hardware.nix
   ];
   age.rekey = {
+    hostPubkey = ""; # not needed, no secrets here
     masterIdentities = [ "~/.ssh/deploy/radon-deploy.ed25519" ]; # must have masterIdentities set, even when no secrets are used.
     storageMode = "local";
     localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
