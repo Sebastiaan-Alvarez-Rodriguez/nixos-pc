@@ -38,27 +38,9 @@
       allowUnfree = true;
       default-pkgs = with pkgs; [ curl micro vim wget ];
     };
-  };
 
-  # Hydenix Configuration - Main configuration for the Hydenix desktop environment
-  hydenix = {
-    enable = true; # Enable Hydenix modules
-    # Basic System Settings (REQUIRED):
-    hostname = config.my.hardware.networking.hostname;
-    timezone = "Europe/Amsterdam";
-    locale = "en_US.UTF-8";
-    # For more configuration options, see: ./docs/options.md
-    audio.enable = false;
-    boot.enable = false;
-    gaming.enable = false;
-    hardware.enable = true;
-    network.enable = false;
-    nix.enable = true;
-    sddm.enable = false; # seb NOTE: is nice to actually use, but cannot use it due to backend bug (wait until modern AMD gpu is supported on the wayland backend (weston)).
-    system.enable = true;
+    hyprland-hydenix.enable = true; # prepare system for hydenix upstream
   };
-  hardware.bluetooth.enable = lib.mkForce false; # hydenix system enables bluetooth, don't like it.
-  programs.gnupg.agent.enable = lib.mkForce false; # seb NOTE: do not ask for passwords of keys with gpg agents
 
   my.programs = {
     steam.enable = true;
@@ -104,7 +86,7 @@
       };
 
       packages = {
-        enable = false; # seb TODO: produces warning:
+        enable = false; # NOTE: produces warning:
         # profile: You have set either `nixpkgs.config` or `nixpkgs.overlays` while using `home-manager.useGlobalPkgs`.
         # This will soon not be possible. Please remove all `nixpkgs` options when using `home-manager.useGlobalPkgs`.
         allowUnfree = true;
@@ -131,7 +113,6 @@
     users.rdn = {
       isNormalUser = true;
       description = "rdn";
-      initialPassword = "hello123"; # SECURITY: Change this password after first login with `passwd`
       extraGroups = groupsIfExist [ "adbusers" "audio" "docker" "media" "networkmanager" "plugdev" "podman" "dialout" "video" "wheel" ];
       shell = pkgs.fish; # Default shell (options: pkgs.bash, pkgs.zsh, pkgs.fish)
     };

@@ -27,18 +27,18 @@ in {
 
     block-trackers = mkEnableOption "block common trackers";
 
-    wireless.enable = mkEnableOption "wireless configuration";
+    powersave.enable = mkEnableOption "reduce energy usage for wireless configuration";
   };
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [ networkmanager net-tools nmap ] ++ lib.optional cfg.ui.enable pkgs.networkmanagerapplet;
     networking = lib.mkMerge [
       {
-        wireless.enable = lib.mkForce cfg.wireless.enable;
         useDHCP = false; # Deprecated. Explicitly set to false here, to mimic future standard behavior.
         hostName = lib.mkIf (cfg.hostname != null) cfg.hostname;
         domain = lib.mkIf (cfg.domain != null) cfg.domain;
         networkmanager.enable = true;
+        networkmanager.wifi.powersave = cfg.powersave.enable;
 
         nameservers = lib.mkIf (cfg.nameservers != null) cfg.nameservers;
       }

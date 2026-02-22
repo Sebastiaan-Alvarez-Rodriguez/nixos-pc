@@ -3,19 +3,6 @@
 in {
   imports = [ ../rdn/rdn-headless.nix ../rdn/default.nix ];
 
-  home.packages = with pkgs; [ stremio ];
-
-  services.kanshi.settings = [
-    {
-      profile.name = "undocked";
-      profile.outputs = [
-        {
-          criteria = "eDP-1";
-          status = "enable";
-          mode = "2560x1440@60Hz";
-          position = "0,0";
-        }
-      ];
-    }
-  ];
+  # seb NOTE: stremio does not work as it uses deprecated qt5 webengine software
+  # home.packages = with pkgs; [ stremio ];
 }

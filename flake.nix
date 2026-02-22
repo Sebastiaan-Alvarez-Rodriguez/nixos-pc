@@ -11,6 +11,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    end4-illogical = { # an end4 hyprland theme
+      url = "github:soymou/illogical-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts/main";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -32,8 +37,6 @@
     nixpkgs.url = "nixpkgs/nixos-25.11";
     nixpkgs-24_05.url = "nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
-
-    nixpkgs-hydenix.follows = "hydenix/nixpkgs";
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 

@@ -1,7 +1,7 @@
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.wm.hyprland.hydenix;
 in {
-  imports = [ inputs.hydenix.homeModules.default ];
+  imports = [ inputs.end4-illogical.homeManagerModules.default ];
   options.my.home.wm.hyprland.hydenix = with lib; {
     enable = mkEnableOption "Use hydenix theme for hyprland";
 
@@ -37,7 +37,7 @@ in {
 
       editor = lib.mkOption {
         type = lib.types.str;
-        default = lib.getExe (pkgs.${config.my.home.editor.program});
+        default = config.my.home.editor.program;
         description = "Default text editor";
       };
 
@@ -56,6 +56,24 @@ in {
   };
 
   config = lib.mkIf config.my.home.wm.hyprland.hydenix.enable {
+    programs.illogical-impulse = {
+      enable = true;
+
+      # Customize shell tools (all enabled by default)
+      dotfiles = {
+        fish.enable = true;     # Fish shell with custom config
+        kitty.enable = true;    # Kitty terminal emulator
+        starship.enable = true; # Starship prompt
+      };
+    
+      # Hyprland Plugins (Declarative installation & loading)
+      hyprland.plugins = [
+        pkgs.hyprlandPlugins.hyprbars
+        pkgs.hyprlandPlugins.hyprexpo
+        # Add any other plugins available in nixpkgs
+      ];
+    };
+    
     # NOTE:
     # Ensure you also have enabled config.my.system.hydenix.enable.
     # Otherwise, many os-required packages will be missing.

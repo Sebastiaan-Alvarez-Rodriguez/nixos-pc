@@ -3,6 +3,7 @@
   imports = [
     ./boot
     ./docker
+    ./gm
     ./nix
     ./packages
     ./podman
