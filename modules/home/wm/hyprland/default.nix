@@ -1,7 +1,7 @@
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.wm.hyprland;
 in {
-  imports = [ ./hydenix.nix ];
+  imports = [ ./hydenix.nix ./end4.nix ];
 
   options.my.home.wm.hyprland = with lib; {
     enable = mkEnableOption "Set hyprland as window manager.";
