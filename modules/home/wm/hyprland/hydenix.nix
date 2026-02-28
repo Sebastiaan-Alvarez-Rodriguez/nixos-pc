@@ -55,7 +55,7 @@ in {
     };
   };
 
-  config = lib.mkIf config.my.home.wm.hyprland.hydenix.enable {
+  config = lib.mkIf cfg.enable {
     # NOTE:
     # Ensure you also have enabled config.my.system.hydenix.enable.
     # Otherwise, many os-required packages will be missing.

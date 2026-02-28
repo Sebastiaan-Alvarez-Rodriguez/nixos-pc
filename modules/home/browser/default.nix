@@ -20,7 +20,7 @@ in {
   config = let
     is-selected = name: cfg.program == name || (builtins.elem name cfg.extras);
   in lib.mkIf (cfg.program != null) {
-    home.sessionVariables.browser = pkgs.${cfg.program}; # this works as long as 'supported' only contains actual package names;
+    home.sessionVariables.browser = builtins.toString (pkgs.${cfg.program}); # this works as long as 'supported' only contains actual package names;
 
     my.home.firefox.enable = is-selected "firefox";
     my.home.librewolf.enable = is-selected "librewolf";

@@ -14,6 +14,7 @@
     end4-illogical = { # an end4 hyprland theme
       url = "github:soymou/illogical-flake";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nur.follows = "nur";
     };
 
     flake-parts = {
@@ -41,10 +42,8 @@
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     nur = {
-      type = "github";
-      owner = "nix-community";
-      repo = "NUR";
-      ref = "master";
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     simple-nixos-mailserver = {
