@@ -12,7 +12,7 @@ in {
     ];
     # Enable Hyprland
     programs.hyprland.enable = true;
-    programs.hyprland.package = inputs.nixpkgs-unstable.legacyPackages.${system}.hyprland; # NOTE: this repo relies on latest hyprland (e.g. using hypr 0.53 features while nixpkgs stable ships 0.52)
+    programs.hyprland.package = lib.mkForce inputs.nixpkgs-unstable.legacyPackages.${system}.hyprland; # NOTE: this repo relies on latest hyprland (e.g. using hypr 0.53 features while nixpkgs stable ships 0.52)
 
     # Required services
     services.geoclue2.enable = true;  # For QtPositioning

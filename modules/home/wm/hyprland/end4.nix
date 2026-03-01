@@ -79,8 +79,9 @@ in {
     } // cfg.extra-config;
 
     # keybinds
-    home.file.".config/hypr/custom/keybinds.conf".force = true; # needed to override from default end4 illogical flake
-    home.file.".config/hypr/custom/keybinds.conf".text = let
+    # home.file.".config/hypr/custom/keybinds.conf".force = true; # needed to override from default end4 illogical flake
+    # home.file.".config/hypr/custom/keybinds.conf" = lib.mkForce {};
+    xdg.configFile.".config/hypr/custom/keybinds.conf".text = let
       bind-section-prefix = section-names: "$d=[${builtins.concatStringsSep "|" section-names}]";
       process-bind = prefix: l: builtins.map (i: prefix + " = " + i) l; # process a single bind[d/e] block of statements
       process-binds = d: builtins.concatLists (lib.attrValues (builtins.mapAttrs process-bind d)); # processes all bind[d/e] statements and converts to a list. Assumes all pairs are bind[d/e] blocks. Returns a single list.
@@ -121,7 +122,7 @@ in {
       '';
       gen-variables = d: lib.concatLines (lib.attrValues (builtins.mapAttrs (k: v: "\$${k} = ${v}") (lib.filterAttrs (k: v: v != null && v != "") d)));
       gen-keybind-config = d: prefix + (gen-variables d.variables) + "\n" + (gen-keybind-config-inner d.sections []) + "\n" + postfix;
-    in (gen-keybind-config { # see https://wiki.hypr.land/Configuring/Binds
+    in lib.mkForce (gen-keybind-config { # see https://wiki.hypr.land/Configuring/Binds
       variables = {
         mainMod = cfg.binds.modkey;
         # lockcmd = "hyde-shell lock-session"; # seb TODO: set lock command
@@ -263,12 +264,11 @@ in {
     });
 
     # seb TODO: with this system, set in .config/hypr/hyprland/general.conf (among many other settings)
-    home.file.".config/hypr/custom/general.conf".force = true; # needed to override from default end4 illogical flake
-    home.file.".config/hypr/custom/general.conf".text = ''
-      input {
-        repeat_rate = ${builtins.toString cfg.binds.repeat-rate}
-        repeat_delay = ${builtins.toString cfg.binds.repeat-delay}
-      }
-    '';
+    # home.file.".config/hypr/custom/general.conf".text = ''
+    #   input {
+    #     repeat_rate = ${builtins.toString cfg.binds.repeat-rate}
+    #     repeat_delay = ${builtins.toString cfg.binds.repeat-delay}
+    #   }
+    # ''; # options: https://nix-community.github.io/home-manager/options.xhtml#opt-home.file
   };
 }
