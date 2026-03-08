@@ -64,11 +64,6 @@ in {
       hostname = "h.mijn.place";
       identityFile = "/home/${username}/.ssh/helium.ed25519";
     };
-    "orca" = {
-      user = "rdn";
-      hostname = "207.180.214.239";
-      identityFile = "/home/${username}/.ssh/orca.rsa";
-    };
     "xenon" = {
       hostname = "164.68.108.153";
       user = "rdn";

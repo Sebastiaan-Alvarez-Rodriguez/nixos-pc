@@ -1,4 +1,5 @@
-  # Hydenix configuration - system part (disabled all things hydenix should not touch)
+  # Hydenix configuration - system part (disabled all things hydenix should not touch).
+  # Start this environment using command: `Hyprland`
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.system.hyprland-hydenix;
 in {

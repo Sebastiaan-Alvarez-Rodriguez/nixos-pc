@@ -1,3 +1,6 @@
+# user configuration for hydenix
+# Do not forget to enable `config.my.system.hydenix.enable`.
+# Start this environment using command: `Hyprland`
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.wm.hyprland.hydenix;
 in {

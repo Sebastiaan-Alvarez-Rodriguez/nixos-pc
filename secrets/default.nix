@@ -46,7 +46,7 @@ in {
         "helium/syncthing/key.age" = { owner = "restic"; };
         "helium/transmission/secret.age" = {};
         "helium/tandoor-recipes/secret.age" = {};
-        "helium/vikunja/mail.age" = {};
+        "helium/vikunja/mail.age" = { owner = "vikunja"; };
 
         "xenon/backup-client/helium-client-xenon.age" = {};
         "xenon/backup-client/repo-xenon.age" = {};

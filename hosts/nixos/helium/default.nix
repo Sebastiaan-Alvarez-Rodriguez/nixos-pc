@@ -1,6 +1,6 @@
 { inputs, config, pkgs, lib, system, ... }: {
   imports = [
-    inputs.hydenix.inputs.home-manager.nixosModules.home-manager
+    inputs.home-manager.nixosModules.home-manager
     ./hardware.nix
   ];
 
@@ -45,7 +45,7 @@
       ];
     };
     packages = {
-      enable = true;
+      # enable = true;
       allowUnfree = true;
     };
   };
@@ -322,8 +322,7 @@
       mail = {
         enable = true;
         host = "mail.mijn.place";
-        port = 587;
-        # authtype = "login";
+        port = 466; # reroute 466 --> 25 on xenon
         username = "vikunja@mijn.place";
         password-file = config.age.secrets."helium/vikunja/mail".path;
         from-email = "vikunja@mijn.place";
@@ -364,5 +363,5 @@
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  system.stateVersion = "23.11"; # Do not change
+  system.stateVersion = lib.mkForce "23.11"; # Do not change
 }

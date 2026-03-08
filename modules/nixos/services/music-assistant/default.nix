@@ -17,7 +17,6 @@
 
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.music-assistant;
-  # unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
   ip-host = "10.0.2.2";
   ip-local = "10.0.2.3";
   # container forwardport rules make these ports unusable on the host (rerouting traffic even before filtering to the container). Best to not use them elsewhere, and to not expose them to the wan.

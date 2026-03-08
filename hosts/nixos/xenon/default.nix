@@ -1,31 +1,8 @@
-{ config, pkgs, ... }: {
-  imports = [ ./hardware.nix ];
-
-  networking.firewall = {
-    allowedTCPPorts = [
-      80    # HTTP
-      443   # HTTPS
-      465   # mail (new, replacement for 587)
-      587   # mail (legacy, replaced by 465)
-      993   # mail
-    ];
-  };
-
-  my.system = { # contains common system packages and settings shared between hosts.
-    home.users = [ "rdn" ]; # NOTE: Define normal users here. These users' home profiles will be populated with the settings from 'my.home' configuration below.
-    nix = {
-      enable = true;
-      inputs.link = true;
-      inputs.addToRegistry = true;
-      inputs.addToNixPath = true;
-      inputs.overrideNixpkgs = true;
-    };
-    packages = {
-      enable = true;
-      allowUnfree = true;
-      default-pkgs = with pkgs; [ curl micro vim wget ];
-    };
-  };
+{ inputs, config, lib, pkgs, ... }: {
+  imports = [
+    inputs.home-manager.nixosModules.home-manager
+    ./hardware.nix
+  ];
 
   age.rekey = {
     hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMYqumFR46e3dAw3oSK1EIi0J81xV6F07lW5+FwekuVH";
@@ -34,24 +11,47 @@
     localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
   };
 
-  my.home = { # seb: TODO remove all unneeded packages from /modules/home. Especially watch out for pkgs guarded by mkDisableOption's, since they are by default enabled
-    bat.enable = true;
-    editor.main = {
-      package = pkgs.helix;
-      path = "${pkgs.helix}/bin/hx";
-    };
-    nix = {
-      enable = true;
-      inputs.link = true;
-      inputs.addToRegistry = true;
-      inputs.addToNixPath = true;
-      inputs.overrideNixpkgs = true;
-    };
+  networking.firewall = {
+    allowedTCPPorts = [
+      80    # HTTP
+      443   # HTTPS
+      465   # mail (new, replacement for 587)
+      466   # mail (custom --> forwards to port 25)
+      587   # mail (legacy, replaced by 465)
+      993   # mail
+    ];
+  };
 
+  my.system = { # contains common system packages and settings shared between hosts.
+    home.users."rdn" = { config, ... }: {
+      imports = [
+        "${inputs.self}/modules/home" # generic home module so we have access to all my.home.... options.
+        "${inputs.self}/hosts/homes/rdn@xenon" # specific home module of a user, e.g. hosts/homes/user@host.
+      ];
+      my.home = {
+        bat.enable = true;
+        editor = {
+          program = "helix";
+          extras = [ "vim" ];
+        };
+        nix = {
+          enable = true;
+          inputs.link = true;
+          inputs.addToRegistry = true;
+          inputs.addToNixPath = true;
+          inputs.overrideNixpkgs = true;
+        };
+      };
+    };
+    home.users."mrs" = { config, ... }: {
+      imports = [
+        "${inputs.self}/modules/home" # generic home module so we have access to all my.home.... options.
+        "${inputs.self}/hosts/homes/mrs@xenon" # specific home module of a user, e.g. hosts/homes/user@host.
+      ];
+    };
     packages = {
-      enable = true;
+      # enable = true;
       allowUnfree = true;
-      # additionalPackages = with pkgs; [ jellyfin-media-player ]; # Wraps the webui and mpv together
     };
   };
 
@@ -134,6 +134,17 @@
 
       backup-routes = [ "helium" ];
     };
+    nginx.streams = {
+      "466" = { # redirect to port 25 for smtp
+        destination = "127.0.0.1:25";
+        type = "tcp";
+      };
+      "[::]:466" = {
+        destination = "[::ffff:127.0.0.1]:25";
+        type = "tcp";
+      };
+    };
+
     nginx = {
       enable = true;
       monitoring.enable = false;
@@ -143,12 +154,18 @@
     };
   };
 
-  environment.systemPackages = [ pkgs.home-manager ];
 
   users = let
     groupExists = grp: builtins.hasAttr grp config.users.groups;
     groupsIfExist = builtins.filter groupExists;
   in {
+    users.mrs = {
+      isNormalUser = true;
+      description = "mrs";
+      extraGroups = groupsIfExist [ "syncthing" "docker" "networkmanager" "wheel" ];
+      shell = pkgs.fish;
+      openssh.authorizedKeys.keys = [ (builtins.readFile ../../../secrets/users/mrs/xenon.ed25519.pub) ];
+    };
     users.rdn = {
       password = "changeme";
       isNormalUser = true;
@@ -159,8 +176,10 @@
     };
   };
 
+  programs.fish.enable = true;
+
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  system.stateVersion = "23.11"; # Do not change
+  system.stateVersion = lib.mkForce "23.11"; # Do not change
 }
