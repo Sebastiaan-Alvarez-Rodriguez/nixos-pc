@@ -53,9 +53,9 @@ in rec {
     "polonium" = "x86_64-linux";
     "radon" = "x86_64-linux";
     "xenon" = "x86_64-linux";
-    "hydenix" = "x86_64-linux";
-  } // lib.mapAttrs buildImageHost {
-    "blackberry" = "aarch64-linux";
+    # "hydenix" = "x86_64-linux";
+  # } // lib.mapAttrs buildImageHost {
+  #   "blackberry" = "aarch64-linux";
   };
 
   flake.images = {

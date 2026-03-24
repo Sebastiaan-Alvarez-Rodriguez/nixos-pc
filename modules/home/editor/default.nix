@@ -17,7 +17,7 @@ in {
   };
 
   config = lib.mkIf (cfg.program != null) {
-    home.sessionVariables.EDITOR = lib.getExe (pkgs.${cfg.program}); # this works as long as 'supported' only contains actual package names;
+    home.sessionVariables.EDITOR = lib.mkForce (lib.getExe (pkgs.${cfg.program})); # this works as long as 'supported' only contains actual package names;
     home.packages = [ pkgs.${cfg.program} ] ++ builtins.map (i: pkgs.${i}) cfg.extras;
   };
 }

@@ -72,10 +72,10 @@ in {
       # integrated program options
       comma.enable = false;
       editors = {
-        enable = true;
-        vscode.enable = cfg.binds.editor == "code";
-        neovim = cfg.binds.editor == "nvim";
-        vim = cfg.binds.editor == "vim";
+        enable = false;
+        vscode.enable = lib.mkForce false; #(cfg.binds.editor == "code");
+        neovim = (cfg.binds.editor == "nvim");
+        vim = (cfg.binds.editor == "vim");
         default = cfg.binds.editor;
       };
       fastfetch.enable = true;

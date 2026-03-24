@@ -1,7 +1,6 @@
 { config, inputs, lib, pkgs, ... }: {
   imports = [
     inputs.hydenix.inputs.home-manager.nixosModules.home-manager
-    inputs.hydenix.nixosModules.default
     ./hardware.nix
   ];
   age.rekey = {
@@ -100,7 +99,7 @@
         enable = true;
         binds.browser.normal = config.my.home.browser.program;
         binds.browser.private = "${config.my.home.browser.program} --private-window";
-        binds.editor = config.my.home.editor.program;
+        binds.editor = lib.getExe (pkgs.helix);
         binds.terminal = config.my.home.terminal.program;
       };
     };
