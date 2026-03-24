@@ -6,6 +6,8 @@
 
   ddclient = pkgs.callPackage ./ddclient { };
 
+  donetick = pkgs.callPackage ./donetick { };
+
   dragger = pkgs.callPackage ./dragger { };
 
   house-model = pkgs.callPackage ./house-model { };
