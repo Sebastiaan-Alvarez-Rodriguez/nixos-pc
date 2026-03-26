@@ -171,6 +171,15 @@
       };
       backup-routes = [ "xenon" ];
     };
+    donetick = {
+      enable = false;
+      settings = {
+        name = "h.donetick";
+        is_user_creation_disabled = true;
+        database.type = "postgres";
+        jwt.secret = "a_32_chars_long_string";
+      };
+    };
     jellyfin.enable = false;
     monitoring = {
       enable = false;

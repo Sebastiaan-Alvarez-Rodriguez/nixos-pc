@@ -5,20 +5,39 @@
   donetick = inputs.self.packages.${system}.donetick;
 in {
   options.my.services.donetick = with lib; {
-    enable = mkEnableOption "Control fans on dell machines";
+    enable = mkEnableOption "Task management program";
     package = mkOption {
       type = types.package;
       default = donetick;
       description = "donetick package to use";
     };
+
+    settings = lib.mkOption {
+      type = (pkgs.formats.yaml {}).generate "${./config/selfhosted.yaml}";
+      description = "Configuration yaml file for doneticks. See: https://github.com/donetick/donetick/blob/main/config/selfhosted.yaml";
+      default = {
+        is_done_tick_dot_com = false;
+        is_user_creation_disabled = false;
+        database.migration = true;
+        jwt.secret = "change_me_to_a_secure_random_string_32_chars_long"; 
+      };
+      example = {
+        name = "h.donetick";
+        is_user_creation_disabled = true;
+        database.type = "postgres";
+        jwt.secret = "a_32_chars_long_string";
+      };
+    };
   };
 
-  # TODO: ensure selfhosted.yaml is in place. 
   config = lib.mkIf cfg.enable {
     systemd.services.donetick = {
-      description = "Task managing task";
+      description = "Task managing program";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
+
+      config_path = "${./config}";
+      data_path = "${./data}";
 
       path = with pkgs; [ coreutils cfg.package ];
 
