@@ -12,6 +12,9 @@ in {
       description = "donetick package to use";
     };
 
+    config_folder = "config";
+    data_folder = "data";
+
     settings = lib.mkOption {
       type = (pkgs.formats.yaml {}).generate "${./config/selfhosted.yaml}";
       description = "Configuration yaml file for doneticks. See: https://github.com/donetick/donetick/blob/main/config/selfhosted.yaml";
@@ -35,9 +38,6 @@ in {
       description = "Task managing program";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-
-      config_path = "${./config}";
-      data_path = "${./data}";
 
       path = with pkgs; [ coreutils cfg.package ];
 

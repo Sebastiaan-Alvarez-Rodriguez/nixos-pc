@@ -172,7 +172,7 @@
       backup-routes = [ "xenon" ];
     };
     donetick = {
-      enable = false;
+      enable = true;
       settings = {
         name = "h.donetick";
         is_user_creation_disabled = true;

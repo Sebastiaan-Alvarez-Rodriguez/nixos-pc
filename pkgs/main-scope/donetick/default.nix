@@ -2,9 +2,9 @@
   pname = "donetick";
   version = "v0.1.74";
 in lib.buildGoModule {
-  inherit pname, version;
+  inherit pname version;
 
-  src = fetchFromGitHub {
+  src = pkgs.fetchFromGitHub {
     owner = "donetick";
     repo = "donetick";
     rev = "v${version}";
@@ -15,5 +15,5 @@ in lib.buildGoModule {
   meta = {
     homepage = "https://donetick.com/";
     description = "an open-source, user-friendly app for managing tasks and chores, featuring customizable options to help you and others stay organized";
-  }
+  };
 }
