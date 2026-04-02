@@ -1,7 +1,7 @@
 { pkgs, lib, ... }: let
   pname = "donetick";
   version = "v0.1.74";
-in lib.buildGoModule {
+in pkgs.buildGoModule {
   inherit pname version;
 
   src = pkgs.fetchFromGitHub {
