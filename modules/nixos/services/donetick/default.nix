@@ -41,8 +41,12 @@ in {
 
       path = with pkgs; [ coreutils cfg.package ];
 
+      environment = {
+        DT_ENV = "selfhosted";
+      };
+      
       serviceConfig = {
-        ExecStart = "DT_ENV=selfhosted ${cfg.package}/bin/donetick";
+        ExecStart = "${cfg.package}/bin/donetick";
       };
     }; 
 
