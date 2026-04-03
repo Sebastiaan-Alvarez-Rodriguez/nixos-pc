@@ -308,7 +308,17 @@
       download-dir = "/data/downloads";
       credentialsFile = config.age.secrets."helium/transmission/secret".path;
     };
-    vaultwarden.enable = true;
+    vaultwarden = {
+      enable = true;
+      mail = {
+        enable = true;
+        server = "mail.mijn.place";
+        from = "vwd@mijn.place";
+        user = "vwd";
+        password-file = config.age.secrets."helium/vaultwarden/mail".path;
+        security = "force_tls";
+      };
+    };
     vikunja = {
       # Current login problems:
       # postfix xenon: NOQUEUE: reject: RCPT from unknown[62.250.26.19]: 554 5.7.1 <unknown[62.250.26.19]>: Client host rejected: Access denied; from=<vikunja@mijn.place> to=<sebastiaan-vikunja@mijn.place> proto=ESMTP helo=<helium>

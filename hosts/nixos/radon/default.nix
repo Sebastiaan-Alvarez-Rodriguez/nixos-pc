@@ -70,6 +70,7 @@
       browser.program = "librewolf";
       editor = {
         program = "helix";
+        editor-name = "hx";
         extras = [ "vim" ];
       };
       gpg = {

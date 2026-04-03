@@ -46,6 +46,7 @@ in {
         "helium/syncthing/key.age" = { owner = "restic"; };
         "helium/transmission/secret.age" = {};
         "helium/tandoor-recipes/secret.age" = {};
+        "helium/vaultwarden/mail.age" = { owner = "vaultwarden"; };
         "helium/vikunja/mail.age" = { owner = "vikunja"; };
 
         "xenon/backup-client/helium-client-xenon.age" = {};
@@ -54,6 +55,7 @@ in {
         "xenon/mail/mariska.age" = {};
         "xenon/mail/noreply.age" = {};
         "xenon/mail/sebastiaan.age" = {};
+        "xenon/mail/vaultwarden.age" = {};
         "xenon/mail/vikunja.age" = {};
         "xenon/backup-server/xenon.age" = { owner = "restic"; };
       };

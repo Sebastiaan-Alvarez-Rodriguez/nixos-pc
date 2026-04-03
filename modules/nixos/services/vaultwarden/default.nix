@@ -5,9 +5,40 @@ in {
     enable = mkEnableOption "vaultwarden configuration";
 
     port = mkOption {
-      type = with types; port;
+      type = types.port;
       default = 4567;
       description = "Vaultwarden port";
+    };
+
+    mail = {
+      enable = mkEnableOption "configure mailserver connection, so vaultwarden can send mails";
+      server = mkOption {
+        type = types.str;
+        description = "mailserver address, e.g. 'smtp.domain.ltd'";
+      };
+      from = mkOption {
+        type = types.str;
+        description = "mail-address to be used, e.g. 'vwd@domain.ltd'";
+      };
+      user = mkOption {
+        type = with types; nullOr str;
+        default = null;
+        description = "mailserver login user (if any), e.g. 'vwd'";
+      };
+      password-file = mkOption {
+        type = with types; nullOr path;
+        default = null;
+        description = "mailserver login password file (if any), formatted as 'SMTP_PASSWORD=myPasswordIsLonger'";
+      };
+      security = mkOption {
+        type = types.enum [ "starttls" "force_tls" "off"]; # default ports 587, 465, 25
+        description = "Authentication type";
+      };
+      port = mkOption {
+        type = with types; nullOr port;
+        default = null;
+        description = "Mailserver login port. Leave empty to use protocol-default port (with protocol definition in `mail.security`)";
+      };
     };
   };
 
@@ -15,20 +46,30 @@ in {
     services.vaultwarden = {
       enable = true;
       dbBackend = "postgresql";
-      config = rec {
-        rocketPort = cfg.port;
-        domain = "http://127.0.0.1:${toString rocketPort}";
-        rocketLog = "critical";
-        signupsAllowed = true;
-        databaseUrl = "postgresql:///${config.users.users.vaultwarden.name}";
-        logLevel = "error";
-        extendedLogging = true;
-      };
+      config = lib.mkMerge [
+        {
+          rocketPort = cfg.port;
+          domain = "http://127.0.0.1:${toString cfg.port}";
+          rocketLog = "critical";
+          signupsAllowed = false;
+          databaseUrl = "postgresql:///${config.users.users.vaultwarden.name}";
+          logLevel = "error";
+          extendedLogging = true;
+        }
+
+        (lib.mkIf cfg.mail.enable {
+          # mail settings
+          smtpHost = lib.mkIf (cfg.mail.server != null) cfg.mail.server;
+          smtpFrom = cfg.mail.from;
+          smtpUsername = lib.mkIf (cfg.mail.user != null) cfg.mail.user;
+          smtpSecurity = cfg.mail.security;
+          smtpPort = lib.mkIf (cfg.mail.port != null) cfg.mail.port;
+        })
+      ];
+      environmentFile = lib.optional (cfg.mail.password-file != null) cfg.mail.password-file;
     };
-    my.services.nginx.virtualHosts = {
-      vwd = {
-        inherit (cfg) port;
-      };
+    my.services.nginx.virtualHosts.vwd = {
+      inherit (cfg) port;
     };
     services.fail2ban.jails."vaultwarden" = {
       enabled = true;
