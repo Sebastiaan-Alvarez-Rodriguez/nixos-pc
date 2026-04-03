@@ -39,8 +39,6 @@ in {
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
 
-      path = with pkgs; [ coreutils cfg.package ];
-
       environment = {
         DT_ENV = "selfhosted";
       };
