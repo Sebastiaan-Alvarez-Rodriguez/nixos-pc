@@ -115,6 +115,11 @@
             aliasesRegexp = [ "/^(?!sebastiaan)(?!mariska).+@mijn.place$/" ];
             hashedPasswordFile = "/data/mail/mailserver.pwd";
           };
+          "vaultwarden@mijn.place" = {
+            sendOnly = true;
+            inherit sendOnlyRejectMessage;
+            hashedPasswordFile = config.age.secrets."xenon/mail/vaultwarden".path;
+          };
           "vikunja@mijn.place" = {
             sendOnly = true;
             inherit sendOnlyRejectMessage;

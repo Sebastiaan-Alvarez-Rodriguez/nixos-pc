@@ -9,7 +9,13 @@ in {
       description = "Which editor to use for home session";
     };
 
-    extras = with types; mkOption {
+    editor-name = mkOption {
+      type = types.str;
+      default = lib.getExe (pkgs.${cfg.program});
+      description = "The name of the editor to use. Some programs use this environment variable to call the editor. Use just a name, no path needed";
+    };
+
+    extras = mkOption {
       type = with types; listOf (enum supported);
       default = [];
       description = "extra editors to make available";
@@ -17,7 +23,13 @@ in {
   };
 
   config = lib.mkIf (cfg.program != null) {
-    home.sessionVariables.EDITOR = lib.mkForce (lib.getExe (pkgs.${cfg.program})); # this works as long as 'supported' only contains actual package names;
+    assertions = [
+      {
+        assertion = cfg.editor-name != null && cfg.editor-name != "";
+        message = "Found editor name to be null/empty. Please specify the name using `my.home.editor.editor-name` manually.";
+      }
+    ];
+    home.sessionVariables.EDITOR = cfg.editor-name;
     home.packages = [ pkgs.${cfg.program} ] ++ builtins.map (i: pkgs.${i}) cfg.extras;
   };
 }
