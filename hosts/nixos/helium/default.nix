@@ -313,10 +313,12 @@
       mail = {
         enable = true;
         server = "mail.mijn.place";
-        from = "vwd@mijn.place";
-        user = "vwd";
+        from = "vaultwarden@mijn.place";
+        user = "vaultwarden@mijn.place";
         password-file = config.age.secrets."helium/vaultwarden/mail".path;
-        security = "force_tls";
+        security = "force_tls"; # starttls
+        # auth-mechanism = "Plain"; # "Login"
+        # port = 466;
       };
     };
     vikunja = {
