@@ -11,6 +11,10 @@ in pkgs.buildGoModule {
     hash = "sha256-+0HKbrjfc7LZBXgnHk0AKkwBHSv78valvQqIJjM1nM4=";
   };
 
+  postInstall = ''
+    mv $out/bin/core $out/bin/${pname}
+  '';
+
   vendorHash = "sha256-ZWGhOb1j20b8KFLvWCi2MHUNlP1JTwRD0g6Iw+FGp5c=";
   meta = {
     homepage = "https://donetick.com/";

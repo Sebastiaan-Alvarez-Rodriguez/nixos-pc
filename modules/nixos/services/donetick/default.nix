@@ -3,6 +3,8 @@
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.donetick;
   donetick = inputs.self.packages.${system}.donetick;
+  yamlFormat = pkgs.formats.yaml {};
+  configFile = yamlFormat.generate "selfhosted.yaml" cfg.settings;
 in {
   options.my.services.donetick = with lib; {
     enable = mkEnableOption "Task management program";
@@ -12,17 +14,13 @@ in {
       description = "donetick package to use";
     };
 
-    config_folder = "config";
-    data_folder = "data";
-
     settings = lib.mkOption {
-      type = (pkgs.formats.yaml {}).generate "${./config/selfhosted.yaml}";
+      type = yamlFormat.type;
       description = "Configuration yaml file for doneticks. See: https://github.com/donetick/donetick/blob/main/config/selfhosted.yaml";
       default = {
         is_done_tick_dot_com = false;
         is_user_creation_disabled = false;
         database.migration = true;
-        jwt.secret = "change_me_to_a_secure_random_string_32_chars_long"; 
       };
       example = {
         name = "h.donetick";
@@ -34,6 +32,15 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    # TODO: nixos complains that this is a read-only file system,
+    # which makes sense, but not really sure how to solve atm.
+    # nice video on these yaml files and activationScripts:
+    # https://www.youtube.com/watch?v=84noqMHDx5k
+    system.activationScripts.setupConfig = ''
+        mkdir -p ${cfg.package}/config
+        cp ${configFile} ${cfg.package}/config/
+    '';
+    
     systemd.services.donetick = {
       description = "Task managing program";
       after = [ "network.target" ];
