@@ -317,8 +317,6 @@
         user = "vaultwarden@mijn.place";
         password-file = config.age.secrets."helium/vaultwarden/mail".path;
         security = "force_tls"; # starttls
-        # auth-mechanism = "Plain"; # "Login"
-        # port = 466;
       };
     };
     vikunja = {

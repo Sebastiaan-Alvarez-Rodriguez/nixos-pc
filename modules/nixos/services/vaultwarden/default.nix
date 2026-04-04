@@ -4,6 +4,12 @@ in {
   options.my.services.vaultwarden = with lib; {
     enable = mkEnableOption "vaultwarden configuration";
 
+    domain = mkOption {
+      type = types.str;
+      description = "Domain this service is hosted on (used for links in vaultwarden mails etc)";
+      default = "https://vwd.${config.networking.domain}";
+    };
+
     port = mkOption {
       type = types.port;
       default = 4567;
@@ -54,7 +60,7 @@ in {
       config = lib.mkMerge [
         {
           rocketPort = cfg.port;
-          domain = "http://127.0.0.1:${toString cfg.port}";
+          domain = cfg.domain;
           rocketLog = "critical";
           signupsAllowed = false;
           databaseUrl = "postgresql:///${config.users.users.vaultwarden.name}";
