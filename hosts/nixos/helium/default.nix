@@ -172,6 +172,7 @@
       backup-routes = [ "xenon" ];
     };
     jellyfin.enable = false;
+    joplin.enable = true;
     monitoring = {
       enable = false;
       grafana = {

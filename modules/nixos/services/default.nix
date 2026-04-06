@@ -20,6 +20,7 @@
     ./immich
     ./jackett
     ./jellyfin
+    ./joplin
     ./kitchenowl
     ./matrix
     ./mailserver
