@@ -31,16 +31,7 @@ in {
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    # TODO: nixos complains that this is a read-only file system,
-    # which makes sense, but not really sure how to solve atm.
-    # nice video on these yaml files and activationScripts:
-    # https://www.youtube.com/watch?v=84noqMHDx5k
-    system.activationScripts.setupConfig = ''
-        mkdir -p ${cfg.package}/config
-        cp ${configFile} ${cfg.package}/config/
-    '';
-    
+  config = lib.mkIf cfg.enable { 
     systemd.services.donetick = {
       description = "Task managing program";
       after = [ "network.target" ];
@@ -52,7 +43,14 @@ in {
       
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/donetick";
+        RuntimeDirectory = "donetick";
+        WorkingDirectory = "/run/donetick";
       };
+
+      preStart = ''
+        mkdir -p config
+        ln -sf ${configFile} config/selfhosted.yaml
+      '';
     }; 
 
     environment.systemPackages = [ cfg.package ];
