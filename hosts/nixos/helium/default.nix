@@ -181,6 +181,7 @@
       };
     };
     jellyfin.enable = false;
+    joplin.enable = true;
     monitoring = {
       enable = false;
       grafana = {
@@ -322,10 +323,10 @@
       mail = {
         enable = true;
         server = "mail.mijn.place";
-        from = "vwd@mijn.place";
-        user = "vwd";
+        from = "vaultwarden@mijn.place";
+        user = "vaultwarden@mijn.place";
         password-file = config.age.secrets."helium/vaultwarden/mail".path;
-        security = "force_tls";
+        security = "force_tls"; # starttls
       };
     };
     vikunja = {

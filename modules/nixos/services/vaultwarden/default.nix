@@ -4,6 +4,12 @@ in {
   options.my.services.vaultwarden = with lib; {
     enable = mkEnableOption "vaultwarden configuration";
 
+    domain = mkOption {
+      type = types.str;
+      description = "Domain this service is hosted on (used for links in vaultwarden mails etc)";
+      default = "https://vwd.${config.networking.domain}";
+    };
+
     port = mkOption {
       type = types.port;
       default = 4567;
@@ -34,6 +40,11 @@ in {
         type = types.enum [ "starttls" "force_tls" "off"]; # default ports 587, 465, 25
         description = "Authentication type";
       };
+      auth-mechanism = mkOption {
+        type = with types; nullOr (enum [ "Plain" "Login" ]);
+        default = null;
+        description = "Explicitly set login type. Should be left alone unless you know what you are doing.";
+      };
       port = mkOption {
         type = with types; nullOr port;
         default = null;
@@ -49,7 +60,7 @@ in {
       config = lib.mkMerge [
         {
           rocketPort = cfg.port;
-          domain = "http://127.0.0.1:${toString cfg.port}";
+          domain = cfg.domain;
           rocketLog = "critical";
           signupsAllowed = false;
           databaseUrl = "postgresql:///${config.users.users.vaultwarden.name}";
@@ -64,6 +75,7 @@ in {
           smtpUsername = lib.mkIf (cfg.mail.user != null) cfg.mail.user;
           smtpSecurity = cfg.mail.security;
           smtpPort = lib.mkIf (cfg.mail.port != null) cfg.mail.port;
+          smtpAuthMechanism = lib.mkIf (cfg.mail.auth-mechanism != null) cfg.mail.auth-mechanism;
         })
       ];
       environmentFile = lib.optional (cfg.mail.password-file != null) cfg.mail.password-file;
