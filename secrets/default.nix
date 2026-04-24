@@ -42,6 +42,7 @@ in {
         "helium/nginx/rdn-pass.age" = {};
         "helium/rustdesk/private-key.age" = { owner = "rustdesk"; };
         "helium/rustdesk/public-key.age" = { owner = "rustdesk"; };
+        "helium/squid/squid-users.age" = { owner = "squid"; };
         "helium/syncthing/cert.age" = { owner = "restic"; };
         "helium/syncthing/key.age" = { owner = "restic"; };
         "helium/transmission/secret.age" = {};

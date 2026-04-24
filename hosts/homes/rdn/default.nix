@@ -10,6 +10,7 @@
     heroic
     # hotspot
     # jetbrains.idea-community
+    joplin-desktop
     # logiops
     # proton-caller
     qbittorrent

@@ -65,10 +65,8 @@ in {
       ensureUsers = [ { name = "joplin"; ensureDBOwnership = true; } ];
     };
 
-    my.services.nginx.virtualHosts = {
-      notes = {
-        inherit (cfg) port;
-      };
+    my.services.nginx.virtualHosts.notes = {
+      inherit (cfg) port;
     };
   };
 }

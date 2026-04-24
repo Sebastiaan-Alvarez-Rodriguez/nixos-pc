@@ -4,6 +4,8 @@
     ./hardware.nix
   ];
 
+  networking.firewall.allowedTCPPorts = [ 1182 ]; # for squid
+
   age.rekey = {
     hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGEGsYoh6qvSV9Bz4M6OVaZY8L8jVVQptkQaKc6zgh4T";
     masterIdentities = [ "~/.ssh/deploy/helium-deploy.ed25519" "~/.ssh/deploy/backup/backup-helium-deploy.ed25519" "~/.ssh/deploy/common-deploy.ed25519" "~/.ssh/deploy/backup/backup-common-deploy.ed25519" ];
@@ -226,7 +228,22 @@
       private-keyfile = config.age.secrets."helium/rustdesk/private-key".path;
       public-keyfile = config.age.secrets."helium/rustdesk/public-key".path;
     };
-
+    squid = {
+      enable = true;
+      port = 1182;
+      listen-address = "0.0.0.0";
+      allowed-ports = [
+        443
+        563
+        21115 # rustdesk
+        21116 # rustdesk
+        21117
+        21118
+        21119
+      ];
+      allowed-hosts = [ "rustdesk.${config.networking.domain}" ];
+      auth.files = [ config.age.secrets."helium/squid/squid-users".path ];
+    };
     nfs = {
       enable = false; # seb: NOTE nfs ports must be closed to the WAN due to potential ddos forward behavior.
       folders."/data/storage" = [{

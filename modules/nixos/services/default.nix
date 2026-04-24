@@ -48,6 +48,7 @@
     ./ssh-server
     ./snapserver
     ./sqlite-backup
+    ./squid
     ./stremio-service
     ./syncthing
     ./tandoor-recipes
