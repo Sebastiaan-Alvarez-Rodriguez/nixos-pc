@@ -1,4 +1,7 @@
-# A vnc server
+# A remote desktop service
+# Sadly proprietary with a FOSS core.
+# Might expand to: https://github.com/UNITRONIX/BetterDesk
+# if it becomes more mature.
 
 # configure clients:
 # 'Server ID' field: enter url or ip address of signal server, e.g. hbbs.example.com
@@ -67,6 +70,7 @@ in {
 
     networking.firewall = {
       allowedTCPPorts = [ 
+        21114 # API server
         21115 # signal server (extra port for NAT tests)
         cfg.signal-port
         cfg.relay-port

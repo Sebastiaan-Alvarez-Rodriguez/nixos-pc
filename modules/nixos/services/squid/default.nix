@@ -107,14 +107,12 @@ in {
       # Deny any traffic going to localhost. This protects all services behind nginx reverse proxy.
       http_access deny to_localhost
 
-      # allows access to local network clients (debug) # TODO remove
+      # allows access to local network clients (debug) # NOTE: only enable for debugging.
       # http_access allow localnet
 
       # Allow authenticated users to access the allowed dst hostnames
       http_access allow authenticated allowed_dst_hosts
 
-      # Allow authenticated users to access the RustDesk IP
-      # http_access allow authenticated rustdesk_ip
 
 
       # Application logs to syslog, access and store logs have specific files

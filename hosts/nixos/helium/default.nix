@@ -235,13 +235,14 @@
       allowed-ports = [
         443
         563
+        21114 # rustdesk
         21115 # rustdesk
         21116 # rustdesk
         21117
         21118
         21119
       ];
-      allowed-hosts = [ "rustdesk.${config.networking.domain}" ];
+      allowed-hosts = [ "rustdesk.${config.networking.domain}" "api.rustdesk.com" ];
       auth.files = [ config.age.secrets."helium/squid/squid-users".path ];
     };
     nfs = {
