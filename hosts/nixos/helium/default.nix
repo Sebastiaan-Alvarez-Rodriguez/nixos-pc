@@ -228,23 +228,29 @@
       private-keyfile = config.age.secrets."helium/rustdesk/private-key".path;
       public-keyfile = config.age.secrets."helium/rustdesk/public-key".path;
     };
-    squid = {
+    meshcentral = {
       enable = true;
-      port = 1182;
-      listen-address = "0.0.0.0";
-      allowed-ports = [
-        443
-        563
-        21114 # rustdesk
-        21115 # rustdesk
-        21116 # rustdesk
-        21117
-        21118
-        21119
-      ];
-      allowed-hosts = [ "rustdesk.${config.networking.domain}" "api.rustdesk.com" ];
-      auth.files = [ config.age.secrets."helium/squid/squid-users".path ];
+      new-accounts = false;
+      backup-routes = [ "xenon" ];
+      backup-path = "/data/meshcentral/backup";
     };
+    # squid = {
+    #   enable = true;
+    #   port = 1182;
+    #   listen-address = "0.0.0.0";
+    #   allowed-ports = [
+    #     443
+    #     563
+    #     21114 # rustdesk
+    #     21115 # rustdesk
+    #     21116 # rustdesk
+    #     21117
+    #     21118
+    #     21119
+    #   ];
+    #   allowed-hosts = [ "rustdesk.${config.networking.domain}" "api.rustdesk.com" ];
+    #   auth.files = [ config.age.secrets."helium/squid/squid-users".path ];
+    # };
     nfs = {
       enable = false; # seb: NOTE nfs ports must be closed to the WAN due to potential ddos forward behavior.
       folders."/data/storage" = [{

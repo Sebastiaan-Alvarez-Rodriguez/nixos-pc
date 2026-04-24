@@ -24,6 +24,7 @@ in {
       type = with types; listOf str;
       description = "Restic backup routes to use for this data.";
     };
+
     backup-path = mkOption {
       type = types.str;
       default = "/var/lib/meshcentral/backups";
@@ -77,9 +78,20 @@ in {
         };
       };
     };
+    # force non-dynamic user (so we can correctly setup permissions for backup directory)
+    systemd.services.meshcentral.serviceConfig = {
+      DynamicUser = lib.mkForce false;
+      User = "meshcentral";
+    };
+    users.users.meshcentral = {
+      description = "meshcentral user";
+      group = "meshcentral";
+      isSystemUser = true;
+    };
+    users.groups.meshcentral = {};
 
     systemd.tmpfiles.rules = [ # ensures the backup directory exists and is world-readable.
-      "d ${cfg.backup-path} 0777 root root -"
+      "d ${cfg.backup-path} 0777 meshcentral meshcentral -"
     ];
 
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.backup-path ]; };
