@@ -15,13 +15,19 @@ in {
           type = with types; attrsOf str;
           default = {};
           example = {"z1" = "entryhall"; };
-          description = "mapping of motion sensor zone numbers to names, e.g";
+          description = "mapping of motion sensor zone numbers to names";
         };
         magnet = mkOption {
           type = with types; attrsOf str;
           default = {};
           example = {"z4" = "door to yard"; };
-          description = "mapping of magnet zone numbers to names, e.g";
+          description = "mapping of magnet zone numbers to names";
+        };
+        other = mkOption {
+          type = with types; attrsOf str;
+          default = {};
+          example = {"z4" = "door to yard"; };
+          description = "Other badges to show here, not necessarily from visonic. Map from device name to a 'human friendly name' to get extra device-badges shown.";
         };
       };
     };
@@ -54,8 +60,9 @@ in {
               }
             ];
             badges = let
-              generateBadge = sensor: name: { type = "entity"; show_name = true; show_state = true; show_icon = true; entity = "binary_sensor.visonic_${sensor}"; inherit name; };
-            in lib.mapAttrsToList generateBadge cfg.ui.sensors.magnet;
+              generateBadge = sensor: name: { type = "entity"; show_name = true; show_state = true; show_icon = true; entity = "binary_sensor.${sensor}"; inherit name; };
+              prepend_visonic = name: value: lib.nameValuePair "visonic_${name}" value;
+            in (lib.mapAttrsToList generateBadge (lib.mapAttrs' prepend_visonic cfg.ui.sensors.magnet)) ++ (lib.mapAttrsToList generateBadge cfg.ui.sensors.other);
           }
         ];
       };

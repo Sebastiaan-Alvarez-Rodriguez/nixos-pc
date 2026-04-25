@@ -127,12 +127,15 @@ in {
         "script" = "!include ${configpath}/scripts.yaml";
         "script split" = "!include_dir_named ${configpath}/scripts";
 
-        lovelace = {
+        lovelace = let
+          mode = "yaml"; # just leave this on yaml. Make a new dashboard in HA under settings > dashboards > add dashboard.
+          # if you want to debug / expand a yaml config, look the yaml up under /var/lib/hass/ui-lovelace.yaml (it's one of the subsections there). Then copy/paste in 'raw config editor' in a new dashboard.
           # mode = "storage"; # NOTE: Any UI-made changes will be discarded upon every service restart. This option should be set only to develop UI components.
           # mode = "yaml";
-          resource_mode = "yaml";
+        in {
+          resource_mode = mode;
           dashboards.lovelace = {
-            mode = "yaml";
+            mode = mode;
             filename = "ui-lovelace.yaml";
             title = "Overview";
             icon = "mdi:view-dashboard";
