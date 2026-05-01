@@ -1,7 +1,16 @@
-# A vnc server
-# see https://ylianst.github.io/MeshCentral/install/
-# Encountered limitations:
-# - Cannot control android devices
+# A remote desktop service, https://docs.meshcentral.com/
+#
+# Basic installtion:
+# 1. Make an account on the webserver.
+# 2. Make a new 'Device group'.
+# 3. On the device to be controlled, download the agent using the 'add agent' button.
+# 4. Install the agent on the device
+# 5. >>> NOTE: IF you get an error 'cannot find the procedure' on Windows 10/11, then: Rightclick installer > properties > compatibility > 'disable optimizations for full-screen'
+#
+# To take over a device with installed agent:
+# 1. Go to the webserver
+# 2. Click the correct device in the correct device group
+# 3. Go to 'Desktop' and hit 'connect'
 
 { config, lib, ... }: let
   cfg = config.my.services.meshcentral;
@@ -46,17 +55,16 @@ in {
         # example config: https://github.com/Ylianst/MeshCentral/blob/master/sample-config.json
         settings = {
           cert = "${domain-prefix}.${config.networking.domain}";
+          port = cfg.port;
+          aliasPort = 443;
+          redirPort = 0;
+          exactports = true;
+          agentPong = 300; # sure
 
           autoBackup.backupPath = cfg.backup-path;
           autoBackup.keepLastDaysBackup = 0; # we backup daily, no need to keep older versions.
           WANonly = true; # only handle WAN devices
 
-          port = cfg.port;
-          aliasPort = 443;
-          redirPort = 0;
-          exactports = true;
-
-          agentPong = 300; # sure
 
           tlsOffload = "127.0.0.1";
 
@@ -72,7 +80,7 @@ in {
             title2 = "mesh vnc";
             newAccounts = cfg.new-accounts;
             userNameIsEmail = true;
-            certUrl = "https://127.0.0.1:443";
+            certUrl =  "https://${domain-prefix}.${config.networking.domain}";
             IgnoreAgentHashCheck = cfg.ignore-hash;
           };
         };
@@ -99,6 +107,7 @@ in {
       inherit (cfg) port;
       useACMEHost = config.networking.domain;
 
+      dest-ipv6 = true; # meshcentral only binds to tcp6 port
       extraConfig = {
         extraConfig = ''
           proxy_buffering off;

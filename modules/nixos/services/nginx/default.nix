@@ -73,6 +73,8 @@
 
       local-only = mkEnableOption "Only allow inbound traffic from the local subnet, effectively blocking WAN access";
 
+      dest-ipv6 = mkEnableOption "Route traffic to ipv6 on localhost instead of ipv4 (default)";
+
       extraConfig = mkOption {
         type = types.attrs; # FIXME: forward type of virtualHosts
         example = litteralExample ''
@@ -290,6 +292,18 @@ in {
         map mkAssertion nonUniques
     ) ++ (
       let
+        dest-ipv6s = builtins.filter (x: x.dest-ipv6) (lib.attrValues cfg.virtualHosts);
+        incorrect-uses = builtins.filter (x: x.port == null) dest-ipv6s;
+        mkAssertion = item: {
+          assertion = false;
+          message = let
+            opt = if item.redirect != null then "redirect" else if item.root != null then "root" else if item.socket != null then "socket" else if item.port != null then "port" else "UNSPECIFIED (redirect, root, socket, port)";
+          in "Subdomain '${item.subdomain}' uses `dest-ipv6` with an incorrect routing option (`${opt}`).";
+        };
+      in
+        map mkAssertion incorrect-uses
+    ) ++ (
+      let
         any-domains-with-sso = builtins.any (x: x.sso.enable) (builtins.attrValues cfg.virtualHosts);
       in [{ assertion = (!cfg.sso.enable) -> (!any-domains-with-sso); message = "Domains '${builtins.toString (builtins.attrNames (lib.filterAttrs (_: v: v.sso.enable) cfg.virtualHosts))}' use sso, but `my.services.nginx.sso` is not enabled."; }]
     );
@@ -334,7 +348,7 @@ in {
             enableACME = args.enableACME;
           }
           (lib.optionalAttrs (args.port != null) { # Proxy to port
-            locations."/".proxyPass = "http://127.0.0.1:${toString args.port}";
+            locations."/".proxyPass = if args.dest-ipv6 then "http://[::1]:${toString args.port}" else "http://127.0.0.1:${toString args.port}";
           })
           (lib.optionalAttrs (args.root != null) { # Serve filesystem content
             inherit (args) root;
