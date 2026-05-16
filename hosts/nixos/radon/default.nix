@@ -41,8 +41,9 @@
     hyprland-hydenix.enable = true; # prepare system for hydenix upstream
   };
 
-  my.programs = {
-    steam.enable = true;
+  my.programs.steam = {
+    enable = true;
+    enable-proton-ge = true;
   };
   programs = {
     adb.enable = true; # To use, users must be added to the "adbusers" group
@@ -55,6 +56,14 @@
       default_session = {
         user = "rdn";
         command = "Hyprland";
+      };
+    };
+    logiops = {
+      enable = true;
+      devices = {
+        "MX Master 3S" = {
+          dpi = 3000;
+        };
       };
     };
   };

@@ -22,6 +22,7 @@
     ./jellyfin
     ./joplin
     ./kitchenowl
+    ./logiops
     ./matrix
     ./mailserver
     ./mealie

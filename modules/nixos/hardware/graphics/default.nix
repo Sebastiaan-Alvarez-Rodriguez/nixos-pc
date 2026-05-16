@@ -4,8 +4,9 @@ in {
   options.my.hardware.graphics = with lib; {
     amd = {
       enable = mkEnableOption "graphics configuration";
-      enable-kernelmodule = mkEnableOption "Kernel driver module";
+      enable-kernelmodule = mkEnableOption "Kernel driver module (use when low resolution encountered during early boot)";
       enable-vaapi = mkEnableOption "Enable vaapi driver (needed for video hardware accelleration)";
+      enable-rocm = mkEnableOption "Enable rocm/openCL";
     };
 
     intel = {
@@ -68,7 +69,6 @@ in {
           message = "When using nvidia.prime.offload/sync, then exactly 1 of nvidia.prime.amdgpuBusId, nividia.prime.intelgpuBusId must be set. found: \"${builtins.toString [cfg.nvidia.prime.amdgpuBusId cfg.nvidia.prime.intelgpuBusId]}\"";
         }
       ];
-      hardware.graphics.enable = true;
       environment.variables = { # Set session env vars
         LD_LIBRARY_PATH = ["/run/opengl-driver/lib:/run/opengl-driver-32/lib"];
         LD_PREFIX_PATH = ["/run/opengl-driver/lib:/run/opengl-driver-32/lib"];
@@ -77,19 +77,19 @@ in {
 
     # AMD GPU
     (lib.mkIf cfg.amd.enable {
-      boot.initrd.kernelModules = lib.mkIf cfg.amd.enable-kernelmodule [ "amdgpu" ];
-
+      hardware.amdgpu.initrd.enable = cfg.amd.enable-kernelmodule; # sets boot.initrd.kernelModules = [ "amdgpu" ]
       environment.variables = lib.mkIf cfg.amd.enable-vaapi {
         VDPAU_DRIVER = "va_gl";
       };
 
       hardware.graphics = with pkgs; {
+        enable = true;
         # if you also want 32-bit support (e.g for Steam)
         enable32Bit = true;
-        package32 = pkgs.pkgsi686Linux.mesa;
+        # package32 = pkgs.pkgsi686Linux.mesa;
 
-        extraPackages = [ rocmPackages.clr rocmPackages.clr.icd ] ++ lib.optionals cfg.amd.enable-vaapi [libva-vdpau-driver libvdpau-va-gl]; # first part adds rocm-openCL
-        extraPackages32 = [ ];
+        extraPackages = (lib.optionals cfg.amd.enable-rocm [ rocmPackages.clr rocmPackages.clr.icd ]) ++ lib.optionals cfg.amd.enable-vaapi [libva-vdpau-driver libvdpau-va-gl]; # first part adds rocm-openCL
+        # extraPackages32 = [ ];
       };
     })
 
@@ -97,12 +97,13 @@ in {
     (lib.mkIf cfg.intel.enable {
       boot.initrd.kernelModules = lib.mkIf cfg.intel.enable-kernelmodule [ "i915" ];
 
-    environment.sessionVariables = lib.mkIf cfg.intel.enable-vaapi {
+      environment.sessionVariables = lib.mkIf cfg.intel.enable-vaapi {
         VDPAU_DRIVER = "va_gl";
         LIBVA_DRIVER_NAME = "iHD"; # force intel media driver
       };
 
       hardware.graphics = with pkgs; {
+        enable = true;
         extraPackages = [ intel-compute-runtime ] ++ lib.optionals cfg.intel.enable-vaapi [ intel-media-driver intel-vaapi-driver libvdpau-va-gl ];# first part adds support for Open CL
         extraPackages32 = [ pkgsi686Linux.intel-vaapi-driver ];
       };
@@ -111,6 +112,7 @@ in {
     # Nvidia GPU
     (lib.mkIf cfg.nvidia.enable {
       # Inspired by: https://nixos.wiki/wiki/Nvidia
+      hardware.graphics.enable = true;
       services.xserver.videoDrivers = ["nvidia"];
       hardware.nvidia = {
         modesetting.enable = true;
