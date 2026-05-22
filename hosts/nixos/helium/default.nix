@@ -129,8 +129,8 @@
         ui = {
           enable = true;
           sensors.motion = { "z01" = "woonkamer-bank"; "z02" = "woonkamer-keuken"; "z03" = "woonkamer-zithoek"; "z04" = "werkkamer beneden"; "z05" = "slaapkamer"; "z06" = "garage-binnendeur"; "z07" = "garage-raam"; "z20" = "logeer-klein"; "z21" = "logeer-groot"; "z22" = "werkkamer-boven"; "z23" = "hal-boven"; };
-          sensors.magnet = { "z11" = "voordeur"; "z12" = "pui voortuin"; "z13" = "slaapkamer tuin"; "z14" = "woonkamer tuin"; "z15" = "pui tuin"; "z16" = "meterkast"; "z08" = "serverkast"; };
-          sensors.other = { "garage_ctrl_a_garage_door_contact" = "garage A"; };
+          sensors.magnet = { "z11" = "voordeur"; "z12" = "pui voor"; "z13" = "slaapkamer"; "z14" = "woonkamer tuin"; "z15" = "pui achter"; "z16" = "meterkast"; "z08" = "serverkast"; };
+          sensors.other = { "garage_ctrl_a_garage_door_contact" = "garage A"; "garage_ctrl_b_garage_door_contact" = "garage B";};
         };
       };
       code.scripts = {
