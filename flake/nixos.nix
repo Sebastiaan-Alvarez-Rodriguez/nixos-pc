@@ -19,13 +19,6 @@
     inputs.agenix.nixosModules.default
     inputs.agenix-rekey.nixosModules.default
 
-    # hyprland theme module import (handled in the hosts/nixos/hydenix/default.nix for now, must move to module)
-    # inputs.hydenix.nixosModules.default
-    # inputs.nixos-hardware.nixosModules.common-gpu-amd # AMD GPUs
-    # inputs.nixos-hardware.nixosModules.common-cpu-amd # AMD CPUs
-    # inputs.nixos-hardware.nixosModules.common-hidpi
-    # inputs.nixos-hardware.nixosModules.common-pc-ssd
-  
     "${self}/modules/nixos" # Include generic settings
   ];
 
@@ -53,7 +46,6 @@ in rec {
     "polonium" = "x86_64-linux";
     "radon" = "x86_64-linux";
     "xenon" = "x86_64-linux";
-    # "hydenix" = "x86_64-linux";
   # } // lib.mapAttrs buildImageHost {
   #   "blackberry" = "aarch64-linux";
   };

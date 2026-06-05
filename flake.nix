@@ -29,11 +29,6 @@
 
     # hyprland and themes
     hyprland.url = "github:hyprwm/Hyprland";
-    hydenix = { # a hyprland theme (often assumes it is the main flake)
-      url = "github:richen604/hydenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-    };
 
     nixpkgs.url = "nixpkgs/nixos-26.05";
     nixpkgs-24_05.url = "nixpkgs/nixos-24.05";

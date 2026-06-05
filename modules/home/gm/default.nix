@@ -15,7 +15,7 @@ in {
     })
     (lib.mkIf cfg.wayland.enable {
       # programs.xwayland.enable = true; 
-      # home.packages = [ pkgs.wl-clipboard pkgs.wl-clip-persist ]; # seb NOTE: hydenix hunt
+      home.packages = [ pkgs.wl-clipboard pkgs.wl-clip-persist ]; # seb TODO: will this result in a good clipboard experience?
       # seb: NOTE we don't enable wayland here. The wayland window managers, i.e. wm.river, already activate wayland.
       home.sessionVariables = {
         MOZ_ENABLE_WAYLAND = 1;

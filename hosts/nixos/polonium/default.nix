@@ -1,6 +1,5 @@
 { config, lib, inputs, pkgs, ... }: {
   imports = [
-    # inputs.hydenix.inputs.home-manager.nixosModules.home-manager # NOTE: must use this home-manager version to have required packages for hydenix.
     inputs.home-manager.nixosModules.default
     ./hardware.nix
   ];
@@ -33,7 +32,7 @@
       inputs.overrideNixpkgs = true;
     };
     packages = {
-        # enable = true; # seb TODO note error: - Your system configures nixpkgs with an externally created instance. `nixpkgs.config` options should be passed when creating the instance instead.
+      enable = true;
       allowUnfree = true;
       default-pkgs = with pkgs; [ curl micro vim wget ];
     };
@@ -113,13 +112,6 @@
       # spotify.enable = true;
       terminal.program = "kitty";
       gm.wayland.enable = true; # prepare for a wayland environment
-      # wm.hyprland.hydenix = {
-      #   enable = true;
-      #   binds.browser.normal = config.my.home.browser.program;
-      #   binds.browser.private = "${config.my.home.browser.program} --private-window";
-      #   # binds.editor = ;
-      #   binds.terminal = config.my.home.terminal.program;
-      # };
       wm.hyprland.end4-illogical = {
         enable = true;
         binds.browser.normal = config.my.home.browser.program;

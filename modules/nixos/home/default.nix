@@ -30,5 +30,6 @@ in {
       
       users = cfg.users;
     };
+    environment.pathsToLink = ["/share/applications" "/share/xdg-desktop-portal"];
   };
 }

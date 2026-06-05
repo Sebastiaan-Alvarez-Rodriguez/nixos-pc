@@ -1,7 +1,7 @@
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.wm.hyprland;
 in {
-  imports = [ ./hydenix.nix ./end4.nix ./wayle.nix ];
+  imports = [ ./end4.nix ./wayle.nix ];
 
   options.my.home.wm.hyprland = with lib; {
     enable = mkEnableOption "Set hyprland as window manager.";
@@ -22,7 +22,7 @@ in {
       modkey = mkOption {
         type = types.str;
         default = "SUPER"; # This is the 'windows' key on most keyboards.
-        description = "Modkey to use for issuing commands to hyprland.hydenix";
+        description = "Modkey to use for issuing commands to hyprland";
       };
 
       repeat-rate = mkOption {
@@ -127,7 +127,7 @@ in {
   config = lib.mkIf config.my.home.wm.hyprland.enable {
     assertions = [ { assertion = config.my.home.gm.wayland.enable; message = "hyprland module requires wayland graphics manager (set my.home.gm.wayland.enable = true)"; } ];
 
-    wayland.windowManager.hyprland = lib.mkIf (!cfg.hydenix.enable) {
+    wayland.windowManager.hyprland = {
       enable = true;
       package = cfg.package;
       portalPackage = cfg.portal-package;
