@@ -1,34 +1,33 @@
 {
   description = "NixOS configuration with flakes";
   inputs = {
-    agenix = {
+    agenix = { # basic agenix secret generation
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    agenix-rekey = {
+    agenix-rekey = { # agenix extra features
       url = "github:oddlama/agenix-rekey";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    end4-illogical = { # an end4 hyprland theme
-      url = "github:soymou/illogical-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nur.follows = "nur";
-    };
-
-    flake-parts = {
+    flake-parts = { # util to separate a regular flake definition in multiple sections cleanly
       url = "github:hercules-ci/flake-parts/main";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
-    home-manager = {
+    home-manager = { # declarative per-user home management
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # hyprland and themes
     hyprland.url = "github:hyprwm/Hyprland";
+    end4-illogical = { # an end4 hyprland theme
+      url = "github:soymou/illogical-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nur.follows = "nur";
+    };
 
     nixpkgs.url = "nixpkgs/nixos-26.05";
     nixpkgs-24_05.url = "nixpkgs/nixos-24.05";
@@ -36,19 +35,23 @@
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
-    nur = {
+    nur = { # custom non-merged packages
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    simple-nixos-mailserver = {
+    simple-nixos-mailserver = { # mail server implementation (lightweight)
       url = "gitlab:simple-nixos-mailserver/nixos-mailserver/nixos-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    spicetify-nix = {
+    spicetify-nix = { # spotify but better
       url = "github:Gerg-L/spicetify-nix";
-      # url = "github:the-argus/spicetify-nix"; # produces build errors
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    stylix = { # uniform styling for many UI components
+      url = "github:nix-community/stylix/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

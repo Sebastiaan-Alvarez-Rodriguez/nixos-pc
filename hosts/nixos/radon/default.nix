@@ -69,14 +69,10 @@
       bat.enable = true; # like cat, but with syntax highlighting & more
       browser.program = "librewolf";
       editor = {
-        program = "helix";
+        helix = true;
         editor-name = "hx";
-        extras = [ "vim" ];
       };
-      gpg = {
-        enable = false; # seb: TODO figure out how to not be annoyed
-        pinentry = pkgs.pinentry-gtk2; # Use a small popup to enter passwords
-      };
+
       nix = {
         enable = true;
         inputs.link = true;
@@ -85,32 +81,31 @@
         inputs.overrideNixpkgs = true;
       };
 
-      packages = {
-        enable = false; # NOTE: produces warning:
-        # profile: You have set either `nixpkgs.config` or `nixpkgs.overlays` while using `home-manager.useGlobalPkgs`.
-        # This will soon not be possible. Please remove all `nixpkgs` options when using `home-manager.useGlobalPkgs`.
-        allowUnfree = true;
-      };
-
       # spotify.enable = true;
       ssh.enable = true;
+      stylix = {
+        enable = true;
+        auto-enable = true;
+      };
       terminal.program = "kitty";
       gm.wayland.enable = true; # prepare for a wayland environment
       wm.hyprland = {
         enable = true;
-        binds.browser.normal = config.my.home.browser.program;
-        binds.browser.private = "${config.my.home.browser.program} --private-window";
-        binds.editor = lib.getExe (pkgs.helix);
-        binds.terminal = config.my.home.terminal.program;
-
+        binds = {
+          browser.normal = config.my.home.browser.program;
+          browser.private = "${config.my.home.browser.program} --private-window";
+          editor = lib.getExe (pkgs.helix);
+          terminal = config.my.home.terminal.program;
+        };
         wayle = {
           enable = true;
         };
       };
+      wm.apps.rofi.enable = true;
     };
   };
 
-  users = let # seb: TODO make this more simple, move to nixos/home module for generation?
+  users = let
     groupExists = grp: builtins.hasAttr grp config.users.groups;
     groupsIfExist = builtins.filter groupExists;
   in {
@@ -124,6 +119,7 @@
 
   environment.systemPackages = [ pkgs.android-tools ]; # for adb
   programs.fish.enable = true;
+  programs.dconf.enable = true; # required by home-manager apparently
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";

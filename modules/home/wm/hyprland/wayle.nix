@@ -18,7 +18,9 @@ in {
   config = lib.mkIf cfg.enable {
     services.wayle = { # provides a shell containing a bar, power menu
       enable = true;
-    } // cfg.extra-config;
+      autoInstallDependencies = true;
+      settings =  cfg.extra-config;
+    };
 
     my.home.wm.hyprland.binds.extra-binds = {
       "Launcher"."Wayle".bindd = [

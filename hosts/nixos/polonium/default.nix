@@ -99,14 +99,6 @@
         inputs.overrideNixpkgs = true;
       };
 
-      packages = {
-        enable = false;
-        # NOTE: produces warning:
-        # profile: You have set either `nixpkgs.config` or `nixpkgs.overlays` while using `home-manager.useGlobalPkgs`.
-        # This will soon not be possible. Please remove all `nixpkgs` options when using `home-manager.useGlobalPkgs`.
-        allowUnfree = true;
-      };
-
       # mpv.enable = true; # Minimal video player
       ssh.enable = true;
       # spotify.enable = true;

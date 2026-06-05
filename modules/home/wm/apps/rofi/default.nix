@@ -1,25 +1,29 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.home.wm.apps.rofi;
-  picked_pkg = pkgs.rofi;
 in {
   config = lib.mkIf cfg.enable {
     programs.rofi = {
       enable = true;
       terminal = config.my.home.terminal.program; # null by default
-      # Used to be
-      # terminal = "${pkgs.foot}/bin/foot";
 
       # use regular 'rofi' package for xserver gm?
-      package = picked_pkg.override {
+      package = pkgs.rofi.override {
         plugins = with pkgs; [ rofi-emoji ];
       };
       extraConfig = {
-        modi = "drun,ssh,combi";
+        modi = "drun,run,window,emoji";
         separator-style = "dash";
         color-enabled = true;
       };
-      # seb: TODO does this config do anything nice?
-      theme = "gruvbox-dark-hard";
+    };
+
+    my.home.wm.hyprland.binds.launcher = let
+      base = "rofi -combi-modi drun,run,window,emoji -show ";
+    in {
+      application = "${base} drun";
+      executable = "${base} run";
+      window = "${base} window";
+      emoji = "${base} emoji";
     };
   };
 }

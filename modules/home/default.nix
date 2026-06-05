@@ -14,10 +14,10 @@
     ./nix
     ./nix-index
     ./nm-applet
-    ./packages
     ./power-alert
     ./spotify
     ./ssh
+    ./stylix
     ./terminal
     ./wm
     ./xdg

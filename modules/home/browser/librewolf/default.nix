@@ -8,5 +8,12 @@ in {
 
   config = lib.mkIf cfg.enable {
     programs.librewolf.enable = true; 
+    programs.librewolf.profiles."default" = { # new stuff!
+      name = "default";
+      id = 0;
+      isDefault = true;
+    };
+
+    stylix.targets.librewolf.profileNames = [ "default" ]; # Required for stylix styling.
   };
 }

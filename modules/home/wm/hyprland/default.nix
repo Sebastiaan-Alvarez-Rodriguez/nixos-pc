@@ -36,50 +36,73 @@ in {
         description = "Amount of milliseconds a button must be held down for repeat-mode to activate";
       };
 
-      browser.normal = lib.mkOption {
-        type = lib.types.str;
+      browser.normal = mkOption {
+        type = types.str;
         default = config.my.home.browser.program;
         description = "Default browser (regular window)";
       };
-      browser.private = lib.mkOption {
-        type = lib.types.str;
+      browser.private = mkOption {
+        type = types.str;
         default = "${config.my.home.browser.program} --private-window";
         description = "Default browser (private window)";
       };
 
-      editor = lib.mkOption {
-        type = lib.types.str;
-        default = lib.getExe (pkgs.${config.my.home.editor.program});
+      editor = mkOption {
+        type = types.str;
+        default = getExe (pkgs.${config.my.home.editor.program});
         description = "Default text editor";
       };
 
-      terminal = lib.mkOption {
-        type = lib.types.str;
+      terminal = mkOption {
+        type = types.str;
         default = config.my.home.terminal.program;
         description = "Default terminal";
       };
 
+      launcher = {
+        application = mkOption {
+          type = types.str;
+          default = "";
+          description = "Launcher application search command (i.e. for .desktop-like executables)";
+        };
+        executable = mkOption {
+          type = types.str;
+          default = "";
+          description = "Launcher executable search command (i.e. for executables on $PATH)";
+        };
+        window = mkOption {
+          type = types.str;
+          default = "";
+          description = "Launcher window list command";
+        };
+        emoji = mkOption {
+          type = types.str;
+          default = "";
+          description = "Launcher emoji picker list command";
+        };
+      };
+
       brightness = {
         kbd = {
-          up = lib.mkOption {
-            type = lib.types.str;
+          up = mkOption {
+            type = types.str;
             default = "";
             description = "Keyboard brightness up command";
           };
-          down = lib.mkOption {
-            type = lib.types.str;
+          down = mkOption {
+            type = types.str;
             default = "";
             description = "Keyboard brightness down command";
           };
         };
         mon = {
-          up = lib.mkOption {
-            type = lib.types.str;
+          up = mkOption {
+            type = types.str;
             default = "";
             description = "Monitor brightness up command";
           };
-          down = lib.mkOption {
-            type = lib.types.str;
+          down = mkOption {
+            type = types.str;
             default = "";
             description = "Monitor brightness down command";
           };
@@ -87,25 +110,48 @@ in {
       };
 
       media = {
-        play = lib.mkOption {
-          type = lib.types.str;
-          default = "playerctl play-pause"; # assumes pkgs.playerctl is used
+        play = mkOption {
+          type = types.str; # default assumes playerctl is used
+          default = "playerctl play-pause";
           description = "Play media command";
         };
-        pause = lib.mkOption {
-          type = lib.types.str;
+        pause = mkOption {
+          type = types.str;
           default = "playerctl play-pause";
           description = "Pause media command";
         };
-        next = lib.mkOption {
-          type = lib.types.str;
+        next = mkOption {
+          type = types.str;
           default = "playerctl next";
           description = "Next media command";
         };
-        prev = lib.mkOption {
-          type = lib.types.str;
+        prev = mkOption {
+          type = types.str;
           default = "playerctl previous";
           description = "Prev media command";
+        };
+      };
+
+      audio = {
+        raise = mkOption {
+          type = types.str; # default assumes wireplumber
+          default = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+";
+          description = "Raise volume audio command";
+        };
+        lower = mkOption {
+          type = types.str;
+          default = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-";
+          description = "Lower volume audio command";
+        };
+        togglemute = mkOption {
+          type = types.str;
+          default = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          description = "Mute audio command";
+        };
+        togglemicmute = mkOption {
+          type = types.str;
+          default = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
+          description = "Mute mic audio command";
         };
       };
       extra-binds = mkOption {
@@ -131,6 +177,8 @@ in {
       enable = true;
       package = cfg.package;
       portalPackage = cfg.portal-package;
+
+      configType = "hyprlang";
       settings = let
           mk-section-name = section-names: "[${builtins.concatStringsSep "|" section-names}]";
           mk-leaf-list = name: lst: builtins.map (s: lib.replaceString "$d" name s) lst; # in a list-leaf, replaces all "$d" with the full section name
@@ -155,7 +203,6 @@ in {
         "$EDITOR" = cfg.binds.editor;
         "$BROWSER" = cfg.binds.browser.normal;
         "$BROWSERPRIVATE" = cfg.binds.browser.private;
-        "$TIWIKIWI" = "kiwijo";
       } // mk-keybinds [ { 
         "Window Management" = {
           "Main".bindd = [ # toggle between fullscreen or not
@@ -169,7 +216,7 @@ in {
           ] ++ [
             "$mainMod, W, $d Toggle floating, togglefloating"                  
             "$mainMod, G, $d toggle group, togglegroup"
-            "$mainMod Shift, F, $d toggle pin on focused window, exec, hyde-shell windowpin"
+            "$mainMod Shift, F, $d toggle pin on focused window, pin"
           ];
           "Group Navigation".bindd = [
             "$mainMod SHIFT, H, $d change active group backwards   , changegroupactive, b"
@@ -181,7 +228,6 @@ in {
           ];
           "Move window across workspace" = {
             bindd = [
-              # seb NOTE: hyde does this with more difficulty. Does it provide any gains?
               "$mainMod SHIFT, J, $d swap active window with next window, swapnext, "
               "$mainModkey SHIFT, K, $d swap active window with previous window, swapnext, prev"
             ];
@@ -193,26 +239,22 @@ in {
           "Splits".bindd = [ # adjust split ratio
             "$mainMod, H, $d splitratio decrease, layoutmsg, splitratio -0.05"
             "$mainMod, L, $d splitratio increase, layoutmsg, splitratio 0.05"
-            # "$mainMod+Shift H" = "send-layout-cmd hyprlandtile main-count +1";
-            # "$mainMod+Shift L" = "send-layout-cmd hyprlandtile main-count -1";
             "$mainMod, S, $d toggle split horizontal/vertical, layoutmsg, togglesplit"
           ];
         };
         "Launcher" = {
           "Apps".bindd = [
             "$mainMod, Return, $d terminal emulator, exec, $TERMINAL"
-            "$mainMod, E, $d file explorer, exec, $EXPLORER"
             "$mainMod, C, $d text editor, exec, $EDITOR"
             "$mainMod, B, $d web browser, exec, $BROWSER"
             "$mainMod SHIFT, B, $d private web browser, exec, $BROWSERPRIVATE"
-            "Control SHIFT, Escape, $d system monitor, exec, hyde-shell sysmonlaunch" # note: uses "system.monitor" in upstream config
           ];
           "Launcher menus".bindd = [
-            "$mainMod, A, $d application finder , exec, pkill -x rofi || hyde-shell rofilaunch d"
-            "$mainMod, TAB, $d window (focus) switcher , exec, pkill -x rofi || hyde-shell rofilaunch w"
-            "$mainMod SHIFT, E, $d file finder , exec, pkill -x rofi || hyde-shell rofilaunch f"
+            "$mainMod, D, $d application finder , exec, ${cfg.binds.launcher.application}"
+            "$mainMod, TAB, $d window (focus) switcher , exec, ${cfg.binds.launcher.window}"
+            "$mainMod, E, $d file finder , exec, ${cfg.binds.launcher.executable}"
             "$mainMod, slash, $d keybindings hint menu, exec, pkill -x rofi || hyde-shell keybinds_hint c"
-            "$mainMod, semicolon, $d emoji picker menu, exec, pkill -x rofi || hyde-shell emoji-picker"
+            "$mainMod, semicolon, $d emoji picker menu, exec, ${cfg.binds.launcher.emoji}"
             "$mainMod SHIFT, semicolon, $d glyph picker , exec, pkill -x rofi || hyde-shell glyph-picker"
             "$mainMod, V, $d clipboard, exec, pkill -x rofi || hyde-shell cliphist -c"
             "$mainMod SHIFT, V, $d clipboard manager , exec, pkill -x rofi || hyde-shell cliphist"
@@ -236,12 +278,12 @@ in {
         "Hardware Controls" = {
           "Audio" = {
             bindde = [
-              ", XF86AudioRaiseVolume, $d increase volume, exec, hyde-shell volumecontrol -o i"
-              ", XF86AudioLowerVolume, $d decrease volume, exec, hyde-shell volumecontrol -o d"
+              ", XF86AudioRaiseVolume, $d increase volume, exec, ${cfg.binds.audio.raise}"
+              ", XF86AudioLowerVolume, $d decrease volume, exec, ${cfg.binds.audio.lower}"
             ];
             bindd = [
-              ", XF86AudioMute, $d toggle mute, exec, hyde-shell volumecontrol -o m"
-              ", XF86AudioMicMute, $d toggle microphone mute, exec, hyde-shell volumecontrol -i m"
+              ", XF86AudioMute, $d toggle mute, exec, ${cfg.binds.audio.togglemute}"
+              ", XF86AudioMicMute, $d toggle microphone mute, exec, ${cfg.binds.audio.togglemicmute}"
             ];
           };
           "Media".bindd = [

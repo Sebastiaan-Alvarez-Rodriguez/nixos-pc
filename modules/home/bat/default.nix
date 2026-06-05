@@ -7,8 +7,5 @@ in {
 
   config.programs.bat = lib.mkIf cfg.enable {
     enable = true;
-    config = {
-      theme = "gruvbox-dark";
-    };
   };
 }
