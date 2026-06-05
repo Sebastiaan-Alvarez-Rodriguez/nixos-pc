@@ -47,6 +47,7 @@
   ];
 
   xdg.enable = true;
+  xdg.userDirs.setSessionVariables = false;
 
   programs.direnv = {
     enable = true;
@@ -99,7 +100,7 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks."*" = {
+    settings."*" = {
       controlPersist = "10m";
       forwardAgent = true;
       controlMaster = "auto";

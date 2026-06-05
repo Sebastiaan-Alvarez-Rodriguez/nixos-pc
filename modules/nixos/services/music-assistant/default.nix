@@ -117,7 +117,7 @@ in {
 
         networking.nameservers = [ ip-host "1.1.1.1" "9.9.9.9" "8.8.8.8" ];
         networking.firewall.allowedTCPPorts = [ 8095 1704 1780 ];
-        system.stateVersion = "25.11";
+        system.stateVersion = "26.05";
       };
     };
     # below does NAT for container, i.e. container gets access to enp2s0=internet

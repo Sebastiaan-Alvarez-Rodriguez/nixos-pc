@@ -1,6 +1,5 @@
 { config, inputs, lib, pkgs, ... }: {
   imports = [
-    inputs.hydenix.inputs.home-manager.nixosModules.home-manager
     ./hardware.nix
   ];
   age.rekey = {
@@ -9,22 +8,23 @@
     storageMode = "local";
     localStorageDir = ../../../secrets/rekey/${config.my.hardware.networking.hostname};
   };
-  my.system.boot = {
-    enable = true;
-    tmp.clean = true;
-    kind = "systemd";
-    extraConfig = {
-      kernelModules = [ "v4l2loopback" ];
-      extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
-      extraModprobeConfig = ''
-        options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
-      '';
-      supportedFilesystems = [ "ntfs" ]; # Allow NTFS reading https://nixos.wifi/wiki/NTFS
-      binfmt.emulatedSystems = [ "aarch64-linux" ];
-    };
-  };
 
   my.system = { # contains common system packages and settings shared between hosts.
+    boot = {
+      enable = true;
+      tmp.clean = true;
+      kind = "systemd";
+      extraConfig = {
+        kernelModules = [ "v4l2loopback" ];
+        extraModulePackages = [ config.boot.kernelPackages.v4l2loopback.out ];
+        extraModprobeConfig = ''
+          options v4l2loopback exclusive_caps=1 card_label="Virtual Camera"
+        '';
+        supportedFilesystems = [ "ntfs" ]; # Allow NTFS reading https://nixos.wifi/wiki/NTFS
+        binfmt.emulatedSystems = [ "aarch64-linux" ];
+      };
+    };
+
     nix = {
       enable = true;
       inputs.link = true;
@@ -37,16 +37,11 @@
       allowUnfree = true;
       default-pkgs = with pkgs; [ curl micro vim wget ];
     };
-
-    hyprland-hydenix.enable = true; # prepare system for hydenix upstream
   };
 
   my.programs.steam = {
     enable = true;
     enable-proton-ge = true;
-  };
-  programs = {
-    adb.enable = true; # To use, users must be added to the "adbusers" group
   };
 
   my.services = { 
@@ -55,17 +50,13 @@
       greeting = "<=================>";
       default_session = {
         user = "rdn";
-        command = "Hyprland";
+        command = "start-hyprland";
       };
     };
-    logiops = {
-      enable = true;
-      devices = {
-        "MX Master 3S" = {
-          dpi = 3000;
-        };
-      };
-    };
+    # logiops = {
+    #   enable = true;
+    #   devices."MX Master 3S".dpi = 3000;
+    # };
   };
 
   my.system.home.users."rdn" = { config, ... }: {
@@ -105,12 +96,16 @@
       ssh.enable = true;
       terminal.program = "kitty";
       gm.wayland.enable = true; # prepare for a wayland environment
-      wm.hyprland.hydenix = {
+      wm.hyprland = {
         enable = true;
         binds.browser.normal = config.my.home.browser.program;
         binds.browser.private = "${config.my.home.browser.program} --private-window";
         binds.editor = lib.getExe (pkgs.helix);
         binds.terminal = config.my.home.terminal.program;
+
+        wayle = {
+          enable = true;
+        };
       };
     };
   };
@@ -127,6 +122,7 @@
     };
   };
 
+  environment.systemPackages = [ pkgs.android-tools ]; # for adb
   programs.fish.enable = true;
 
   time.timeZone = "Europe/Amsterdam";

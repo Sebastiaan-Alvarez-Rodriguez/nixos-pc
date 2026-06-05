@@ -2,8 +2,7 @@
   cfg = config.my.system.home;
 in {
   imports = [
-    # inputs.home-manager.nixosModules.home-manager # enable home-manager options
-    # inputs.hydenix.inputs.home-manager.nixosModules.home-manager # seb TODO do I really need this? Or uncomment above line to restore original
+    inputs.home-manager.nixosModules.home-manager # enable home-manager options
   ];
 
   options.my.system.home = with lib; {

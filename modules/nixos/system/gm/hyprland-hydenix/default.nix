@@ -1,5 +1,6 @@
-  # Hydenix configuration - system part (disabled all things hydenix should not touch).
-  # Start this environment using command: `Hyprland`
+# Hydenix configuration - system part (disabled all things hydenix should not touch).
+# WARNING: Hydenix is abandoned.
+# Use the home module 'hydenix' to get the required functionality
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.system.hyprland-hydenix;
 in {

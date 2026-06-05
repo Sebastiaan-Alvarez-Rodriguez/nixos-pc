@@ -34,7 +34,7 @@ in {
     email = "sebastiaanalva@gmail.com";
   };
 
-  programs.ssh.matchBlocks = {
+  programs.ssh.settings = {
     "blackberry" = {
       hostname = "blackberry.mijn.place";
       user = "rdn";

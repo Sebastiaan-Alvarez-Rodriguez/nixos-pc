@@ -1,5 +1,18 @@
+# An implementation of Hyprland theme 'hydenix'
+# WARNING: hydenix became abandoned.
+#
 # user configuration for hydenix
-# Do not forget to enable `config.my.system.hydenix.enable`.
+# To use:
+# 1. add to flake.nix: 
+  # hydenix = { # a hyprland theme (often assumes it is the main flake)
+  #   url = "github:richen604/hydenix";
+  #   inputs.nixpkgs.follows = "nixpkgs";
+  #   inputs.home-manager.follows = "home-manager";
+  # };
+# 2. add to host's default.nix:
+  # imports = [ inputs.hydenix.inputs.home-manager.nixosModules.home-manager ];
+# 3. add to host's default.nix:
+  # config.my.system.hydenix.enable = true;
 # Start this environment using command: `Hyprland`
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.wm.hyprland.hydenix;

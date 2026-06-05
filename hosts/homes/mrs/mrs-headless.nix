@@ -16,8 +16,7 @@ in {
     email = "m.m.j.ijpelaar@gmail.com";
   };
 
-  programs.ssh = {
-    matchBlocks = {
+  programs.ssh.settings = {
       "github.com" = {
         user = config.programs.git.settings.user.name;
         identityFile = "/home/${username}/.ssh/github.rsa";

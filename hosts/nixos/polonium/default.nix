@@ -43,9 +43,6 @@
   my.programs = {
     steam.enable = true;
   };
-  programs = {
-    adb.enable = true; # To use, users must be added to the "adbusers" group
-  };
 
   my.services = {
     asusd = {
@@ -132,7 +129,6 @@
     };
   };
 
-
   users = let # seb: TODO make this more simple, move to nixos/home module for generation?
     groupExists = grp: builtins.hasAttr grp config.users.groups;
     groupsIfExist = builtins.filter groupExists;
@@ -146,6 +142,7 @@
     };
   };
 
+  environment.systemPackages = [ pkgs.android-tools ]; # for adb
   programs.fish.enable = true;
 
   time.timeZone = "Europe/Amsterdam";
