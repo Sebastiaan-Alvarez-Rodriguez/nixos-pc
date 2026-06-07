@@ -80,6 +80,11 @@ in {
           default = "";
           description = "Launcher emoji picker list command";
         };
+        calc = mkOption {
+          type = types.str;
+          default = "";
+          description = "Launcher calc picker list command";
+        };
       };
 
       brightness = {
@@ -251,8 +256,9 @@ in {
           ];
           "Launcher menus".bindd = [
             "$mainMod, D, $d application finder , exec, ${cfg.binds.launcher.application}"
-            "$mainMod, TAB, $d window (focus) switcher , exec, ${cfg.binds.launcher.window}"
+            "$mainMod, C, $d calculator, exec, ${cfg.binds.launcher.calc}"
             "$mainMod, E, $d file finder , exec, ${cfg.binds.launcher.executable}"
+            "$mainMod, TAB, $d window (focus) switcher , exec, ${cfg.binds.launcher.window}"
             "$mainMod, slash, $d keybindings hint menu, exec, pkill -x rofi || hyde-shell keybinds_hint c"
             "$mainMod, semicolon, $d emoji picker menu, exec, ${cfg.binds.launcher.emoji}"
             "$mainMod SHIFT, semicolon, $d glyph picker , exec, pkill -x rofi || hyde-shell glyph-picker"

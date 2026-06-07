@@ -1,4 +1,4 @@
-{ config, inputs, lib, pkgs, ... }: {
+{ config, inputs, system, lib, pkgs, ... }: {
   imports = [
     ./hardware.nix
   ];
@@ -99,6 +99,25 @@
         };
         wayle = {
           enable = true;
+          # hydenix used to have:
+          # System-wide:
+          # wl-clipboard and wl-clip-persist
+          # hyprland withUWSM = true; (idk)
+          # hypridle (idk)
+          # sddm (graphical login) (alternatives LightDM and GDM): https://github.com/richen604/hydenix/blob/main/hydenix/modules/system/sddm.nix
+          #
+          # home-wide:
+          # hyprlock (with styles, ~/.config/hypr/hyprlock/)
+          # wlogout (with styles, styles still in ~/.config/wlogout)
+          # dunst (notifications)
+          # rofi (application launcher, with styles in ~/.config/rofi)
+          #   and themes in ~/.local/share/hyde/rofi/themes
+          #   and assets in ~/.local/share/hyde/rofi/assets
+          #   CHECK the docs here: https://deepwiki.com/HyDE-Project/HyDE/8.3-menu-and-picker-systems
+          # swww (wallpapers)
+          # uwsm module (idk)
+          # waybar
+          # dolphin (file manager)
         };
       };
       wm.apps.rofi.enable = true;
