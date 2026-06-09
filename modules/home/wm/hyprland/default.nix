@@ -18,6 +18,12 @@ in {
       description = "xdg portal package addon to use";
     };
 
+    font-packages = mkOption {
+      type = with types; listOf package;
+      default = [ pkgs.nerd-fonts.symbols-only ];
+      description = "font packages to use";
+    };
+
     binds = {
       modkey = mkOption {
         type = types.str;
@@ -328,5 +334,8 @@ in {
         };
       } cfg.binds.extra-binds ];
     };
+
+    fonts.fontconfig.enable = true; # to load fonts
+    home.packages = cfg.font-packages;
   };
 }

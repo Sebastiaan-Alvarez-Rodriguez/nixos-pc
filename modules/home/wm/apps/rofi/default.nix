@@ -11,17 +11,19 @@ in {
         plugins = with pkgs; [ rofi-emoji rofi-calc ];
       };
       extraConfig = {
-        modi = "drun,run,window,emoji,calc";
+        modi = "drun,filebrowser,run,window,emoji,calc";
         separator-style = "dash";
         color-enabled = true;
         show-icons = true;
         display-drun = "󰣇";
-        display-run = "";
         display-filebrowser = " ";
+        display-run = "";
         display-window = " ";
+        display-emoji = "󰚜";
+        display-calc = "";
         drun-display-format = "{name}";
         window-format = "{w}{t}";
-        # sidebar-mode = true;
+        sidebar-mode = true;
       };
 
       theme = let
@@ -45,51 +47,65 @@ in {
         window = {
           enabled = true;
           width = mkLiteral "63em";
-          height = mkLiteral "33em";
-
-          transparency = "real";
-          fullscreen = false;
-          cursor = "default";
-          spacing = mkLiteral "0em";
-          padding = mkLiteral "0em";
-
-          # remove: border = 2;
-          # remove: border-radius = 16;
+          border = 2;
+          border-radius = 16;
 
           border-color = lib.mkDefault (mkLiteral "@main-br");
           background-color = lib.mkDefault (mkLiteral "@main-bg");
+
+          cursor = "default";
         };
 
-        # mainbox = {
-        #   enabled = true;
-        #   spacing = mkLiteral "0em";
-        #   padding = mkLiteral "0em";
-        #   orientation = mkLiteral "horizontal";
-        #   # children = builtins.map mkLiteral [ "dummywall" "listbox" ]; 
-        # };
-
-        dummywall = {
-          spacing = mkLiteral "0em";
-          padding = mkLiteral "0em";
-          width = mkLiteral "37em"; # AI reduced to 24em for some reason
-          expand = false;
-          background-color = mkLiteral "transparent";
-          # background image here? (~/.cache/hyde/wall.thmb): https://github.com/HyDE-Project/HyDE/blob/a51460a7b1a822ee7194318b60a38850f711b923/Configs/.local/share/hyde/rofi/themes/style_1.rasi#L58
+        mainbox = {
+          enabled = true;
+          padding = mkLiteral "2em 1em 1em";
         };
 
         mode-switcher = {
           enabled = true;
-          orientation = mkLiteral "vertical";
-          width = mkLiteral "3.8em";
-          padding = mkLiteral "9.2em 0.5em 9.2em 0.5em";
+          orientation = mkLiteral "horizontal";
+          # width = mkLiteral "3.8em";
+
+          padding = mkLiteral "1em";
+          margin = mkLiteral "1.5em 0 0 0";
           spacing = mkLiteral "1.2em";
 
           background-color = mkLiteral "transparent";
+          border = 2;
+          border-radius = 16;
           # background image here? (~/.cache/hyde/wall.blur)
         };
 
+        inputbar = {
+          enabled = true; # setting this to false hides the input bar (keypresses are still processed)
+          border = 2;
+          border-radius = 16;
+          padding = mkLiteral "1em 2em";
+          spacing = 8;
+          children = builtins.map mkLiteral [ "prompt" "entry" ]; # added "prompt" after 1
+          background-color = mkLiteral "@main-bg";
+        };
+
+        prompt = {
+          text-color = lib.mkDefault (mkLiteral "@main-fg");
+        };
+
+        entry = {
+          enabled = true;
+          placeholder = "Search...";
+          text-color = lib.mkDefault (mkLiteral "@normal-text");
+          cursor = mkLiteral "text";
+        };
+
+        message = {
+          margin = mkLiteral "12px 0 0";
+          border-radius = 16;
+          border-color = lib.mkDefault (mkLiteral "@main-br");
+          background-color = mkLiteral "@main-bg";
+        };
+
         button = {
-          border-radius = mkLiteral "2em";
+          border-radius = 16;
           background-color = lib.mkDefault (mkLiteral "@main-bg");
           text-color = lib.mkDefault (mkLiteral "@main-fg");
           cursor = mkLiteral "pointer";
@@ -100,30 +116,10 @@ in {
           text-color = lib.mkDefault (mkLiteral "@main-bg");
         };
 
-        inputbar = {
-          enabled = true; # setting this to false hides the input bar (keypresses are still processed)
-          children = builtins.map mkLiteral [ "prompt" "entry" ]; # added "prompt" after 1
-          background-color = mkLiteral "transparent";
+        textbox = {
+          padding = mkLiteral "8px 24px";
         };
 
-        entry = {
-          enabled = true; # changed to true after 1
-          expand = true; # added after 1
-          placeholder = mkLiteral "\"Search...\""; # added after 1
-          text-color = lib.mkDefault (mkLiteral "@normal-text");
-          cursor = mkLiteral "text";
-        };
-
-        listbox = {
-          spacing = mkLiteral "0em";
-          padding = mkLiteral "2em";
-          children = builtins.map mkLiteral [ "dummy" "listview" "dummy" ];
-          background-color = mkLiteral "transparent";
-        };
-
-        sidebar = {
-          width = "24em";
-        };
         listview = {
           enabled = true;
           spacing = mkLiteral "0em";
@@ -137,6 +133,7 @@ in {
 
           layout = mkLiteral "vertical";
 
+          margin = mkLiteral "12 0 0";
           reverse = false;
           expand = false;
           fixed-height = true;
@@ -147,10 +144,6 @@ in {
           text-color = lib.mkDefault (mkLiteral "@main-fg");
         };
 
-        dummy = {
-          background-color = "transparent";
-        };
-
         element = {
           enabled = true;
           spacing = mkLiteral "0.8em";
@@ -158,11 +151,15 @@ in {
           cursor = mkLiteral "pointer";
           background-color = mkLiteral "transparent";
           text-color = lib.mkDefault (mkLiteral "@main-fg");
+          border-radius = 16;
         };
-
         "element selected.normal" = {
           background-color = lib.mkDefault (mkLiteral "@select-bg");
           text-color = lib.mkDefault (mkLiteral "@select-fg");
+        };
+
+        dummy = {
+          background-color = "transparent";
         };
 
         element-icon = {
