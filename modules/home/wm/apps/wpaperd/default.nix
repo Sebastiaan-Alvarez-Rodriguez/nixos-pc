@@ -1,33 +1,24 @@
 { config, lib, pkgs, ... }: let
   cfg = config.my.home.wm.apps.wpaperd;
-  pkg = pkgs.wpaperd;
 in {
   options.my.home.wm.apps.wpaperd = with lib; {
     image = lib.mkOption {
-      type = with types; submodule {
-        options = with types; {
-          path = mkOption {
-            type = nullOr (path);
-            default = null;
-            description = "image file to use as lockscreen background";
-          };
-          url = mkOption {
-            type = nullOr (str);
-            default = null;
-            description = "url to fetch image from, to be used as lockscreen background";
-          };
-          sha256 = mkOption {
-            type = nullOr (str);
-            default = null;
-            description = "url image hash";
-          };
-        };
-      };
+      type = with types; either path (listOf path);
+      default = [];
+      description = "image file(s) to use as lockscreen background. Can also point to a directory, in which case all files in the directory are used.";
     };
-    systemdTarget = mkOption {
-      type = with types; str;
-      default = "graphical-session.target";
-      description = "The systemd target that will automatically start the wpaperd service.";
+
+    duration = lib.mkOption {
+      type = with types; nullOr str;
+      default = null;
+      description = "If set, amount of time to keep a background before switching to the next one (if multiple images specified)";
+      example = "10m";
+    };
+
+    extra-config = mkOption {
+      type = types.attrs;
+      default = {};
+      description = "Extra settings to add to wpaperd settings";
     };
   };
   config = lib.mkIf cfg.enable { # seb: NOTE https://github.com/anufrievroman/waypaper would also be nice.
@@ -38,26 +29,20 @@ in {
       }
     ];
     
-    services.wpaperd = { # seb: TODO https://stackoverflow.com/questions/21830670
+    services.wpaperd = {
       enable = true;
-      package = pkg;
-      settings.default = {
-        path = if cfg.image.path != null then cfg.image.path else (builtins.fetchurl { inherit (cfg.image) url sha256; });
-        apply-shadow = true;
-      };
-    };
-
-    systemd.user.services.wpaperd = {
-      Unit = {
-        PartOf = [ "graphical-session.target" ];
-        After = [ "graphical-session.target" ];
-      };
-      Service = {
-        Type = "simple";
-        ExecStart = "${pkg}/bin/wpaperd";
-        Restart = lib.mkForce "on-failure";
-      };
-      Install.WantedBy = [ cfg.systemdTarget ];
+      settings.default = let
+        create_entry = item: {
+          name = builtins.baseNameOf (toString item);
+          path = item;
+        };
+        build_dir = images: pkgs.linkFarm "wallpapers" (builtins.map create_entry images);
+      in {
+        path = (lib.mkDefault (builtins.toString (if builtins.isList cfg.image then build_dir cfg.image else cfg.image)));
+        duration = lib.mkIf (cfg.duration != null) cfg.duration;
+        sorting = "random";
+        mode = "center";
+      } // cfg.extra-config;
     };
   };
 }

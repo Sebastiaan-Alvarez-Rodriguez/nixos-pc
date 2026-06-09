@@ -86,6 +86,10 @@
       stylix = {
         enable = true;
         auto-enable = true;
+        image = builtins.fetchurl {
+          url = "https://w.wallhaven.cc/full/e7/wallhaven-e76pew.png";
+          sha256 = "sha256:0qdmqxpjpynnqamdagxcpnagb34h5hldhw4iv9pjj4iwl3h3cqf7";
+        };
       };
       terminal.program = "kitty";
       gm.wayland.enable = true; # prepare for a wayland environment
@@ -120,7 +124,10 @@
           # dolphin (file manager)
         };
       };
+      wm.apps.hyprlock.enable = true;
+      wm.apps.hypridle.enable = true;
       wm.apps.rofi.enable = true;
+      wm.apps.wpaperd.enable = true;
     };
   };
 
@@ -136,6 +143,7 @@
     };
   };
 
+  security.pam.services.hyprlock = {}; # needed so nixOS knows how to verify hyprlock login attempts
   environment.systemPackages = [ pkgs.android-tools ]; # for adb
   programs.fish.enable = true;
   programs.dconf.enable = true; # required by home-manager apparently

@@ -5,6 +5,8 @@ in {
     ./dunst
     ./flameshot
     ./grim
+    ./hypridle
+    ./hyprlock
     ./i3bar
     ./kanshi
     ./mako

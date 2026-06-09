@@ -31,6 +31,12 @@ in {
         description = "Modkey to use for issuing commands to hyprland";
       };
 
+      lock = mkOption {
+        type = types.str;
+        default = "loginctl lock-session"; # loginctl is standard. Sends lock command over D-Bus. Advice: use hypr-idle to listen on D-Bus.
+        description = "lock command";
+      };
+
       repeat-rate = mkOption {
         type = types.int;
         default = 50;
@@ -318,10 +324,13 @@ in {
             "$mainMod Alt, P, $d print all monitors, exec, hyde-shell screenshot p"
             "$mainMod SHIFT, period, $d color picker, exec, hyprpicker -an"
           ];
+          "Login control".bindd = [
+            "$mainMod, X, $d lock session, exec, ${cfg.binds.lock}"
+          ];
         };
         "Theming and Wallpaper" = {
           "Main".bindd = [
-            "$mainMod Control, A, $d select global wallpaper , exec, hyde-shell wallpaper -SG"
+            # "$mainMod Control, A, $d select global wallpaper , exec, hyde-shell wallpaper -SG"
             # "$mainMod Control, S, $d next global wallpaper , exec, hyde-shell wallpaper -Gn"
             # "$mainMod Control SHIFT, S, $d previous global wallpaper , exec, hyde-shell wallpaper -Gp"
             # "$mainMod Control, S, $d next waybar layout, exec, hyde-shell wbarconfgen n"
@@ -329,7 +338,6 @@ in {
             # "$mainMod Control, D, $d wallbash mode selector , exec, pkill -x rofi || hyde-shell wallbashtoggle -m"
             # "$mainMod Control, F, $d select a theme, exec, pkill -x rofi || hyde-shell themeselect"
             # "$mainMod Control, G, $d select animations, exec, pkill -x rofi || hyde-shell animations --select"
-            # "$mainMod Control, X, $d select hyprlock layout, exec, pkill -x rofi || hyde-shell hyprlock --select"
           ];
         };
       } cfg.binds.extra-binds ];
