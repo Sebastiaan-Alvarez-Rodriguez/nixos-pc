@@ -52,6 +52,7 @@
         user = "rdn";
         command = "start-hyprland";
       };
+      quiet-boot-logs = true;
     };
     # logiops = {
     #   enable = true;
@@ -103,6 +104,26 @@
         };
         wayle = {
           enable = true;
+          extra-config = {
+            bar = {
+              scale = 0.800000011920929;
+              background-opacity = 0;
+              button-variant = "basic";
+              dropdown-opacity = 100;
+              layout = {
+                monitor = "*";
+                show = true;
+                left = [ "dashboard" "media" "separator" "window-title" "hyprland-workspaces" ];
+                center = [ "clock" "weather" ];
+                right = [ "cpu" "ram" "network" "microphone" "volume" "systray" "notifications" ];
+              };
+            };
+            modules.clock.format = "%a %b %d %H:%M";
+            modules.weather = {
+              location = "'s-Hertogenbosch";
+              time-format = "24h";
+            };
+          };
           # hydenix used to have:
           # System-wide:
           # wl-clipboard and wl-clip-persist
@@ -124,6 +145,12 @@
           # dolphin (file manager)
         };
       };
+      wm.apps.cursor = {
+        enable = true;
+        name = "Breeze_Obsidian";
+        package = inputs.self.packages.${system}.breeze-obsidian-cursor; 
+        hyprcursor = true;
+      }; 
       wm.apps.hyprlock.enable = true;
       wm.apps.hypridle.enable = true;
       wm.apps.rofi.enable = true;

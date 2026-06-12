@@ -1,7 +1,5 @@
-# An implementation of Hyprland theme 'wayle'
-#
-# user configuration for wayle
-# Start this environment using command: `Hyprland`
+# A Hyprland shell/bar 'wayle'.
+# Provides a shell containing a bar with power menu, notification handler, and wifi/bluetooth handling etc.
 { config, inputs, lib, pkgs, ... }: let
   cfg = config.my.home.wm.hyprland.wayle;
 in {
@@ -11,21 +9,42 @@ in {
     extra-config = mkOption {
       type = types.attrs;
       default = {};
-      description = "Extra lines to append to config of wayle";
+      description = ''
+        Extra lines to append to config of wayle.
+        Note: Using the wayle settings menu, it is possible to change config at runtime.
+        Default runtime config location: ~/.config/wayle/runtime.toml
+        Default base config location: ~/.config/wayle/config.toml
+      '';
     };
   };
 
   config = lib.mkIf cfg.enable {
-    services.wayle = { # provides a shell containing a bar, power menu
+    services.wayle = { # 
       enable = true;
       autoInstallDependencies = true;
-      settings =  cfg.extra-config;
+      settings = {
+        styling = {
+          theme-provider = "wayle";
+          palette = lib.mkIf config.my.home.stylix.enable { # stylix style integration
+            bg = config.lib.stylix.colors.withHashtag.base00;
+            surface = config.lib.stylix.colors.withHashtag.base01;
+            elevated = config.lib.stylix.colors.withHashtag.base02;
+            fg = config.lib.stylix.colors.withHashtag.base05;
+            fg-muted = config.lib.stylix.colors.withHashtag.base04;
+            primary = config.lib.stylix.colors.withHashtag.base0D; # Blue / Accent
+            red = config.lib.stylix.colors.withHashtag.base08;
+            yellow = config.lib.stylix.colors.withHashtag.base0A;
+            green = config.lib.stylix.colors.withHashtag.base0B;
+            blue = config.lib.stylix.colors.withHashtag.base0D;
+          };
+        };
+      } // cfg.extra-config;
     };
 
     my.home.wm.hyprland.binds.extra-binds = {
       "Launcher"."Wayle".bindd = [
-        "$mainMod, Z, $d open wayle panel, exec, wayle panel restart"
-        "$mainMod SHIFT, Z, $d open wayle settings, exec, wayle panel settings"
+        "$mainMod SHIFT, Z, $d restart wayle panel, exec, wayle panel restart"
+        "$mainMod, Z, $d open wayle settings, exec, wayle panel settings"
       ];
     };
   };

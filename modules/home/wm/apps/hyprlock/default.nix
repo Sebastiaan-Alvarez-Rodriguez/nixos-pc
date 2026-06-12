@@ -37,11 +37,12 @@ in {
 
         animations.enabled = true;
 
-        background = lib.mkDefault [{
+        background = {
           monitor = "";
-          path = lib.mkIf (cfg.image != null) cfg.image;
+          path = lib.mkDefault (lib.mkIf (cfg.image != null) cfg.image);
           blur_passes = 2;
-        }];
+          blur_size = 7;
+        };
 
         input-field = {
             monitor = "";

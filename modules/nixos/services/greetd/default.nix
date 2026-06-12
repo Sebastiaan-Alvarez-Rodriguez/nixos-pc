@@ -25,7 +25,6 @@ in {
         }
       '';
       description = "Default session to start";
-      
     };
     greeting = mkOption {
       type = with types; str;
@@ -33,6 +32,7 @@ in {
       description = "One-line greeting shown at login screen";
     };
     wait-for-graphical = mkEnableOption "If set, makes greetd wait for graphical-session.target. Nice, because console greeters do not get shifted by systemd messages. WARNING: do not use on headless systems, as they have no graphical-session.target.";
+    quiet-boot-logs = mkEnableOption "Redirect boot logs to another TTY, such that greetd is not disturbed by these loggings.";
   };
 
   config = lib.mkIf cfg.enable {
@@ -69,5 +69,7 @@ in {
         ++ lib.optionals (!config.services.greetd.greeterManagesPlymouth) [ "plymouth-quit-wait.service" ];
       Conflicts = [ "getty@${tty}.service" ];
     });
+    boot.kernelParams = lib.mkIf cfg.quiet-boot-logs [ "quiet" "udev.log_level=3" ];
+    # also possible: boot.initrd.verbose = false;
   };
 }

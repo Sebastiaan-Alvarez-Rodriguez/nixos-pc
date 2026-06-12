@@ -2,6 +2,7 @@
   cfg = config.my.home.wm.apps;
 in {
   imports = [
+    ./cursor
     ./dunst
     ./flameshot
     ./grim
