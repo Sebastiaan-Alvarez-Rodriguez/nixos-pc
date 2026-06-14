@@ -21,13 +21,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # hyprland and themes
+    # hyprland
     hyprland.url = "github:hyprwm/Hyprland";
-    end4-illogical = { # an end4 hyprland theme
-      url = "github:soymou/illogical-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nur.follows = "nur";
-    };
 
     nixpkgs.url = "nixpkgs/nixos-26.05";
     nixpkgs-24_05.url = "nixpkgs/nixos-24.05";

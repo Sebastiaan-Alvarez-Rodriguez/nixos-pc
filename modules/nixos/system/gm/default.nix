@@ -1,5 +1,0 @@
-{ ... }: {
-  imports = [
-    ./hyprland-end4
-  ];
-}

@@ -207,49 +207,6 @@
         "type": "github"
       }
     },
-    "dotfiles": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1778966846,
-        "narHash": "sha256-N7HUWD3dliyPDXA5qXhuma5segnnopgPo2nv5iFaeXc=",
-        "ref": "refs/heads/main",
-        "rev": "c0706258b1ff22c70f6c0e51c4b812e63703f620",
-        "revCount": 6244,
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/end-4/dots-hyprland"
-      },
-      "original": {
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/end-4/dots-hyprland"
-      }
-    },
-    "end4-illogical": {
-      "inputs": {
-        "dotfiles": "dotfiles",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "nur": [
-          "nur"
-        ],
-        "quickshell": "quickshell"
-      },
-      "locked": {
-        "lastModified": 1779068758,
-        "narHash": "sha256-7osZ24TmUVDWZDxQ8Bi/P6GYiqTWw5azNWaVd+GfohY=",
-        "owner": "soymou",
-        "repo": "illogical-flake",
-        "rev": "8629ef302b956cf6ab0089338a867dbe844156fd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "soymou",
-        "repo": "illogical-flake",
-        "type": "github"
-      }
-    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -1068,32 +1025,10 @@
         "type": "github"
       }
     },
-    "quickshell": {
-      "inputs": {
-        "nixpkgs": [
-          "end4-illogical",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1778488696,
-        "narHash": "sha256-QSWgYuZUCNUJ/cxmaq83WkcT7lHQDDfsPVgH+96kIl0=",
-        "ref": "refs/heads/master",
-        "rev": "7d1c9a9c6721606b129829134d6f614f015621e2",
-        "revCount": 818,
-        "type": "git",
-        "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
-      }
-    },
     "root": {
       "inputs": {
         "agenix": "agenix",
         "agenix-rekey": "agenix-rekey",
-        "end4-illogical": "end4-illogical",
         "flake-parts": "flake-parts_2",
         "home-manager": "home-manager_2",
         "hyprland": "hyprland",

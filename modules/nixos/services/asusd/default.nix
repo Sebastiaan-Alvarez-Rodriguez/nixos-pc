@@ -195,8 +195,6 @@ in {
         )
       '';
 
-      enableUserService = false;
-
       fanCurvesConfig.text = let
         mkcurvestr = points: ''(${builtins.concatStringsSep ", " (builtins.map builtins.toString points)})'';
         mkfansettings = target: opts: ''

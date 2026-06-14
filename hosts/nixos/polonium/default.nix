@@ -1,4 +1,4 @@
-{ config, lib, inputs, pkgs, ... }: {
+{ config, inputs, system, lib, pkgs, ... }: {
   imports = [
     inputs.home-manager.nixosModules.default
     ./hardware.nix
@@ -36,7 +36,6 @@
       allowUnfree = true;
       default-pkgs = with pkgs; [ curl micro vim wget ];
     };
-    hyprland-end4.enable = true;
   };
 
   my.programs = {
@@ -70,7 +69,7 @@
       greeting = "<=================>";
       default_session = {
         user = "rdn";
-        command = "Hyprland";
+        command = "start-hyprland";
       };
     };
   };
@@ -84,8 +83,8 @@
       bat.enable = true; # like cat, but with syntax highlighting & more
       browser.program = "librewolf";
       editor = {
-        program = "helix";
-        extras = [ "vim" ];
+        helix = true;
+        editor-name = "hx";
       };
       gpg = {
         enable = false; # seb: TODO figure out how to not be annoyed
@@ -101,15 +100,79 @@
 
       # mpv.enable = true; # Minimal video player
       ssh.enable = true;
+
       # spotify.enable = true;
+      stylix = {
+        enable = true;
+        auto-enable = true;
+        image = builtins.fetchurl {
+          url = "https://w.wallhaven.cc/full/e7/wallhaven-e76pew.png";
+          sha256 = "sha256:0qdmqxpjpynnqamdagxcpnagb34h5hldhw4iv9pjj4iwl3h3cqf7";
+        };
+      };
       terminal.program = "kitty";
       gm.wayland.enable = true; # prepare for a wayland environment
-      wm.hyprland.end4-illogical = {
+      wm.hyprland = {
         enable = true;
-        binds.browser.normal = config.my.home.browser.program;
-        binds.browser.private = "${config.my.home.browser.program} --private-window";
-        binds.terminal = config.my.home.terminal.program;
+        binds = {
+          browser.normal = config.my.home.browser.program;
+          browser.private = "${config.my.home.browser.program} --private-window";
+          editor = lib.getExe (pkgs.helix);
+          terminal = config.my.home.terminal.program;
+        };
+        wayle = {
+          enable = true;
+          extra-config = {
+            bar = {
+              scale = 0.800000011920929;
+              background-opacity = 0;
+              button-variant = "basic";
+              dropdown-opacity = 100;
+              layout = {
+                monitor = "*";
+                show = true;
+                left = [ "dashboard" "media" "separator" "window-title" "hyprland-workspaces" ];
+                center = [ "clock" "weather" ];
+                right = [ "cpu" "ram" "network" "microphone" "volume" "systray" "notifications" ];
+              };
+            };
+            modules.clock.format = "%a %b %d %H:%M";
+            modules.weather = {
+              location = "'s-Hertogenbosch";
+              time-format = "24h";
+            };
+          };
+          # hydenix used to have:
+          # System-wide:
+          # wl-clipboard and wl-clip-persist
+          # hyprland withUWSM = true; (idk)
+          # hypridle (idk)
+          # sddm (graphical login) (alternatives LightDM and GDM): https://github.com/richen604/hydenix/blob/main/hydenix/modules/system/sddm.nix
+          #
+          # home-wide:
+          # hyprlock (with styles, ~/.config/hypr/hyprlock/)
+          # wlogout (with styles, styles still in ~/.config/wlogout)
+          # dunst (notifications)
+          # rofi (application launcher, with styles in ~/.config/rofi)
+          #   and themes in ~/.local/share/hyde/rofi/themes
+          #   and assets in ~/.local/share/hyde/rofi/assets
+          #   CHECK the docs here: https://deepwiki.com/HyDE-Project/HyDE/8.3-menu-and-picker-systems
+          # swww (wallpapers)
+          # uwsm module (idk)
+          # waybar
+          # dolphin (file manager)
+        };
       };
+      wm.apps.cursor = {
+        enable = true;
+        name = "Breeze_Obsidian";
+        package = inputs.self.packages.${system}.breeze-obsidian-cursor; 
+        hyprcursor = true;
+      }; 
+      wm.apps.hyprlock.enable = true;
+      wm.apps.hypridle.enable = true;
+      wm.apps.rofi.enable = true;
+      wm.apps.wpaperd.enable = true;
     };
   };
 
@@ -125,6 +188,8 @@
       shell = pkgs.fish;
     };
   };
+
+  security.pam.services.hyprlock = {}; # needed so nixOS knows how to verify hyprlock login attempts
 
   environment.systemPackages = [ pkgs.android-tools ]; # for adb
   programs.fish.enable = true;
