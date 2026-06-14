@@ -171,6 +171,7 @@
   };
 
   security.pam.services.hyprlock = {}; # needed so nixOS knows how to verify hyprlock login attempts
+
   environment.systemPackages = [ pkgs.android-tools ]; # for adb
   programs.fish.enable = true;
   programs.dconf.enable = true; # required by home-manager apparently

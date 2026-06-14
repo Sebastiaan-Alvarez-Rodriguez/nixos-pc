@@ -33,7 +33,8 @@
     buildPhase = let
       # below 3 lines are a trick to ensure 'colorlog' package is available (needed for checking config)
       ha = pkgs.home-assistant;
-      python-with-colorlog = ha.python.withPackages (ps: [ ps.colorlog ]);
+      # python-with-colorlog = ha.python.withPackages (ps: [ ps.colorlog ]);
+      python-with-colorlog = ha.python3Packages.python.withPackages (ps: [ ps.colorlog ]);
       hass-wrap = pkgs.writeShellScript "hass" ''
         export PYTHONPATH=${python-with-colorlog}/${python-with-colorlog.sitePackages}:$PYTHONPATH
         echo "$@"

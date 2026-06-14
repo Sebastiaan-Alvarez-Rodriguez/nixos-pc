@@ -17,32 +17,26 @@ in {
   };
 
   programs.ssh.settings = {
-      "github.com" = {
-        user = config.programs.git.settings.user.name;
-        identityFile = "/home/${username}/.ssh/github.rsa";
-      };
-      "helium" = {
-        user = "mrs";
-        port = 8188;
-        hostname = "h.mijn.place";
-        identityFile = "/home/${username}/.ssh/agenix";
-      };
-      "orca" = {
-        user = "mrs";
-        hostname = "207.180.214.239";
-        identityFile = "/home/${username}/.ssh/orca.rsa";
-      };
-      "xenon" = {
-        hostname = "164.68.108.153";
-        user = "mrs";
-        port = 8188;
-        identityFile = "/home/${username}/.ssh/agenix";
-      };
-      "*" = {
-        identitiesOnly = true;
-        forwardAgent = true;
-        addKeysToAgent = "yes";
-      };
+    "github.com" = {
+      user = config.programs.git.settings.user.name;
+      identityFile = "/home/${username}/.ssh/github.rsa";
+    };
+    "helium" = {
+      user = "mrs";
+      port = 8188;
+      hostname = "h.mijn.place";
+      identityFile = "/home/${username}/.ssh/agenix";
+    };
+    "xenon" = {
+      hostname = "164.68.108.153";
+      user = "mrs";
+      port = 8188;
+      identityFile = "/home/${username}/.ssh/agenix";
+    };
+    "*" = {
+      identitiesOnly = true;
+      forwardAgent = true;
+      addKeysToAgent = "yes";
     };
   };
 }
