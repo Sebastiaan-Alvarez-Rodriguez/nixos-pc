@@ -49,7 +49,7 @@ in {
         "helium/tandoor-recipes/secret.age" = {};
         "helium/vaultwarden/mail.age" = { owner = "vaultwarden"; };
         "helium/vikunja/mail.age" = { owner = "vikunja"; };
-
+        "helium/zigbee2mqtt/auth-token.yaml.age" = { owner = "zigbee2mqtt"; };
         "xenon/backup-client/helium-client-xenon.age" = {};
         "xenon/backup-client/repo-xenon.age" = {};
         "xenon/mail/mail.age" = {};

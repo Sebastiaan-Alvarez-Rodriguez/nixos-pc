@@ -31,8 +31,8 @@
       my.home = {
         bat.enable = true;
         editor = {
-          program = "helix";
-          extras = [ "vim" ];
+          helix = true;
+          editor-name = "hx";
         };
         nix = {
           enable = true;

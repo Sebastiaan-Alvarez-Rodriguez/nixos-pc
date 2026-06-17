@@ -12,6 +12,11 @@ in {
       description = "Internal port for web-ui";
     };
 
+    auth-token = mkOption {
+      type = types.str;
+      description = "path to file containing secret auth token (plaintext) with content: `auth_token: <password here, no spaces allowed>`";
+    };
+
     data-dir = mkOption {
       type = types.path;
       description = "Path for zigbee2mqtt data";
@@ -70,6 +75,7 @@ in {
           port = cfg.port;
           host = "127.0.0.1";
           url = "https://${prefix}.${config.networking.domain}";
+          auth_token = "!${cfg.auth-token} auth_token";
         } // lib.optionalAttrs cfg.tuya-zigbee.enable {
           ota.zigbee_ota_override_index_location = "${cfg.tuya-zigbee.z2m-url}/ota/index_${cfg.tuya-zigbee.ota-index}.json";
         };
@@ -82,7 +88,7 @@ in {
     ];
     
     # below is needed to fix zigbee2mqtt immediately starting up after network.target, and discovering that the antenna is still not reachable, and then instantly failing.
-    systemd.services.zigbee2mqtt.serviceConfig.ExecStartPre = "${pkgs.coreutils}/bin/sleep 10";
+    # systemd.services.zigbee2mqtt.serviceConfig.ExecStartPre = "${pkgs.coreutils}/bin/sleep 10";
     systemd.services.zigbee2mqtt.serviceConfig.RestartSec = 5;
     systemd.services.zigbee2mqtt.serviceConfig.StartLimitBurst = 5;
     systemd.services.zigbee2mqtt.serviceConfig.StartLimitIntervalSec = 35;

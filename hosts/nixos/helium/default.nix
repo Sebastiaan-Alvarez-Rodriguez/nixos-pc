@@ -47,7 +47,7 @@
       ];
     };
     packages = {
-      # enable = true;
+      enable = true;
       allowUnfree = true;
     };
   };
@@ -172,6 +172,7 @@
         advanced.channel = 15; # this mixes well with 2.4gHz wifi channel 1 to have no/little interference
         # DO NOT USE channel 26. Everyone thinks that is a great channel. It is not - almost none of my devices support that channel.
       };
+      auth-token = config.age.secrets."helium/zigbee2mqtt/auth-token.yaml".path;
       backup-routes = [ "xenon" ];
     };
     jellyfin.enable = false;

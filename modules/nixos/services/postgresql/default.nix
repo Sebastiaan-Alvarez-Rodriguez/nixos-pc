@@ -39,60 +39,33 @@ in {
           };
 
           ensureClauses = mkOption {
-            description = "see options in https://github.com/NixOS/nixpkgs/blob/nixos-25.05/nixos/modules/services/databases/postgresql.nix";
+            description = ''
+              An attrset of clauses to grant to the user. Under the hood this uses the
+              [ALTER USER syntax](https://www.postgresql.org/docs/current/sql-alteruser.html) for each attrName where
+              the attrValue is true in the attrSet:
+              `ALTER USER user.name WITH attrName`
+            '';
             example = literalExpression ''
               {
                 superuser = true;
                 createrole = true;
                 createdb = true;
+                connection_limit = 5;
+
+                # SCRAM-SHA-256 hashed password for "password"
+                # Generate hashes using PostgreSQL or a dedicated script rather than storing passwords in plain text.
+                password = "SCRAM-SHA-256$4096:SZEJF5Si4QZ6l4fedrZZWQ==$6u3PWVcz+dts+NdpByPIjKa4CaSnoXGG3M2vpo76bVU=:WSZ0iGUCmVtKYVvNX0pFOp/60IgsdJ+90Y67Eun+QE0=";
               }
             '';
-            default = {};
-            defaultText = lib.literalMD ''
-              The default, `null`, means that the user created will have the default permissions assigned by PostgreSQL. Subsequent server starts will not set or unset the clause, so imperative changes are preserved.
-            '';
+            default = { };
             type = types.submodule {
-              options = let
-                defaultText = lib.literalMD ''
-                  `null`: do not set. For newly created roles, use PostgreSQL's default. For existing roles, do not touch this clause.
-                '';
-              in {
-                superuser = mkOption {
-                  type = types.nullOr types.bool;
-                  default = null;
-                  inherit defaultText;
-                };
-                createrole = mkOption {
-                  type = types.nullOr types.bool;
-                  default = null;
-                  inherit defaultText;
-                };
-                createdb = mkOption {
-                  type = types.nullOr types.bool;
-                  default = null;
-                  inherit defaultText;
-                };
-                "inherit" = mkOption {
-                  type = types.nullOr types.bool;
-                  default = null;
-                  inherit defaultText;
-                };
-                login = mkOption {
-                  type = types.nullOr types.bool;
-                  default = null;
-                  inherit defaultText;
-                };
-                replication = mkOption {
-                  type = types.nullOr types.bool;
-                  default = null;
-                  inherit defaultText;
-                };
-                bypassrls = mkOption {
-                  type = types.nullOr types.bool;
-                  default = null;
-                  inherit defaultText;
-                };
-              };
+              freeformType = types.attrsOf (
+                types.oneOf [
+                  types.str
+                  types.int
+                  types.bool
+                ]
+              );
             };
           };
         };
