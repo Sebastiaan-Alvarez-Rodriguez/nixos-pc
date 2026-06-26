@@ -88,32 +88,6 @@ in {
     # - index database (found in `<backup-path`/sqlite`)
     # src: https://docs.photoprism.app/user-guide/backups/restore/
 
-    # services.photoprism = {
-    #   enable = true;
-    #   address = "localhost";
-
-    #   originalsPath = cfg.originals-path;
-    #   storagePath = cfg.storage-path;
-    #   importPath = cfg.import-path;
-
-    #   settings = {
-    #     PHOTOPRISM_ORIGINALS_PATH = cfg.originals-path;
-    #     PHOTOPRISM_STORAGE_PATH = cfg.storage-path;
-    #     PHOTOPRISM_IMPORT_PATH = cfg.import-path;
-    #     PHOTOPRISM_BACKUP_PATH = cfg.backup-path;
-    #     PHOTOPRISM_BACKUP_SCHEDULE = "daily";
-    #     PHOTOPRISM_BACKUP_RETAIN = "1"; # we use restic daily, so no point in keeping multiple.
-    #     PHOTOPRISM_BACKUP_DATABASE = "true"; # yes, backup the db.
-    #     PHOTOPRISM_BACKUP_ALBUMS = "true"; # yes, backup the album metadata.
-    #     PHOTOPRISM_ADMIN_PASSWORD = "insecure";
-    #   };
-    #   inherit (cfg) port;
-    #   # package = inputs.nixpkgs-unstable.legacyPackages.${system}.photoprism;
-    # };
-
-    # systemd.services.photoprism.serviceConfig.DynamicUser = lib.mkForce false;
-
-
     systemd.services.photoprism = lib.mkForce {
       wantedBy = [ "multi-user.target" ];
 
@@ -135,7 +109,7 @@ in {
 
     # Set-up directories
     systemd.tmpfiles.rules = [
-      # originals-path should exist
+      "d ${cfg.originals-path} 0777 photoprism photoprism -" # we do this to explicitly have write permissions to the original files (when users wish to upload more pictures)
       "d ${cfg.import-path} 0777 photoprism photoprism -"
       "d ${cfg.storage-path} 0700 photoprism photoprism -"
       "d ${cfg.backup-path} 0700 photoprism photoprism -"
