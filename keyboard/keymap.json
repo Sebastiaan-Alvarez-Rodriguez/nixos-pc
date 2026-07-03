@@ -1,13 +1,13 @@
 {
-  "version": 1,
-  "notes": "",
   "documentation": "\"This file is a QMK Configurator export. You can import this at <https://config.qmk.fm>. It can also be used directly with QMK's source code.\n\nTo setup your QMK environment check out the tutorial: <https://docs.qmk.fm/#/newbs>\n\nYou can convert this file to a keymap.c using this command: `qmk json2c {keymap}`\n\nYou can compile this keymap using this command: `qmk compile {keymap}`\"\n",
+  "notes": "",
+  "version": 1,
   "keyboard": "sofle/rev1",
   "keymap": "sofle_rev1_layout_2025-09-19",
   "layout": "LAYOUT",
   "layers": [
     [
-      "KC_ESC",
+      "QK_GESC",
       "KC_1",
       "KC_2",
       "KC_3",
@@ -50,7 +50,7 @@
       "KC_V",
       "KC_B",
       "KC_MUTE",
-      "KC_NO",
+      "KC_X",
       "KC_N",
       "KC_M",
       "KC_COMM",
@@ -62,8 +62,8 @@
       "TO(1)",
       "KC_LCTL",
       "KC_SPC",
-      "KC_ENT",
-      "KC_RCTL",
+      "SC_SENT",
+      "KC_LALT",
       "TO(2)",
       "KC_END",
       "KC_RGUI"
@@ -193,5 +193,11 @@
       "KC_TRNS"
     ]
   ],
-  "author": ""
+  "author": "",
+  "encoder_map": [
+    [
+      ["KC_MS_WH_L", "KC_MS_WH_R"],
+      ["KC_MS_WH_D", "KC_MS_WH_U"]
+    ]
+  ]
 }
