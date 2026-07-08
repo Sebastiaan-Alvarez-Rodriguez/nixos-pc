@@ -53,6 +53,10 @@ in {
     # };
     # users.groups.joplin = { gid = 64381; };
 
+    systemd.services."podman-joplin" = {
+      after = [ "postgresql.service" ];
+      requires = [ "postgresql.service" ];
+    };
     my.services.postgresql = {
       enable = true;
 
