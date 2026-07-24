@@ -89,7 +89,7 @@ in {
     
     # below is needed to fix zigbee2mqtt immediately starting up after network.target, and discovering that the antenna is still not reachable, and then instantly failing.
     # systemd.services.zigbee2mqtt.serviceConfig.ExecStartPre = "${pkgs.coreutils}/bin/sleep 10";
-    systemd.services.zigbee2mqtt.serviceConfig.RestartSec = 5;
+    systemd.services.zigbee2mqtt.serviceConfig.RestartSec = lib.mkForce 5;
     systemd.services.zigbee2mqtt.serviceConfig.StartLimitBurst = 5;
     systemd.services.zigbee2mqtt.serviceConfig.StartLimitIntervalSec = 35;
 

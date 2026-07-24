@@ -5,12 +5,17 @@ in {
     enable = mkEnableOption "webdav configuration";
 
     data-dir = mkOption {
-      type = with types; str;
+      type = types.str;
       description = "Storage location for our shared folders";
     };
 
+    users = mkOption {
+      type = with types; (listOf str);
+      description = "Users to create a folder for";
+    };
+
     port = mkOption {
-      type = with types; port;
+      type = types.port;
       default = 10159;
       description = "webdav port";
     };
@@ -46,9 +51,9 @@ in {
     };
     # create directories
     systemd.tmpfiles.rules = let
-      mkrule = user: username: "d ${cfg.data-dir}/${username} 0777 webdav webdav -";
-      user-rules = builtins.map (user: mkrule user.name) cfg.users;
-    in [ "d ${cfg.data-dir} 0777 webdav webdav -" ] + user-rules;
+      mkrule = username: "d ${cfg.data-dir}/${username} 0777 webdav webdav -";
+      user-rules = builtins.map mkrule cfg.users;
+    in [ "d ${cfg.data-dir} 0777 webdav webdav -" ] ++ user-rules;
 
     # add to backup
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes {

@@ -367,6 +367,7 @@
     };
     webdav = { # seb TODO: make secure before it becomes important in any way
       enable = false;
+      users = [ "rdn" ];
       data-dir = "/data/storage/webdav";
       backup-routes = [ "xenon" ];
     };
