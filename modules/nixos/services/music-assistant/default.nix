@@ -27,6 +27,21 @@ in {
   options.my.services.music-assistant = with lib; {
     enable = mkEnableOption "music-assistant service";
 
+    package = mkOption {
+      type = types.package;
+      default = (inputs.nixpkgs-unstable.legacyPackages.${system}.music-assistant.overrideAttrs (oldAttrs: {
+        nativeCheckInputs = []; 
+        checkInputs = [];
+        # 2. Re-write the execution phases to do nothing
+        checkPhase = "true";
+        installCheckPhase = "true";
+        # 3. Standard flags
+        doCheck = false;
+        doInstallCheck = false;
+      })); # needed because of: https://github.com/music-assistant/server/pull/4494
+      description = "package to use";
+    };
+
     ports = {
       webui-mass = mkOption {
         type = types.port;
@@ -107,7 +122,7 @@ in {
           enable = true;
           providers = cfg.providers ++ lib.optionals hass-enabled [ "hass" "hass_players" ] ++ lib.optional jellyfin-enabled "jellyfin";
           extraOptions = [ "--log-level" "DEBUG" ];
-          package = pkgs.music-assistant;
+          package = cfg.package;
         };
 
         environment.systemPackages = [ pkgs.nettools pkgs.dig ]; # for debugging
