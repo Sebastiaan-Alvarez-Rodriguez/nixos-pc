@@ -124,17 +124,17 @@
           enable = true;
           extra-config = {
             bar = {
-              scale = 0.800000011920929;
+              scale = 0.7; # https://github.com/wayle-rs/wayle/issues/242
               background-opacity = 0;
               button-variant = "basic";
               dropdown-opacity = 100;
-              layout = {
+              layout = [{
                 monitor = "*";
                 show = true;
                 left = [ "dashboard" "media" "separator" "window-title" "hyprland-workspaces" ];
                 center = [ "clock" "weather" ];
                 right = [ "cpu" "ram" "network" "microphone" "volume" "systray" "notifications" ];
-              };
+              }];
             };
             modules.clock.format = "%a %b %d %H:%M";
             modules.weather = {
@@ -193,6 +193,7 @@
 
   environment.systemPackages = [ pkgs.android-tools ]; # for adb
   programs.fish.enable = true;
+  programs.dconf.enable = true; # required by home-manager apparently
 
   time.timeZone = "Europe/Amsterdam";
   i18n.defaultLocale = "en_US.UTF-8";

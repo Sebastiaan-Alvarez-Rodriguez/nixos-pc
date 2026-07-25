@@ -19,7 +19,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    services.wayle = { # 
+    services.wayle = { 
       enable = true;
       autoInstallDependencies = true;
       settings = {
