@@ -132,7 +132,7 @@
           };
         };
 
-        rejectRecipients = []; # add owned mailadresses (e.g. 'test@me.com') to block all mails sent to them. 
+        rejectRecipients = [ "odido@mijn.place" ]; # add owned mailadresses (e.g. 'test@me.com') to block all mails sent to them. 
         # Useful when you have a catchAll-account AND you provided a company a catchAll address like companyname@me.com AND you want to block the company sending more mails landing in your catchAll.
         rejectSender = []; # add mailaddresses (e.g. 'test@malicious.com', or even '@malicious.com') which may never send mails here.
       };
