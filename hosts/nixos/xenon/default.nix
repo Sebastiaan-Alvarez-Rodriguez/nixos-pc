@@ -50,7 +50,7 @@
       ];
     };
     packages = {
-      # enable = true;
+      enable = true;
       allowUnfree = true;
     };
   };
@@ -93,9 +93,9 @@
       domain-prefix = "mail";
       domains = [ "mijn.place" ];
 
-      certificateScheme = "manual";
-      certificateFile = "/var/lib/acme/mijn.place/fullchain.pem";
-      keyFile = "/var/lib/acme/mijn.place/key.pem";
+      # certificateFile = "/var/lib/acme/mijn.place/fullchain.pem";
+      # keyFile = "/var/lib/acme/mijn.place/key.pem";
+      useACMEHost = "mijn.place";
 
       state-version = 3;
       extraConfig = let sendOnlyRejectMessage = "This account cannot receive emails. Please mail to mail@mijn.place."; in {

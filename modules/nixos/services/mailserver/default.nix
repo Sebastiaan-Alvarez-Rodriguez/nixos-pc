@@ -23,19 +23,10 @@ in {
       default = [ config.networking.domain ];
     };
 
-    certificateScheme = mkOption {
-      type = types.enum [ "manual" ];
-      description = "How to get a certificate for proving mails sent from this domain are legit";
-    };
-    certificateFile = mkOption {
-      type = with types; nullOr (str);
-      default = null;
-      description = "Where certificate chainfile is stored";
-    };
-    keyFile = mkOption {
-      type = with types; nullOr (str);
-      default = null;
-      description = "Where certificate keyfile is stored";
+    useACMEHost = mkOption {
+      type = types.str;
+      example = "my.place";
+      description = "The ACME hostname to use certificates from (see also `https://nixos-mailserver.readthedocs.io/en/nixos-26.05/options.html#cmdoption-arg-mailserver.x509.useACMEHost`)";
     };
 
     extraConfig = mkOption {
@@ -81,9 +72,10 @@ in {
         enableSubmissionSsl = true; # enable port 465 for SMTP with TLS in wrapper-mode
 
         # Requires certificate files to exist! Currently provided by acme service in global config.
-        certificateScheme = cfg.certificateScheme;
-        certificateFile = cfg.certificateFile;
-        keyFile = cfg.keyFile;
+        x509.useACMEHost = cfg.useACMEHost;
+        # certificateScheme = cfg.certificateScheme;
+        # certificateFile = cfg.certificateFile;
+        # keyFile = cfg.keyFile;
         stateVersion = cfg.state-version;
       }
       cfg.extraConfig
@@ -139,7 +131,7 @@ in {
 
     my.services.nginx.acme.extra-domains = lib.mkIf cfg.webserver.enable [ "${cfg.domain-prefix}.${config.networking.domain}" ];
 
-    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ config.mailserver.mailDirectory config.mailserver.dkimKeyDirectory ]; };
+    my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ config.mailserver.storage.path config.mailserver.dkim.keyDirectory ]; };
 
     services.fail2ban.jails."roundcube" = lib.mkIf cfg.webserver.enable {
       enabled = true;
