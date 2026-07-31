@@ -41,11 +41,9 @@ in {
       } // cfg.extra-config;
     };
 
-    my.home.wm.hyprland.binds.extra-binds = {
-      "Launcher"."Wayle".bindd = [
-        "$mainMod SHIFT, Z, $d restart wayle panel, exec, wayle panel restart"
-        "$mainMod, Z, $d open wayle settings, exec, wayle panel settings"
-      ];
-    };
+    my.home.wm.hyprland.binds.extras = [
+      { key = "${config.my.home.wm.hyprland.binds.modkey} + SHIFT + Z"; cat = "Launcher"; sub = "wayle"; desc = "restart wayle panel"; action = "hl.dsp.exec_cmd([[wayle panel restart]])"; }
+      { key = "${config.my.home.wm.hyprland.binds.modkey} + Z"; cat = "Launcher"; sub = "wayle"; desc = "open wayle settings"; action = "hl.dsp.exec_cmd([[wayle panel settings]])"; }
+    ];
   };
 }
