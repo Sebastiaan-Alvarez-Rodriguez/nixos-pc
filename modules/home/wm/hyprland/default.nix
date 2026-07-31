@@ -20,7 +20,7 @@ in {
 
     font-packages = mkOption {
       type = with types; listOf package;
-      default = [ pkgs.nerd-fonts.symbols-only ];
+      default = [ pkgs.nerd-fonts.symbols-only pkgs.nerd-fonts.jetbrains-mono pkgs.noto-fonts ];
       description = "font packages to use";
     };
 
