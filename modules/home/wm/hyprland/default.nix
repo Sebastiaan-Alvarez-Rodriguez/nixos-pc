@@ -245,9 +245,9 @@ in {
         fcsd = dr: ''hl.dsp.focus({ direction="${dr}"})'';
         lyt  = arg: ''hl.dsp.layout("${arg}")'';
         tspl = nme: ''hl.dsp.workspace.toggle_special("${nme}")'';
-        wcyc = nxt: ''hl.dsp.window.cycle_next({ next = ${nxt} })'';
+        wcyc = nxt: ''hl.dsp.window.cycle_next({next=${nxt}})'';
         wflt = act: ''hl.dsp.window.float({ action="${act}"})'';
-        wmvw = ws: ''hl.dsp.window.move({ workspace="${ws}"})'';
+        wmvw = ws: ''hl.dsp.window.move({ workspace="${ws}", follow=false})'';
         wmvd = dr: ''hl.dsp.window.move({ direction="${dr}"})'';
         wpin = act: ''hl.dsp.window.pin({action="${act}"})'';
         wswp = nxt: ''hl.dsp.window.swap({ ${nxt}=true })'';
