@@ -119,6 +119,10 @@
           browser.private = "${config.my.home.browser.program} --private-window";
           editor = lib.getExe (pkgs.helix);
           terminal = config.my.home.terminal.program;
+          brightness.kbd = {
+            up = "${pkgs.brightnessctl} -d asus::kbd_backlight s 5%+";
+            down = "${pkgs.brightnessctl} -d asus::kbd_backlight s 5%-";
+          };
         };
         wayle = {
           enable = true;
@@ -133,7 +137,7 @@
                 show = true;
                 left = [ "dashboard" "media" "separator" "window-title" "hyprland-workspaces" ];
                 center = [ "clock" "weather" ];
-                right = [ "cpu" "ram" "network" "microphone" "volume" "systray" "notifications" ];
+                right = [ "battery" "cpu" "ram" "network" "microphone" "volume" "systray" "notifications" ];
               }];
             };
             modules.clock.format = "%a %b %d %H:%M";
