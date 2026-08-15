@@ -1,4 +1,4 @@
-{ pkgs }: let
+{ pkgs, inputs, ... }: let
   quickPackage = {
     # Function to automatically generate a derivation for a single-file script, scene or automation.
     # This function also tests the validity of the script.
@@ -31,13 +31,36 @@
     dontUnpack = true;
 
     buildPhase = let
-      # below 3 lines are a trick to ensure 'colorlog' package is available (needed for checking config)
+      # below is a trick to ensure 'colorlog' package is available (needed for checking config)
+      # python-with-colorlog = ha.python.withPackages (ps: [ ps.colorlog ]); # does not work anymore
+      # ha = pkgs.home-assistant;
+      # python-with-colorlog = ha.python3Packages.python.withPackages (ps: [ ps.colorlog ]); # did work until today
+      # hass-wrap = pkgs.writeShellScript "hass" ''
+      #   export PYTHONPATH=${python-with-colorlog}/${python-with-colorlog.sitePackages}:$PYTHONPATH
+      #   echo "set pythonpath: $PYTHONPATH"
+      #   echo "ha: ${ha}"
+      #   exec ${ha}/bin/hass "$@"
+      # '';
+      # 
+      # ha = pkgs.home-assistant;
+      # ha-py-pkgs = ha.python.pkgs;
+      # python-with-colorlog = ha.python.withPackages(ps: [ ha-py-pkgs.colorlog]);
+      # hass-wrap = pkgs.writeShellScript "hass" ''
+      #   export PYTHONPATH=${python-with-colorlog}/${python-with-colorlog.sitePackages}:$PYTHONPATH
+      #   echo "set pythonpath: $PYTHONPATH"
+      #   echo "ha: ${ha}"
+      #   exec ${ha}/bin/hass "$@"
+      # '';
+      # 
       ha = pkgs.home-assistant;
-      # python-with-colorlog = ha.python.withPackages (ps: [ ps.colorlog ]);
-      python-with-colorlog = ha.python3Packages.python.withPackages (ps: [ ps.colorlog ]);
+      # pya = pkgs.home-assistant-custom-components.python;
+      pya = (pkgs.python3Packages.callPackage "${inputs.nixpkgs-unstable}/pkgs/servers/home-assistant" { }).python;
+      ha-pinned-pkgs = pya.pkgs;
+      python-with-colorlog = pya.withPackages (ps: [ ha-pinned-pkgs.colorlog ]);
       hass-wrap = pkgs.writeShellScript "hass" ''
         export PYTHONPATH=${python-with-colorlog}/${python-with-colorlog.sitePackages}:$PYTHONPATH
-        echo "$@"
+        echo "set pythonpath: $PYTHONPATH"
+        echo "ha: ${ha}"
         exec ${ha}/bin/hass "$@"
       '';
     in if ignore-warnings then ''
