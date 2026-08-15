@@ -3,7 +3,7 @@
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "ahci" "usb_storage" "usbhid" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelModules = [ "kvm-amd" "asus-nb-wmi" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =

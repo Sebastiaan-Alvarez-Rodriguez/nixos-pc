@@ -171,7 +171,8 @@ in {
       { assertion = (builtins.length too-few-setpoints) == 0; message = "Found fancurves with less than 8 temp-setpoints (this is required for BOTH cpu AND gpu): [${builtins.toString too-few-setpoints}]"; }
     ];
     services.asusd = {
-      inherit (cfg) enable package;
+      inherit (cfg) package;
+      enable = true;
       asusdConfig.text = let
         # function to produce a single config line
         removenulls = attrs: lib.filterAttrs (k: v: v != null) attrs;

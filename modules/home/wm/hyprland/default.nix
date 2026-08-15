@@ -238,6 +238,7 @@ in {
         };
         bind  = key: cat: sub: desc: action: (bind_base key cat sub desc {} action);
         binde = key: cat: sub: desc: action: (bind_base key cat sub desc { locked = true; } action);
+        bindel= key: cat: sub: desc: action: (bind_base key cat sub desc { locked = true; ignore_mods = true; } action);
         bindm = key: cat: sub: desc: action: (bind_base key cat sub desc { mouse = true; } action);
         mod  = cfg.binds.modkey;
         exec = cmd: ''hl.dsp.exec_cmd([[${cmd}]])'';
@@ -265,6 +266,28 @@ in {
             preserve_split = true;
           };
         };
+
+        device = [
+          # see keyboards available with: `hyprctl devices`
+          # To know which kb does what inputs, use `sudo evtest` and check the devices.
+          # TODO: below must look like
+          # hl.device("asus-keyboard-2", {
+          #     tags = "asus-kb-group"
+          # })
+          #
+          # Then for all the binds, do:
+          # hl.bind("SUPER + Q", hl.dsp.exec_cmd("kitty"), { device = "asus-kb-group" })
+
+          "asus-keyboard" = {
+            _args = [ { tags = "main-kb-group"; } ];
+          }
+          "asus-keyboard-1" = {
+            _args = [ { tags = "main-kb-group"; } ];
+          }
+          "asus-keyboard-2" = {
+            _args = [ { tags = "main-kb-group"; } ];
+          }
+        ];
         bind = let
           select-fun = name: if (name == "bind") then bind else if (name == "binde") then binde else bindm;
           process-extras = i: ((select-fun i.type) i.key i.cat i.sub i.desc i.action);
@@ -347,10 +370,10 @@ in {
           (binde "XF86AudioPrev" "Hardware Controls" "Media" "previous media" (exec cfg.binds.media.prev))
 
           # brightness
-          (binde "XF86MonBrightnessUp" "Hardware Controls" "Brightness" "monitor brightness up" (exec cfg.binds.brightness.mon.up))
-          (binde "XF86MonBrightnessDown" "Hardware Controls" "Brightness" "monitor brightness down" (exec cfg.binds.brightness.mon.down))
-          (binde "XF86KbdBrightnessUp" "Hardware Controls" "Brightness" "keyboard brightness up" (exec cfg.binds.brightness.kbd.up))
-          (binde "XF86KbdBrightnessDown" "Hardware Controls" "Brightness" "keyboard brightness down" (exec cfg.binds.brightness.kbd.down))
+          (bindel "XF86MonBrightnessUp" "Hardware Controls" "Brightness" "monitor brightness up" (exec cfg.binds.brightness.mon.up))
+          (bindel "XF86MonBrightnessDown" "Hardware Controls" "Brightness" "monitor brightness down" (exec cfg.binds.brightness.mon.down))
+          (bindel "XF86KbdBrightnessUp" "Hardware Controls" "Brightness" "keyboard brightness up" (exec cfg.binds.brightness.kbd.up))
+          (bindel "XF86KbdBrightnessDown" "Hardware Controls" "Brightness" "keyboard brightness down" (exec cfg.binds.brightness.kbd.down))
 
           # Utilities
           # screen capture
