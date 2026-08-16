@@ -103,24 +103,24 @@ in {
         kbd = {
           up = mkOption {
             type = types.str;
-            default = ''${pkgs.brightnessctl} -d "*keyboard*" set 5%+'';
+            default = ''${pkgs.brightnessctl}/bin/brightnessctl -d "*keyboard*" set 5%+'';
             description = "Keyboard brightness up command";
           };
           down = mkOption {
             type = types.str;
-            default = ''${pkgs.brightnessctl} -d "*keyboard*" set 5%-'';
+            default = ''${pkgs.brightnessctl}/bin/brightnessctl -d "*keyboard*" set 5%-'';
             description = "Keyboard brightness down command";
           };
         };
         mon = {
           up = mkOption {
             type = types.str;
-            default = ''${pkgs.brightnessctl} set 5%+'';
+            default = ''${pkgs.brightnessctl}/bin/brightnessctl set 5%+'';
             description = "Monitor brightness up command";
           };
           down = mkOption {
             type = types.str;
-            default = ''${pkgs.brightnessctl} set 5%-'';
+            default = ''${pkgs.brightnessctl}/bin/brightnessctl set 5%-'';
             description = "Monitor brightness down command";
           };
         };
@@ -223,14 +223,6 @@ in {
       portalPackage = cfg.portal-package;
 
       configType = lib.mkForce "lua";
-      # settings = let
-      #     mk-section-name = section-names: "[${builtins.concatStringsSep "|" section-names}]";
-      #     mk-leaf-list = name: lst: builtins.map (s: lib.replaceString "$d" name s) lst; # in a list-leaf, replaces all "$d" with the full section name
-      #     mk-leaf = path: lst: { "${lib.last path}" = mk-leaf-list (mk-section-name (lib.init path)) lst; }; # returns a dict like { bindd = <list-leaf> };
-      #     mk-section-list = d: lib.mapAttrsToListRecursive (path: value: mk-leaf path value) d; # makes a list like [ { bindd = <list-leaf>; } { bindd = <other-leaf>; }]
-      #     mk-keybinds = ds: lib.zipAttrsWith (name: values: lib.flatten values) (builtins.concatMap mk-section-list ds); # takes a list of keybind settings, translates to one long list of dicts and merges everything to one dict.
-      #     # see https://wiki.hypr.land/Configuring/Binds
-      # in {};
       settings = let
         lua = lib.generators.mkLuaInline;
         bind_base = key: cat: sub: desc: extras: action: {
@@ -238,7 +230,6 @@ in {
         };
         bind  = key: cat: sub: desc: action: (bind_base key cat sub desc {} action);
         binde = key: cat: sub: desc: action: (bind_base key cat sub desc { locked = true; } action);
-        bindel= key: cat: sub: desc: action: (bind_base key cat sub desc { locked = true; ignore_mods = true; } action);
         bindm = key: cat: sub: desc: action: (bind_base key cat sub desc { mouse = true; } action);
         mod  = cfg.binds.modkey;
         exec = cmd: ''hl.dsp.exec_cmd([[${cmd}]])'';
@@ -267,31 +258,11 @@ in {
           };
         };
 
-        device = [
-          # see keyboards available with: `hyprctl devices`
-          # To know which kb does what inputs, use `sudo evtest` and check the devices.
-          # TODO: below must look like
-          # hl.device("asus-keyboard-2", {
-          #     tags = "asus-kb-group"
-          # })
-          #
-          # Then for all the binds, do:
-          # hl.bind("SUPER + Q", hl.dsp.exec_cmd("kitty"), { device = "asus-kb-group" })
-
-          "asus-keyboard" = {
-            _args = [ { tags = "main-kb-group"; } ];
-          }
-          "asus-keyboard-1" = {
-            _args = [ { tags = "main-kb-group"; } ];
-          }
-          "asus-keyboard-2" = {
-            _args = [ { tags = "main-kb-group"; } ];
-          }
-        ];
         bind = let
           select-fun = name: if (name == "bind") then bind else if (name == "binde") then binde else bindm;
           process-extras = i: ((select-fun i.type) i.key i.cat i.sub i.desc i.action);
         in [
+          # see https://wiki.hypr.land/Configuring/Binds
           # Windows management
           # main
           (bind "${mod} + F" "Windows Management" "Main" "toggle fullscreen" (fs "fullscreen"))
@@ -370,10 +341,10 @@ in {
           (binde "XF86AudioPrev" "Hardware Controls" "Media" "previous media" (exec cfg.binds.media.prev))
 
           # brightness
-          (bindel "XF86MonBrightnessUp" "Hardware Controls" "Brightness" "monitor brightness up" (exec cfg.binds.brightness.mon.up))
-          (bindel "XF86MonBrightnessDown" "Hardware Controls" "Brightness" "monitor brightness down" (exec cfg.binds.brightness.mon.down))
-          (bindel "XF86KbdBrightnessUp" "Hardware Controls" "Brightness" "keyboard brightness up" (exec cfg.binds.brightness.kbd.up))
-          (bindel "XF86KbdBrightnessDown" "Hardware Controls" "Brightness" "keyboard brightness down" (exec cfg.binds.brightness.kbd.down))
+          (binde "XF86MonBrightnessUp" "Hardware Controls" "Brightness" "monitor brightness up" (exec cfg.binds.brightness.mon.up))
+          (binde "XF86MonBrightnessDown" "Hardware Controls" "Brightness" "monitor brightness down" (exec cfg.binds.brightness.mon.down))
+          (binde "XF86KbdBrightnessUp" "Hardware Controls" "Brightness" "keyboard brightness up" (exec cfg.binds.brightness.kbd.up))
+          (binde "XF86KbdBrightnessDown" "Hardware Controls" "Brightness" "keyboard brightness down" (exec cfg.binds.brightness.kbd.down))
 
           # Utilities
           # screen capture

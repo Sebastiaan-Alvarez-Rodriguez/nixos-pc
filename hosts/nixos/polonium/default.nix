@@ -120,12 +120,13 @@
           editor = lib.getExe (pkgs.helix);
           terminal = config.my.home.terminal.program;
           brightness.kbd = {
-            up = "${pkgs.brightnessctl} -d asus::kbd_backlight s 5%+";
-            down = "${pkgs.brightnessctl} -d asus::kbd_backlight s 5%-";
+            up = "${pkgs.brightnessctl}/bin/brightnessctl -d asus::kbd_backlight s 5%+";
+            down = "${pkgs.brightnessctl}/bin/brightnessctl -d asus::kbd_backlight s 5%-";
           };
         };
         wayle = {
           enable = true;
+          await-pipewire = true;
           extra-config = {
             bar = {
               scale = 0.7; # https://github.com/wayle-rs/wayle/issues/242
