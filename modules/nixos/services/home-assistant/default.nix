@@ -88,8 +88,6 @@ in {
           pychromecast # because it just keeps on complaining otherwise
           zlib-ng  # next-gen zlib support
         ];
-      }).overrideAttrs (oldAttrs: {
-        doInstallCheck = false;
       });
 
       extraComponents = [

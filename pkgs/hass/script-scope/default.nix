@@ -27,42 +27,18 @@
     version = (pkgs.lib.fileContents ./${name}/version); # use instead of builtins.readFile to remove trailing '\n'
     src = ./${name};
 
-
     dontUnpack = true;
 
     buildPhase = let
-      # below is a trick to ensure 'colorlog' package is available (needed for checking config)
-      # python-with-colorlog = ha.python.withPackages (ps: [ ps.colorlog ]); # does not work anymore
-      # ha = pkgs.home-assistant;
-      # python-with-colorlog = ha.python3Packages.python.withPackages (ps: [ ps.colorlog ]); # did work until today
-      # hass-wrap = pkgs.writeShellScript "hass" ''
-      #   export PYTHONPATH=${python-with-colorlog}/${python-with-colorlog.sitePackages}:$PYTHONPATH
-      #   echo "set pythonpath: $PYTHONPATH"
-      #   echo "ha: ${ha}"
-      #   exec ${ha}/bin/hass "$@"
-      # '';
-      # 
-      # ha = pkgs.home-assistant;
-      # ha-py-pkgs = ha.python.pkgs;
-      # python-with-colorlog = ha.python.withPackages(ps: [ ha-py-pkgs.colorlog]);
-      # hass-wrap = pkgs.writeShellScript "hass" ''
-      #   export PYTHONPATH=${python-with-colorlog}/${python-with-colorlog.sitePackages}:$PYTHONPATH
-      #   echo "set pythonpath: $PYTHONPATH"
-      #   echo "ha: ${ha}"
-      #   exec ${ha}/bin/hass "$@"
-      # '';
-      # 
+      # add colorlog because `check_config`
       ha = pkgs.home-assistant;
-      # pya = pkgs.home-assistant-custom-components.python;
-      pya = (pkgs.python3Packages.callPackage "${inputs.nixpkgs-unstable}/pkgs/servers/home-assistant" { }).python;
-      ha-pinned-pkgs = pya.pkgs;
-      python-with-colorlog = pya.withPackages (ps: [ ha-pinned-pkgs.colorlog ]);
+      ha-python = ha.passthru.python3Packages;
+      python-with-colorlog = ha-python.python.withPackages (ps: [ ha-python.colorlog ]);
       hass-wrap = pkgs.writeShellScript "hass" ''
         export PYTHONPATH=${python-with-colorlog}/${python-with-colorlog.sitePackages}:$PYTHONPATH
-        echo "set pythonpath: $PYTHONPATH"
-        echo "ha: ${ha}"
         exec ${ha}/bin/hass "$@"
       '';
+
     in if ignore-warnings then ''
       mkdir config
       echo "${domain} split: !include_dir_named ${src}" > config/configuration.yaml
