@@ -2,7 +2,10 @@
 # to use with snapcast, make snapcast listen for tcp requests, because [that is how music-assistant sends audio to it](https://github.com/SantiagoSotoC/music-assistant-server/blob/c6b2cb04414e192ba22c9ad00fcbcbc412a55cb8/music_assistant/providers/snapcast/__init__.py#L648)
 #
 # Configuration
-# Configure snapcast:
+# Configure snapcast - built-in server:
+# Just add it, don't change anything, press ok.
+# 
+# Configure snapcast - external server:
 # - goto advanced settings
 # - enable existing snapserver
 # - set ip to my.services.snapserver.json-rpc.tcp.bind_to_address
@@ -17,28 +20,13 @@
 
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.music-assistant;
-  ip-host = "10.0.2.2";
-  ip-local = "10.0.2.3";
-  # container forwardport rules make these ports unusable on the host (rerouting traffic even before filtering to the container). Best to not use them elsewhere, and to not expose them to the wan.
-  dnat-port-webui-mass = 65000;
-  dnat-port-webui-snap = 65001;
-  dnat-port-snap-conn = 65002;
 in {
   options.my.services.music-assistant = with lib; {
     enable = mkEnableOption "music-assistant service";
 
     package = mkOption {
       type = types.package;
-      default = (inputs.nixpkgs-unstable.legacyPackages.${system}.music-assistant.overrideAttrs (oldAttrs: {
-        nativeCheckInputs = []; 
-        checkInputs = [];
-        # 2. Re-write the execution phases to do nothing
-        checkPhase = "true";
-        installCheckPhase = "true";
-        # 3. Standard flags
-        doCheck = false;
-        doInstallCheck = false;
-      })); # needed because of: https://github.com/music-assistant/server/pull/4494
+      default = pkgs.music-assistant;
       description = "package to use";
     };
 
@@ -50,7 +38,7 @@ in {
       };
       webui-snapserver = mkOption {
         type = types.port;
-        default = 9003; # normally 1780
+        default = 1780; # normally 1780 (cannot change what the built-in snapserver of MA listens to)
         description = "UI port for music-assistant web interface (note: only listens to connections from 192.168.0.0/24 so a global-facing port can be used)";
       };
       snapclient-connections = mkOption {
@@ -73,7 +61,7 @@ in {
 
     providers = mkOption {
       type = with types; listOf str;
-      default = [];
+      default = [ ];
       description = "Extra music assistant providers to load (see https://github.com/NixOS/nixpkgs/blob/nixos-25.05/pkgs/by-name/mu/music-assistant/providers.nix)";
     };
 
@@ -84,70 +72,29 @@ in {
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    assertions = let dnat-ports = [ dnat-port-snap-conn dnat-port-webui-mass dnat-port-webui-snap ]; in [
-      { assertion = lib.all (cfg-port: !(builtins.elem cfg-port dnat-ports)) (lib.attrValues cfg.ports); message = "Configured ports must not overlap with dnat-reserved ports (${dnat-ports}) to prevent wrong routing and confusion. Found: ${cfg.ports}"; }
-    ];
-    containers.mass = let
-      hass-enabled = config.my.services.home-assistant.enable;
-      jellyfin-enabled = config.my.services.jellyfin.enable;
-    in {
-      autoStart = true;
-      ephemeral = true;
-      bindMounts."/var/lib/private/music-assistant" = { hostPath = cfg.config-path; isReadOnly = false; }; # mirror config path on the host
-      privateNetwork = true;
-      hostAddress = ip-host;
-      localAddress = ip-local;
-      # extraFlags = [ "-U" ]; # seb NOTE: cannot drop root permissions for container because "Failed to set up special execution directory in /var/lib: Operation not permitted. Failed at step STATE_DIRECTORY"
-      forwardPorts = [
-        { # for web-ui of Music-assistant
-          containerPort = 8095; # NOTE: must be 8095, since this is not configurable from nixos.
-          hostPort = dnat-port-webui-mass;
-          protocol = "tcp";
-        }
-        { # for web-ui of Snapserver
-          containerPort = 1780; # NOTE: must be 1780, since this is not configurable from nixos.
-          hostPort = dnat-port-webui-snap;
-          protocol = "tcp";
-        }
-        { # for snapserver-to-snapclient communications (snapclient players register themselves here)
-          containerPort = 1704; # NOTE: must be 1704, since this is not configurable from nixos.
-          hostPort = dnat-port-snap-conn;
-          protocol = "tcp";
-        }
-      ];
+  config = let
+    hass-enabled = config.my.services.home-assistant.enable;
+    jellyfin-enabled = config.my.services.jellyfin.enable;
+    default-required-providers = []; #[ "sendspin" "local_audio" ]; # do not use it now, it crashes the build (especially local_audio)
+  in lib.mkIf cfg.enable {
+    # new setup: snapclient-connections (9001) -(nginx stream)-> 1704 (still has local-only protection) 
+    # new setup: 80/443 -(nginx virtualhosts)-> 1780 (ma now has login. Stil could do local-only)
+    # new setup: 80/443 -(nginx virtualhosts)-> 8095 (snap still is insecure, REQUIRE local-only (or not expose, we only use it to rename devices, which may be possible from MA as well now))
 
-      config = { config, pkgs, ... }: {
-        services.music-assistant = {
-          enable = true;
-          providers = cfg.providers ++ lib.optionals hass-enabled [ "hass" "hass_players" ] ++ lib.optional jellyfin-enabled "jellyfin";
-          extraOptions = [ "--log-level" "DEBUG" ];
-          package = cfg.package;
-        };
-
-        environment.systemPackages = [ pkgs.nettools pkgs.dig ]; # for debugging
-
-        networking.useHostResolvConf = lib.mkForce false; # otherwise it would use the hosts resolvconf, which will not work
-        # (i.e. entries like 127.0.0.1 when having host-local dns will just error out on the container-local interface)
-
-        networking.nameservers = [ ip-host "1.1.1.1" "9.9.9.9" "8.8.8.8" ];
-        networking.firewall.allowedTCPPorts = [ 8095 1704 1780 ];
-        system.stateVersion = "26.05";
-      };
+    services.music-assistant = {
+      enable = true;
+      providers = cfg.providers ++ default-required-providers ++ lib.optionals hass-enabled [ "hass" "hass_players" ] ++ lib.optional jellyfin-enabled "jellyfin";
+      package = cfg.package;
     };
-    # below does NAT for container, i.e. container gets access to enp2s0=internet
-    networking.nat.enable = true;
-    networking.nat.internalInterfaces = [ "ve-mass" ];
-    networking.nat.externalInterface = "enp2s0";
-
     services.home-assistant.extraComponents = [ "music_assistant" ];
 
+    # send advertisements for music-assistant port.
     my.services.avahi.extra-service-files = {
       snapcast = ''
         <?xml version="1.0" standalone='no'?>
         <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
         <service-group>
-          <name replace-wildcards="yes">Snapcast on %h</name>
+          <name replace-wildcards="yes">Snapcast</name>
 
           <service>
             <type>_snapcast._tcp</type>
@@ -165,47 +112,32 @@ in {
 
     my.services.nginx.streams = {
       "${toString cfg.ports.snapclient-connections}" = {
-        destination = "[::ffff:${ip-host}]:${toString dnat-port-snap-conn}";
+        destination = "[::ffff:127.0.0.1]:1704";
         type = "tcp";
         local-only = true;
       };
       "[::]:${toString cfg.ports.snapclient-connections}" = {
-        destination = "[::ffff:${ip-host}]:${toString dnat-port-snap-conn}";
+        destination = "[::ffff:127.0.0.1]:1704";
         type = "tcp";
         local-only = true;
       };
     };
-    # ''
-    #   server {
-    #     listen ${toString cfg.ports.snapclient-connections};
-    #     proxy_pass [::ffff:${ip-host}]:1704;
-    #   }
-    #   server {
-    #     listen [::]:${toString cfg.ports.snapclient-connections};
-    #     proxy_pass 
-    #   }
-    # ''; # seb TODO: make local-only configurable
 
     my.services.nginx.virtualHosts.ma = {
       port = cfg.ports.webui-mass;
       local-only = true;
-
-      extraConfig.locations."/" = {
-        proxyPass = "http://${ip-host}:${toString dnat-port-webui-mass}/";
-        proxyWebsockets = true;
-      };
+      extraConfig.locations."/".proxyWebsockets = true;
     };
     my.services.nginx.virtualHosts.snapserver = {
       port = cfg.ports.webui-snapserver;
       local-only = true;
       extraConfig.locations."/" = {
         proxyWebsockets = true;
-        proxyPass = "http://${ip-host}:${toString dnat-port-webui-snap}/";
         extraConfig = ''
           proxy_buffering off;
         '';
       };
     };
-    networking.firewall.allowedTCPPorts = [ cfg.ports.snapclient-connections ];
+    networking.firewall.allowedTCPPorts = [ cfg.ports.snapclient-connections ]; # must listen for snapcast devices
   };
 }
