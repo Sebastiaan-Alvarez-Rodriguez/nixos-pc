@@ -11,12 +11,16 @@
 # - set ip to my.services.snapserver.json-rpc.tcp.bind_to_address
 # - set control port to the configured my.services.snapserver.json-rpc.tcp.port
 # 
-# Intel
-# interesting shairport cfg:
-# https://github.com/OptimoSupreme/nixos-configs/blob/main/server/shairport-management-sync.nix
-# it seems there may be an issue with external snapcast player - https://github.com/music-assistant/support-management/issues/3740
-
-# note: `DEEZER` provider does not work because it needs you to have a non-free account.
+# Configure spotify:
+# - first go to settings > system > webserver and change from whatever ip address to the url you access with, e.g. ma.<host>
+# - go to settings > music sources > add source > spotify
+# - just authenticate (to ensure you stay within timeouts, first login to spotify in another tab, then click authenticate)
+# - with playback authorization, pick the 'web' version. If you are not returned / timeouts etc, just copy the full spotify url and paste it into the input url box below the authorize button options
+# - go to developer.spotify.com, log in with regular spotify credentials.
+# - make a new project
+# - copy the client id
+# - paste in the last input box from spotify
+# - save everything
 
 { config, lib, pkgs, inputs, system, ... }: let
   cfg = config.my.services.music-assistant;
