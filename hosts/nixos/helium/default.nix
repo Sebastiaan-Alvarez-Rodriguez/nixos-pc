@@ -118,6 +118,9 @@
       enable = true;
       quiet-start = true;
     };
+    headscale = {
+      enable = true;
+    };
     home-assistant = {
       enable = true;
       custom_components.floor3d-card = {

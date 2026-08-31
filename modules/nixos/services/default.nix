@@ -15,6 +15,7 @@
     ./gitea
     ./greetd
     ./grocy
+    ./headscale
     ./home-assistant
     ./fancontrol-i8k
     ./immich
