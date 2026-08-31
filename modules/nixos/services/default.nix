@@ -53,6 +53,7 @@
     ./squid
     ./stremio-service
     ./syncthing
+    ./tailscale-server
     ./tandoor-recipes
     ./tlp
     ./transmission

@@ -35,6 +35,8 @@ in {
         "helium/backup-client/xenon-client-helium.age" = {};
         "helium/backup-client/repo-helium.age" = {};
         "helium/backup-server/helium.age" = { owner = "restic"; };
+        "helium/headscale/apikey.age" = { owner = "headscale"; };
+        "helium/headscale/cookie.age" = { owner = "headscale"; };
         "helium/monitoring/password.age" = { owner = "grafana"; };
         "helium/monitoring/secret-key.age" = { owner = "grafana"; };
         "helium/nginx/auth-key.age" = {};
@@ -45,6 +47,7 @@ in {
         "helium/squid/squid-users.age" = { owner = "squid"; };
         "helium/syncthing/cert.age" = { owner = "restic"; };
         "helium/syncthing/key.age" = { owner = "restic"; };
+        "helium/tailscale/helium.age" = { };
         "helium/transmission/secret.age" = {};
         "helium/tandoor-recipes/secret.age" = {};
         "helium/vaultwarden/mail.age" = { owner = "vaultwarden"; };

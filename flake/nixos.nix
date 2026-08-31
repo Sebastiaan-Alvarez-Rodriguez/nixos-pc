@@ -12,9 +12,15 @@
         # trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ]; # Required for hyprland cachix
       };
     }
-    { # override home-assistant
-      disabledModules = [ "services/home-automation/home-assistant.nix" ]; # override with unstable (note: also needs package overlay)
-      imports = [ "${inputs.nixpkgs-unstable}/nixos/modules/services/home-automation/home-assistant.nix" ]; # override default services.home-assistant
+    {
+      disabledModules = [ # override with unstable (note: also needs package overlay)
+        "services/home-automation/home-assistant.nix"
+        "services/networking/headplane.nix"
+      ]; 
+      imports = [
+        "${inputs.nixpkgs-unstable}/nixos/modules/services/home-automation/home-assistant.nix"
+        "${inputs.nixpkgs-unstable}/nixos/modules/services/networking/headplane.nix"
+      ]; 
     }
     inputs.agenix.nixosModules.default
     inputs.agenix-rekey.nixosModules.default

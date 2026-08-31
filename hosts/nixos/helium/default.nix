@@ -120,6 +120,15 @@
     };
     headscale = {
       enable = true;
+      webui = {
+        enable = true;
+        cookie-secret-file = config.age.secrets."helium/headscale/cookie".path;
+        apikey-file = config.age.secrets."helium/headscale/apikey".path;
+      };
+    };
+    tailscale-server = {
+      enable = true;
+      auth-file = config.age.secrets."helium/tailscale/helium".path;
     };
     home-assistant = {
       enable = true;
