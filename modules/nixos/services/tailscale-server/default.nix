@@ -6,10 +6,6 @@ in {
   options.my.services.tailscale-server = with lib; {
     enable = mkEnableOption "Enable tailscales for this host";
 
-    # generate with: `sudo headscale preauthkeys create --user <id> --reusable --expiration 100y`
-    # Find the user id with `sudo headscale users list`
-    # Create a user with `sudo headscale users create <name>`
-    # This expiration bit ensures the key will stay reusable, useful for when rebuilding nixos from scratch anew.
     auth-file = mkOption {
       type = types.path;
       description = "key file for authenticating this node at the control server (if headscale is used, this key goes to headscale)";
@@ -30,7 +26,7 @@ in {
 
       authKeyFile = cfg.auth-file;
 
-      extraUpFlags = [ "--advertise-exit-node" ] ++ lib.optional config.my.services.headscale.enable "--login-server https://vpn.${config.networking.domain}";
+      extraUpFlags = [ "--advertise-exit-node" ] ++ lib.optional config.my.services.headscale.enable "--login-server=http://127.0.0.1:6192";
     };
   };
 }

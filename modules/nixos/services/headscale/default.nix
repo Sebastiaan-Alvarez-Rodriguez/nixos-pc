@@ -1,5 +1,6 @@
 # Tailscale VPN management software
 # open source implementation of tailscale control server (which normally is proprietary)
+# also see the docs/vpn!
 { config, lib, ... }: let
   cfg = config.my.services.headscale;
   prefix = "vpn";
