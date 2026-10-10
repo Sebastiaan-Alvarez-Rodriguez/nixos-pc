@@ -45,6 +45,7 @@
     ./postgresql-backup
     ./prowlarr
     ./pyload
+    ./radicale
     ./rustdesk
     ./sabnzbd
     ./ssh-server

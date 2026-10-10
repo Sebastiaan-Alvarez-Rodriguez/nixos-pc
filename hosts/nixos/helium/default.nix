@@ -99,7 +99,7 @@
       usev6="no";
       protocol = "porkbun";
       server = "api.porkbun.com";
-      domains = [ config.networking.domain "*.${config.networking.domain}" "fail2ban.mijn.place" ];
+      domains = [ config.networking.domain "*.${config.networking.domain}" ];
       root-domain = "mijn.place";
       extraConfig = ''
         apikey=@DDNS-api-key@
@@ -112,7 +112,7 @@
     };
     fail2ban = {
       enable = true;
-      ignore-ips = [ "127.0.0.0/24" "192.168.0.0/16" "172.16.0.0/12" "10.0.0.0/8" "fail2ban.mijn.place"];
+      ignore-ips = [ "127.0.0.0/24" "192.168.0.0/16" "172.16.0.0/12" "10.0.0.0/8" ];
     };
     fancontrol-i8k = {
       enable = true;
@@ -126,10 +126,10 @@
         apikey-file = config.age.secrets."helium/headscale/apikey".path;
       };
     };
-    tailscale-server = {
-      enable = true;
-      auth-file = config.age.secrets."helium/tailscale/helium".path;
-    };
+    # tailscale-server = { # tailscale is hosted on opnsense now
+    #   enable = true;
+    #   auth-file = config.age.secrets."helium/tailscale/helium".path;
+    # };
     home-assistant = {
       enable = true;
       custom_components.floor3d-card = {
@@ -158,7 +158,7 @@
         allow-everything-settings = { # these settings are needed to allow all topics to be published and read by all connected entities.
           acl = [ "pattern readwrite #" ];
           omitPasswordAuth = true;
-          settings.allow_anonymous = true;
+          settings.allow_anonymous = true; # seb TODO: I should enforce password auth, to limit exposure to local services compromise
         };
         apply-allow = list: builtins.map (x: allow-everything-settings // x) list;
        in apply-allow [
@@ -315,6 +315,12 @@
       backupAll = true;
       location = "/data/postgres-backup"; # this path is automatically added to backup.
       startAt = "*-*-* 18:30:00";
+      backup-routes = [ "xenon" ];
+    };
+    radicale = {
+      enable = true;
+      data-dir = "/data/radicale";
+      userpassfile = config.age.secrets."helium/radicale/secret".path;
       backup-routes = [ "xenon" ];
     };
     sqlite-backup = {

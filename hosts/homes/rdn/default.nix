@@ -15,7 +15,7 @@
     # proton-caller
     qbittorrent
     rustdesk-flutter
-    telegram-desktop # alternative: kotatogram-desktop
+    # telegram-desktop # alternative: kotatogram-desktop
     signal-desktop
     # teams-for-linux
     teamspeak6-client

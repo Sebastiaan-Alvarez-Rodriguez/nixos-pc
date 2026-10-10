@@ -1,3 +1,4 @@
+# a minimal webdav (file share/editing) server
 { config, lib, pkgs, ... }: let
   cfg = config.my.services.webdav;
 in {
