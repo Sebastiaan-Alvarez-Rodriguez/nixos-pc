@@ -86,14 +86,14 @@
       data-dir = "/data/backup";
       credentials-file = config.age.secrets."helium/backup-server/helium".path;
     };
-    bind = {
-      enable = true;
-      zones.${config.networking.domain}.conf = ''
-        ns           IN      A       192.168.0.16
-        @            IN      A       192.168.0.16
-        *            IN      A       192.168.0.16
-      ''; # routes all nameserver-requests and all domain requests for "*.h.mijn.place" and "h.mijn.place" itself to helium.
-    };
+    # bind = {
+    #   enable = true;
+    #   zones.${config.networking.domain}.conf = ''
+    #     ns           IN      A       192.168.0.16
+    #     @            IN      A       192.168.0.16
+    #     *            IN      A       192.168.0.16
+    #   ''; # routes all nameserver-requests and all domain requests for "*.h.mijn.place" and "h.mijn.place" itself to helium.
+    # };
     ddclient = {
       enable = true;
       usev6="no";

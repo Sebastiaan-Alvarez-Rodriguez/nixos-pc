@@ -50,12 +50,27 @@ in {
         #     user = 
         #   }
         # }
-        storage.filesystem_folder = cfg.data-dir;
+        storage = {
+          filesystem_folder = cfg.data-dir;
+          predefined_collections = builtins.toJSON {
+            addressbook = { # a default (personal) addressbook for every user
+              "D:displayname" = "Address Book";
+              tag = "VADDRESSBOOK";
+            };
+
+            calendar = { # a default (personal) calendar for every user
+              "C:supported-calendar-component-set" = "VEVENT,VJOURNAL,VTODO";
+              "D:displayname" = "Calendar";
+              tag = "VCALENDAR";
+            };
+          };
+        };
       };
     };
+
     my.services.nginx.virtualHosts.${prefix} = {
       inherit (cfg) port;
-      useACMEHost = config.networking.domain;
+      # useACMEHost = config.networking.domain;
       extraConfig.locations."/".extraConfig = ''
         proxy_pass_header Authorization;
       '';

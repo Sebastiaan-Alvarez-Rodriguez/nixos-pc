@@ -12,12 +12,6 @@ in {
       description = "package to use";
     };
 
-    portal-package = mkOption {
-      type = types.package;
-      default = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
-      description = "xdg portal package addon to use";
-    };
-
     font-packages = mkOption {
       type = with types; listOf package;
       default = [ pkgs.nerd-fonts.symbols-only pkgs.nerd-fonts.jetbrains-mono pkgs.noto-fonts ];
@@ -220,7 +214,6 @@ in {
     wayland.windowManager.hyprland = {
       enable = true;
       package = cfg.package;
-      portalPackage = cfg.portal-package;
 
       configType = lib.mkForce "lua";
       settings = let
