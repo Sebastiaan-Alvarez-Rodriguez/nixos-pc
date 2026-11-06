@@ -105,6 +105,7 @@ in {
         "plugwise"
         # "roborock" NOTE: Roborock has some errors in test cases now
         "solaredge"
+        "solaredge_modbus"
       ];
       config = { # Found in /var/lib/hass
         # for configuration.yaml and other config tips, see [here](https://github.com/frenck/home-assistant-config)

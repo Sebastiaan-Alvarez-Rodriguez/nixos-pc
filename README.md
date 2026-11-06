@@ -121,6 +121,10 @@ Delete generations with:
 sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations 1 2 3 <any other generation numbers>
 ```
 
+To just delete all 'old' versions (older than some x weeks I believe), use:
+```bash
+sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations old
+```
 
 
 ## Applying backups
