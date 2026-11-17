@@ -177,7 +177,7 @@
         name = "h.donetick";
         is_user_creation_disabled = true;
         database.type = "postgres";
-        jwt.secret = "a_32_chars_long_string";
+        jwt.secret = config.age.secrets."helium/donetick/jwt-secret".path;
       };
     };
     jellyfin.enable = false;

@@ -35,6 +35,7 @@ in {
         "helium/backup-client/xenon-client-helium.age" = {};
         "helium/backup-client/repo-helium.age" = {};
         "helium/backup-server/helium.age" = { owner = "restic"; };
+        "helium/donetick/jwt-secret.age" = { owner = "donetick"; };
         "helium/monitoring/password.age" = { owner = "grafana"; };
         "helium/monitoring/secret-key.age" = { owner = "grafana"; };
         "helium/nginx/auth-key.age" = {};
