@@ -38,6 +38,7 @@
     ./nginx
     ./nzbhydra
     ./ollama
+    ./open-webui
     ./photoprism
     ./pingvin-share
     ./pirate

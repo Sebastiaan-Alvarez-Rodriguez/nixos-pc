@@ -9,6 +9,11 @@ in {
 
   config = lib.mkIf cfg.enable {
     services.ollama.enable = true;
+
+    systemd.services.ollama = {
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+    };
   };
   
 }

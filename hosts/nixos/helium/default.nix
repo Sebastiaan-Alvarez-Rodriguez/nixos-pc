@@ -296,6 +296,11 @@
     };
 
     ollama.enable = true;
+    open-webui = {
+      enable = true;
+
+      backup-routes = [ "xenon" ];
+    };
 
     pirate = {
       bazarr.enable = false;
