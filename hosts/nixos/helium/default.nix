@@ -294,6 +294,9 @@
       acme.default-mail = "a@b.com";
       acme.backup-routes = [ "xenon" ];
     };
+
+    ollama.enable = true;
+
     pirate = {
       bazarr.enable = false;
       lidarr.enable = false;

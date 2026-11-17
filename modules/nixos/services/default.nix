@@ -37,6 +37,7 @@
     ./nfs
     ./nginx
     ./nzbhydra
+    ./ollama
     ./photoprism
     ./pingvin-share
     ./pirate
