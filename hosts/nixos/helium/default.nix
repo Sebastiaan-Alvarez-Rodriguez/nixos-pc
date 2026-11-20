@@ -201,7 +201,7 @@
       enable = true;
       config-path = "/data/music-assistant";
       backup-routes = [ "xenon" ];
-      providers = [ "snapcast" "spotify" ];
+      providers = [ "snapcast" "spotify" "spotify_connect" ];
     };
     # snapserver = {
     #   enable = true;
