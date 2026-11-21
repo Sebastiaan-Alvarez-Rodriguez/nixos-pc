@@ -68,6 +68,9 @@
 
     my.services.nginx.virtualHosts.${prefix} = {
       inherit (cfg) port;
+      extraConfig = {
+        locations."/".proxyWebsockets = true;
+      };
     };
 
     my.services.backup.routes = lib.my.toAttrsUniform cfg.backup-routes { paths = [ cfg.data-dir ]; };
