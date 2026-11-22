@@ -54,6 +54,7 @@
     ./snapserver
     ./sqlite-backup
     ./squid
+    ./stalwart
     ./stremio-service
     ./syncthing
     ./tailscale-server
