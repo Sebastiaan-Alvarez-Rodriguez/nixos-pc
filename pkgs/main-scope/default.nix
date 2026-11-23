@@ -8,6 +8,8 @@
 
   dragger = pkgs.callPackage ./dragger { };
 
+  emhass = pkgs.callPackage ./emhass { };
+
   house-model = pkgs.callPackage ./house-model { };
 
   i3-get-window-criteria = pkgs.callPackage ./i3-get-window-criteria { };

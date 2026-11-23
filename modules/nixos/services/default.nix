@@ -9,6 +9,7 @@
     ./bind
     ./ddclient
     ./ddns-updater
+    ./emhass
     ./fail2ban
     ./flood
     ./forgejo

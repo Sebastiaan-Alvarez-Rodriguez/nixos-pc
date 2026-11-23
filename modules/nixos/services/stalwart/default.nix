@@ -1,13 +1,11 @@
-# A simple mailserver, based on https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/
-{ config, inputs, lib, pkgs, ... }: let
-  cfg = config.my.services.mailserver;
+# A more advanced mailserver, with calDAV, cardDAV and integrated RSVP support (so calendars, contacts, and replying yes/no/maybe to events)
+{ config, inputs, system, lib, pkgs, ... }: let
+  cfg = config.my.services.stalwart;
 in {
-  imports = with inputs.self.nixosModules; [ inputs.simple-nixos-mailserver.nixosModule ];
-
-  options.my.services.mailserver = with lib; {
-    enable = mkEnableOption "mailserver";
+  options.my.services.stalwart = with lib; {
+    enable = mkEnableOption "stalwart mailserver";
     webserver = {
-      enable = mkEnableOption "A web interface for the mailserver";
+      enable = mkEnableOption "A web interface for stalwart mailserver";
       port = mkOption {
         type = types.port;
         default = 8080;
@@ -111,7 +109,7 @@ in {
             database = "stalwart";
             user = "stalwart";
           };
-          # seb note: is this required?
+          # note: This should not be required
           # authentication.fallback-admin = {
           #   user = "admin";
           #   secret = "%{file:/run/credentials/stalwart.service/admin-pw}%";
@@ -125,13 +123,10 @@ in {
     # TODO: is this needed?
     # users.users.stalwart.extraGroups = [ "acme" ];
 
-    # used to be:
-    # my.services.nginx.acme.extra-domains = lib.mkIf cfg.webserver.enable [ "${cfg.domain-prefix}.${config.networking.domain}" ];
-    my.services.nginx.virtualHosts.${fqdn} = {
+    my.services.nginx.acme.extra-domains = lib.mkIf cfg.webserver.enable [ "${cfg.domain-prefix}.${config.networking.domain}" ];
+    my.services.nginx.virtualHosts.${cfg.domain-prefix} = {
       useACMEHost = "mijn.place";
-      forceSSL = true;
-      # Roundcube blijft op / staan, CalDAV/JMAP endpoints gaan naar Stalwart
-      extraConfig = {
+      extraConfig = { # Roundcube at /, CalDAV/JMAP endpoints go to Stalwart
         locations."~ ^/(\\.well-known/(caldav|carddav|jmap)|dav|jmap|api)" = {
           proxyPass = "http://127.0.0.1:${cfg.webserver.port}";
         };
